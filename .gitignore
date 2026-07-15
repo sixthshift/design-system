@@ -32,6 +32,9 @@ coverage/
 # Claude Code
 .claude/settings.local.json
 
+# Devcontainer local env
+.devcontainer/.env
+
 # Misc
 .cache/
 .temp/

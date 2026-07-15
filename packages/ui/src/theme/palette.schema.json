@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PA Palette",
+  "description": "Color palette definition for Personal Assistant",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": {
+    "$ref": "#/$defs/colorScale"
+  },
+  "$defs": {
+    "hexColor": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$",
+      "description": "Hex color value (e.g., #818cf8)"
+    },
+    "colorScale": {
+      "type": "object",
+      "description": "A color scale with steps from 50 to 950",
+      "properties": {
+        "50": { "$ref": "#/$defs/hexColor", "description": "Lightest shade" },
+        "100": { "$ref": "#/$defs/hexColor" },
+        "200": { "$ref": "#/$defs/hexColor" },
+        "300": { "$ref": "#/$defs/hexColor" },
+        "400": { "$ref": "#/$defs/hexColor" },
+        "500": { "$ref": "#/$defs/hexColor", "description": "Base shade" },
+        "600": { "$ref": "#/$defs/hexColor" },
+        "700": { "$ref": "#/$defs/hexColor" },
+        "800": { "$ref": "#/$defs/hexColor" },
+        "900": { "$ref": "#/$defs/hexColor" },
+        "950": { "$ref": "#/$defs/hexColor", "description": "Darkest shade" }
+      },
+      "required": ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"],
+      "additionalProperties": false
+    }
+  }
+}

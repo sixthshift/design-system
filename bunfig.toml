@@ -1,0 +1,5 @@
+[test]
+# Disable "bun test" at workspace root - use "bun run test" instead
+# This prevents bun's test runner from picking up all test files across packages
+# Subpackages can still use "bun test" directly
+root = "./nonexistent-directory"

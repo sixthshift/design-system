@@ -1,0 +1,10 @@
+export { Body } from "./Body";
+export { Caption } from "./Caption";
+export { Code } from "./Code";
+export { Display } from "./Display";
+export { Emphasis } from "./Emphasis";
+export { Heading, type HeadingProps } from "./Heading";
+export { Label, type LabelProps } from "./Label";
+export { Lead } from "./Lead";
+export { Muted } from "./Muted";
+export { SectionTitle } from "./SectionTitle";

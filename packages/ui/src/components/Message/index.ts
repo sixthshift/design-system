@@ -1,0 +1,10 @@
+export type { MessageBodyProps } from "./components/MessageBody";
+export { MessageBody } from "./components/MessageBody";
+export type { MessageDescriptionProps } from "./components/MessageDescription";
+export { MessageDescription } from "./components/MessageDescription";
+export type { MessageIconProps } from "./components/MessageIcon";
+export { MessageIcon } from "./components/MessageIcon";
+export type { MessageTitleProps } from "./components/MessageTitle";
+export { MessageTitle } from "./components/MessageTitle";
+export type { MessageProps } from "./Message";
+export { Message, messageVariants } from "./Message";

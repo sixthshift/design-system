@@ -1,4 +1,4 @@
-import type { Temporal } from "../../temporal";
+import type { Temporal, WeekStartsOn } from "../../temporal";
 
 export type DisabledDateMatcher =
   | Temporal.PlainDate
@@ -30,7 +30,7 @@ export type DateTimePickerProps = {
 
   // Display
   placeholder?: string;
-  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  weekStartsOn?: WeekStartsOn;
 
   // Form
   name?: string;

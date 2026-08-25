@@ -28,46 +28,56 @@ export const SelectTriggerButton = ({
   onKeyDown,
   onClear,
   props,
-}: SelectTriggerButtonProps) => (
-  <button
-    ref={setReference}
-    type="button"
-    onClick={onToggle}
-    onKeyDown={onKeyDown}
-    disabled={disabled}
-    className={cn(
-      `flex w-full cursor-pointer items-center gap-2 rounded-md border border-border-normal bg-bg-normal px-3 py-2 font-medium text-fg-normal text-sm transition-colors hover:bg-bg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring disabled:cursor-not-allowed disabled:opacity-50`,
-      collapsed ? "justify-center" : "justify-between",
-      className
-    )}
-    title={collapsed ? displayLabel : undefined}
-    aria-haspopup="listbox"
-    aria-expanded={open}
-    {...props}
-  >
-    {collapsed ? (
-      <span className="font-bold text-xs">{displayLabel.charAt(0)}</span>
-    ) : (
-      <>
-        <span className="truncate">{displayLabel}</span>
-        <span className="flex shrink-0 items-center gap-1">
-          {showClearButton && (
-            <button
-              type="button"
-              tabIndex={0}
-              onClick={onClear}
-              className="rounded-sm p-0.5 text-fg-subtle hover:bg-bg-subtle hover:text-fg-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
-              aria-label="Clear selection"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          )}
-          <ChevronDown className={cn("h-4 w-4 text-fg-subtle transition-transform", open && "rotate-180")} />
-        </span>
-      </>
-    )}
-  </button>
-);
+}: SelectTriggerButtonProps) => {
+  // The clear button must be a sibling of the trigger, not a descendant: nesting
+  // one interactive control inside another is invalid HTML and leaves assistive
+  // tech unable to reach the inner control (axe: nested-interactive).
+  const showClear = showClearButton && !collapsed;
+
+  return (
+    <div className="relative w-full">
+      <button
+        ref={setReference}
+        type="button"
+        onClick={onToggle}
+        onKeyDown={onKeyDown}
+        disabled={disabled}
+        className={cn(
+          `flex w-full cursor-pointer items-center gap-2 rounded-md border border-border-normal bg-bg-normal px-3 py-2 font-medium text-fg-normal text-sm transition-colors hover:bg-bg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring disabled:cursor-not-allowed disabled:opacity-50`,
+          collapsed ? "justify-center" : "justify-between",
+          showClear && "pr-9",
+          className
+        )}
+        title={collapsed ? displayLabel : undefined}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        {...props}
+      >
+        {collapsed ? (
+          <span className="font-bold text-xs">{displayLabel.charAt(0)}</span>
+        ) : (
+          <>
+            <span className="truncate">{displayLabel}</span>
+            <span className="flex shrink-0 items-center gap-1">
+              <ChevronDown className={cn("h-4 w-4 text-fg-subtle transition-transform", open && "rotate-180")} />
+            </span>
+          </>
+        )}
+      </button>
+      {showClear && (
+        <button
+          type="button"
+          onClick={onClear}
+          disabled={disabled}
+          className="absolute top-1/2 right-8 -translate-y-1/2 rounded-sm p-0.5 text-fg-subtle hover:bg-bg-subtle hover:text-fg-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+          aria-label="Clear selection"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
+  );
+};
 
 interface SelectTriggerSearchProps {
   setReference: (node: HTMLElement | null) => void;

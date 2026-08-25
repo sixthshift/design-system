@@ -103,7 +103,7 @@ export const AsyncToggle: Story = {
           </label>
           <span className="flex items-center justify-between text-fg-normal text-sm">
             Simulate failure
-            <Switch checked={shouldFail} onCheckedChange={setShouldFail} />
+            <Switch checked={shouldFail} onCheckedChange={setShouldFail} aria-label="Simulate failure" />
           </span>
         </div>
 

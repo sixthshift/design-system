@@ -20,15 +20,15 @@ const togglePressedVariants = cva("", {
     { variant: "solid", intent: "success", className: "bg-bg-success-pressed hover:bg-bg-success-pressed" },
     { variant: "solid", intent: "warning", className: "bg-bg-warning-pressed hover:bg-bg-warning-pressed" },
     // Outline — use the subtle -pressed background
-    { variant: "outline", intent: "neutral", className: "bg-bg-subtle-pressed hover:bg-bg-subtle-pressed" },
-    { variant: "outline", intent: "danger", className: "bg-bg-danger-subtle-pressed hover:bg-bg-danger-subtle-pressed" },
-    { variant: "outline", intent: "success", className: "bg-bg-success-subtle-pressed hover:bg-bg-success-subtle-pressed" },
-    { variant: "outline", intent: "warning", className: "bg-bg-warning-subtle-pressed hover:bg-bg-warning-subtle-pressed" },
+    { variant: "outline", intent: "neutral", className: "bg-bg-subtle-pressed text-fg-normal hover:bg-bg-subtle-pressed" },
+    { variant: "outline", intent: "danger", className: "bg-bg-danger-subtle-pressed text-fg-on-danger-subtle-pressed hover:bg-bg-danger-subtle-pressed" },
+    { variant: "outline", intent: "success", className: "bg-bg-success-subtle-pressed text-fg-on-success-subtle-pressed hover:bg-bg-success-subtle-pressed" },
+    { variant: "outline", intent: "warning", className: "bg-bg-warning-subtle-pressed text-fg-on-warning-subtle-pressed hover:bg-bg-warning-subtle-pressed" },
     // Ghost — same as outline
-    { variant: "ghost", intent: "neutral", className: "bg-bg-subtle-pressed hover:bg-bg-subtle-pressed" },
-    { variant: "ghost", intent: "danger", className: "bg-bg-danger-subtle-pressed hover:bg-bg-danger-subtle-pressed" },
-    { variant: "ghost", intent: "success", className: "bg-bg-success-subtle-pressed hover:bg-bg-success-subtle-pressed" },
-    { variant: "ghost", intent: "warning", className: "bg-bg-warning-subtle-pressed hover:bg-bg-warning-subtle-pressed" },
+    { variant: "ghost", intent: "neutral", className: "bg-bg-subtle-pressed text-fg-normal hover:bg-bg-subtle-pressed" },
+    { variant: "ghost", intent: "danger", className: "bg-bg-danger-subtle-pressed text-fg-on-danger-subtle-pressed hover:bg-bg-danger-subtle-pressed" },
+    { variant: "ghost", intent: "success", className: "bg-bg-success-subtle-pressed text-fg-on-success-subtle-pressed hover:bg-bg-success-subtle-pressed" },
+    { variant: "ghost", intent: "warning", className: "bg-bg-warning-subtle-pressed text-fg-on-warning-subtle-pressed hover:bg-bg-warning-subtle-pressed" },
   ],
   defaultVariants: { variant: "solid", intent: "neutral" },
 });

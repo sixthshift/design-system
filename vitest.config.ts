@@ -87,6 +87,11 @@ export default defineConfig({
         optimizeDeps: { include: BROWSER_OPTIMIZE_DEPS },
         test: {
           name: "storybook",
+          // 57 story files in one browser exhausted memory and killed Chromium
+          // mid-run ("Browser connection was closed"), which truncated the run
+          // while still reporting success. Serialising trades wall-clock for a
+          // result you can trust — and CI runners are smaller than a dev box.
+          fileParallelism: false,
           browser: {
             enabled: true,
             headless: true,

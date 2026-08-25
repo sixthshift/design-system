@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, test } from "vitest";
-import { endOfDay, endOfMonth, endOfWeek, endOfYear, parseDate, startOfDay, startOfMonth, startOfWeek, startOfYear } from "../index";
+import { endOfDay, endOfMonth, endOfWeek, endOfYear, parseDate, startOfDay, startOfMonth, startOfWeek, startOfYear, Temporal } from "../index";
 
 // =============================================================================
 // startOfDay
@@ -290,5 +290,55 @@ describe("endOfYear", () => {
     const date = parseDate("2026-01-01");
     const result = endOfYear(date);
     expect(result.toString()).toBe("2026-12-31");
+  });
+});
+
+// =============================================================================
+// startOfWeek / endOfWeek across all seven week starts
+// =============================================================================
+
+describe("startOfWeek across every weekStartsOn", () => {
+  // 2026-01-14 is a Wednesday. Every week start must yield a 7-day window that
+  // begins on the requested weekday and still contains the input date.
+  const wednesday = parseDate("2026-01-14");
+
+  const cases = [
+    [0, "2026-01-11", "2026-01-17"], // Sunday
+    [1, "2026-01-12", "2026-01-18"], // Monday
+    [2, "2026-01-13", "2026-01-19"], // Tuesday
+    [3, "2026-01-14", "2026-01-20"], // Wednesday
+    [4, "2026-01-08", "2026-01-14"], // Thursday
+    [5, "2026-01-09", "2026-01-15"], // Friday
+    [6, "2026-01-10", "2026-01-16"], // Saturday
+  ] as const;
+
+  test.each(cases)("weekStartsOn=%i starts the week on %s", (weekStartsOn, expectedStart) => {
+    expect(startOfWeek(wednesday, weekStartsOn).toString()).toBe(expectedStart);
+  });
+
+  test.each(cases)("weekStartsOn=%i ends the week on %s", (weekStartsOn, _start, expectedEnd) => {
+    expect(endOfWeek(wednesday, weekStartsOn).toString()).toBe(expectedEnd);
+  });
+
+  test.each(cases)("weekStartsOn=%i spans exactly 7 days", (weekStartsOn) => {
+    const start = startOfWeek(wednesday, weekStartsOn);
+    const end = endOfWeek(wednesday, weekStartsOn);
+    expect(start.until(end).days + 1).toBe(7);
+  });
+
+  test.each(cases)("weekStartsOn=%i produces a window containing the input date", (weekStartsOn) => {
+    const start = startOfWeek(wednesday, weekStartsOn);
+    const end = endOfWeek(wednesday, weekStartsOn);
+    expect(Temporal.PlainDate.compare(wednesday, start)).toBeGreaterThanOrEqual(0);
+    expect(Temporal.PlainDate.compare(wednesday, end)).toBeLessThanOrEqual(0);
+  });
+
+  test("a date already on the week start is returned unchanged for every value", () => {
+    // Walk a full week so each weekday gets exercised as its own week start.
+    for (let offset = 0; offset < 7; offset++) {
+      const date = wednesday.add({ days: offset });
+      const weekStartsOn = (date.dayOfWeek === 7 ? 0 : date.dayOfWeek) as 0 | 1 | 2 | 3 | 4 | 5 | 6;
+      expect(startOfWeek(date, weekStartsOn).toString()).toBe(date.toString());
+    }
   });
 });

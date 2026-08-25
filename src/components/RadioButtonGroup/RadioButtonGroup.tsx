@@ -2,6 +2,7 @@ import { useControllableState } from "@sixthshift/design-system/hooks";
 import { RadioButton } from "@sixthshift/design-system/radio-button";
 import { cn } from "@sixthshift/design-system/utils";
 import * as React from "react";
+import { getRovingTargetIndex } from "../../internal/rovingFocus";
 
 export type RadioButtonGroupOption = {
   /** Unique value for the option */
@@ -82,6 +83,27 @@ const RadioButtonGroup = React.forwardRef<HTMLDivElement, RadioButtonGroupProps>
       setValue(optionValue);
     };
 
+    // A radiogroup is one tab stop with arrow-key navigation; without this each
+    // option is separately tabbable, which breaks the WAI-ARIA radio pattern.
+    const handleKeyDown = React.useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+      const enabled = Array.from(groupRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]') ?? []).filter((radio) => !radio.disabled);
+      const focused = (event.target as HTMLElement | null)?.closest?.('[role="radio"]') as HTMLButtonElement | null;
+      const target = getRovingTargetIndex(event.key, focused ? enabled.indexOf(focused) : -1, enabled.length);
+      if (target === null) return;
+
+      event.preventDefault();
+      const next = enabled[target];
+      next?.focus();
+      // In the radio pattern, moving focus also moves the selection.
+      next?.click();
+    }, []);
+
+    // The tab stop is the checked option, or the first enabled one when nothing
+    // is checked yet, so the group is always reachable by keyboard.
+    const firstEnabledValue = options.find((option) => !(disabled || option.disabled))?.value;
+    const hasCheckedOption = options.some((option) => option.value === value);
+    const tabStopValue = hasCheckedOption ? value : firstEnabledValue;
+
     if (variant === "button") {
       const isVertical = orientation === "vertical";
       const isSegmented = appearance === "segmented";
@@ -91,6 +113,7 @@ const RadioButtonGroup = React.forwardRef<HTMLDivElement, RadioButtonGroupProps>
           ref={mergedRef}
           role="radiogroup"
           onBlurCapture={handleFocusOut}
+          onKeyDown={handleKeyDown}
           className={cn("inline-flex", isVertical ? "flex-col" : "flex-row", !isSegmented && (isVertical ? "gap-2" : "gap-2"), className)}
           {...props}
         >
@@ -108,6 +131,7 @@ const RadioButtonGroup = React.forwardRef<HTMLDivElement, RadioButtonGroupProps>
                 role="radio"
                 aria-checked={isChecked}
                 disabled={isDisabled}
+                tabIndex={option.value === tabStopValue ? 0 : -1}
                 onClick={() => handleOptionSelect(option.value)}
                 className={cn(
                   "inline-flex items-center justify-center px-4 py-2 font-medium text-sm transition-colors",
@@ -138,6 +162,7 @@ const RadioButtonGroup = React.forwardRef<HTMLDivElement, RadioButtonGroupProps>
         ref={mergedRef}
         role="radiogroup"
         onBlurCapture={handleFocusOut}
+        onKeyDown={handleKeyDown}
         className={cn("flex", orientation === "vertical" ? "flex-col gap-3" : "flex-row gap-4", className)}
         {...props}
       >
@@ -153,6 +178,7 @@ const RadioButtonGroup = React.forwardRef<HTMLDivElement, RadioButtonGroupProps>
               checked={isChecked}
               onCheckedChange={() => handleOptionSelect(option.value)}
               disabled={isDisabled}
+              tabIndex={option.value === tabStopValue ? 0 : -1}
               label={option.label}
             />
           );

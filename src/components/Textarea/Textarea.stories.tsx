@@ -23,6 +23,7 @@ export const Default: Story = {
 export const WithValue: Story = {
   args: {
     defaultValue: "This is some default text that spans multiple lines.\n\nIt can contain paragraphs too.",
+    "aria-label": "Example text",
   },
 };
 

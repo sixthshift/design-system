@@ -70,6 +70,14 @@ const baseTokens = {
 };
 
 export const AllTokens: Story = {
+  parameters: {
+    a11y: {
+      // This story is a catalogue of every token pair, including the -disabled
+      // pairs, which are intentionally low-contrast. WCAG 1.4.3 exempts inactive
+      // components, and a swatch documenting the disabled palette is not a control.
+      config: { rules: [{ id: "color-contrast", enabled: false }] },
+    },
+  },
   render: () => (
     <div className="space-y-8">
       <div>
@@ -109,6 +117,14 @@ export const AllTokens: Story = {
 };
 
 export const InteractiveStates: Story = {
+  parameters: {
+    a11y: {
+      // This story is a catalogue of every token pair, including the -disabled
+      // pairs, which are intentionally low-contrast. WCAG 1.4.3 exempts inactive
+      // components, and a swatch documenting the disabled palette is not a control.
+      config: { rules: [{ id: "color-contrast", enabled: false }] },
+    },
+  },
   render: () => (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <div

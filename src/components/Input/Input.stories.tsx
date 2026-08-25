@@ -25,6 +25,7 @@ export const Default: Story = {
 export const WithValue: Story = {
   args: {
     defaultValue: "Hello world",
+    "aria-label": "Example text",
   },
 };
 
@@ -61,18 +62,21 @@ export const NumberInput: Story = {
 export const DateInput: Story = {
   args: {
     type: "date",
+    "aria-label": "Date",
   },
 };
 
 export const Time: Story = {
   args: {
     type: "time",
+    "aria-label": "Time",
   },
 };
 
 export const File: Story = {
   args: {
     type: "file",
+    "aria-label": "File",
   },
 };
 
@@ -91,9 +95,9 @@ export const AllTypes: Story = {
       <Input type="password" placeholder="Password" />
       <Input type="number" placeholder="Number" />
       <Input type="search" placeholder="Search" />
-      <Input type="date" />
-      <Input type="time" />
-      <Input type="file" />
+      <Input type="date" aria-label="Date" />
+      <Input type="time" aria-label="Time" />
+      <Input type="file" aria-label="File" />
     </div>
   ),
 };
@@ -128,7 +132,7 @@ export const PasswordWithToggle: Story = {
         type={show ? "text" : "password"}
         iconLeft={<Lock />}
         iconRight={
-          <button type="button" onClick={() => setShow(!show)}>
+          <button type="button" onClick={() => setShow(!show)} aria-label={show ? "Hide password" : "Show password"}>
             {show ? <EyeOff /> : <Eye />}
           </button>
         }

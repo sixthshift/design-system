@@ -224,10 +224,78 @@ describe("RadioButtonGroup", () => {
       const handleChange = vi.fn();
       render(<RadioButtonGroup options={options} value="free" onValueChange={handleChange} />);
 
-      await user.tab();
+      // One Tab enters the group and lands on the checked option.
       await user.tab();
       await user.keyboard(" ");
-      expect(handleChange).toHaveBeenCalledWith("pro");
+      expect(handleChange).toHaveBeenCalledWith("free");
+    });
+
+    it("is a single tab stop: Tab enters the group once and leaves it next", async () => {
+      const user = userEvent.setup();
+      render(<RadioButtonGroup options={options} value="free" onValueChange={() => {}} />);
+
+      const radios = screen.getAllByRole("radio");
+      await user.tab();
+      expect(radios[0]).toHaveFocus();
+      await user.tab();
+      for (const radio of radios) {
+        expect(radio).not.toHaveFocus();
+      }
+    });
+
+    it("puts the roving tab stop on the checked option", () => {
+      render(<RadioButtonGroup options={options} value="pro" onValueChange={() => {}} />);
+      const radios = screen.getAllByRole("radio");
+      expect(radios.filter((radio) => radio.getAttribute("tabindex") === "0")).toHaveLength(1);
+      expect(radios[1]).toHaveAttribute("tabindex", "0");
+    });
+
+    it("moves selection forward with ArrowRight and ArrowDown", async () => {
+      const user = userEvent.setup();
+      const handleChange = vi.fn();
+      render(<RadioButtonGroup options={options} value="free" onValueChange={handleChange} />);
+
+      await user.tab();
+      await user.keyboard("{ArrowRight}");
+      expect(handleChange).toHaveBeenLastCalledWith("pro");
+      expect(screen.getAllByRole("radio")[1]).toHaveFocus();
+    });
+
+    it("moves selection backward with ArrowLeft, wrapping to the last option", async () => {
+      const user = userEvent.setup();
+      const handleChange = vi.fn();
+      render(<RadioButtonGroup options={options} value="free" onValueChange={handleChange} />);
+
+      await user.tab();
+      await user.keyboard("{ArrowLeft}");
+      const radios = screen.getAllByRole("radio");
+      expect(radios[radios.length - 1]).toHaveFocus();
+    });
+
+    it("jumps to the first and last option with Home and End", async () => {
+      const user = userEvent.setup();
+      render(<RadioButtonGroup options={options} value="pro" onValueChange={() => {}} />);
+      const radios = screen.getAllByRole("radio");
+
+      await user.tab();
+      await user.keyboard("{End}");
+      expect(radios[radios.length - 1]).toHaveFocus();
+      await user.keyboard("{Home}");
+      expect(radios[0]).toHaveFocus();
+    });
+
+    it("skips disabled options when navigating", async () => {
+      const user = userEvent.setup();
+      const withDisabled = [
+        { value: "a", label: "A" },
+        { value: "b", label: "B", disabled: true },
+        { value: "c", label: "C" },
+      ];
+      render(<RadioButtonGroup options={withDisabled} value="a" onValueChange={() => {}} />);
+
+      await user.tab();
+      await user.keyboard("{ArrowRight}");
+      expect(screen.getByRole("radio", { name: "C" })).toHaveFocus();
     });
   });
 
@@ -255,7 +323,7 @@ describe("RadioButtonGroup", () => {
       render(<RadioButtonGroup options={options} onBlur={handleBlur} />);
 
       await user.tab();
-      await user.tab();
+      await user.keyboard("{ArrowRight}");
       expect(handleBlur).not.toHaveBeenCalled();
     });
   });

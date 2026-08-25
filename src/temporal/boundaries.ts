@@ -28,39 +28,38 @@ export function endOfDay(date: Temporal.PlainDate): Temporal.PlainDateTime {
 }
 
 /**
- * Get the start of the week (Monday by default, configurable)
- * @param date The date to find the week start for
- * @param weekStartsOn 0 = Sunday, 1 = Monday (default)
+ * First day of the week, as used by calendars: 0 = Sunday through 6 = Saturday.
+ * Note this is NOT Temporal's `dayOfWeek`, which is ISO 8601 (1 = Monday,
+ * 7 = Sunday) — `daysSinceWeekStart` converts between the two.
  */
-export function startOfWeek(date: Temporal.PlainDate, weekStartsOn: 0 | 1 = 1): Temporal.PlainDate {
-  const dayOfWeek = date.dayOfWeek; // 1 = Monday, 7 = Sunday
+export type WeekStartsOn = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
-  if (weekStartsOn === 1) {
-    // Week starts on Monday (ISO 8601)
-    return date.subtract({ days: dayOfWeek - 1 });
-  }
-
-  // Week starts on Sunday
-  const daysFromSunday = dayOfWeek === 7 ? 0 : dayOfWeek;
-  return date.subtract({ days: daysFromSunday });
+/**
+ * How many days `date` sits past the start of its week, 0-6.
+ */
+function daysSinceWeekStart(date: Temporal.PlainDate, weekStartsOn: WeekStartsOn): number {
+  // weekStartsOn counts from Sunday; dayOfWeek counts from Monday and uses 7
+  // for Sunday, so Sunday maps to 7 rather than 0.
+  const isoWeekStart = weekStartsOn === 0 ? 7 : weekStartsOn;
+  return (date.dayOfWeek - isoWeekStart + 7) % 7;
 }
 
 /**
- * Get the end of the week (Sunday by default when week starts Monday, Saturday when week starts Sunday)
- * @param date The date to find the week end for
- * @param weekStartsOn 0 = Sunday, 1 = Monday (default)
+ * Get the start of the week (Monday by default, configurable)
+ * @param date The date to find the week start for
+ * @param weekStartsOn 0 = Sunday, 1 = Monday (default), through 6 = Saturday
  */
-export function endOfWeek(date: Temporal.PlainDate, weekStartsOn: 0 | 1 = 1): Temporal.PlainDate {
-  const dayOfWeek = date.dayOfWeek;
+export function startOfWeek(date: Temporal.PlainDate, weekStartsOn: WeekStartsOn = 1): Temporal.PlainDate {
+  return date.subtract({ days: daysSinceWeekStart(date, weekStartsOn) });
+}
 
-  if (weekStartsOn === 1) {
-    // Week ends on Sunday
-    return date.add({ days: 7 - dayOfWeek });
-  }
-
-  // Week ends on Saturday
-  const daysToSaturday = dayOfWeek === 7 ? 6 : 6 - dayOfWeek;
-  return date.add({ days: daysToSaturday });
+/**
+ * Get the end of the week — the day before the next week's start.
+ * @param date The date to find the week end for
+ * @param weekStartsOn 0 = Sunday, 1 = Monday (default), through 6 = Saturday
+ */
+export function endOfWeek(date: Temporal.PlainDate, weekStartsOn: WeekStartsOn = 1): Temporal.PlainDate {
+  return date.add({ days: 6 - daysSinceWeekStart(date, weekStartsOn) });
 }
 
 /**

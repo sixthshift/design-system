@@ -287,4 +287,59 @@ describe("ToggleGroup", () => {
       expect(screen.getByRole("radiogroup")).toHaveClass("flex-col");
     });
   });
+
+  describe("single mode roving focus", () => {
+    const opts = [
+      { value: "a", label: "A" },
+      { value: "b", label: "B" },
+      { value: "c", label: "C" },
+    ];
+
+    it("is a single tab stop", () => {
+      render(<ToggleGroup type="single" options={opts} value="b" onValueChange={() => {}} />);
+      const radios = screen.getAllByRole("radio");
+      expect(radios.filter((radio) => radio.getAttribute("tabindex") === "0")).toHaveLength(1);
+      expect(radios[1]).toHaveAttribute("tabindex", "0");
+    });
+
+    it("falls back to the first option as tab stop when nothing is selected", () => {
+      render(<ToggleGroup type="single" options={opts} value="" onValueChange={() => {}} />);
+      expect(screen.getAllByRole("radio")[0]).toHaveAttribute("tabindex", "0");
+    });
+
+    it("moves selection with ArrowRight", async () => {
+      const user = userEvent.setup();
+      const handleChange = vi.fn();
+      render(<ToggleGroup type="single" options={opts} value="a" onValueChange={handleChange} />);
+
+      await user.tab();
+      await user.keyboard("{ArrowRight}");
+      expect(handleChange).toHaveBeenLastCalledWith("b");
+      expect(screen.getAllByRole("radio")[1]).toHaveFocus();
+    });
+
+    it("wraps backward from the first option with ArrowLeft", async () => {
+      const user = userEvent.setup();
+      render(<ToggleGroup type="single" options={opts} value="a" onValueChange={() => {}} />);
+      const radios = screen.getAllByRole("radio");
+
+      await user.tab();
+      await user.keyboard("{ArrowLeft}");
+      expect(radios[radios.length - 1]).toHaveFocus();
+    });
+
+    it("skips disabled options", async () => {
+      const user = userEvent.setup();
+      const withDisabled = [
+        { value: "a", label: "A" },
+        { value: "b", label: "B", disabled: true },
+        { value: "c", label: "C" },
+      ];
+      render(<ToggleGroup type="single" options={withDisabled} value="a" onValueChange={() => {}} />);
+
+      await user.tab();
+      await user.keyboard("{ArrowRight}");
+      expect(screen.getByRole("radio", { name: "C" })).toHaveFocus();
+    });
+  });
 });

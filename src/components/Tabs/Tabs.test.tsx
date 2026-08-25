@@ -494,4 +494,38 @@ describe("Tabs", () => {
       expect(screen.queryByRole("tabpanel")).not.toBeInTheDocument();
     });
   });
+
+  describe("aria-controls integrity", () => {
+    it("only sets aria-controls on the selected tab, since other panels are not mounted", () => {
+      render(
+        <Tabs items={items} defaultValue="details">
+          <Tabs.List />
+          <Tabs.Panels />
+        </Tabs>
+      );
+
+      const tabs = screen.getAllByRole("tab");
+      const selected = tabs.find((tab) => tab.getAttribute("aria-selected") === "true");
+      const unselected = tabs.filter((tab) => tab.getAttribute("aria-selected") !== "true");
+
+      expect(selected).toHaveAttribute("aria-controls");
+      for (const tab of unselected) {
+        expect(tab).not.toHaveAttribute("aria-controls");
+      }
+    });
+
+    it("every aria-controls reference points at an element in the document", () => {
+      render(
+        <Tabs items={items} defaultValue="details">
+          <Tabs.List />
+          <Tabs.Panels />
+        </Tabs>
+      );
+
+      for (const tab of screen.getAllByRole("tab")) {
+        const id = tab.getAttribute("aria-controls");
+        if (id) expect(document.getElementById(id)).not.toBeNull();
+      }
+    });
+  });
 });

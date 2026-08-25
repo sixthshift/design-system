@@ -5,7 +5,7 @@
  * for consistent date selection UI.
  */
 
-import type { Temporal } from "../../temporal";
+import type { Temporal, WeekStartsOn } from "../../temporal";
 
 /**
  * Date range value
@@ -57,7 +57,7 @@ type CalendarBaseProps = {
   disabled?: DisabledDateMatcher | DisabledDateMatcher[] | undefined;
 
   /** First day of week (0 = Sunday, 1 = Monday) */
-  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | undefined;
+  weekStartsOn?: WeekStartsOn | undefined;
 
   /** Show footer with Today/Cancel/Apply buttons */
   showFooter?: boolean | undefined;

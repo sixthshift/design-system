@@ -313,4 +313,18 @@ describe("LineChart", () => {
       expect(screen.getByText(longLabel)).toBeInTheDocument();
     });
   });
+
+  describe("empty data scale", () => {
+    it("renders a finite axis when there is nothing to plot", () => {
+      const { container } = render(<LineChart series={[]} />);
+      expect(container.querySelector("svg")).toBeInTheDocument();
+      expect(container.innerHTML).not.toContain("NaN");
+    });
+
+    it("renders a finite axis when every series is empty", () => {
+      const { container } = render(<LineChart series={[{ name: "Empty", data: [] }]} />);
+      expect(container.querySelector("svg")).toBeInTheDocument();
+      expect(container.innerHTML).not.toContain("NaN");
+    });
+  });
 });

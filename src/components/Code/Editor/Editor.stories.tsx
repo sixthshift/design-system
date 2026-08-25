@@ -142,6 +142,13 @@ declare const myApi: {
 };
 
 export const FullExample: Story = {
+  parameters: {
+    a11y: {
+      // The violation is inside Monaco's own line-number gutter, which this
+      // component does not render or style. Monaco owns that DOM and its colour theme.
+      config: { rules: [{ id: "color-contrast", enabled: false }] },
+    },
+  },
   render: () => {
     const [code, setCode] = useState(`interface User {
   id: number;

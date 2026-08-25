@@ -5,7 +5,7 @@
  * This provides type safety and semantic clarity about what kind of date is expected.
  */
 
-import type { Temporal } from "../../temporal";
+import type { Temporal, WeekStartsOn } from "../../temporal";
 import type { PresetOption as CalendarPresetOption } from "../Calendar/calendar.types";
 
 // =============================================================================
@@ -46,7 +46,7 @@ export type DisabledDateMatcher =
 
 type DatePickerBaseProps = {
   /** First day of week (0 = Sunday, 1 = Monday) */
-  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  weekStartsOn?: WeekStartsOn;
 
   /** Minimum selectable date */
   minDate?: Temporal.PlainDate;

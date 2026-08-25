@@ -39,6 +39,10 @@ const PADDING = { top: 12, right: 16, bottom: 32, left: 48 };
 const PADDING_NO_AXES = { top: 8, right: 8, bottom: 8, left: 8 };
 
 function niceScale(min: number, max: number, ticks: number) {
+  // Defensive: a non-finite bound would make every derived tick NaN.
+  if (!Number.isFinite(min) || !Number.isFinite(max)) {
+    return { min: 0, max: 1, step: 1 / ticks };
+  }
   if (min === max) {
     const pad = min === 0 ? 1 : Math.abs(min) * 0.1;
     return { min: min - pad, max: max + pad, step: (pad * 2) / ticks };
@@ -112,8 +116,10 @@ export const LineChart = ({
   ...rest
 }: LineChartProps) => {
   const allValues = series.flatMap((s) => s.data.map((d) => d.value));
-  const rawMin = yMinProp ?? Math.min(...allValues);
-  const rawMax = yMaxProp ?? Math.max(...allValues);
+  // Math.min() of an empty list is Infinity, which propagates NaN through the
+  // whole scale. Fall back to a plain 0-1 axis when there is no data.
+  const rawMin = yMinProp ?? (allValues.length > 0 ? Math.min(...allValues) : 0);
+  const rawMax = yMaxProp ?? (allValues.length > 0 ? Math.max(...allValues) : 1);
   const scale = niceScale(rawMin, rawMax, yTicks);
 
   const labelSet = new Set<string>();

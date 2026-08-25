@@ -176,4 +176,16 @@ describe("BarChart", () => {
       expect(screen.getByText(longLabel)).toBeInTheDocument();
     });
   });
+
+  describe("width clamping", () => {
+    it("clamps a negative value to a 0% bar rather than a negative width", () => {
+      const { container } = render(<BarChart data={[{ label: "Negative", value: -50 }]} maxValue={100} />);
+      const widths = Array.from(container.querySelectorAll<HTMLElement>("[style*='width']")).map((el) => el.style.width);
+      expect(widths).not.toHaveLength(0);
+      for (const width of widths) {
+        expect(width.startsWith("-")).toBe(false);
+      }
+      expect(widths).toContain("0%");
+    });
+  });
 });

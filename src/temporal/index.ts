@@ -188,6 +188,7 @@ export {
 // Boundaries
 // =============================================================================
 
+export type { WeekStartsOn } from "./boundaries";
 export {
   endOfDay,
   endOfMonth,

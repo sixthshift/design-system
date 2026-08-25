@@ -1,7 +1,19 @@
 import { cn } from "@sixthshift/design-system/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback } from "react";
-import { addMonths, formatMonthYear, isPlainDate, type Temporal, today } from "../../temporal";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  addDays,
+  addMonths,
+  endOfWeek,
+  formatMonthYear,
+  isPlainDate,
+  isSameMonth,
+  parseDate,
+  startOfMonth,
+  startOfWeek,
+  type Temporal,
+  today,
+} from "../../temporal";
 import { Button } from "../Button";
 import { Separator } from "../Separator";
 import {
@@ -161,6 +173,103 @@ export const Calendar = (props: CalendarProps) => {
     }
   };
 
+  // ---------------------------------------------------------------------------
+  // Roving focus
+  //
+  // A grid is a single tab stop: exactly one cell carries tabIndex={0} and the
+  // arrow keys move between cells. `focusedDate` is null until the user actually
+  // navigates, so we never steal focus on mount.
+  // ---------------------------------------------------------------------------
+  const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate | null>(null);
+  const gridRef = useRef<HTMLTableElement>(null);
+
+  const firstSelected = useMemo((): Temporal.PlainDate | undefined => {
+    if (mode === "single") return isPlainDate(value) ? value : undefined;
+    if (mode === "multiple") return (value as Temporal.PlainDate[] | undefined)?.[0];
+    return (value as DateRangeValue | undefined)?.from;
+  }, [mode, value]);
+
+  const activeDate = useMemo(() => {
+    const isUsable = (date: Temporal.PlainDate) =>
+      isSameMonth(date, month) && !isDateDisabled(date, disabled as DisabledDateMatcher | DisabledDateMatcher[] | undefined, minDate, maxDate);
+
+    // Prefer where the user last was, then their selection, then today.
+    for (const candidate of [focusedDate, firstSelected, today()]) {
+      if (candidate && isUsable(candidate)) return candidate;
+    }
+    // Otherwise the first day of the month that can actually take focus, so the
+    // grid never ends up with zero tab stops.
+    const first = startOfMonth(month);
+    for (let i = 0; i < first.daysInMonth; i++) {
+      const candidate = addDays(first, i);
+      if (isUsable(candidate)) return candidate;
+    }
+    return first;
+  }, [focusedDate, firstSelected, month, disabled, minDate, maxDate]);
+
+  const moveFocus = useCallback(
+    (next: Temporal.PlainDate) => {
+      setFocusedDate(next);
+      if (!isSameMonth(next, month)) onMonthChange(next);
+    },
+    [month, onMonthChange]
+  );
+
+  const handleGridKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTableElement>) => {
+      // Navigate from the cell that actually has focus, not from the derived
+      // tab stop — otherwise focusing a day without selecting it would make the
+      // arrow keys jump back to today.
+      const focusedIso = (event.target as HTMLElement | null)?.closest?.("[data-date]")?.getAttribute("data-date");
+      const origin = focusedIso ? parseDate(focusedIso) : activeDate;
+
+      const dayStep: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
+      const step = dayStep[event.key];
+
+      if (step !== undefined) {
+        event.preventDefault();
+        moveFocus(addDays(origin, step));
+        return;
+      }
+
+      switch (event.key) {
+        case "Home":
+          event.preventDefault();
+          moveFocus(startOfWeek(origin, weekStartsOn));
+          break;
+        case "End":
+          event.preventDefault();
+          moveFocus(endOfWeek(origin, weekStartsOn));
+          break;
+        case "PageUp":
+          event.preventDefault();
+          moveFocus(addMonths(origin, -1));
+          break;
+        case "PageDown":
+          event.preventDefault();
+          moveFocus(addMonths(origin, 1));
+          break;
+        default:
+          break;
+      }
+    },
+    [activeDate, moveFocus, weekStartsOn]
+  );
+
+  // Follow the roving tabIndex with real DOM focus, but only once the user has
+  // started navigating.
+  useEffect(() => {
+    if (!focusedDate) return;
+    gridRef.current?.querySelector<HTMLButtonElement>(`[data-date="${temporalToISO(focusedDate)}"]`)?.focus();
+  }, [focusedDate]);
+
+  // useCalendarDays always returns 42 days, so this is always 6 rows of 7.
+  const weeks = useMemo(() => {
+    const chunked: (typeof days)[] = [];
+    for (let i = 0; i < days.length; i += 7) chunked.push(days.slice(i, i + 7));
+    return chunked;
+  }, [days]);
+
   // Check if a preset is currently active
   const isPresetActive = useCallback(
     (preset: PresetOption<unknown>): boolean => {
@@ -231,51 +340,65 @@ export const Calendar = (props: CalendarProps) => {
           </button>
         </div>
 
-        {/* Day labels */}
-        <div className="grid grid-cols-7 gap-1">
-          {dayLabels.map((label) => (
-            <div key={label} className="flex h-10 w-10 items-center justify-center font-medium text-fg-subtle text-sm">
-              {label}
-            </div>
-          ))}
-        </div>
+        {/* Day grid — the ARIA grid pattern on real table semantics, so <tr>/<th>/<td>
+            supply row/columnheader/gridcell roles implicitly. One tab stop, arrow-key
+            navigation, and aria-selected on the cell (where it is valid) rather than
+            on the button (where it is not). */}
+        {/* biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: the ARIA grid
+            pattern is defined on <table>; a date picker is an interactive composite widget,
+            not a static table. Unlike the suppression this replaced, nothing here is being
+            hidden — the axe checks in the story tests verify the resulting ARIA for real. */}
+        <table ref={gridRef} role="grid" aria-label={formatMonthYear(month)} className="border-separate border-spacing-1" onKeyDown={handleGridKeyDown}>
+          <thead>
+            <tr>
+              {dayLabels.map((label) => (
+                <th key={label} scope="col" className="h-10 w-10 font-medium text-fg-subtle text-sm">
+                  {label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {weeks.map((week) => (
+              <tr key={temporalToISO(week[0]!.date)}>
+                {week.map((day) => {
+                  const isDisabledDay = isDateDisabled(day.date, disabled as DisabledDateMatcher | DisabledDateMatcher[] | undefined, minDate, maxDate);
+                  const selectionState = getDateSelectionState(day.date, mode, value);
 
-        {/* Day grid */}
-        {/* biome-ignore lint/a11y/useSemanticElements: ARIA grid pattern is correct for interactive date picker grid */}
-        <div className="grid grid-cols-7 gap-1" role="grid">
-          {days.map((day) => {
-            const isDisabledDay = isDateDisabled(day.date, disabled as DisabledDateMatcher | DisabledDateMatcher[] | undefined, minDate, maxDate);
-            const selectionState = getDateSelectionState(day.date, mode, value);
+                  if (!day.isCurrentMonth) {
+                    return <td key={temporalToISO(day.date)} className="h-10 w-10" />;
+                  }
 
-            if (!day.isCurrentMonth) {
-              return <div key={temporalToISO(day.date)} className="h-10 w-10" />;
-            }
-
-            return (
-              // biome-ignore lint/a11y/useAriaPropsSupportedByRole: aria-selected is valid in ARIA grid pattern for interactive date cells
-              <button
-                key={temporalToISO(day.date)}
-                type="button"
-                data-date={temporalToISO(day.date)}
-                onClick={() => handleDayClick(day.date)}
-                disabled={isDisabledDay}
-                tabIndex={day.isToday ? 0 : -1}
-                className={cn(
-                  `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-sm transition-colors`,
-                  `hover:bg-bg-brand-strong hover:text-fg-on-brand-strong focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset`,
-                  day.isToday && !selectionState.isSelected && "font-medium ring-1 ring-border-normal ring-inset",
-                  isDisabledDay && "cursor-not-allowed opacity-50",
-                  getRangePositionClasses(selectionState.rangePosition, selectionState.isSelected)
-                )}
-                aria-selected={selectionState.isSelected}
-                aria-disabled={isDisabledDay}
-                aria-label={defaultFormatDisplay(day.date)}
-              >
-                {day.date.day}
-              </button>
-            );
-          })}
-        </div>
+                  return (
+                    // Biome resolves <td> to role "cell" because it does not track the
+                    // ancestor role="grid", under which a <td> is a gridcell and
+                    // aria-selected is valid. axe, which does track it, passes.
+                    // biome-ignore lint/a11y/useAriaPropsSupportedByRole: <td> in a grid is a gridcell
+                    <td key={temporalToISO(day.date)} aria-selected={selectionState.isSelected} className="p-0">
+                      <button
+                        type="button"
+                        data-date={temporalToISO(day.date)}
+                        onClick={() => handleDayClick(day.date)}
+                        disabled={isDisabledDay}
+                        tabIndex={isSameDateTemporal(day.date, activeDate) ? 0 : -1}
+                        className={cn(
+                          `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-sm transition-colors`,
+                          `hover:bg-bg-brand-strong hover:text-fg-on-brand-strong focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset`,
+                          day.isToday && !selectionState.isSelected && "font-medium ring-1 ring-border-normal ring-inset",
+                          isDisabledDay && "cursor-not-allowed opacity-50",
+                          getRangePositionClasses(selectionState.rangePosition, selectionState.isSelected)
+                        )}
+                        aria-label={defaultFormatDisplay(day.date)}
+                      >
+                        {day.date.day}
+                      </button>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {/* Footer */}
         {showFooter && (

@@ -311,7 +311,7 @@ export function useCalendarDays(month: Temporal.PlainDate, weekStartsOn: 0 | 1 |
   return useMemo(() => {
     const todayDate = today();
     const firstDayOfMonth = startOfMonth(month);
-    const startDate = startOfWeek(firstDayOfMonth, weekStartsOn as 0 | 1);
+    const startDate = startOfWeek(firstDayOfMonth, weekStartsOn);
 
     const days: CalendarDay[] = [];
 

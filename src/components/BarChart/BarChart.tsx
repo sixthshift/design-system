@@ -31,7 +31,9 @@ export const BarChart = ({
   return (
     <div {...rest} className={cn("flex flex-col gap-2", className)}>
       {data.map((item, i) => {
-        const percent = Math.min((item.value / maxValue) * 100, 100);
+        // Clamp both ends: a negative value would otherwise emit an invalid
+        // `width: -n%`, whose rendering is undefined.
+        const percent = Math.min(Math.max((item.value / maxValue) * 100, 0), 100);
         const color = item.color ?? DEFAULT_COLORS[i % DEFAULT_COLORS.length];
 
         return (

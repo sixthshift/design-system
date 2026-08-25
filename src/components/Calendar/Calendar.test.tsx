@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -845,9 +845,9 @@ describe("Calendar", () => {
         <Calendar mode="single" value={undefined} onSelect={() => {}} month={FEB_2024} onMonthChange={() => {}} weekStartsOn={weekStartsOn} />
       );
 
-      const labels = Array.from(container.querySelectorAll(".grid.grid-cols-7"))[0]?.children;
-      expect(labels).toBeDefined();
-      const labelTexts = Array.from(labels!).map((el) => el.textContent);
+      const labelTexts = within(container)
+        .getAllByRole("columnheader")
+        .map((el) => el.textContent);
       expect(labelTexts).toEqual(expected);
     });
   });
@@ -870,8 +870,10 @@ describe("Calendar", () => {
       const { container: gridSunday } = render(
         <Calendar mode="single" value={undefined} onSelect={() => {}} month={FEB_2024} onMonthChange={() => {}} weekStartsOn={0} />
       );
-      const dayGrid = gridSunday.querySelector('[role="grid"]');
-      expect(dayGrid?.children).toHaveLength(42);
+      // 6 weeks x 7 days, including the out-of-month placeholder cells.
+      // Queried as "cell": testing-library maps <td> to cell, whereas axe resolves
+      // it to gridcell via the ancestor role="grid". Both describe the same node.
+      expect(within(gridSunday).getAllByRole("cell")).toHaveLength(42);
     });
   });
 
@@ -913,6 +915,111 @@ describe("Calendar", () => {
       render(<Calendar mode="single" value={undefined} onSelect={() => {}} month={FEB_2024} onMonthChange={() => {}} />);
       expect(screen.getByRole("grid")).toBeInTheDocument();
       expect(screen.getAllByRole("button").length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("grid keyboard navigation", () => {
+    const renderCalendar = (onMonthChange = () => {}) =>
+      render(<Calendar mode="single" value={undefined} onSelect={() => {}} month={FEB_2024} onMonthChange={onMonthChange} weekStartsOn={0} />);
+
+    it("exposes the day grid as an ARIA grid", () => {
+      renderCalendar();
+      expect(screen.getByRole("grid")).toBeInTheDocument();
+    });
+
+    it("puts aria-selected on the gridcell, not on the day button", () => {
+      const selected = Temporal.PlainDate.from("2024-02-14");
+      const { container } = render(<Calendar mode="single" value={selected} onSelect={() => {}} month={FEB_2024} onMonthChange={() => {}} />);
+      const button = getDay(container, selected);
+      expect(button).not.toHaveAttribute("aria-selected");
+      expect(button.closest("td")).toHaveAttribute("aria-selected", "true");
+    });
+
+    it("is a single tab stop: exactly one day button is tabbable", () => {
+      const { container } = renderCalendar();
+      const tabbable = Array.from(container.querySelectorAll("[data-date]")).filter((el) => el.getAttribute("tabindex") === "0");
+      expect(tabbable).toHaveLength(1);
+    });
+
+    it("makes today the initial tab stop when it is in view", () => {
+      const { container } = renderCalendar();
+      expect(getDay(container, FIXED_TODAY)).toHaveAttribute("tabindex", "0");
+    });
+
+    it("prefers the selected day over today as the tab stop", () => {
+      const selected = Temporal.PlainDate.from("2024-02-14");
+      const { container } = render(<Calendar mode="single" value={selected} onSelect={() => {}} month={FEB_2024} onMonthChange={() => {}} />);
+      expect(getDay(container, selected)).toHaveAttribute("tabindex", "0");
+      expect(getDay(container, FIXED_TODAY)).toHaveAttribute("tabindex", "-1");
+    });
+
+    it("moves focus one day with ArrowRight", async () => {
+      const user = userEvent.setup();
+      const { container } = renderCalendar();
+      getDay(container, Temporal.PlainDate.from("2024-02-14")).focus();
+      await user.keyboard("{ArrowRight}");
+      expect(getDay(container, Temporal.PlainDate.from("2024-02-15"))).toHaveFocus();
+    });
+
+    it("moves focus one day back with ArrowLeft", async () => {
+      const user = userEvent.setup();
+      const { container } = renderCalendar();
+      getDay(container, Temporal.PlainDate.from("2024-02-14")).focus();
+      await user.keyboard("{ArrowLeft}");
+      expect(getDay(container, Temporal.PlainDate.from("2024-02-13"))).toHaveFocus();
+    });
+
+    it("moves focus a week with ArrowDown and ArrowUp", async () => {
+      const user = userEvent.setup();
+      const { container } = renderCalendar();
+      getDay(container, Temporal.PlainDate.from("2024-02-14")).focus();
+      await user.keyboard("{ArrowDown}");
+      expect(getDay(container, Temporal.PlainDate.from("2024-02-21"))).toHaveFocus();
+      await user.keyboard("{ArrowUp}");
+      expect(getDay(container, Temporal.PlainDate.from("2024-02-14"))).toHaveFocus();
+    });
+
+    it("moves to the start and end of the week with Home and End", async () => {
+      const user = userEvent.setup();
+      const { container } = renderCalendar();
+      // 2024-02-14 is a Wednesday; with weekStartsOn=0 the week runs Sun 11 - Sat 17.
+      getDay(container, Temporal.PlainDate.from("2024-02-14")).focus();
+      await user.keyboard("{Home}");
+      expect(getDay(container, Temporal.PlainDate.from("2024-02-11"))).toHaveFocus();
+      await user.keyboard("{End}");
+      expect(getDay(container, Temporal.PlainDate.from("2024-02-17"))).toHaveFocus();
+    });
+
+    it("requests a month change when navigation leaves the displayed month", async () => {
+      const user = userEvent.setup();
+      const onMonthChange = vi.fn();
+      const { container } = renderCalendar(onMonthChange);
+      getDay(container, Temporal.PlainDate.from("2024-02-29")).focus();
+      await user.keyboard("{ArrowRight}");
+      expect(onMonthChange).toHaveBeenCalledTimes(1);
+      expect(onMonthChange.mock.calls[0]?.[0]?.toString()).toBe("2024-03-01");
+    });
+
+    it("requests a month change on PageDown and PageUp", async () => {
+      const user = userEvent.setup();
+      const onMonthChange = vi.fn();
+      const { container } = renderCalendar(onMonthChange);
+      getDay(container, Temporal.PlainDate.from("2024-02-14")).focus();
+      await user.keyboard("{PageDown}");
+      expect(onMonthChange.mock.calls[0]?.[0]?.toString()).toBe("2024-03-14");
+      await user.keyboard("{PageUp}");
+      expect(onMonthChange).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not put the tab stop on a disabled day", () => {
+      // Disable today, which would otherwise be the default tab stop.
+      const { container } = render(
+        <Calendar mode="single" value={undefined} onSelect={() => {}} month={FEB_2024} onMonthChange={() => {}} disabled={FIXED_TODAY} />
+      );
+      expect(getDay(container, FIXED_TODAY)).toHaveAttribute("tabindex", "-1");
+      const tabbable = Array.from(container.querySelectorAll("[data-date]")).filter((el) => el.getAttribute("tabindex") === "0");
+      expect(tabbable).toHaveLength(1);
+      expect(tabbable[0]).not.toBeDisabled();
     });
   });
 });

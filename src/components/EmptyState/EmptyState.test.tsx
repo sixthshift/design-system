@@ -88,4 +88,16 @@ describe("EmptyState", () => {
       expect(root).toHaveClass("flex-col");
     });
   });
+
+  describe("prop forwarding", () => {
+    it("spreads additional props onto the root element", () => {
+      render(<EmptyState message="Nothing here" data-testid="empty-root" />);
+      expect(screen.getByTestId("empty-root")).toBeInTheDocument();
+    });
+
+    it("forwards aria attributes onto the root element", () => {
+      render(<EmptyState message="Nothing here" aria-label="No results" />);
+      expect(screen.getByLabelText("No results")).toBeInTheDocument();
+    });
+  });
 });

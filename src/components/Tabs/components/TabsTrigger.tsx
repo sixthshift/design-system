@@ -46,7 +46,10 @@ export const TabsTrigger = forwardRef<HTMLButtonElement, TabsTriggerProps>(({ it
       role="tab"
       type="button"
       aria-selected={isSelected}
-      aria-controls={panelId}
+      // Only the selected panel is mounted (content is lazy), so pointing an
+      // unselected tab at a panel id absent from the DOM would be a dangling
+      // reference. Omit it instead.
+      aria-controls={isSelected ? panelId : undefined}
       tabIndex={isSelected ? 0 : -1}
       disabled={item.disabled}
       data-index={index}

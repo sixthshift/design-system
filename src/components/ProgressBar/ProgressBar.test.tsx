@@ -62,4 +62,53 @@ describe("ProgressBar", () => {
       expect(root).toHaveClass("flex");
     });
   });
+
+  describe("accessibility contract", () => {
+    it("exposes the progressbar role", () => {
+      render(<ProgressBar completed={3} total={10} />);
+      expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    });
+
+    it("has an accessible name by default", () => {
+      render(<ProgressBar completed={3} total={10} />);
+      expect(screen.getByRole("progressbar")).toHaveAccessibleName("Progress");
+    });
+
+    it("accepts a custom accessible name", () => {
+      render(<ProgressBar completed={3} total={10} label="Upload" />);
+      expect(screen.getByRole("progressbar")).toHaveAccessibleName("Upload");
+    });
+
+    it("reports value, min and max", () => {
+      render(<ProgressBar completed={3} total={10} />);
+      const bar = screen.getByRole("progressbar");
+      expect(bar).toHaveAttribute("aria-valuenow", "3");
+      expect(bar).toHaveAttribute("aria-valuemin", "0");
+      expect(bar).toHaveAttribute("aria-valuemax", "10");
+      expect(bar).toHaveAttribute("aria-valuetext", "3 of 10");
+    });
+
+    it("is indeterminate (no aria-valuenow) when total is not positive", () => {
+      render(<ProgressBar completed={3} total={0} />);
+      const bar = screen.getByRole("progressbar");
+      expect(bar).not.toHaveAttribute("aria-valuenow");
+      expect(bar).not.toHaveAttribute("aria-valuemax");
+    });
+  });
+
+  describe("clamping", () => {
+    it("caps the fill at 100% when completed exceeds total", () => {
+      render(<ProgressBar completed={10} total={8} />);
+      const fill = screen.getByRole("progressbar").firstElementChild;
+      expect(fill).toHaveStyle({ width: "100%" });
+      expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "8");
+    });
+
+    it("never emits a negative width for a negative completed value", () => {
+      render(<ProgressBar completed={-5} total={10} />);
+      const fill = screen.getByRole("progressbar").firstElementChild;
+      expect(fill).toHaveStyle({ width: "0%" });
+      expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "0");
+    });
+  });
 });

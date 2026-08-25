@@ -6,7 +6,7 @@ PA has a small set of breakpoints, a top-level form-factor hook, and a strong pr
 
 ## Breakpoints
 
-PA recognizes three form factors, defined in `packages/ui/src/hooks/useDeviceFormFactor.ts`:
+PA recognizes three form factors, defined in `src/hooks/useDeviceFormFactor.ts`:
 
 | Form factor | Width | Tailwind prefix |
 |---|---|---|
@@ -98,6 +98,6 @@ Tablet is the awkward middle. PA's approach:
 
 ## Related
 
-- `packages/ui/src/hooks/useDeviceFormFactor.ts` — the form factor hook
+- `src/hooks/useDeviceFormFactor.ts` — the form factor hook
 - `packages/web/src/layouts/AppLayout/` — the top-level adaptive layout
 - [Spacing](spacing.md) — gap conventions that survive form-factor changes

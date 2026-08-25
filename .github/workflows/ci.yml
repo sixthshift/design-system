@@ -20,7 +20,7 @@ jobs:
         with:
           bun-version: latest
 
-      # postinstall in @sixthshift/ui builds theme + Tailwind CSS
+      # postinstall in @sixthshift/design-system builds theme + Tailwind CSS
       - name: Install dependencies
         run: bun install --frozen-lockfile
 

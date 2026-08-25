@@ -142,7 +142,7 @@ Presentational leaves:
 
 State wrappers (the boundaries that render the leaves — see [Where states live](#where-states-live-the-boundary-tiers)):
 
-- `withSuspense`, `withErrorBoundary`, `withEmpty`, `withSuspenseAndErrorBoundary` — HOCs in `packages/ui/src/lib/`
+- `withSuspense`, `withErrorBoundary`, `withEmpty`, `withSuspenseAndErrorBoundary` — HOCs in `src/lib/`
 - `EmptyBoundary`, `ErrorBoundary` — the boundary elements, for inline use
 
 ## Open questions

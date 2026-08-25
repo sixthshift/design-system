@@ -1,0 +1,114 @@
+import { cn } from "@sixthshift/design-system/utils";
+import { ChevronDown, X } from "lucide-react";
+import type { HTMLAttributes } from "react";
+
+interface SelectTriggerButtonProps {
+  setReference: (node: HTMLElement | null) => void;
+  open: boolean;
+  disabled: boolean;
+  collapsed: boolean;
+  displayLabel: string;
+  showClearButton: boolean;
+  className: string | undefined;
+  onToggle: () => void;
+  onKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
+  onClear: (e: React.MouseEvent) => void;
+  props: HTMLAttributes<HTMLElement>;
+}
+
+export const SelectTriggerButton = ({
+  setReference,
+  open,
+  disabled,
+  collapsed,
+  displayLabel,
+  showClearButton,
+  className,
+  onToggle,
+  onKeyDown,
+  onClear,
+  props,
+}: SelectTriggerButtonProps) => (
+  <button
+    ref={setReference}
+    type="button"
+    onClick={onToggle}
+    onKeyDown={onKeyDown}
+    disabled={disabled}
+    className={cn(
+      `flex w-full cursor-pointer items-center gap-2 rounded-md border border-border-normal bg-bg-normal px-3 py-2 font-medium text-fg-normal text-sm transition-colors hover:bg-bg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring disabled:cursor-not-allowed disabled:opacity-50`,
+      collapsed ? "justify-center" : "justify-between",
+      className
+    )}
+    title={collapsed ? displayLabel : undefined}
+    aria-haspopup="listbox"
+    aria-expanded={open}
+    {...props}
+  >
+    {collapsed ? (
+      <span className="font-bold text-xs">{displayLabel.charAt(0)}</span>
+    ) : (
+      <>
+        <span className="truncate">{displayLabel}</span>
+        <span className="flex shrink-0 items-center gap-1">
+          {showClearButton && (
+            <button
+              type="button"
+              tabIndex={0}
+              onClick={onClear}
+              className="rounded-sm p-0.5 text-fg-subtle hover:bg-bg-subtle hover:text-fg-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+              aria-label="Clear selection"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+          <ChevronDown className={cn("h-4 w-4 text-fg-subtle transition-transform", open && "rotate-180")} />
+        </span>
+      </>
+    )}
+  </button>
+);
+
+interface SelectTriggerSearchProps {
+  setReference: (node: HTMLElement | null) => void;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  searchValue: string;
+  disabled: boolean;
+  displayLabel: string;
+  open: boolean;
+  className: string | undefined;
+  onSearchChange: (value: string) => void;
+  props: React.InputHTMLAttributes<HTMLInputElement>;
+}
+
+export const SelectTriggerSearch = ({
+  setReference,
+  inputRef,
+  searchValue,
+  disabled,
+  displayLabel,
+  open,
+  className,
+  onSearchChange,
+  props,
+}: SelectTriggerSearchProps) => (
+  <div ref={setReference} className={cn("relative flex w-full items-center", className)}>
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      type="text"
+      value={searchValue}
+      onChange={(e) => onSearchChange(e.target.value)}
+      placeholder={displayLabel}
+      disabled={disabled}
+      className={cn(
+        `flex-1 rounded-md border border-border-normal bg-bg-normal px-3 py-2 font-medium text-fg-normal text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring disabled:cursor-not-allowed disabled:opacity-50`
+      )}
+      role="combobox"
+      aria-expanded={open}
+      aria-controls="select-listbox"
+      aria-autocomplete="list"
+      {...props}
+    />
+    <ChevronDown className="pointer-events-none absolute right-3 h-4 w-4 text-fg-subtle" />
+  </div>
+);

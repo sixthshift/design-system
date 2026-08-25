@@ -52,7 +52,7 @@ These are starting points; primitives that need their own easing handle it inter
 
 ### Keyframe animations
 
-Beyond `transition`, the design system defines a small named-animation vocabulary in [`packages/ui/tailwind.config.ts`](../../../../packages/ui/tailwind.config.ts) (`keyframes` + `animation`, lines 197–242). These are the enter/exit pairs that overlays play on mount and unmount — applied via `animate-*` utilities and gated by `data-state`. See [Overlay Primitives](overlay-primitives.md) for how `data-state="open|closed"` selects the in vs out half of each pair.
+Beyond `transition`, the design system defines a small named-animation vocabulary in [`tailwind.config.ts`](../tailwind.config.ts) (`keyframes` + `animation`, lines 197–242). These are the enter/exit pairs that overlays play on mount and unmount — applied via `animate-*` utilities and gated by `data-state`. See [Overlay Primitives](overlay-primitives.md) for how `data-state="open|closed"` selects the in vs out half of each pair.
 
 | Utility | Keyframe | Default |
 |---|---|---|
@@ -96,7 +96,7 @@ Buttons, inputs, links handle hover/focus via `transition-colors` baked in.
 
 ## Reduced motion
 
-PA honors `prefers-reduced-motion` globally, not per component. A base-layer Tailwind plugin in [`packages/ui/tailwind.config.ts`](../../../../packages/ui/tailwind.config.ts) (lines 245–258) emits a `@media (prefers-reduced-motion: reduce)` rule that pins `animation-duration` and `transition-duration` to `0.01ms !important` and `animation-iteration-count` to `1` for every element (`*, *::before, *::after`).
+PA honors `prefers-reduced-motion` globally, not per component. A base-layer Tailwind plugin in [`tailwind.config.ts`](../tailwind.config.ts) (lines 245–258) emits a `@media (prefers-reduced-motion: reduce)` rule that pins `animation-duration` and `transition-duration` to `0.01ms !important` and `animation-iteration-count` to `1` for every element (`*, *::before, *::after`).
 
 This means the named animations and `transition` utilities above effectively snap to their end state for users who ask for reduced motion — including continuous animations like `animate-spin` and `animate-pulse`, which stop after one iteration. Nothing per-component is required; don't re-implement the check at the call site.
 

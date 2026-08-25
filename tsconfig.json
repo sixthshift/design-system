@@ -1,4 +1,40 @@
 {
-  "files": [],
-  "references": [{ "path": "./packages/ui" }]
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "ES2020",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+
+    /* Type Checking */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+
+    /* Emit — types are consumed from source via the exports map, so nothing is emitted */
+    "noEmit": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
+
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+
+    /* Type Roots */
+    "types": [],
+
+    /* Skip Lib Check */
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*", "src/**/*.json", "scripts/**/*", "vitest.setup.ts"],
+  "exclude": ["node_modules", "dist", "build", "coverage", "src/**/*.test.ts", "src/**/*.test.tsx", "src/**/__tests__/**"]
 }

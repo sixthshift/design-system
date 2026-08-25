@@ -13,9 +13,9 @@ Page parts      — modules/<feature>/pages/<name>/components/*.tsx
 ↑
 Domain rows     — modules/<feature>/components/*Row.tsx
 ↑
-Composites      — @sixthshift/ui composites (Modal, Tabs, ToggleGroup, InfiniteList)
+Composites      — @sixthshift/design-system composites (Modal, Tabs, ToggleGroup, InfiniteList)
 ↑
-Primitives      — @sixthshift/ui primitives (Button, Card, Input, Heading)
+Primitives      — @sixthshift/design-system primitives (Button, Card, Input, Heading)
 ↑
 Tokens          — design tokens (bg-bg-normal, fg-subtle, gap-4)
 ```
@@ -28,7 +28,7 @@ A layer consumes the layer below; it does *not* consume the layer above. Tokens 
 Named values for color, spacing, type. The atom layer. See [Design Tokens](design-tokens.md).
 
 ### Primitives
-Single-purpose components from `@sixthshift/ui` (`Button`, `Card`, `Input`, `Heading`, `Subtitle`, `Badge`, `Spinner`, `EmptyState`). They:
+Single-purpose components from `@sixthshift/design-system` (`Button`, `Card`, `Input`, `Heading`, `Subtitle`, `Badge`, `Spinner`, `EmptyState`). They:
 - Consume tokens directly.
 - Have orthogonal APIs (`variant` × `intent`), per [Component API Design](component-api-design.md).
 - Don't import other primitives at composition time (a `Card` doesn't ship with a `Button` inside).
@@ -39,7 +39,7 @@ Single-purpose components from `@sixthshift/ui` (`Button`, `Card`, `Input`, `Hea
 Multi-primitive components that solve a recurring structural problem. `Modal`, `Tabs`, `ToggleGroup`, `InfiniteList`. They:
 - Combine primitives into reusable shapes.
 - Often expose sub-component slots (`Modal.Header`, `Modal.Body`).
-- Live in `@sixthshift/ui` (engineering convention: composites are domain-agnostic).
+- Live in `@sixthshift/design-system` (engineering convention: composites are domain-agnostic).
 
 **The rule:** a composite must be domain-agnostic. If it knows about People or Tasks, it's a domain row, not a composite.
 
@@ -58,7 +58,7 @@ Components specific to one page. `PeopleHeader`, `PeopleStream`, `LensChips`. Th
 - Compose domain rows + composites + primitives into the larger structures the page needs.
 - Are *not* reusable outside their page; if you find yourself importing them elsewhere, they should be lifted.
 
-**The rule:** page parts have a single consumer (the page). If a second consumer appears, the part needs to be lifted — either to the module's `components/` (for domain reuse) or to `@sixthshift/ui` (for cross-domain reuse).
+**The rule:** page parts have a single consumer (the page). If a second consumer appears, the part needs to be lifted — either to the module's `components/` (for domain reuse) or to `@sixthshift/design-system` (for cross-domain reuse).
 
 ### Pages
 The top-level component for a route. `People`, `TaskDetail`, `Notes`. They:
@@ -115,7 +115,7 @@ A `PrimaryButton` that wraps `<Button variant="solid" intent="brand">`. The CVA 
 
 ### Page-part reach
 
-A page part imported from another page's directory. If `PeopleHeader` is reused in TasksPage, it should be in `library/people/components/` (if it's actually people-specific — probably not) or `@sixthshift/ui` (if it's a generic "filterable index header" composite).
+A page part imported from another page's directory. If `PeopleHeader` is reused in TasksPage, it should be in `library/people/components/` (if it's actually people-specific — probably not) or `@sixthshift/design-system` (if it's a generic "filterable index header" composite).
 
 ## Composing the People page (annotated)
 

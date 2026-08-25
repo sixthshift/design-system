@@ -1,6 +1,6 @@
 # Component Authoring
 
-Construction conventions for authoring a primitive in `@sixthshift/ui` — the "house style" you'd otherwise only learn by reading source. These are the rules every primitive in `packages/ui/src/components/` already follows; new ones must too.
+Construction conventions for authoring a primitive in `@sixthshift/design-system` — the "house style" you'd otherwise only learn by reading source. These are the rules every primitive in `src/components/` already follows; new ones must too.
 
 This is the **construction-side** reference. Its companions:
 
@@ -152,10 +152,10 @@ If a primitive is neither a context root nor a pure config-leaf, it forwards a r
 Components are consumed by kebab-case subpath, declared in `package.json` `exports`:
 
 ```tsx
-import { Button } from "@sixthshift/ui/button";
+import { Button } from "@sixthshift/design-system/button";
 ```
 
-There is **no aggregate `@sixthshift/ui` barrel** — every component is its own entry (`package.json:15-93`). The folder is PascalCase (`components/Button/`); the export subpath is kebab-case (`./button`).
+There is **no aggregate `@sixthshift/design-system` barrel** — every component is its own entry (`package.json:15-93`). The folder is PascalCase (`components/Button/`); the export subpath is kebab-case (`./button`).
 
 Each `index.ts` re-exports the component, its `Props` type, and any `*Variants` cva function:
 
@@ -166,9 +166,9 @@ export { Button, type ButtonProps, buttonVariants } from "./Button";
 
 Compound primitives also re-export their parts (`Tabs/index.ts` exports `TabsList`, `TabsListProps`, etc.).
 
-**Why subpaths, not a barrel:** per-subpath imports keep the dependency graph precise — importing `@sixthshift/ui/button` doesn't pull every other component into the consumer's bundle, and Storybook/test builds stay scoped.
+**Why subpaths, not a barrel:** per-subpath imports keep the dependency graph precise — importing `@sixthshift/design-system/button` doesn't pull every other component into the consumer's bundle, and Storybook/test builds stay scoped.
 
-**Flag:** adding the folder + `index.ts` is not enough. **Forgetting the `package.json` exports entry breaks the import silently** — TypeScript can't resolve `@sixthshift/ui/your-component` and there's no aggregate to fall back to. Every new primitive needs its `"./kebab-name": "./src/components/PascalName/index.ts"` line.
+**Flag:** adding the folder + `index.ts` is not enough. **Forgetting the `package.json` exports entry breaks the import silently** — TypeScript can't resolve `@sixthshift/design-system/your-component` and there's no aggregate to fall back to. Every new primitive needs its `"./kebab-name": "./src/components/PascalName/index.ts"` line.
 
 ---
 

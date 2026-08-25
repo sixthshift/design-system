@@ -149,7 +149,7 @@ Given PA's data-centric architecture:
 
 Start simple (props). Add compound APIs when patterns emerge.
 
-### Primitives in `packages/ui`: the uniform-vs-slots rule
+### Primitives in `src/components`: the uniform-vs-slots rule
 
 The primitives mix array-prop and compound shapes. The rule is the same axis applied at the primitive layer:
 

@@ -7,7 +7,7 @@
   "css.lint.unknownAtRules": "ignore",
   "bun.test.enable": false,
   "vitest.enable": true,
-  "vitest.workspaceConfig": "./vitest.workspace.ts",
+  "vitest.rootConfig": "./vitest.config.ts",
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,

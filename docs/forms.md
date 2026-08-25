@@ -164,8 +164,8 @@ Inline edits are best for *small* fields where the cost of being wrong is low an
 
 ## Open questions
 
-- **Form library.** PA doesn't currently mandate one (no react-hook-form, no Formik in @sixthshift/ui). Validation is hand-rolled per form. Worth deciding if/when to add one.
-- **Dirty-state tracking.** Right now each form tracks its own dirty state. A `useDirtyForm` hook in `@sixthshift/ui/hooks` could centralize this and the discard-prompt.
+- **Form library.** PA doesn't currently mandate one (no react-hook-form, no Formik in @sixthshift/design-system). Validation is hand-rolled per form. Worth deciding if/when to add one.
+- **Dirty-state tracking.** Right now each form tracks its own dirty state. A `useDirtyForm` hook in `@sixthshift/design-system/hooks` could centralize this and the discard-prompt.
 - **Server-side validation surfacing.** When the server rejects a submit with field errors, mapping those to per-field state isn't standardized.
 
 ## Related

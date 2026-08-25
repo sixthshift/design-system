@@ -1,6 +1,6 @@
 # Component Catalog
 
-Index of all components in `@sixthshift/ui`. Use this to find the right component for a task and understand its API at a glance.
+Index of all components in `@sixthshift/design-system`. Use this to find the right component for a task and understand its API at a glance.
 
 For design token details (colors, spacing, variants/intents), see [design-tokens.md](design-tokens.md).
 
@@ -10,7 +10,7 @@ For design token details (colors, spacing, variants/intents), see [design-tokens
 
 ### Button
 
-**Import:** `@sixthshift/ui/button`
+**Import:** `@sixthshift/design-system/button`
 **Purpose:** Primary interactive element for actions and navigation.
 
 | Prop | Type | Notes |
@@ -27,7 +27,7 @@ For design token details (colors, spacing, variants/intents), see [design-tokens
 
 #### Input
 
-**Import:** `@sixthshift/ui/input`
+**Import:** `@sixthshift/design-system/input`
 **Purpose:** Standard text input with optional icon slots.
 
 | Prop | Type | Notes |
@@ -40,14 +40,14 @@ Extends `React.InputHTMLAttributes`.
 
 #### Textarea
 
-**Import:** `@sixthshift/ui/textarea`
+**Import:** `@sixthshift/design-system/textarea`
 **Purpose:** Multi-line text input.
 
 No custom props beyond `React.TextareaHTMLAttributes`. Default `min-h-[60px]`.
 
 #### TagInput
 
-**Import:** `@sixthshift/ui/tag-input`
+**Import:** `@sixthshift/design-system/tag-input`
 **Purpose:** Token field for tags — existing tags as removable chips, type + Enter/comma to add, Backspace to remove the last. Controlled. Used by the create/edit modals.
 
 | Prop | Type | Notes |
@@ -58,7 +58,7 @@ No custom props beyond `React.TextareaHTMLAttributes`. Default `min-h-[60px]`.
 
 #### Select
 
-**Import:** `@sixthshift/ui/select`
+**Import:** `@sixthshift/design-system/select`
 **Purpose:** Single-value dropdown with keyboard navigation, optional search and clear.
 
 | Prop | Type | Notes |
@@ -75,7 +75,7 @@ Generic over string value type (`<T extends string>`).
 
 #### SearchInput
 
-**Import:** `@sixthshift/ui/search-input`
+**Import:** `@sixthshift/design-system/search-input`
 **Purpose:** Input with search icon and clearable value.
 
 | Prop | Type | Notes |
@@ -88,7 +88,7 @@ Wraps `Input` internally.
 
 #### Checkbox
 
-**Import:** `@sixthshift/ui/checkbox`
+**Import:** `@sixthshift/design-system/checkbox`
 **Purpose:** Toggle for boolean or indeterminate state.
 
 | Prop | Type | Notes |
@@ -100,7 +100,7 @@ Wraps `Input` internally.
 
 #### CheckboxGroup
 
-**Import:** `@sixthshift/ui/checkbox-group`
+**Import:** `@sixthshift/design-system/checkbox-group`
 **Purpose:** Multi-select group of checkboxes.
 
 | Prop | Type | Notes |
@@ -114,7 +114,7 @@ Wraps `Input` internally.
 
 #### RadioButton
 
-**Import:** `@sixthshift/ui/radio-button`
+**Import:** `@sixthshift/design-system/radio-button`
 **Purpose:** Single radio option (usually used inside RadioButtonGroup).
 
 | Prop | Type | Notes |
@@ -125,7 +125,7 @@ Wraps `Input` internally.
 
 #### RadioButtonGroup
 
-**Import:** `@sixthshift/ui/radio-button-group`
+**Import:** `@sixthshift/design-system/radio-button-group`
 **Purpose:** Single-select group of radio options.
 
 | Prop | Type | Notes |
@@ -139,7 +139,7 @@ Wraps `Input` internally.
 
 #### Switch
 
-**Import:** `@sixthshift/ui/switch`
+**Import:** `@sixthshift/design-system/switch`
 **Purpose:** Boolean toggle with optional pending spinner.
 
 | Prop | Type | Notes |
@@ -151,7 +151,7 @@ Wraps `Input` internally.
 
 #### Toggle
 
-**Import:** `@sixthshift/ui/toggle`
+**Import:** `@sixthshift/design-system/toggle`
 **Purpose:** Button that toggles between pressed/unpressed states.
 
 | Prop | Type | Notes |
@@ -164,7 +164,7 @@ Wraps `Input` internally.
 
 #### ToggleGroup
 
-**Import:** `@sixthshift/ui/toggle-group`
+**Import:** `@sixthshift/design-system/toggle-group`
 **Purpose:** Group of toggles for single or multi-select.
 
 | Prop | Type | Notes |
@@ -180,11 +180,11 @@ Wraps `Input` internally.
 
 ### Date/Time Pickers
 
-All date/time components use `@sixthshift/ui/temporal` types (`Temporal.PlainDate`, `Temporal.PlainTime`, `Temporal.Instant`).
+All date/time components use `@sixthshift/design-system/temporal` types (`Temporal.PlainDate`, `Temporal.PlainTime`, `Temporal.Instant`).
 
 #### Calendar
 
-**Import:** `@sixthshift/ui/calendar`
+**Import:** `@sixthshift/design-system/calendar`
 **Purpose:** Inline calendar grid for date selection (used internally by DatePicker).
 
 | Prop | Type | Notes |
@@ -201,7 +201,7 @@ All date/time components use `@sixthshift/ui/temporal` types (`Temporal.PlainDat
 
 #### DatePicker
 
-**Import:** `@sixthshift/ui/date-picker`
+**Import:** `@sixthshift/design-system/date-picker`
 **Purpose:** Input trigger + Calendar popover for picking dates.
 
 | Prop | Type | Notes |
@@ -217,7 +217,7 @@ All date/time components use `@sixthshift/ui/temporal` types (`Temporal.PlainDat
 
 #### TimePicker
 
-**Import:** `@sixthshift/ui/time-picker`
+**Import:** `@sixthshift/design-system/time-picker`
 **Purpose:** Input trigger + scrollable hour/minute/second columns for picking time.
 
 | Prop | Type | Notes |
@@ -232,7 +232,7 @@ All date/time components use `@sixthshift/ui/temporal` types (`Temporal.PlainDat
 
 #### DateTimePicker
 
-**Import:** `@sixthshift/ui/datetime-picker`
+**Import:** `@sixthshift/design-system/datetime-picker`
 **Purpose:** Combined date + time picker using `Temporal.Instant` (timezone-aware).
 
 | Prop | Type | Notes |
@@ -247,7 +247,7 @@ All date/time components use `@sixthshift/ui/temporal` types (`Temporal.PlainDat
 
 #### DateTimeRangePicker
 
-**Import:** `@sixthshift/ui/datetime-range-picker`
+**Import:** `@sixthshift/design-system/datetime-range-picker`
 **Purpose:** Start/end datetime picker for ranges using `Temporal.Instant`.
 
 | Prop | Type | Notes |
@@ -264,7 +264,7 @@ All date/time components use `@sixthshift/ui/temporal` types (`Temporal.PlainDat
 
 #### Modal
 
-**Import:** `@sixthshift/ui/modal`
+**Import:** `@sixthshift/design-system/modal`
 **Purpose:** Centered dialog with backdrop overlay. Compound component.
 
 | Prop | Type | Notes |
@@ -281,7 +281,7 @@ Mobile: slides up from bottom. Desktop: centered overlay. Enter/exit animations 
 
 #### Sheet
 
-**Import:** `@sixthshift/ui/sheet`
+**Import:** `@sixthshift/design-system/sheet`
 **Purpose:** Side panel that slides in from an edge. Compound component.
 
 | Prop | Type | Notes |
@@ -297,7 +297,7 @@ Mobile: slides up from bottom. Desktop: centered overlay. Enter/exit animations 
 
 #### Popover
 
-**Import:** `@sixthshift/ui/popover`
+**Import:** `@sixthshift/design-system/popover`
 **Purpose:** Click-triggered floating content panel. Compound component.
 
 | Prop | Type | Notes |
@@ -311,7 +311,7 @@ Mobile: slides up from bottom. Desktop: centered overlay. Enter/exit animations 
 
 #### Tooltip
 
-**Import:** `@sixthshift/ui/tooltip`
+**Import:** `@sixthshift/design-system/tooltip`
 **Purpose:** Hover-triggered informational popup. Compound component.
 
 | Prop | Type | Notes |
@@ -325,7 +325,7 @@ Mobile: slides up from bottom. Desktop: centered overlay. Enter/exit animations 
 
 #### Toast
 
-**Import:** `@sixthshift/ui/toast`
+**Import:** `@sixthshift/design-system/toast`
 **Purpose:** Temporary notification with optional action button.
 
 | Prop | Type | Notes |
@@ -345,7 +345,7 @@ Built on top of `Message`. Enter/exit animations included.
 
 #### Badge
 
-**Import:** `@sixthshift/ui/badge`
+**Import:** `@sixthshift/design-system/badge`
 **Purpose:** Small label for status, category, or count.
 
 | Prop | Type | Notes |
@@ -355,7 +355,7 @@ Built on top of `Message`. Enter/exit animations included.
 
 #### TagChip
 
-**Import:** `@sixthshift/ui/tag-chip`
+**Import:** `@sixthshift/design-system/tag-chip`
 **Purpose:** One tag, rendered prettily (`project:x` → "project: x"). Pure presentation — the web `TagRef` resolves `person:` tags to a name chip before they reach here (never a raw id).
 
 | Prop | Type | Notes |
@@ -366,7 +366,7 @@ Built on top of `Message`. Enter/exit animations included.
 
 #### Avatar
 
-**Import:** `@sixthshift/ui/avatar`
+**Import:** `@sixthshift/design-system/avatar`
 **Purpose:** Circular container for user images with fallback initials.
 
 **Sub-components:**
@@ -378,7 +378,7 @@ No variant props. Style via `className`.
 
 #### Card
 
-**Import:** `@sixthshift/ui/card`
+**Import:** `@sixthshift/design-system/card`
 **Purpose:** Bordered container with optional header. Becomes interactive when `onClick` is provided.
 
 | Prop | Type | Notes |
@@ -389,7 +389,7 @@ No variant props. Style via `className`.
 
 #### Breadcrumb
 
-**Import:** `@sixthshift/ui/breadcrumb`
+**Import:** `@sixthshift/design-system/breadcrumb`
 **Purpose:** Navigation trail showing hierarchy path.
 
 | Prop | Type | Notes |
@@ -400,7 +400,7 @@ Uses `ComponentsContext` for link rendering (router integration).
 
 #### ColorDot
 
-**Import:** `@sixthshift/ui/color-dot`
+**Import:** `@sixthshift/design-system/color-dot`
 **Purpose:** Small colored circle for status or category indicators.
 
 | Prop | Type | Notes |
@@ -411,7 +411,7 @@ Uses `ComponentsContext` for link rendering (router integration).
 
 #### StatsCard
 
-**Import:** `@sixthshift/ui/stats-card`
+**Import:** `@sixthshift/design-system/stats-card`
 **Purpose:** Card with title, description, status border, and metric content area.
 
 | Prop | Type | Notes |
@@ -423,14 +423,14 @@ Uses `ComponentsContext` for link rendering (router integration).
 
 #### MetricList
 
-**Import:** `@sixthshift/ui/metric-list`
+**Import:** `@sixthshift/design-system/metric-list`
 **Purpose:** Vertical stack container for metric rows.
 
 Children-only API. Wrap metric items as children.
 
 #### Pagination
 
-**Import:** `@sixthshift/ui/pagination`
+**Import:** `@sixthshift/design-system/pagination`
 **Purpose:** Page navigation with rows-per-page selector and prev/next buttons.
 
 | Prop | Type | Notes |
@@ -444,7 +444,7 @@ Children-only API. Wrap metric items as children.
 
 #### Separator
 
-**Import:** `@sixthshift/ui/separator`
+**Import:** `@sixthshift/design-system/separator`
 **Purpose:** Horizontal or vertical divider line.
 
 | Prop | Type | Notes |
@@ -454,14 +454,14 @@ Children-only API. Wrap metric items as children.
 
 #### Skeleton
 
-**Import:** `@sixthshift/ui/skeleton`
+**Import:** `@sixthshift/design-system/skeleton`
 **Purpose:** Pulsing placeholder for loading states.
 
 No custom props. Apply dimensions via `className` (e.g., `className="h-4 w-32"`).
 
 #### Spinner
 
-**Import:** `@sixthshift/ui/spinner`
+**Import:** `@sixthshift/design-system/spinner`
 **Purpose:** Animated loading indicator.
 
 | Prop | Type | Notes |
@@ -478,25 +478,25 @@ The base `Text` component is a polymorphic wrapper. The named typography compone
 
 | Component | Import | Default Styles | Default Element |
 |-----------|--------|---------------|----------------|
-| `Text` | `@sixthshift/ui/text` | None (raw polymorphic wrapper) | `<span>` |
-| `TextInline` | `@sixthshift/ui/text-inline` | Inline flex with gap/align variants (CVA) | `<span>` |
-| `Heading` | `@sixthshift/ui/heading` | Semibold, tracking-tight, size by level (`h1`=4xl..`h6`=base) | `<h2>` |
-| `Display` | `@sixthshift/ui/display` | Bold, 3xl | `<span>` |
-| `Subtitle` | `@sixthshift/ui/subtitle` | Subtle color | `<span>` |
-| `Lead` | `@sixthshift/ui/lead` | Subtle, lg, relaxed leading | `<p>` |
-| `Body` | `@sixthshift/ui/body` | Normal color, sm | `<p>` |
-| `Caption` | `@sixthshift/ui/caption` | Subtle, xs | `<span>` |
-| `Muted` | `@sixthshift/ui/muted` | Subtle, sm | `<span>` |
-| `Emphasis` | `@sixthshift/ui/emphasis` | Medium weight, sm | `<span>` |
-| `Label` | `@sixthshift/ui/label` | Medium weight, sm | `<label>` |
-| `SectionTitle` | `@sixthshift/ui/section-title` | Subtle, sm, uppercase, wide tracking | `<span>` |
-| `Code` | `@sixthshift/ui/code` | Mono font, subtle bg, sm | `<code>` |
-| `Mono` | `@sixthshift/ui/mono` | Mono font, subtle, sm | `<span>` |
-| `Timestamp` | `@sixthshift/ui/timestamp` | Mono font, subtle, xs | `<span>` |
+| `Text` | `@sixthshift/design-system/text` | None (raw polymorphic wrapper) | `<span>` |
+| `TextInline` | `@sixthshift/design-system/text-inline` | Inline flex with gap/align variants (CVA) | `<span>` |
+| `Heading` | `@sixthshift/design-system/heading` | Semibold, tracking-tight, size by level (`h1`=4xl..`h6`=base) | `<h2>` |
+| `Display` | `@sixthshift/design-system/display` | Bold, 3xl | `<span>` |
+| `Subtitle` | `@sixthshift/design-system/subtitle` | Subtle color | `<span>` |
+| `Lead` | `@sixthshift/design-system/lead` | Subtle, lg, relaxed leading | `<p>` |
+| `Body` | `@sixthshift/design-system/body` | Normal color, sm | `<p>` |
+| `Caption` | `@sixthshift/design-system/caption` | Subtle, xs | `<span>` |
+| `Muted` | `@sixthshift/design-system/muted` | Subtle, sm | `<span>` |
+| `Emphasis` | `@sixthshift/design-system/emphasis` | Medium weight, sm | `<span>` |
+| `Label` | `@sixthshift/design-system/label` | Medium weight, sm | `<label>` |
+| `SectionTitle` | `@sixthshift/design-system/section-title` | Subtle, sm, uppercase, wide tracking | `<span>` |
+| `Code` | `@sixthshift/design-system/code` | Mono font, subtle bg, sm | `<code>` |
+| `Mono` | `@sixthshift/design-system/mono` | Mono font, subtle, sm | `<span>` |
+| `Timestamp` | `@sixthshift/design-system/timestamp` | Mono font, subtle, xs | `<span>` |
 
 #### TextInline (CVA)
 
-**Import:** `@sixthshift/ui/text-inline`
+**Import:** `@sixthshift/design-system/text-inline`
 **Purpose:** Inline flex container for text + icon combos with controlled gap and alignment.
 
 | Prop | Type | Notes |
@@ -506,7 +506,7 @@ The base `Text` component is a polymorphic wrapper. The named typography compone
 
 #### Markdown
 
-**Import:** `@sixthshift/ui/markdown`
+**Import:** `@sixthshift/design-system/markdown`
 **Purpose:** Renders a markdown string to styled HTML using PA typography components.
 
 | Prop | Type | Notes |
@@ -523,7 +523,7 @@ All chart components are SVG-based with no external charting library.
 
 #### LineChart
 
-**Import:** `@sixthshift/ui/line-chart`
+**Import:** `@sixthshift/design-system/line-chart`
 **Purpose:** Multi-series line chart with grid, axes, tooltips, and area fill.
 
 | Prop | Type | Notes |
@@ -539,7 +539,7 @@ All chart components are SVG-based with no external charting library.
 
 #### BarChart
 
-**Import:** `@sixthshift/ui/bar-chart`
+**Import:** `@sixthshift/design-system/bar-chart`
 **Purpose:** Horizontal bar chart for comparing values.
 
 | Prop | Type | Notes |
@@ -552,7 +552,7 @@ All chart components are SVG-based with no external charting library.
 
 #### Sparkline
 
-**Import:** `@sixthshift/ui/sparkline`
+**Import:** `@sixthshift/design-system/sparkline`
 **Purpose:** Compact inline trend line for embedding in tables or cards.
 
 | Prop | Type | Notes |
@@ -565,7 +565,7 @@ All chart components are SVG-based with no external charting library.
 
 #### HeatMapCalendar
 
-**Import:** `@sixthshift/ui/heat-map`
+**Import:** `@sixthshift/design-system/heat-map`
 **Purpose:** GitHub-style contribution calendar heatmap.
 
 | Prop | Type | Notes |
@@ -577,7 +577,7 @@ All chart components are SVG-based with no external charting library.
 
 #### HeatMapMatrix
 
-**Import:** `@sixthshift/ui/heat-map`
+**Import:** `@sixthshift/design-system/heat-map`
 **Purpose:** Simple matrix heatmap with day-of-week rows and week columns.
 
 | Prop | Type | Notes |
@@ -593,7 +593,7 @@ All chart components are SVG-based with no external charting library.
 
 #### EmptyState
 
-**Import:** `@sixthshift/ui/empty-state`
+**Import:** `@sixthshift/design-system/empty-state`
 **Purpose:** Centered placeholder for lists/pages with no data.
 
 | Prop | Type | Notes |
@@ -605,7 +605,7 @@ All chart components are SVG-based with no external charting library.
 
 #### Message
 
-**Import:** `@sixthshift/ui/message`
+**Import:** `@sixthshift/design-system/message`
 **Purpose:** Alert-style banner for feedback (info, success, warning, error).
 
 | Prop | Type | Notes |
@@ -619,7 +619,7 @@ Also supports compound children: `Message.Icon`, `Message.Body`, `Message.Title`
 
 #### Tabs
 
-**Import:** `@sixthshift/ui/tabs`
+**Import:** `@sixthshift/design-system/tabs`
 **Purpose:** Tab navigation with content panels. Compound component.
 
 | Prop | Type | Notes |
@@ -636,7 +636,7 @@ Also supports compound children: `Message.Icon`, `Message.Body`, `Message.Title`
 
 ### FormField
 
-**Import:** `@sixthshift/ui/form-field`
+**Import:** `@sixthshift/design-system/form-field`
 **Purpose:** Wraps a form input with label, description, and validation feedback.
 
 | Prop | Type | Notes |
@@ -650,7 +650,7 @@ Auto-generates `id` and wires `aria-describedby`/`aria-invalid` onto the child i
 
 ### NavSide
 
-**Import:** `@sixthshift/ui/nav-side`
+**Import:** `@sixthshift/design-system/nav-side`
 **Purpose:** Vertical sidebar navigation with sections, icons, and expand/collapse.
 
 | Prop | Type | Notes |
@@ -662,7 +662,7 @@ Auto-generates `id` and wires `aria-describedby`/`aria-invalid` onto the child i
 
 ### NavBottom
 
-**Import:** `@sixthshift/ui/nav-bottom`
+**Import:** `@sixthshift/design-system/nav-bottom`
 **Purpose:** Mobile bottom tab bar navigation.
 
 | Prop | Type | Notes |
@@ -674,7 +674,7 @@ Auto-generates `id` and wires `aria-describedby`/`aria-invalid` onto the child i
 
 ### ProgressBar
 
-**Import:** `@sixthshift/ui/progress-bar`
+**Import:** `@sixthshift/design-system/progress-bar`
 **Purpose:** Horizontal completion bar with optional fraction text.
 
 | Prop | Type | Notes |
@@ -685,7 +685,7 @@ Auto-generates `id` and wires `aria-describedby`/`aria-invalid` onto the child i
 
 ### Code Editor
 
-**Import:** `@sixthshift/ui/code-editor`
+**Import:** `@sixthshift/design-system/code-editor`
 **Purpose:** Monaco-based code editor with TypeScript support, semantic tokens, and PA theme.
 
 | Prop | Type | Notes |
@@ -698,7 +698,7 @@ Auto-generates `id` and wires `aria-describedby`/`aria-invalid` onto the child i
 
 ### Code Editor Workspace
 
-**Import:** `@sixthshift/ui/code-editor-workspace`
+**Import:** `@sixthshift/design-system/code-editor-workspace`
 **Purpose:** Full editor workspace with toolbar, validation status, and status bar.
 
 | Prop | Type | Notes |
@@ -715,7 +715,7 @@ Auto-generates `id` and wires `aria-describedby`/`aria-invalid` onto the child i
 
 ### Hooks
 
-**Import:** `@sixthshift/ui/hooks`
+**Import:** `@sixthshift/design-system/hooks`
 
 | Hook | Purpose |
 |------|---------|
@@ -733,17 +733,17 @@ Auto-generates `id` and wires `aria-describedby`/`aria-invalid` onto the child i
 
 | Context | Import | Purpose |
 |---------|--------|---------|
-| `OverlayContext` | `@sixthshift/ui/overlay` | Modal/toast/sheet stack management |
-| `ComponentsContext` | `@sixthshift/ui/components` | Inject router `Link` component |
+| `OverlayContext` | `@sixthshift/design-system/overlay` | Modal/toast/sheet stack management |
+| `ComponentsContext` | `@sixthshift/design-system/components` | Inject router `Link` component |
 
 ### Utilities
 
 | Export | Import | Purpose |
 |--------|--------|---------|
-| `cn()` | `@sixthshift/ui/utils` | Tailwind class merging (`clsx` + `tailwind-merge`) |
-| Format helpers | `@sixthshift/ui/format` | Number/date formatting utilities |
-| `ErrorBoundary` | `@sixthshift/ui/error-boundary` | React error boundary wrapper |
-| `withSuspense` | `@sixthshift/ui/with-suspense` | HOC for Suspense wrapping |
-| `withErrorBoundary` | `@sixthshift/ui/with-error-boundary` | HOC for error boundary wrapping |
-| `withSuspenseAndErrorBoundary` | `@sixthshift/ui/with-suspense-and-error-boundary` | Combined HOC |
-| `EmptyBoundary` / `withEmpty` | `@sixthshift/ui/empty-boundary` / `@sixthshift/ui/with-empty` | Empty state boundary |
+| `cn()` | `@sixthshift/design-system/utils` | Tailwind class merging (`clsx` + `tailwind-merge`) |
+| Format helpers | `@sixthshift/design-system/format` | Number/date formatting utilities |
+| `ErrorBoundary` | `@sixthshift/design-system/error-boundary` | React error boundary wrapper |
+| `withSuspense` | `@sixthshift/design-system/with-suspense` | HOC for Suspense wrapping |
+| `withErrorBoundary` | `@sixthshift/design-system/with-error-boundary` | HOC for error boundary wrapping |
+| `withSuspenseAndErrorBoundary` | `@sixthshift/design-system/with-suspense-and-error-boundary` | Combined HOC |
+| `EmptyBoundary` / `withEmpty` | `@sixthshift/design-system/empty-boundary` / `@sixthshift/design-system/with-empty` | Empty state boundary |

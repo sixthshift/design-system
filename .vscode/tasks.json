@@ -16,9 +16,6 @@
       "type": "shell",
       "command": "bun",
       "args": ["run", "dev"],
-      "options": {
-        "cwd": "${workspaceFolder}/packages/ui"
-      },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated"
@@ -31,9 +28,6 @@
       "type": "shell",
       "command": "bun",
       "args": ["run", "storybook"],
-      "options": {
-        "cwd": "${workspaceFolder}/packages/ui"
-      },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated"

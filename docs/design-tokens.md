@@ -124,7 +124,7 @@ Each scale has values from 50 (lightest) to 950 (darkest).
 
 ## Z-Index Scale
 
-Stacking is a named token scale (`packages/ui/tailwind.config.ts`), not ad-hoc `z-[n]`. Use the token; never a raw value.
+Stacking is a named token scale (`tailwind.config.ts`), not ad-hoc `z-[n]`. Use the token; never a raw value.
 
 | Token              | Value | Layer                          |
 |--------------------|-------|--------------------------------|
@@ -280,7 +280,7 @@ Render component styles on a different element:
 ## File Structure
 
 ```
-packages/ui/src/
+src/
 ├── theme/
 │   ├── palette.json       # Color scales (ocean, emerald, etc.)
 │   ├── theme.json         # Token definitions (light/dark)
@@ -301,8 +301,8 @@ packages/ui/src/
 
 ```tsx
 // In your app entry point:
-import '@sixthshift/ui/theme.css';   // CSS variables (generated)
-import '@sixthshift/ui/styles.css';  // Tailwind + base styles
+import '@sixthshift/design-system/theme.css';   // CSS variables (generated)
+import '@sixthshift/design-system/styles.css';  // Tailwind + base styles
 ```
 
 ---

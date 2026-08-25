@@ -9,6 +9,16 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Neither job writes anything; don't inherit the repo default token scope.
+permissions:
+  contents: read
+
+env:
+  # Match the devcontainer's pin (.devcontainer/Dockerfile) so CI and local dev
+  # can't diverge on a Bun release. --frozen-lockfile does not protect against
+  # resolver behaviour changes.
+  BUN_VERSION: "1.3.9"
+
 jobs:
   check:
     name: Tests and checks
@@ -18,14 +28,20 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
 
-      # postinstall in @sixthshift/design-system builds theme + Tailwind CSS
+      # setup-bun caches only the Bun binary, not the dependency store.
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      # postinstall runs `bun run build`, which produces dist/theme.generated.css
+      # and dist/styles.css — so there is no separate build step below.
       - name: Install dependencies
         run: bun install --frozen-lockfile
-
-      - name: Build
-        run: bun run build
 
       - name: Type check
         run: bun run type-check
@@ -44,7 +60,23 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      # Keyed on the lockfile so a playwright bump invalidates the browser cache
+      # instead of restoring a revision that would just be re-downloaded.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: playwright-${{ runner.os }}-
 
       - name: Install dependencies
         run: bun install --frozen-lockfile

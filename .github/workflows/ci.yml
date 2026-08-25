@@ -52,8 +52,8 @@ jobs:
       - name: Tests
         run: bun run test
 
-  visual:
-    name: Visual regression
+  browser:
+    name: Browser tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -83,6 +83,12 @@ jobs:
 
       - name: Install Chromium
         run: bunx playwright install --with-deps chromium
+
+      # 544 story smoke + a11y tests. Requires optimizeDeps.include for the
+      # React runtime (see vitest.config.ts) — without it Vite re-optimizes
+      # mid-run, reloads, and every render throws on a null React dispatcher.
+      - name: Story tests
+        run: bun run test:stories
 
       # Baselines are keyed by browser-platform-arch, so this job compares
       # against *-chromium-linux-x64.png. A developer's arm64 devcontainer

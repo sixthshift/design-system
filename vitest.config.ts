@@ -7,6 +7,13 @@ import { configDefaults, defineConfig } from "vitest/config";
 
 const dirname = typeof __dirname !== "undefined" ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
+// Pre-bundle the React runtime for the browser-mode projects. If Vite discovers
+// one of these mid-run it re-optimizes and reloads the page, which swaps the
+// React module instance — every in-flight render then hits a null dispatcher and
+// throws "Cannot read properties of null (reading 'useState')". Those surface as
+// unhandled errors while tests still report as passing, so pin them up front.
+const BROWSER_OPTIMIZE_DEPS = ["react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime"];
+
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   test: {
@@ -41,6 +48,7 @@ export default defineConfig({
       {
         extends: true,
         plugins: [tailwindcss()],
+        optimizeDeps: { include: [...BROWSER_OPTIMIZE_DEPS, "@testing-library/react"] },
         test: {
           name: "visual",
           include: ["src/**/*.visual.test.tsx"],
@@ -76,6 +84,7 @@ export default defineConfig({
           // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
           storybookTest({ configDir: path.join(dirname, ".storybook") }),
         ],
+        optimizeDeps: { include: BROWSER_OPTIMIZE_DEPS },
         test: {
           name: "storybook",
           browser: {

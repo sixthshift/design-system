@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Temporal } from "../../temporal";
+import { DatePicker } from "../DatePicker";
 import { TimePicker } from "./TimePicker";
 
 const meta: Meta<typeof TimePicker> = {
@@ -191,9 +192,6 @@ export const DateTimeExample: Story = {
     const [date, setDate] = useState<Temporal.PlainDate | undefined>(Temporal.PlainDate.from("2025-01-15"));
     const [time, setTime] = useState<Temporal.PlainTime | undefined>(Temporal.PlainTime.from("14:30"));
 
-    // Dynamically import DatePicker to show combination
-    const DatePicker = require("../DatePicker").DatePicker;
-
     return (
       <div className="flex flex-col gap-4">
         <div className="flex gap-4">
@@ -201,7 +199,7 @@ export const DateTimeExample: Story = {
             <label htmlFor="datetime-date" className="font-medium text-sm">
               Date
             </label>
-            <DatePicker id="datetime-date" value={date} onChange={setDate} />
+            <DatePicker value={date} onChange={setDate} />
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="datetime-time" className="font-medium text-sm">

@@ -27,6 +27,8 @@ Thumbs.db
 
 # Testing
 coverage/
+# Visual-diff output; baselines under src/**/__screenshots__ ARE committed
+.vitest-attachments/
 .playwright-mcp/
 .playwright/
 

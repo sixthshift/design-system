@@ -57,6 +57,13 @@ RUN go install github.com/isaacphi/mcp-language-server@latest
 
 # --- project-specific below this line ---
 
+# Chromium's system libraries, for Vitest browser mode (visual regression +
+# Storybook story tests). Playwright's own browser binaries are NOT installed
+# here — postCreateCommand does that, so they track the version pinned in
+# package.json instead of drifting with the image.
+RUN npx --yes playwright install-deps chromium \
+    && rm -rf /var/lib/apt/lists/*
+
 # Setup shell configuration (last: changes most often, keeps cache above intact)
 COPY .devcontainer/shell-config.sh /root/.shell-config.sh
 RUN echo 'source /root/.shell-config.sh' >> /root/.bashrc

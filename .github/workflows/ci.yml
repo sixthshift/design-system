@@ -35,3 +35,39 @@ jobs:
 
       - name: Tests
         run: bun run test
+
+  visual:
+    name: Visual regression
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Chromium
+        run: bunx playwright install --with-deps chromium
+
+      # Baselines are keyed by browser-platform-arch, so this job compares
+      # against *-chromium-linux-x64.png. A developer's arm64 devcontainer
+      # produces *-chromium-linux-arm64.png; the two never collide.
+      #
+      # SEEDING: the first run of this job has no x64 baselines and will fail,
+      # writing them instead. Download the visual-baselines artifact below,
+      # commit the PNGs, and the job goes green.
+      - name: Visual regression
+        run: bun run test:visual
+
+      - name: Upload diffs and new baselines
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines
+          path: |
+            .vitest-attachments/
+            src/**/__screenshots__/
+          if-no-files-found: ignore

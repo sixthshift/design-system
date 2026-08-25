@@ -101,6 +101,9 @@
     "test": "vitest run --project unit --project temporal --reporter=dot",
     "test:verbose": "vitest run --project unit --project temporal",
     "test:watch": "vitest --project unit --project temporal",
+    "test:visual": "vitest run --project visual",
+    "test:visual:update": "vitest run --project visual --update",
+    "test:stories": "vitest run --project storybook",
     "test:ui": "bunx vitest --ui",
     "type-check": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json",
     "lint": "biome lint .",
@@ -128,7 +131,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.15",
-    "@chromatic-com/storybook": "^4.1.3",
     "@storybook/addon-a11y": "^10.1.8",
     "@storybook/addon-docs": "^10.1.8",
     "@storybook/addon-themes": "^10.1.10",

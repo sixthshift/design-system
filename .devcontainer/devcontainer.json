@@ -33,7 +33,7 @@
     "6006": { "label": "Storybook", "onAutoForward": "notify" }
   },
 
-  "postCreateCommand": "if [ -f package.json ]; then bun install; else echo 'No package.json yet — skipping bun install'; fi",
+  "postCreateCommand": "if [ -f package.json ]; then bun install && bunx playwright install chromium; else echo 'No package.json yet — skipping bun install'; fi",
 
   "remoteUser": "root"
 }

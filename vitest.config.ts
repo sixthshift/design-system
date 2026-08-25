@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
+import tailwindcss from "@tailwindcss/vite";
 import { playwright } from "@vitest/browser-playwright";
 import { configDefaults, defineConfig } from "vitest/config";
 
@@ -16,7 +17,9 @@ export default defineConfig({
         test: {
           name: "unit",
           include: ["src/**/*.test.{ts,tsx}"],
-          exclude: [...configDefaults.exclude, "src/temporal/**"],
+          // *.visual.test.tsx also ends in .test.tsx — it belongs to the
+          // browser-mode "visual" project, not here.
+          exclude: [...configDefaults.exclude, "src/temporal/**", "src/**/*.visual.test.tsx"],
           environment: "happy-dom",
           setupFiles: ["./vitest.setup.ts"],
           isolate: false,
@@ -33,7 +36,39 @@ export default defineConfig({
           isolate: false,
         },
       },
-      // Storybook browser tests
+      // Visual regression — real Chromium, screenshots diffed against committed
+      // baselines. Stories are the fixtures (see *.visual.test.tsx).
+      {
+        extends: true,
+        plugins: [tailwindcss()],
+        test: {
+          name: "visual",
+          include: ["src/**/*.visual.test.tsx"],
+          setupFiles: ["./vitest.setup.visual.ts"],
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright({}),
+            instances: [{ browser: "chromium" }],
+            viewport: { width: 1280, height: 720 },
+            expect: {
+              toMatchScreenshot: {
+                comparatorName: "pixelmatch",
+                // A handful of pixels of antialiasing drift is not a regression.
+                // Keep this tight: it is also the knob that hides real changes.
+                comparatorOptions: { allowedMismatchedPixelRatio: 0.01 },
+                // The default path ends in `-${platform}`, but platform is
+                // process.platform — "linux" on both arm64 and x64. Baselines
+                // from an arm64 devcontainer would silently collide with x64
+                // CI, so key them by architecture as well.
+                resolveScreenshotPath: ({ root, testFileDirectory, screenshotDirectory, testFileName, arg, browserName, platform, ext }) =>
+                  `${root}/${testFileDirectory}/${screenshotDirectory}/${testFileName}/${arg}-${browserName}-${platform}-${process.arch}${ext}`,
+              },
+            },
+          },
+        },
+      },
+      // Storybook smoke + a11y tests
       {
         extends: true,
         plugins: [

@@ -6,8 +6,7 @@ Personal design system: design tokens, theme pipeline, and a React component lib
 
 | Package | What it is |
 |---|---|
-| [`@sixthshift/ui`](packages/ui/) | ~80 components (primitives, overlays, forms, pickers, charts, typography) + JSON-driven token/theme pipeline + Tailwind config |
-| [`@sixthshift/temporal`](packages/temporal/) | Date/time utilities wrapping the Temporal polyfill — used by all date/time components |
+| [`@sixthshift/ui`](packages/ui/) | ~80 components (primitives, overlays, forms, pickers, charts, typography) + JSON-driven token/theme pipeline + Tailwind config. Includes a `./temporal` date/time module (wrapping the Temporal polyfill) used by all date/time components and exported at `@sixthshift/ui/temporal` |
 
 ## Consuming from a project
 
@@ -17,8 +16,7 @@ Not published to npm. Consume via git-tag dependency:
 // package.json
 {
   "dependencies": {
-    "@sixthshift/ui": "git+ssh://git@github.com/sixthshift/design-system.git#v0.1.0",
-    "@sixthshift/temporal": "git+ssh://git@github.com/sixthshift/design-system.git#v0.1.0"
+    "@sixthshift/ui": "git+ssh://git@github.com/sixthshift/design-system.git#v0.1.0"
   }
 }
 ```

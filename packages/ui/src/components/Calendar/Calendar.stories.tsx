@@ -1,6 +1,6 @@
-import { endOfWeek, startOfWeek, type Temporal, today } from "@sixthshift/temporal";
 import type { Meta, StoryObj } from "@storybook/react";
 import * as React from "react";
+import { endOfWeek, startOfWeek, type Temporal, today } from "../../temporal";
 import { Calendar } from "./Calendar";
 import type { DateRangeValue, PresetOption } from "./calendar.types";
 

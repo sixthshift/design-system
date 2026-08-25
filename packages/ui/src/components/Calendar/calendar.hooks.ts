@@ -1,5 +1,5 @@
-import { addDays, formatDateMediumYear, isPlainDate, isSameDay, isSameMonth, startOfMonth, startOfWeek, Temporal, today } from "@sixthshift/temporal";
 import { useCallback, useMemo } from "react";
+import { addDays, formatDateMediumYear, isPlainDate, isSameDay, isSameMonth, startOfMonth, startOfWeek, Temporal, today } from "../../temporal";
 import type { DateRangeValue, DateSelectionState, DisabledDateMatcher, SelectionMode } from "./calendar.types";
 
 // =============================================================================

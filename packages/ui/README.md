@@ -6,7 +6,7 @@ Personal design system component library built on [shadcn/ui](https://ui.shadcn.
 
 **Owns:** The component library: 80+ exports via subpath imports (`@sixthshift/ui/button`, `@sixthshift/ui/modal`, etc.), design tokens, theme system (JSON-driven CSS generation), Tailwind config, and Storybook stories. Components span primitives, composites, typography, charts, and overlays.
 
-**Boundaries:** Depends on `@sixthshift/temporal` (date/time components), Floating UI (popover/tooltip positioning), and CVA (variant styling). Peer-depends on React 18. No app/domain coupling — domain-specific components live in consuming apps.
+**Boundaries:** Bundles a `./temporal` date/time module (`@sixthshift/ui/temporal`, wrapping `@js-temporal/polyfill`) used by the date/time components, Floating UI (popover/tooltip positioning), and CVA (variant styling). Peer-depends on React 18. No app/domain coupling — domain-specific components live in consuming apps.
 
 **Surprise:** All components are imported via subpath exports (`@sixthshift/ui/button`), never from a barrel root -- there is no main export. Positioning uses Floating UI, not Radix. Variants use the `variant` (visual) + `intent` (semantic) orthogonal prop pattern via CVA, not className-based styling. Compound components (e.g., Tabs) use `Object.assign` to attach sub-components. Check `src/components/` before creating any new UI element.
 

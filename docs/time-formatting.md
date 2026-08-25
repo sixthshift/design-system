@@ -37,7 +37,7 @@ Absolute is for the **deciding** mood — the user is making a plan.
 
 ## Relative scale
 
-PA uses one canonical relative scale. Use `formatRecency` from PA's people utils as the reference implementation (could be lifted to `@sixthshift/temporal` if usage spreads):
+PA uses one canonical relative scale. Use `formatRecency` from PA's people utils as the reference implementation (could be lifted to `@sixthshift/ui/temporal` if usage spreads):
 
 | Days since | Display |
 |---|---|
@@ -59,7 +59,7 @@ For sub-day precision (when used — typically only in activity log or chat-like
 
 ## Absolute formats
 
-PA's `@sixthshift/temporal` package exports a family of formatters in `packages/temporal/src/format.ts`. Pick the one that matches what the user is doing:
+PA's `@sixthshift/ui/temporal` package exports a family of formatters in `packages/temporal/src/format.ts`. Pick the one that matches what the user is doing:
 
 ### Dates only
 
@@ -90,7 +90,7 @@ const display = `${formatDateShortYear(dt.toPlainDate())} ${formatTime(dt)}`;
 // "Mar 5, 2026 4:00 PM"
 ```
 
-This pattern appears in the Person Detail page; if it spreads, consider lifting a `formatDateTime` helper to `@sixthshift/temporal`.
+This pattern appears in the Person Detail page; if it spreads, consider lifting a `formatDateTime` helper to `@sixthshift/ui/temporal`.
 
 ## Smart format ("today / yesterday / date")
 
@@ -105,7 +105,7 @@ For surfaces where time matters but doesn't deserve a full date, use a smart for
 | Within this year | `Mar 5` |
 | Other years | `Mar 5, 2026` |
 
-This pattern exists informally in some Now-view code. **Open question:** lift to `@sixthshift/temporal` as `formatDateSmart`?
+This pattern exists informally in some Now-view code. **Open question:** lift to `@sixthshift/ui/temporal` as `formatDateSmart`?
 
 ## Insight strips and counts
 
@@ -123,7 +123,7 @@ The strip is reading-mode, not scanning-mode — natural language reads better h
 
 1. **Pick relative OR absolute per surface.** Don't mix on the same row ("2d ago at 4pm" is noise).
 2. **Use the canonical relative scale.** No "yesterday" / "2 days ago" / "a week ago" variants. Use `1d` / `2d` / `1w` consistently.
-3. **All formatters go through `@sixthshift/temporal`.** Never roll your own with `toLocaleDateString` or template strings.
+3. **All formatters go through `@sixthshift/ui/temporal`.** Never roll your own with `toLocaleDateString` or template strings.
 4. **Year is shown when ambiguous.** If a date could be this year or another year and that matters, include the year. Otherwise omit.
 5. **Timezones are user-local.** PA uses `Temporal.Now.timeZoneId()` for all display. No UTC in the UI.
 6. **Persist instants, display formats.** The database stores `Temporal.Instant`. The UI converts and formats at render time.
@@ -132,8 +132,8 @@ The strip is reading-mode, not scanning-mode — natural language reads better h
 
 - **Raw ISO strings in the UI** (`2026-05-19T14:30:00Z`). Always format.
 - **Verbose relative phrases** in scannable contexts ("approximately 2 hours ago", "a few days ago"). Use the scale.
-- **`new Date()`** in component code. Use `Temporal.Now` via `@sixthshift/temporal`.
-- **Per-page format functions.** If you find yourself writing `formatX` in a page utils file, the helper belongs in `@sixthshift/temporal` or is a sign the existing helpers don't fit. Push the gap upstream.
+- **`new Date()`** in component code. Use `Temporal.Now` via `@sixthshift/ui/temporal`.
+- **Per-page format functions.** If you find yourself writing `formatX` in a page utils file, the helper belongs in `@sixthshift/ui/temporal` or is a sign the existing helpers don't fit. Push the gap upstream.
 
 ## Current state across PA
 
@@ -143,7 +143,7 @@ These pages each implement their own relative formatter today:
 - `packages/web/src/modules/library/notes/pages/NotesPage/NotesPage.utils.ts` — `formatRelativeTime` (verbose: "2 days ago")
 - `packages/web/src/modules/activity/components/ActivityTimeline/ActivityTimeline.utils.ts` — its own thing
 
-Bringing these in line means lifting `formatRecency` to `@sixthshift/temporal` and using it from every page.
+Bringing these in line means lifting `formatRecency` to `@sixthshift/ui/temporal` and using it from every page.
 
 ## Related
 

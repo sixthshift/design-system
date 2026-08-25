@@ -5,7 +5,7 @@
  * This provides type safety and semantic clarity about what kind of time is expected.
  */
 
-import type { Temporal } from "@sixthshift/temporal";
+import type { Temporal } from "../../temporal";
 
 // =============================================================================
 // Value Types

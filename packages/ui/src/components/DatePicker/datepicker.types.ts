@@ -5,7 +5,7 @@
  * This provides type safety and semantic clarity about what kind of date is expected.
  */
 
-import type { Temporal } from "@sixthshift/temporal";
+import type { Temporal } from "../../temporal";
 import type { PresetOption as CalendarPresetOption } from "../Calendar/calendar.types";
 
 // =============================================================================

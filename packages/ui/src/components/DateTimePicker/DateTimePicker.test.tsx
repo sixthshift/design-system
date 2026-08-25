@@ -1,8 +1,9 @@
 /// <reference types="@testing-library/jest-dom" />
-import { Temporal } from "@sixthshift/temporal";
+
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import { Temporal } from "../../temporal";
 
 import { DateTimePicker } from "./DateTimePicker";
 

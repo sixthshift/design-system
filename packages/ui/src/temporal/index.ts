@@ -1,5 +1,5 @@
 /**
- * @sixthshift/temporal - Date/time utilities using Temporal API
+ * @sixthshift/ui/temporal - Date/time utilities using Temporal API
  *
  * This package provides:
  * - Re-export of Temporal from @js-temporal/polyfill
@@ -12,7 +12,7 @@
  * in this file and all consuming packages get native support automatically.
  *
  * @example
- * import { Temporal, parseDate, serialize, formatDateShort, isToday } from '@sixthshift/temporal';
+ * import { Temporal, parseDate, serialize, formatDateShort, isToday } from '@sixthshift/ui/temporal';
  *
  * // Parse ISO string from API
  * const dueDate = parseDate('2025-01-15');

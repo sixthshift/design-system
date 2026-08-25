@@ -1,5 +1,5 @@
-import { today } from "@sixthshift/temporal";
 import type { Meta, StoryObj } from "@storybook/react";
+import { today } from "../../temporal";
 import { HeatMapMatrix } from "./HeatMapMatrix";
 
 const meta: Meta<typeof HeatMapMatrix> = {

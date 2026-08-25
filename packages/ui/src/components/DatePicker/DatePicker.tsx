@@ -1,10 +1,10 @@
 import { autoUpdate, FloatingPortal, flip, offset, shift, useClick, useDismiss, useFloating, useInteractions } from "@floating-ui/react";
-import { isPlainDate, type Temporal, today } from "@sixthshift/temporal";
 import { useControllableState } from "@sixthshift/ui/hooks";
 import { cn } from "@sixthshift/ui/utils";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 import type * as React from "react";
 import { useCallback, useId, useState } from "react";
+import { isPlainDate, type Temporal, today } from "../../temporal";
 import { Calendar } from "../Calendar";
 import { defaultFormatDisplay, getDisplayValue, temporalToISO } from "./datepicker.hooks";
 import type { DatePickerProps, DateRangeValue } from "./datepicker.types";

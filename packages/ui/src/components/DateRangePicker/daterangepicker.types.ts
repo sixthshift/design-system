@@ -1,4 +1,4 @@
-import type { Temporal } from "@sixthshift/temporal";
+import type { Temporal } from "../../temporal";
 
 export type DateRangeValue = {
   from: Temporal.PlainDate | undefined;

@@ -1,4 +1,4 @@
-import { formatTimePadded, Temporal } from "@sixthshift/temporal";
+import { formatTimePadded, Temporal } from "../../temporal";
 import type { ClockFormat, ParsedTime, TimeFormat, TimePeriod } from "./timepicker.types";
 
 // =============================================================================

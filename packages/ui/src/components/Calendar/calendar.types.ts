@@ -5,7 +5,7 @@
  * for consistent date selection UI.
  */
 
-import type { Temporal } from "@sixthshift/temporal";
+import type { Temporal } from "../../temporal";
 
 /**
  * Date range value

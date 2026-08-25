@@ -1,5 +1,5 @@
-import { today } from "@sixthshift/temporal";
 import { useMemo } from "react";
+import { today } from "../../temporal";
 
 import { DatePicker } from "../DatePicker";
 import type { DatePickerRangeProps } from "../DatePicker/datepicker.types";

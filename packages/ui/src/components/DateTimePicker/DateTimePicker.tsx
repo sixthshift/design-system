@@ -1,10 +1,10 @@
 import { autoUpdate, FloatingPortal, flip, offset, shift, useClick, useDismiss, useFloating, useInteractions } from "@floating-ui/react";
-import { Temporal, today } from "@sixthshift/temporal";
 import { useControllableState } from "@sixthshift/ui/hooks";
 import { cn } from "@sixthshift/ui/utils";
 import { Clock, X } from "lucide-react";
 import type * as React from "react";
 import { useCallback, useId, useState } from "react";
+import { Temporal, today } from "../../temporal";
 
 import { Button } from "../Button";
 import { Calendar } from "../Calendar";

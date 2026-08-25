@@ -1,6 +1,6 @@
-import { Temporal } from "@sixthshift/temporal";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { Temporal } from "../../temporal";
 import { TimePicker } from "./TimePicker";
 
 const meta: Meta<typeof TimePicker> = {

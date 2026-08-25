@@ -13,7 +13,7 @@
  * When sending Temporal types to API endpoints, use this composition:
  *
  * ```typescript
- * import { plainDateTimeToZonedDateTime, serialize } from "@sixthshift/temporal";
+ * import { plainDateTimeToZonedDateTime, serialize } from "@sixthshift/ui/temporal";
  *
  * // For PlainDateTime (timezone-naive) → API string
  * const apiValue = serialize(plainDateTimeToZonedDateTime(dateTime));

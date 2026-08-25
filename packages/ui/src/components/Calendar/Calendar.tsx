@@ -1,7 +1,7 @@
-import { addMonths, formatMonthYear, isPlainDate, type Temporal, today } from "@sixthshift/temporal";
 import { cn } from "@sixthshift/ui/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback } from "react";
+import { addMonths, formatMonthYear, isPlainDate, type Temporal, today } from "../../temporal";
 import { Button } from "../Button";
 import { Separator } from "../Separator";
 import {

@@ -1,5 +1,5 @@
-import { formatDateMediumYear, isPlainDate, Temporal } from "@sixthshift/temporal";
 import { useCallback } from "react";
+import { formatDateMediumYear, isPlainDate, Temporal } from "../../temporal";
 import type { DatePickerMode, DateRangeValue, DateSelectionState, DisabledDateMatcher } from "./datepicker.types";
 
 // =============================================================================

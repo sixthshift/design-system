@@ -1,6 +1,6 @@
 import { autoUpdate, flip, offset, shift, size, useFloating } from "@floating-ui/react";
 import { useControllableState } from "@sixthshift/design-system/hooks";
-import { type HTMLAttributes, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { type HTMLAttributes, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { SelectDropdown } from "./SelectDropdown";
 import { SelectTriggerButton, SelectTriggerSearch } from "./SelectTrigger";
 import { useSelectKeyboard } from "./useSelectKeyboard";
@@ -161,17 +161,27 @@ export const Select = <T extends string = string>(props: SelectProps<T>) => {
     setHighlightedIndex(0);
   }, []);
 
+  // Keep the latest callbacks in a ref. This effect must run when the open state
+  // (and derived option state) changes — not whenever a caller passes a fresh
+  // inline handler. Listing onFocus/onBlur as dependencies would re-run it on
+  // every parent render, resetting the highlighted option and clearing the
+  // search box mid-interaction.
+  const focusCallbacksRef = useRef({ onFocus, onBlur });
+  useEffect(() => {
+    focusCallbacksRef.current = { onFocus, onBlur };
+  });
+
   // Focus/blur lifecycle
   useEffect(() => {
     if (open) {
       const firstSelected = filteredOptions.findIndex((opt) => selectedValues.has(opt.value));
       setHighlightedIndex(firstSelected >= 0 ? firstSelected : 0);
-      if (!wasOpenRef.current) onFocus?.();
+      if (!wasOpenRef.current) focusCallbacksRef.current.onFocus?.();
       if (searchable && inputRef.current) inputRef.current.focus();
     } else {
       setHighlightedIndex(-1);
       setSearchValue("");
-      if (wasOpenRef.current) onBlur?.();
+      if (wasOpenRef.current) focusCallbacksRef.current.onBlur?.();
     }
     wasOpenRef.current = open;
   }, [open, filteredOptions, searchable, selectedValues]);
@@ -218,6 +228,11 @@ export const Select = <T extends string = string>(props: SelectProps<T>) => {
     focusTrigger,
   });
 
+  // The listbox id must be unique per instance: it is referenced by
+  // aria-controls, and a hardcoded value meant two Selects on one page
+  // produced duplicate ids and cross-wired ARIA.
+  const listboxId = useId();
+
   // Strip mode from DOM props
   const { mode: _, value: _v, defaultValue: _dv, onValueChange: _oc, ...htmlProps } = restProps as Record<string, unknown>;
 
@@ -233,6 +248,7 @@ export const Select = <T extends string = string>(props: SelectProps<T>) => {
           open={open}
           className={className}
           onSearchChange={handleSearchChange}
+          listboxId={listboxId}
           props={htmlProps as React.InputHTMLAttributes<HTMLInputElement>}
         />
       ) : (
@@ -247,6 +263,7 @@ export const Select = <T extends string = string>(props: SelectProps<T>) => {
           onToggle={() => !disabled && !collapsed && setOpen(!open)}
           onKeyDown={handleTriggerKeyDown}
           onClear={handleClear}
+          listboxId={listboxId}
           props={htmlProps as HTMLAttributes<HTMLElement>}
         />
       )}
@@ -254,6 +271,7 @@ export const Select = <T extends string = string>(props: SelectProps<T>) => {
       {open && !collapsed && (
         <SelectDropdown
           setFloating={refs.setFloating}
+          listboxId={listboxId}
           listboxRef={listboxRef}
           floatingStyles={floatingStyles}
           displayOptions={filteredOptions}

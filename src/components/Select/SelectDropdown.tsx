@@ -5,6 +5,7 @@ import type React from "react";
 
 interface SelectDropdownProps<T extends string> {
   setFloating: (node: HTMLElement | null) => void;
+  listboxId: string;
   listboxRef: React.MutableRefObject<HTMLDivElement | null>;
   floatingStyles: React.CSSProperties;
   displayOptions: readonly { value: T; label: string }[];
@@ -19,6 +20,7 @@ interface SelectDropdownProps<T extends string> {
 
 export const SelectDropdown = <T extends string>({
   setFloating,
+  listboxId,
   listboxRef,
   floatingStyles,
   displayOptions,
@@ -36,7 +38,7 @@ export const SelectDropdown = <T extends string>({
         setFloating(node);
         listboxRef.current = node;
       }}
-      id="select-listbox"
+      id={listboxId}
       role="listbox"
       aria-multiselectable={multiple || undefined}
       tabIndex={-1}

@@ -537,4 +537,64 @@ describe("Select", () => {
       expect(screen.getByRole("option", { name: "Banana Split" })).toBeInTheDocument();
     });
   });
+
+  describe("unique ids across instances", () => {
+    it("gives each instance its own listbox id", async () => {
+      const user = userEvent.setup();
+      render(
+        <>
+          <Select value="apple" options={options} onValueChange={() => {}} />
+          <Select value="banana" options={options} onValueChange={() => {}} />
+        </>
+      );
+
+      // Opening the second would be an outside-press that dismisses the first,
+      // so open them in turn and compare the ids each one generates.
+      const triggers = screen.getAllByRole("button");
+
+      await user.click(triggers[0]!);
+      const firstId = screen.getByRole("listbox").id;
+      await user.keyboard("{Escape}");
+
+      await user.click(triggers[1]!);
+      const secondId = screen.getByRole("listbox").id;
+      await user.keyboard("{Escape}");
+
+      expect(firstId).toBeTruthy();
+      expect(secondId).toBeTruthy();
+      expect(firstId).not.toBe(secondId);
+    });
+
+    it("points each trigger's aria-controls at its own listbox", async () => {
+      const user = userEvent.setup();
+      render(<Select value="apple" options={options} onValueChange={() => {}} />);
+
+      const trigger = screen.getByRole("button");
+      // Closed: the listbox is not mounted, so nothing should be referenced.
+      expect(trigger).not.toHaveAttribute("aria-controls");
+
+      await user.click(trigger);
+      const listbox = screen.getByRole("listbox");
+      expect(trigger).toHaveAttribute("aria-controls", listbox.id);
+      await user.keyboard("{Escape}");
+    });
+
+    it("produces no duplicate element ids with two Selects rendered", async () => {
+      const user = userEvent.setup();
+      const { baseElement } = render(
+        <>
+          <Select value="apple" options={options} onValueChange={() => {}} />
+          <Select value="banana" options={options} onValueChange={() => {}} />
+        </>
+      );
+
+      const triggers = screen.getAllByRole("button");
+      await user.click(triggers[0]!);
+      await user.click(triggers[1]!);
+
+      const allIds = Array.from(baseElement.querySelectorAll("[id]")).map((el) => el.id);
+      expect(new Set(allIds).size).toBe(allIds.length);
+      await user.keyboard("{Escape}");
+    });
+  });
 });

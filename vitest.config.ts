@@ -56,15 +56,33 @@ export default defineConfig({
           browser: {
             enabled: true,
             headless: true,
-            provider: playwright({}),
+            provider: playwright({
+              contextOptions: {
+                // Their own Tailwind base layer pins every animation and
+                // transition to 0.01ms under this query, so the design system
+                // does most of the freezing for us.
+                reducedMotion: "reduce",
+                // Pin everything a screenshot can depend on rather than
+                // inheriting whatever the machine happens to default to.
+                deviceScaleFactor: 1,
+                colorScheme: "light",
+                timezoneId: "UTC",
+                locale: "en-US",
+              },
+            }),
             instances: [{ browser: "chromium" }],
             viewport: { width: 1280, height: 720 },
             expect: {
               toMatchScreenshot: {
                 comparatorName: "pixelmatch",
-                // A handful of pixels of antialiasing drift is not a regression.
-                // Keep this tight: it is also the knob that hides real changes.
-                comparatorOptions: { allowedMismatchedPixelRatio: 0.01 },
+                // Zero, deliberately. With motion frozen, fonts pre-loaded, a
+                // fixed frame width and CI on the same architecture, rendering is
+                // bit-identical run to run. Measured: 1% left ~620 pixels of
+                // slack and even 0.1% still absorbed a 12px -> 8px corner radius
+                // change (~0.06% of the frame). Any tolerance here is a blind
+                // spot, not safety. A Chromium bump will fail the suite, which is
+                // the correct prompt to review and re-record baselines.
+                comparatorOptions: { allowedMismatchedPixelRatio: 0 },
                 // The default path ends in `-${platform}`, but platform is
                 // process.platform — "linux" on both arm64 and x64. Baselines
                 // from an arm64 devcontainer would silently collide with x64

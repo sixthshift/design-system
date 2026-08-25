@@ -4,6 +4,7 @@ import type { HTMLAttributes } from "react";
 
 interface SelectTriggerButtonProps {
   setReference: (node: HTMLElement | null) => void;
+  listboxId: string;
   open: boolean;
   disabled: boolean;
   collapsed: boolean;
@@ -18,6 +19,7 @@ interface SelectTriggerButtonProps {
 
 export const SelectTriggerButton = ({
   setReference,
+  listboxId,
   open,
   disabled,
   collapsed,
@@ -51,6 +53,8 @@ export const SelectTriggerButton = ({
         title={collapsed ? displayLabel : undefined}
         aria-haspopup="listbox"
         aria-expanded={open}
+        // The listbox unmounts when closed, so only reference it while it exists.
+        aria-controls={open ? listboxId : undefined}
         {...props}
       >
         {collapsed ? (
@@ -81,6 +85,7 @@ export const SelectTriggerButton = ({
 
 interface SelectTriggerSearchProps {
   setReference: (node: HTMLElement | null) => void;
+  listboxId: string;
   inputRef: React.RefObject<HTMLInputElement | null>;
   searchValue: string;
   disabled: boolean;
@@ -93,6 +98,7 @@ interface SelectTriggerSearchProps {
 
 export const SelectTriggerSearch = ({
   setReference,
+  listboxId,
   inputRef,
   searchValue,
   disabled,
@@ -115,7 +121,7 @@ export const SelectTriggerSearch = ({
       )}
       role="combobox"
       aria-expanded={open}
-      aria-controls="select-listbox"
+      aria-controls={listboxId}
       aria-autocomplete="list"
       {...props}
     />

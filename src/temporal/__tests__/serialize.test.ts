@@ -18,7 +18,6 @@ import {
   serializeOptional,
   serializeTime,
   serializeZonedDateTime,
-  Temporal,
 } from "../index";
 
 // =============================================================================

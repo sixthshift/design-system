@@ -16,7 +16,6 @@ import {
   subtractDays,
   subtractMonths,
   subtractWeeks,
-  Temporal,
 } from "../index";
 
 // =============================================================================

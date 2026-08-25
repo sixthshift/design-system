@@ -7,7 +7,7 @@
     "noUncheckedIndexedAccess": false,
     "types": ["bun", "vitest/globals", "@testing-library/jest-dom"],
     "incremental": true,
-    "tsBuildInfoFile": "./dist/tsconfig.test.tsbuildinfo"
+    "tsBuildInfoFile": "./node_modules/.cache/typescript/tsconfig.test.tsbuildinfo"
   },
   "include": ["src/**/*", "src/**/*.json", "vitest.setup.ts"],
   "exclude": ["node_modules", "dist", "build", "coverage"]

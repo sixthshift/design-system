@@ -19,7 +19,7 @@
     /* Emit — types are consumed from source via the exports map, so nothing is emitted */
     "noEmit": true,
     "incremental": true,
-    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
+    "tsBuildInfoFile": "./node_modules/.cache/typescript/tsconfig.tsbuildinfo",
 
     /* Interop Constraints */
     "esModuleInterop": true,

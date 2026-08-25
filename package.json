@@ -1,9 +1,42 @@
 {
   "name": "@sixthshift/design-system",
   "version": "0.1.0",
-  "private": true,
-  "type": "module",
   "description": "Personal design system - tokens, theme, and component library",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sixthshift/design-system.git"
+  },
+  "homepage": "https://github.com/sixthshift/design-system#readme",
+  "bugs": {
+    "url": "https://github.com/sixthshift/design-system/issues"
+  },
+  "keywords": [
+    "design-system",
+    "react",
+    "component-library",
+    "tailwindcss",
+    "design-tokens",
+    "temporal"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "src",
+    "dist",
+    "tailwind.config.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test.tsx",
+    "!src/**/__tests__",
+    "!src/**/__screenshots__",
+    "!src/**/*.stories.tsx",
+    "!src/stories",
+    "!src/testing"
+  ],
   "exports": {
     "./styles.css": "./dist/styles.css",
     "./theme.css": "./dist/theme.generated.css",
@@ -89,7 +122,7 @@
     "./heat-map": "./src/components/HeatMap/index.ts"
   },
   "scripts": {
-    "postinstall": "bun run build",
+    "prepare": "bun run build",
     "build": "bun run build:theme && bun run build:css",
     "build:theme": "bun run scripts/generate-theme.ts -i src/theme/theme.json -p src/theme/palette.json -t src/theme/typography.json -o dist/theme.generated.css",
     "build:css": "tailwindcss -i src/styles/base.css -o dist/styles.css --minify",

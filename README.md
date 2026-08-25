@@ -14,15 +14,8 @@ A single package, `@sixthshift/design-system`: ~80 components (primitives, overl
 
 ## Consuming from a project
 
-Not published to npm. Consume via git-tag dependency:
-
-```jsonc
-// package.json
-{
-  "dependencies": {
-    "@sixthshift/design-system": "git+ssh://git@github.com/sixthshift/design-system.git#v0.1.0"
-  }
-}
+```bash
+npm install @sixthshift/design-system
 ```
 
 ```tsx
@@ -34,7 +27,7 @@ import "@sixthshift/design-system/styles.css";  // compiled Tailwind + base styl
 import { Button } from "@sixthshift/design-system/button";
 ```
 
-**Current consumption constraint:** components ship as TypeScript source (only CSS is prebuilt), so consumers need TS/JSX-compatible tooling (Vite, Bun, Next, etc.). Shipping compiled JS is a planned foundations improvement.
+**Current consumption constraint:** components ship as TypeScript source; only the CSS is prebuilt (and is included in the published package, so no build runs on install). Consumers therefore need TS/JSX-compatible tooling — Vite, Bun, Next, and similar. Shipping compiled JS is a planned foundations improvement.
 
 ## Available exports
 
@@ -99,7 +92,7 @@ export default {
 ## Development
 
 ```bash
-bun install          # postinstall builds theme + styles CSS
+bun install          # `prepare` builds theme + styles CSS into dist/
 bun run storybook    # component workbench on :6006
 bun run dev          # watch-rebuild theme + Tailwind CSS
 bun run test         # unit + temporal tests

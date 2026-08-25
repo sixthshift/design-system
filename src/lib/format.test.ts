@@ -115,3 +115,78 @@ describe("formatUptime", () => {
     });
   });
 });
+
+describe("formatBytes — previously unrepresentable input", () => {
+  describe("units beyond GB", () => {
+    it("formats terabytes", () => {
+      expect(formatBytes(1024 ** 4)).toBe("1.00 TB");
+    });
+
+    it("formats petabytes", () => {
+      expect(formatBytes(1024 ** 5)).toBe("1.00 PB");
+    });
+
+    it("stays in the largest unit rather than running off the unit list", () => {
+      // PB already exceeds Number.MAX_SAFE_INTEGER bytes, so anything larger
+      // should still render a number, not "undefined".
+      const result = formatBytes(1024 ** 6);
+      expect(result).toBe("1024.00 PB");
+      expect(result).not.toContain("undefined");
+    });
+
+    it.each([1024 ** 4, 1024 ** 5, 1024 ** 6, Number.MAX_SAFE_INTEGER])("never renders undefined for %d", (value) => {
+      expect(formatBytes(value)).not.toContain("undefined");
+    });
+  });
+
+  describe("values below one byte", () => {
+    it("stays in bytes rather than computing a negative unit index", () => {
+      expect(formatBytes(0.5)).toBe("0.50 B");
+    });
+
+    it("handles a very small fraction", () => {
+      expect(formatBytes(0.001)).toBe("0.00 B");
+    });
+  });
+
+  describe("negative values", () => {
+    it("formats the magnitude with a leading sign", () => {
+      expect(formatBytes(-1536)).toBe("-1.50 KB");
+    });
+
+    it("scales negative values through the units", () => {
+      expect(formatBytes(-(1024 ** 3))).toBe("-1.00 GB");
+    });
+
+    it("handles a negative fraction of a byte", () => {
+      expect(formatBytes(-0.5)).toBe("-0.50 B");
+    });
+
+    it("never renders NaN for a negative value", () => {
+      expect(formatBytes(-1)).not.toContain("NaN");
+    });
+  });
+
+  describe("non-finite input", () => {
+    it.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])("returns an em dash for %p", (value) => {
+      expect(formatBytes(value)).toBe("—");
+    });
+
+    it("does not claim a numeric value it cannot represent", () => {
+      expect(formatBytes(Number.NaN)).not.toContain("0");
+      expect(formatBytes(Number.NaN)).not.toContain("NaN");
+    });
+  });
+
+  describe("boundaries stay exact", () => {
+    it.each([
+      [1023, "1023.00 B"],
+      [1024, "1.00 KB"],
+      [1024 ** 2 - 1, "1024.00 KB"],
+      [1024 ** 2, "1.00 MB"],
+      [1024 ** 3, "1.00 GB"],
+    ])("formats %d as %s", (input, expected) => {
+      expect(formatBytes(input)).toBe(expected);
+    });
+  });
+});

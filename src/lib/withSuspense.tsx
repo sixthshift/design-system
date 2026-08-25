@@ -10,7 +10,7 @@ export function withSuspense<P extends object>(Component: ComponentType<P>, fall
     );
   }
 
-  WithSuspense.displayName = `withSuspense(${Component.displayName ?? Component.name ?? "Component"})`;
+  WithSuspense.displayName = `withSuspense(${Component.displayName || Component.name || "Component"})`;
 
   return WithSuspense;
 }

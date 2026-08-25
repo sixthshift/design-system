@@ -10,7 +10,7 @@ export function withErrorBoundary<P extends object>(Component: ComponentType<P>,
     );
   }
 
-  WithErrorBoundary.displayName = `withErrorBoundary(${Component.displayName ?? Component.name ?? "Component"})`;
+  WithErrorBoundary.displayName = `withErrorBoundary(${Component.displayName || Component.name || "Component"})`;
 
   return WithErrorBoundary;
 }

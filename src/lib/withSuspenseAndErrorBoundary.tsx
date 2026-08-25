@@ -20,7 +20,7 @@ export function withSuspenseAndErrorBoundary<P extends object>(Component: Compon
     );
   }
 
-  WithSuspenseAndErrorBoundary.displayName = `withSuspenseAndErrorBoundary(${Component.displayName ?? Component.name ?? "Component"})`;
+  WithSuspenseAndErrorBoundary.displayName = `withSuspenseAndErrorBoundary(${Component.displayName || Component.name || "Component"})`;
 
   return WithSuspenseAndErrorBoundary;
 }

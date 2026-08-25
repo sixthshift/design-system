@@ -289,3 +289,66 @@ describe("useToast", () => {
     });
   });
 });
+
+describe("useToast prop freshness", () => {
+  /**
+   * Renders a toast whose action handler is swapped without changing any
+   * JSON-serialisable prop. The old implementation memoised the props object
+   * against JSON.stringify(props), and JSON.stringify drops functions — so this
+   * key never changed and openToast fired the first handler forever.
+   */
+  const ToastWithAction = ({ onAction }: { onAction: () => void }) => {
+    const { openToast } = useToast({ title: "Saved", action: "Undo", onAction, duration: 0 });
+    return (
+      <button type="button" onClick={openToast}>
+        Open toast
+      </button>
+    );
+  };
+
+  it("uses the latest onAction handler even when no serialisable prop changed", async () => {
+    const user = userEvent.setup();
+    const first = vi.fn();
+    const second = vi.fn();
+
+    const { rerender } = rtlRender(<ToastWithAction onAction={first} />, { wrapper });
+
+    // Swap only the function identity. Every other prop is byte-identical, so
+    // a JSON-derived cache key cannot see this change.
+    rerender(<ToastWithAction onAction={second} />);
+
+    await user.click(screen.getByRole("button", { name: "Open toast" }));
+    await user.click(screen.getByRole("button", { name: "Undo" }));
+
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(first).not.toHaveBeenCalled();
+  });
+
+  it("still uses the original handler when it has not been replaced", async () => {
+    const user = userEvent.setup();
+    const onAction = vi.fn();
+
+    rtlRender(<ToastWithAction onAction={onAction} />, { wrapper });
+
+    await user.click(screen.getByRole("button", { name: "Open toast" }));
+    await user.click(screen.getByRole("button", { name: "Undo" }));
+
+    expect(onAction).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps openToast referentially stable across re-renders", () => {
+    const identities: Array<() => void> = [];
+    const Probe = ({ title }: { title: string }) => {
+      const { openToast } = useToast({ title, duration: 0 });
+      identities.push(openToast);
+      return null;
+    };
+
+    const { rerender } = rtlRender(<Probe title="a" />, { wrapper });
+    rerender(<Probe title="a" />);
+
+    // Stability is the reason the memo existed; it must survive the fix.
+    expect(identities.length).toBeGreaterThanOrEqual(2);
+    expect(identities[identities.length - 1]).toBe(identities[identities.length - 2]);
+  });
+});

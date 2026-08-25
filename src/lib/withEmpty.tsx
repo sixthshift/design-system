@@ -8,7 +8,7 @@ export function withEmpty<P extends object>(Component: ComponentType<P>, isEmpty
     return <Component {...props} />;
   }
 
-  WithEmpty.displayName = `withEmpty(${Component.displayName ?? Component.name ?? "Component"})`;
+  WithEmpty.displayName = `withEmpty(${Component.displayName || Component.name || "Component"})`;
 
   return WithEmpty;
 }

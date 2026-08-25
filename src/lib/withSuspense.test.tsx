@@ -103,12 +103,12 @@ describe("withSuspense", () => {
       expect(Wrapped.displayName).toBe("withSuspense(Greeting)");
     });
 
-    it("uses an empty name for anonymous components (name defaults to '', not undefined)", () => {
+    it('falls back to "Component" for anonymous components', () => {
       // Passed inline (no variable assignment) so the function has no inferred name.
       // Component.name is "" here, not undefined, so the `?? "Component"` fallback
       // in the implementation never kicks in for anonymous functions.
       const Wrapped = withSuspense((props: GreetingProps) => <div>{props.name}</div>, "Loading...");
-      expect(Wrapped.displayName).toBe("withSuspense()");
+      expect(Wrapped.displayName).toBe("withSuspense(Component)");
     });
   });
 });

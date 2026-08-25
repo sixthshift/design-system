@@ -1,6 +1,6 @@
 import type { StackItem } from "@sixthshift/design-system/hooks";
 import { Toast, type ToastProps } from "@sixthshift/design-system/toast";
-import { type FunctionComponent, useCallback, useId, useMemo } from "react";
+import { type FunctionComponent, useCallback, useEffect, useId, useRef } from "react";
 import { useOverlayContext } from "../OverlayContext";
 
 // Default auto-dismiss duration in milliseconds
@@ -36,29 +36,31 @@ export const useToast = (args: ToastPropsWithDuration | FunctionComponent<ToastP
   const props = isPlainObject(args) ? args : ({} as ToastPropsWithDuration);
   const { duration = DEFAULT_DURATION, ...toastPropsRaw } = props;
 
-  // Memoize toastProps to prevent unnecessary re-renders when props values haven't changed
-  const toastPropsKey = (() => {
-    try {
-      return JSON.stringify(toastPropsRaw);
-    } catch {
-      // Props may contain non-serializable values (e.g. React elements with circular refs)
-      return toastPropsRaw;
-    }
-  })();
-  const toastProps = useMemo(() => toastPropsRaw, [toastPropsKey]);
-
   const closeToast = useCallback(() => {
     dispatch({ type: "remove", id, transition: { duration: 300 } });
   }, [dispatch, id]);
 
+  // `openToast` has to be both referentially stable — callers put it in effect
+  // dependency arrays — and able to see the current props. A ref refreshed after
+  // every render gives both.
+  //
+  // It previously memoised the props object against JSON.stringify(props) as a
+  // cache key. JSON.stringify silently drops function-valued properties, so a
+  // changed `onAction` whose serialisable fields were identical did not
+  // invalidate the key, and `openToast` kept firing the stale closure.
+  const latest = useRef({ customComponent, toastProps: toastPropsRaw, duration });
+  useEffect(() => {
+    latest.current = { customComponent, toastProps: toastPropsRaw, duration };
+  });
+
   const openToast = useCallback(() => {
-    const component = customComponent ?? Toast;
+    const { customComponent: component, toastProps, duration: autoDismiss } = latest.current;
 
     dispatch({
       type: "push",
       item: {
         id,
-        component,
+        component: component ?? Toast,
         onClose: closeToast,
         standalone: false, // OverlayContext handles positioning
         ...toastProps,
@@ -66,10 +68,10 @@ export const useToast = (args: ToastPropsWithDuration | FunctionComponent<ToastP
     });
 
     // Auto-dismiss if duration is set
-    if (duration > 0) {
-      setTimeout(closeToast, duration);
+    if (autoDismiss > 0) {
+      setTimeout(closeToast, autoDismiss);
     }
-  }, [dispatch, id, customComponent, toastProps, closeToast, duration]);
+  }, [dispatch, id, closeToast]);
 
   return {
     openToast,

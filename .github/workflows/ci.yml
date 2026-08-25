@@ -35,8 +35,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
+          key: bun-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-${{ runner.arch }}-
 
       # postinstall runs `bun run build`, which produces dist/theme.generated.css
       # and dist/styles.css — so there is no separate build step below.
@@ -54,7 +54,14 @@ jobs:
 
   browser:
     name: Browser tests
-    runs-on: ubuntu-latest
+    # arm64 to match the devcontainer (.devcontainer/Dockerfile runs on aarch64).
+    # Screenshot baselines are keyed by browser-platform-arch, and the rendering
+    # stack is arch-specific — Playwright ships a separate Chromium build per
+    # arch and its software rasteriser JITs to native code. Matching the arch
+    # means the committed baselines are the ones checked here, so they can be
+    # regenerated locally with `bun run test:visual:update` and CI will agree.
+    # Free for public repositories.
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
 
@@ -66,8 +73,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
+          key: bun-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-${{ runner.arch }}-
 
       # Keyed on the lockfile so a playwright bump invalidates the browser cache
       # instead of restoring a revision that would just be re-downloaded.
@@ -75,8 +82,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: playwright-${{ runner.os }}-
+          key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}
+          restore-keys: playwright-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -90,13 +97,10 @@ jobs:
       - name: Story tests
         run: bun run test:stories
 
-      # Baselines are keyed by browser-platform-arch, so this job compares
-      # against *-chromium-linux-x64.png. A developer's arm64 devcontainer
-      # produces *-chromium-linux-arm64.png; the two never collide.
-      #
-      # SEEDING: the first run of this job has no x64 baselines and will fail,
-      # writing them instead. Download the visual-baselines artifact below,
-      # commit the PNGs, and the job goes green.
+      # Compares against the committed *-chromium-linux-arm64.png baselines.
+      # The arch is still part of the path so an x64 contributor generates their
+      # own set rather than overwriting these — vitest's default path template
+      # ends in process.platform, which is just "linux" on both.
       - name: Visual regression
         run: bun run test:visual
 
@@ -104,7 +108,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: visual-baselines
+          name: visual-diffs
           path: |
             .vitest-attachments/
             src/**/__screenshots__/

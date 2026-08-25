@@ -5,7 +5,7 @@
  * This provides type safety and semantic clarity about what kind of date is expected.
  */
 
-import type { Temporal, WeekStartsOn } from "../../temporal";
+import type { Temporal, WeekStartsOn } from "../../date-time";
 import type { PresetOption as CalendarPresetOption } from "../Calendar/calendar.types";
 
 // =============================================================================

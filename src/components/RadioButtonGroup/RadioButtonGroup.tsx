@@ -3,6 +3,7 @@ import { RadioButton } from "@sixthshift/design-system/radio-button";
 import { cn } from "@sixthshift/design-system/utils";
 import * as React from "react";
 import { getRovingTargetIndex } from "../../internal/rovingFocus";
+import type { WritableRefObject } from "../../internal/types";
 
 export type RadioButtonGroupOption = {
   /** Unique value for the option */
@@ -65,7 +66,7 @@ const RadioButtonGroup = React.forwardRef<HTMLDivElement, RadioButtonGroupProps>
       (node: HTMLDivElement | null) => {
         groupRef.current = node;
         if (typeof ref === "function") ref(node);
-        else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        else if (ref) (ref as WritableRefObject<HTMLDivElement | null>).current = node;
       },
       [ref]
     );

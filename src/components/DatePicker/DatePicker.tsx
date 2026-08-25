@@ -4,7 +4,7 @@ import { cn } from "@sixthshift/design-system/utils";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 import type * as React from "react";
 import { useCallback, useId, useState } from "react";
-import { isPlainDate, type Temporal, today } from "../../temporal";
+import { isPlainDate, type Temporal, today } from "../../date-time";
 import { Calendar } from "../Calendar";
 import { defaultFormatDisplay, getDisplayValue, temporalToISO } from "./datepicker.hooks";
 import type { DatePickerProps, DateRangeValue } from "./datepicker.types";

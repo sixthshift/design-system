@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import type { WritableRefObject } from "../internal/types";
 
 type FloatingRefs = {
   setFloating: (node: HTMLElement | null) => void;
@@ -20,7 +21,7 @@ export function useMergedFloatingRef<T extends HTMLElement = HTMLElement>(floati
       if (typeof consumerRef === "function") {
         consumerRef(node);
       } else if (consumerRef && "current" in consumerRef) {
-        (consumerRef as React.MutableRefObject<T | null>).current = node;
+        (consumerRef as WritableRefObject<T | null>).current = node;
       }
     },
     [floatingRefs, presenceRef, consumerRef]

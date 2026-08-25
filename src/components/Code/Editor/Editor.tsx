@@ -137,6 +137,12 @@ export const Editor = ({ value, onChange, onValidate, readOnly = false, classNam
           minimap: { enabled: false },
           fontSize: 14,
           lineNumbers: "on",
+          // Monaco defaults this to "dimmed" on Linux only, which greys the
+          // final line's number to ~1.4:1 against the editor background — an
+          // axe color-contrast failure, and a platform-dependent one at that.
+          // Pinning it "off" fixes the contrast and makes the editor render
+          // identically everywhere.
+          renderFinalNewline: "off",
           scrollBeyondLastLine: false,
           wordWrap: "on",
           automaticLayout: true,

@@ -31,7 +31,7 @@
           "level": "error",
           "options": {
             "deniedGlobals": {
-              "Date": "Use the Temporal API (@sixthshift/design-system/temporal) instead of Date."
+              "Date": "Use the Temporal API (@sixthshift/design-system/date-time) instead of Date."
             }
           }
         }

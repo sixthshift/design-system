@@ -1,4 +1,4 @@
-import { formatTimePadded, Temporal } from "../../temporal";
+import { formatTimePadded, Temporal } from "../../date-time";
 import type { ClockFormat, ParsedTime, TimeFormat, TimePeriod } from "./timepicker.types";
 
 // =============================================================================

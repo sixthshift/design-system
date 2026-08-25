@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Slot } from "../../../internal/Slot";
+import type { WritableRefObject } from "../../../internal/types";
 import { useHoverCardContext } from "./HoverCardContext";
 
 export type HoverCardTriggerProps = React.HTMLAttributes<HTMLElement> & {
@@ -16,7 +17,7 @@ export const HoverCardTrigger = React.forwardRef<HTMLElement, HoverCardTriggerPr
       ref={(node: HTMLElement | null) => {
         refs.setReference(node);
         if (typeof forwardedRef === "function") forwardedRef(node);
-        else if (forwardedRef) (forwardedRef as React.MutableRefObject<HTMLElement | null>).current = node;
+        else if (forwardedRef) (forwardedRef as WritableRefObject<HTMLElement | null>).current = node;
       }}
       // When rendering as a span wrapper (not asChild), use block layout so the
       // bounding box matches the wrapped element. Without this, the span has

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { today } from "../../temporal";
+import { today } from "../../date-time";
 import { HeatMapMatrix } from "./HeatMapMatrix";
 
 const meta: Meta<typeof HeatMapMatrix> = {

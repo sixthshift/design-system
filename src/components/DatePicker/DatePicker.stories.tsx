@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { Temporal } from "../../temporal";
+import { Temporal } from "../../date-time";
 import { DatePicker } from "./DatePicker";
 import type { DateRangeValue } from "./datepicker.types";
 

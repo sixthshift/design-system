@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { today } from "../../temporal";
+import { today } from "../../date-time";
 
 import { DatePicker } from "../DatePicker";
 import type { DatePickerRangeProps } from "../DatePicker/datepicker.types";

@@ -5,7 +5,7 @@
  * for consistent date selection UI.
  */
 
-import type { Temporal, WeekStartsOn } from "../../temporal";
+import type { Temporal, WeekStartsOn } from "../../date-time";
 
 /**
  * Date range value

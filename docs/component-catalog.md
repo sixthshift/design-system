@@ -180,7 +180,7 @@ Wraps `Input` internally.
 
 ### Date/Time Pickers
 
-All date/time components use `@sixthshift/design-system/temporal` types (`Temporal.PlainDate`, `Temporal.PlainTime`, `Temporal.Instant`).
+All date/time components use `@sixthshift/design-system/date-time` types (`Temporal.PlainDate`, `Temporal.PlainTime`, `Temporal.Instant`).
 
 #### Calendar
 

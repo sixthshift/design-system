@@ -3,7 +3,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { Temporal } from "../../temporal";
+import { Temporal } from "../../date-time";
 
 import { DateRangePicker } from "./DateRangePicker";
 import type { DateRangeValue } from "./daterangepicker.types";

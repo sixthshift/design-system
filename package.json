@@ -2,6 +2,7 @@
   "name": "@sixthshift/design-system",
   "version": "0.1.0",
   "description": "Personal design system - tokens, theme, and component library",
+  "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
@@ -45,7 +46,7 @@
     "./utils": "./src/lib/utils.ts",
     "./format": "./src/lib/format.ts",
     "./hooks": "./src/hooks/index.ts",
-    "./temporal": "./src/temporal/index.ts",
+    "./date-time": "./src/date-time/index.ts",
     "./button": "./src/components/Button/index.ts",
     "./input": "./src/components/Input/index.ts",
     "./textarea": "./src/components/Textarea/index.ts",
@@ -131,9 +132,9 @@
     "dev:theme": "bun run scripts/watch-theme.ts",
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build",
-    "test": "vitest run --project unit --project temporal --reporter=dot",
-    "test:verbose": "vitest run --project unit --project temporal",
-    "test:watch": "vitest --project unit --project temporal",
+    "test": "vitest run --project unit --project date-time --reporter=dot",
+    "test:verbose": "vitest run --project unit --project date-time",
+    "test:watch": "vitest --project unit --project date-time",
     "test:visual": "vitest run --project visual",
     "test:visual:update": "vitest run --project visual --update",
     "test:stories": "vitest run --project storybook",
@@ -149,21 +150,17 @@
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.16",
-    "@fontsource-variable/inter": "^5.2.8",
-    "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@js-temporal/polyfill": "^0.5.0",
-    "@monaco-editor/react": "^4.7.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.511.0",
-    "monaco-editor": "^0.55.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-markdown": "^10.1.0",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.15",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@monaco-editor/react": "^4.7.0",
     "@storybook/addon-a11y": "^10.1.8",
     "@storybook/addon-docs": "^10.1.8",
     "@storybook/addon-themes": "^10.1.10",
@@ -183,7 +180,11 @@
     "@vitest/ui": "4.1.7",
     "commander": "^14.0.2",
     "happy-dom": "^20.9.0",
+    "monaco-editor": "^0.55.1",
     "playwright": "^1.57.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^10.1.0",
     "storybook": "^10.1.8",
     "tailwindcss": "^4",
     "typescript": "~5.7.2",
@@ -191,8 +192,30 @@
     "vitest": "4.1.7"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@monaco-editor/react": "^4.7.0",
+    "monaco-editor": "^0.55.1",
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0",
+    "react-markdown": "^10.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@fontsource-variable/inter": {
+      "optional": true
+    },
+    "@fontsource-variable/jetbrains-mono": {
+      "optional": true
+    },
+    "@monaco-editor/react": {
+      "optional": true
+    },
+    "monaco-editor": {
+      "optional": true
+    },
+    "react-markdown": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=20.0.0",

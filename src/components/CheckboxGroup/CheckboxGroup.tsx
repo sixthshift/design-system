@@ -2,6 +2,7 @@ import { Checkbox } from "@sixthshift/design-system/checkbox";
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import * as React from "react";
+import type { WritableRefObject } from "../../internal/types";
 
 export type CheckboxGroupOption = {
   /** Unique value for the option */
@@ -64,7 +65,7 @@ const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps>(
       (node: HTMLDivElement | null) => {
         groupRef.current = node;
         if (typeof ref === "function") ref(node);
-        else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        else if (ref) (ref as WritableRefObject<HTMLDivElement | null>).current = node;
       },
       [ref]
     );

@@ -2,17 +2,18 @@ import { FloatingPortal } from "@floating-ui/react";
 import { cn } from "@sixthshift/design-system/utils";
 import { Check } from "lucide-react";
 import type React from "react";
+import type { WritableRefObject } from "../../internal/types";
 
 interface SelectDropdownProps<T extends string> {
   setFloating: (node: HTMLElement | null) => void;
   listboxId: string;
-  listboxRef: React.MutableRefObject<HTMLDivElement | null>;
+  listboxRef: WritableRefObject<HTMLDivElement | null>;
   floatingStyles: React.CSSProperties;
   displayOptions: readonly { value: T; label: string }[];
   highlightedIndex: number;
   selectedValues: Set<T>;
   searchValue: string;
-  optionRefs: React.MutableRefObject<Map<number, HTMLButtonElement>>;
+  optionRefs: WritableRefObject<Map<number, HTMLButtonElement>>;
   multiple: boolean;
   onSelect: (value: T) => void;
   onHighlight: (index: number) => void;

@@ -4,17 +4,17 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { Temporal } from "../../temporal";
+import { Temporal } from "../../date-time";
 import { Calendar } from "./Calendar";
 import type { DateRangeValue, PresetOption } from "./calendar.types";
 
-// The component derives "today" from `today()` in ../../temporal. Pin it to a
+// The component derives "today" from `today()` in ../../date-time. Pin it to a
 // fixed leap-day so `isToday` highlighting and the "Today" button are
 // deterministic and don't rot as the real calendar date moves forward.
 const FIXED_TODAY = Temporal.PlainDate.from("2024-02-29");
 
-vi.mock("../../temporal", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../temporal")>();
+vi.mock("../../date-time", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../date-time")>();
   return {
     ...actual,
     today: () => FIXED_TODAY,

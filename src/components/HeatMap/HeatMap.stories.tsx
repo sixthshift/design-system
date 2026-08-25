@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { today } from "../../temporal";
+import { today } from "../../date-time";
 import { HeatMapCalendar } from "./HeatMapCalendar";
 
 function generateData(days: number, maxValue: number) {

@@ -1,6 +1,6 @@
 import { cn } from "@sixthshift/design-system/utils";
 import type * as React from "react";
-import { Temporal } from "../../temporal";
+import { Temporal } from "../../date-time";
 import { DAY_KEYS, DAY_LABELS, DEFAULT_COLOR_SCALE, getIntensity, type HeatMapCell, MONTH_NAMES } from "./heat-map.utils";
 
 export type HeatMapCalendarProps = React.HTMLAttributes<HTMLDivElement> & {

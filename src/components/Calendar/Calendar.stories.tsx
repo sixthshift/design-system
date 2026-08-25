@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import * as React from "react";
-import { endOfWeek, startOfWeek, type Temporal, today } from "../../temporal";
+import { endOfWeek, startOfWeek, type Temporal, today } from "../../date-time";
 import { Calendar } from "./Calendar";
 import type { DateRangeValue, PresetOption } from "./calendar.types";
 

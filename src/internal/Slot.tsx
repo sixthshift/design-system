@@ -1,4 +1,5 @@
 import * as React from "react";
+import type { WritableRefObject } from "./types";
 
 /**
  * Merges multiple refs into a single callback ref.
@@ -9,7 +10,7 @@ function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<
       if (typeof ref === "function") {
         ref(node);
       } else if (ref != null) {
-        (ref as React.MutableRefObject<T | null>).current = node;
+        (ref as WritableRefObject<T | null>).current = node;
       }
     });
   };
@@ -64,10 +65,14 @@ export const Slot = React.forwardRef<HTMLElement, SlotProps>(({ children, ...pro
     return null;
   }
 
-  const childRef = (children as React.ReactElement & { ref?: React.Ref<HTMLElement> }).ref;
+  // React 19 moved `ref` into props and warns when the legacy `element.ref`
+  // getter is read; React 18 only has the getter. Check props first so neither
+  // version complains.
+  const childProps = children.props as Record<string, unknown> & { ref?: React.Ref<HTMLElement> };
+  const childRef = childProps.ref ?? (children as React.ReactElement & { ref?: React.Ref<HTMLElement> }).ref;
 
   return React.cloneElement(children, {
-    ...mergeProps(props, children.props as Record<string, unknown>),
+    ...mergeProps(props, childProps),
     ref: ref ? mergeRefs(ref, childRef) : childRef,
   } as React.HTMLAttributes<HTMLElement>);
 });

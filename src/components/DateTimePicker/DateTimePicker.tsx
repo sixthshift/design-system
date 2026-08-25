@@ -4,7 +4,7 @@ import { cn } from "@sixthshift/design-system/utils";
 import { Clock, X } from "lucide-react";
 import type * as React from "react";
 import { useCallback, useId, useState } from "react";
-import { Temporal, today } from "../../temporal";
+import { Temporal, today } from "../../date-time";
 
 import { Button } from "../Button";
 import { Calendar } from "../Calendar";

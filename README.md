@@ -8,7 +8,7 @@ A single package, `@sixthshift/design-system`: ~80 components (primitives, overl
 
 **Owns:** The component library — 80+ exports via subpath imports, design tokens, theme system (JSON-driven CSS generation), Tailwind config, and Storybook stories. Components span primitives, composites, typography, charts, and overlays.
 
-**Boundaries:** Bundles a `./temporal` date/time module (`@sixthshift/design-system/temporal`, wrapping `@js-temporal/polyfill`) used by the date/time components, Floating UI (popover/tooltip positioning), and CVA (variant styling). Peer-depends on React 18. No app/domain coupling — domain-specific components live in consuming apps.
+**Boundaries:** Bundles a `./date-time` module (`@sixthshift/design-system/date-time`, wrapping `@js-temporal/polyfill`) used by the date/time components, Floating UI (popover/tooltip positioning), and CVA (variant styling). Peer-depends on React 18 or 19. No app/domain coupling — domain-specific components live in consuming apps.
 
 **Surprise:** All components are imported via subpath exports (`@sixthshift/design-system/button`), never from a barrel root — there is no main export. Positioning uses Floating UI, not Radix. Variants use the `variant` (visual) + `intent` (semantic) orthogonal prop pattern via CVA, not className-based styling. Compound components (e.g. Tabs) use `Object.assign` to attach sub-components. Check `src/components/` before creating any new UI element.
 
@@ -28,6 +28,40 @@ import { Button } from "@sixthshift/design-system/button";
 ```
 
 **Current consumption constraint:** components ship as TypeScript source; only the CSS is prebuilt (and is included in the published package, so no build runs on install). Consumers therefore need TS/JSX-compatible tooling — Vite, Bun, Next, and similar. Shipping compiled JS is a planned foundations improvement.
+
+### Peer dependencies
+
+`react` and `react-dom` are the only required peers, at **18 or 19**. CI runs the type-check and the full unit suite against both on every change, so the range is verified rather than merely declared.
+
+Everything else is an **optional** peer — install it only if you import the entry point that needs it. Nothing else in the library imports them, and package managers do not warn about a missing optional peer.
+
+| Entry point | Optional peer |
+| --- | --- |
+| `/code-editor`, `/code-editor-workspace` | `monaco-editor`, `@monaco-editor/react` |
+| `/markdown` | `react-markdown` |
+| The default typefaces (see [Fonts](#fonts)) | `@fontsource-variable/inter`, `@fontsource-variable/jetbrains-mono` |
+
+```bash
+npm install monaco-editor @monaco-editor/react   # only for /code-editor
+npm install react-markdown                       # only for /markdown
+```
+
+Keeping Monaco out of the default install matters: it is ~74 MB on disk, and until now every consumer of `/button` paid for it.
+
+### Fonts
+
+The typography tokens name **Inter Variable** and **JetBrains Mono Variable**, but the package does not bundle font files — that would mean redistributing them, and it lets you self-host or swap faces instead. To get the intended typography, install the two optional font peers and import them in your app entry:
+
+```bash
+npm install @fontsource-variable/inter @fontsource-variable/jetbrains-mono
+```
+
+```tsx
+import "@fontsource-variable/inter";
+import "@fontsource-variable/jetbrains-mono";
+```
+
+Skip this and text falls back to the next family in the stack (`ui-sans-serif` / `ui-monospace`) — everything still works, it just will not match Storybook. To use different faces, override `--font-sans` / `--font-mono` rather than editing component source.
 
 ## Available exports
 
@@ -95,7 +129,7 @@ export default {
 bun install          # `prepare` builds theme + styles CSS into dist/
 bun run storybook    # component workbench on :6006
 bun run dev          # watch-rebuild theme + Tailwind CSS
-bun run test         # unit + temporal tests
+bun run test         # unit + date-time tests
 bun run type-check   # tsc --noEmit (src and tests)
 bun run check        # biome lint + format
 ```
@@ -108,7 +142,7 @@ src/
 ├── typography/   # Typography presets (Heading, Caption, etc.)
 ├── hooks/        # React hooks (useTheme, useLocalStorage, useControllableState, ...)
 ├── internal/     # Internal-only primitives (Slot)
-├── temporal/     # Date/time utilities wrapping @js-temporal/polyfill
+├── date-time/    # Date/time utilities wrapping @js-temporal/polyfill
 ├── theme/        # Token JSONs + schemas + generator types
 ├── styles/       # Tailwind entry (base.css)
 ├── stories/      # Design-system doc stories (palette, theme)

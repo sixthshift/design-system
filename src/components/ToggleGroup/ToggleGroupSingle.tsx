@@ -1,6 +1,7 @@
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import * as React from "react";
 import { getRovingTargetIndex } from "../../internal/rovingFocus";
+import type { WritableRefObject } from "../../internal/types";
 import { ToggleGroupContainer } from "./ToggleGroupContainer";
 import { ToggleGroupItem } from "./ToggleGroupItem";
 import type { ToggleGroupSingleProps } from "./toggleGroup.types";
@@ -41,7 +42,7 @@ const ToggleGroupSingle = React.forwardRef<HTMLDivElement, ToggleGroupSingleProp
       (node: HTMLDivElement | null) => {
         groupRef.current = node;
         if (typeof ref === "function") ref(node);
-        else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        else if (ref) (ref as WritableRefObject<HTMLDivElement | null>).current = node;
       },
       [ref]
     );

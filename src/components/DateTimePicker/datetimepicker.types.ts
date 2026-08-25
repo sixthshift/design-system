@@ -1,4 +1,4 @@
-import type { Temporal, WeekStartsOn } from "../../temporal";
+import type { Temporal, WeekStartsOn } from "../../date-time";
 
 export type DisabledDateMatcher =
   | Temporal.PlainDate

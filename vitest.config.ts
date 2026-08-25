@@ -26,7 +26,7 @@ export default defineConfig({
           include: ["src/**/*.test.{ts,tsx}"],
           // *.visual.test.tsx also ends in .test.tsx — it belongs to the
           // browser-mode "visual" project, not here.
-          exclude: [...configDefaults.exclude, "src/temporal/**", "src/**/*.visual.test.tsx"],
+          exclude: [...configDefaults.exclude, "src/date-time/**", "src/**/*.visual.test.tsx"],
           environment: "happy-dom",
           setupFiles: ["./vitest.setup.ts"],
           isolate: false,
@@ -36,8 +36,8 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          name: "temporal",
-          include: ["src/temporal/**/*.test.ts"],
+          name: "date-time",
+          include: ["src/date-time/**/*.test.ts"],
           environment: "node",
           globals: false,
           isolate: false,

@@ -154,50 +154,62 @@ src/
 Semver via git tags (`v0.1.0`, ...). Component props **and token names** are public API — renaming a token is a breaking change.
 
 Versioning and releasing are automatic, driven by
-[Conventional Commit](https://www.conventionalcommits.org) subjects and handled
-by [release-please](https://github.com/googleapis/release-please).
+[Conventional Commit](https://www.conventionalcommits.org) subjects and derived
+by `scripts/next-version.ts`.
 
 | Commit | Bump |
 | --- | --- |
 | `feat:` | minor |
-| `fix:`, `perf:`, `refactor:`, `build:`, `revert:` | patch |
+| `fix:`, `perf:`, `refactor:`, `build:`, `revert:`, **anything unrecognised** | patch |
 | `feat!:`, or a `BREAKING CHANGE:` footer | breaking |
 | `chore:`, `ci:`, `docs:`, `style:`, `test:` | no release |
 
 Below `1.0.0` a breaking change moves the **minor** rather than declaring
-`1.0.0` — going stable stays a deliberate act (`bump-minor-pre-major` in
-`release-please-config.json`).
+`1.0.0` — going stable stays a deliberate act.
 
-Each push to `main` updates a release pull request carrying the version bump and
-the `CHANGELOG.md` entry. That PR is merged automatically, which cuts the tag,
-publishes the GitHub Release, and publishes to npm with
-[provenance](https://docs.npmjs.com/generating-provenance-statements) — a
+CI runs on every push to `main`. When it goes green, `version.yml` walks the
+commits since the last `v*` tag, writes the bump into `package.json`, commits it
+as `chore(release): vX.Y.Z [skip ci]`, tags it, and calls the publish workflow —
+which publishes to npm with
+[provenance](https://docs.npmjs.com/generating-provenance-statements), a
 verifiable link from the tarball back to the commit and workflow that built it.
+No release pull request and no changelog: the tag range is the record.
+
+Versioning waits on CI rather than triggering on the push directly, so a commit
+is only ever versioned after the browser and visual suites have passed on it. A
+tag pointing at red `main` is a lie the registry then serves to everyone.
+
+The **last tag is the reference point**, never `package.json`. A hand-edited
+manifest therefore cannot skip or replay a version — the stamp is an output of
+the mechanism, not an input to it. The one exception is the first release, which
+has no tag to count from and ships the version `package.json` declares.
+
+Preview what the next push would cut:
+
+```bash
+bun run scripts/next-version.ts --explain
+```
 
 The line between the two halves of that table is **whether the commit can reach
 the published tarball**, not whether it feels important. This package ships raw
 `src/` — 79 of 81 export subpaths point at TypeScript source — so a `refactor:`
-changes the bytes a consumer receives, and `tailwind.config.ts` is itself an
-exported subpath. Tests, workflows, formatting and prose either do not ship or
-are not user-visible, so they release nothing.
+changes the bytes a consumer receives, `build:` changes what lands in `dist/`,
+and `tailwind.config.ts` is itself an exported subpath. Tests, workflows,
+formatting and prose either do not ship or are not user-visible, so they release
+nothing.
 
-Worth knowing about the types that release nothing: release-please bumps *every*
-conventional commit to at least a patch, then abandons the release if the
-rendered changelog comes out empty. So a push containing only hidden types
-produces no release at all, and a commit with no conventional prefix is dropped
-before that point. Two consequences:
+Two consequences worth knowing:
 
-- A dependency change that consumers receive belongs under `fix(deps):`, not
-  `chore(deps):` — `dependencies` in `package.json` ships.
+- A subject with no conventional prefix cuts a **patch** rather than being
+  dropped. Shipping a change unversioned is worse than shipping it undersized.
 - A renamed or removed export needs `feat!:` or a `BREAKING CHANGE:` footer.
-  Filed as `refactor:` it now cuts a patch, which understates it.
+  Filed as `refactor:` it cuts a patch, which understates it.
 
-Two repository secrets are required:
+One repository secret is required:
 
 | Secret | Why |
 | --- | --- |
 | `NPM_TOKEN` | Publishing. Must be an npm **automation** token, so it works with 2FA. |
-| `RELEASE_PLEASE_TOKEN` | A fine-grained PAT with contents + pull-requests write. GitHub suppresses workflow runs for events caused by `GITHUB_TOKEN`, so auto-merging with it would merge the release PR and never trigger the release. |
 
 Tagging by hand still works and goes through the same publish path:
 

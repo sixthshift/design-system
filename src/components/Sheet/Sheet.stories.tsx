@@ -2,6 +2,7 @@ import { Button } from "@sixthshift/design-system/button";
 import { Input } from "@sixthshift/design-system/input";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, screen, userEvent, within } from "storybook/test";
 import { Sheet, SheetBody, SheetFooter, SheetHeader } from ".";
 
 const meta: Meta<typeof Sheet> = {
@@ -29,7 +30,12 @@ function BackgroundContent() {
   );
 }
 
+/** Opened by the play function so axe audits the sheet, not just its trigger. */
 export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: "Open Sheet" }));
+    await expect(await screen.findByRole("dialog", { name: /Sheet Title/ })).toBeInTheDocument();
+  },
   render: () => {
     const [open, setOpen] = useState(false);
     return (

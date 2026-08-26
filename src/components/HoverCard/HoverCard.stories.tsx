@@ -1,6 +1,7 @@
 import { Button } from "@sixthshift/design-system/button";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, screen, userEvent, within } from "storybook/test";
 import { HoverCard } from "./HoverCard";
 
 const meta: Meta<typeof HoverCard> = {
@@ -15,7 +16,15 @@ const meta: Meta<typeof HoverCard> = {
 export default meta;
 type Story = StoryObj<typeof HoverCard>;
 
+/**
+ * Hovered by the play function so axe sees the card itself. `delayShow` is 500ms
+ * for hover-cards, so the query waits longer than a tooltip's.
+ */
 export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.hover(within(canvasElement).getByText("@jane-doe"));
+    await expect(await screen.findByText("Software Engineer", {}, { timeout: 2000 })).toBeInTheDocument();
+  },
   render: () => (
     <HoverCard>
       <HoverCard.Trigger>

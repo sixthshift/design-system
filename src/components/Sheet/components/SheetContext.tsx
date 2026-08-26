@@ -5,6 +5,16 @@ export type OnClose = (event?: MouseEvent<Element> | KeyboardEvent<Element>) => 
 interface SheetContextValue {
   onClose: OnClose;
   closable?: boolean | undefined;
+  /**
+   * The id `Sheet.Header` stamps on itself so the dialog can name itself from
+   * its own title instead of being announced as a bare "dialog".
+   */
+  titleId?: string;
+  /**
+   * The header reports its presence — a headerless sheet must not point
+   * `aria-labelledby` at an element that never rendered.
+   */
+  registerTitle?: (present: boolean) => void;
 }
 
 export const SheetContext = createContext<SheetContextValue | null>(null);

@@ -6,9 +6,9 @@ import { Message, MessageBody, MessageDescription, MessageIcon, MessageTitle } f
 
 describe("Message", () => {
   describe("rendering", () => {
-    it("renders with role='alert'", () => {
+    it("renders a polite live region by default", () => {
       render(<Message>Content</Message>);
-      expect(screen.getByRole("alert")).toBeInTheDocument();
+      expect(screen.getByRole("status")).toBeInTheDocument();
     });
 
     it("renders children", () => {
@@ -38,42 +38,56 @@ describe("Message", () => {
   describe("intents", () => {
     it("applies neutral intent by default", () => {
       render(<Message>Content</Message>);
-      expect(screen.getByRole("alert")).toHaveClass("bg-bg-normal");
+      expect(screen.getByRole("status")).toHaveClass("bg-bg-normal");
     });
 
     it("applies success intent", () => {
       render(<Message intent="success">Content</Message>);
-      expect(screen.getByRole("alert")).toHaveClass("bg-bg-success-subtle");
+      expect(screen.getByRole("status")).toHaveClass("bg-bg-success-subtle");
     });
 
     it("applies warning intent", () => {
       render(<Message intent="warning">Content</Message>);
-      expect(screen.getByRole("alert")).toHaveClass("bg-bg-warning-subtle");
+      expect(screen.getByRole("status")).toHaveClass("bg-bg-warning-subtle");
     });
 
     it("applies danger intent", () => {
       render(<Message intent="danger">Content</Message>);
       expect(screen.getByRole("alert")).toHaveClass("bg-bg-danger-subtle");
     });
+
+    it("keeps the assertive role for danger only", () => {
+      const { unmount } = render(<Message intent="danger">Content</Message>);
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+      unmount();
+
+      for (const intent of ["neutral", "success", "warning"] as const) {
+        const view = render(<Message intent={intent}>Content</Message>);
+        expect(screen.getByRole("status")).toBeInTheDocument();
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+        view.unmount();
+      }
+    });
   });
 
   describe("sizes", () => {
     it("applies default size", () => {
       render(<Message>Content</Message>);
-      expect(screen.getByRole("alert")).toHaveClass("p-4");
+      expect(screen.getByRole("status")).toHaveClass("p-4");
     });
 
     it("applies sm size", () => {
       render(<Message size="sm">Content</Message>);
-      expect(screen.getByRole("alert")).toHaveClass("p-3");
-      expect(screen.getByRole("alert")).toHaveClass("text-xs");
+      expect(screen.getByRole("status")).toHaveClass("p-3");
+      expect(screen.getByRole("status")).toHaveClass("text-xs");
     });
   });
 
   describe("styling", () => {
     it("applies base classes", () => {
       render(<Message>Content</Message>);
-      const message = screen.getByRole("alert");
+      const message = screen.getByRole("status");
       expect(message).toHaveClass("rounded-lg");
       expect(message).toHaveClass("border");
       expect(message).toHaveClass("text-sm");
@@ -81,7 +95,7 @@ describe("Message", () => {
 
     it("merges custom className", () => {
       render(<Message className="custom-class">Content</Message>);
-      const message = screen.getByRole("alert");
+      const message = screen.getByRole("status");
       expect(message).toHaveClass("custom-class");
       expect(message).toHaveClass("rounded-lg");
     });

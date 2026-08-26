@@ -372,6 +372,7 @@
     "test:visual": "vitest run --project visual",
     "test:visual:update": "vitest run --project visual --update",
     "test:stories": "vitest run --project storybook",
+    "test:stories:dark": "vitest run --project storybook-dark",
     "test:ui": "bunx vitest --ui",
     "type-check": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json",
     "lint": "biome lint .",

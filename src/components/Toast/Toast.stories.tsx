@@ -3,6 +3,7 @@ import { OverlayProvider, useToast } from "@sixthshift/design-system/overlay";
 import type { Meta, StoryObj } from "@storybook/react";
 import { AlertTriangle, CheckCircle, Info, XCircle } from "lucide-react";
 import { useRef, useState } from "react";
+import { expect, screen, userEvent, within } from "storybook/test";
 import { Toast } from "./Toast";
 
 const meta: Meta<typeof Toast> = {
@@ -28,7 +29,13 @@ function ToastDemo({ children, buttonLabel = "Show Toast" }: { children: (props:
   );
 }
 
+/** Shown by the play function so axe audits the toast, not just its trigger. */
 export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: "Show Toast" }));
+    // Neutral intent is a polite live region — see Message's intent-to-role map.
+    await expect(await screen.findByRole("status")).toBeInTheDocument();
+  },
   render: () => (
     <ToastDemo>
       {({ onClose }) => (

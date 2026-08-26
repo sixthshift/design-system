@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, screen, userEvent, within } from "storybook/test";
 import { Select } from "./Select";
 
 const meta: Meta<typeof Select> = {
@@ -41,7 +42,17 @@ const SelectWrapper = (props: { collapsed?: boolean; disabled?: boolean; searcha
   );
 };
 
+/**
+ * Opened by the play function. The closed trigger is a plain button; every rule
+ * that matters here — the listbox's name, `aria-activedescendant`, the options'
+ * contrast — only exists once the dropdown is on the page.
+ */
 export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button"));
+    const listbox = await screen.findByRole("listbox");
+    await expect(listbox).toHaveAttribute("aria-activedescendant", screen.getByRole("option", { name: "All" }).id);
+  },
   render: () => <SelectWrapper />,
 };
 
@@ -125,6 +136,13 @@ export const Clearable: Story = {
 };
 
 export const Searchable: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button"));
+    // The trigger becomes a combobox input, which keeps focus and owns the
+    // active-option pointer.
+    await expect(await screen.findByRole("combobox")).toHaveFocus();
+    await expect(await screen.findByRole("listbox")).toBeInTheDocument();
+  },
   render: () => {
     const [value, setValue] = useState("jan");
     const months = [
@@ -203,6 +221,10 @@ const tagOptions = [
 ];
 
 export const Multiple: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button"));
+    await expect(await screen.findByRole("listbox")).toHaveAttribute("aria-multiselectable", "true");
+  },
   render: () => {
     const [value, setValue] = useState<string[]>(["work"]);
     return (

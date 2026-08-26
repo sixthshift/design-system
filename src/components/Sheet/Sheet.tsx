@@ -1,14 +1,14 @@
 import { FloatingFocusManager, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import { useMergedFloatingRef, usePresence } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
-import { forwardRef, type HTMLAttributes, type ReactNode, useCallback, useEffect, useMemo } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode, useCallback, useEffect, useId, useMemo, useState } from "react";
 import { SheetBody, SheetContext, SheetFooter, SheetHeader } from "./components";
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export type SheetProps = Pick<HTMLAttributes<HTMLDivElement>, "className" | "style"> & {
+export type SheetProps = Pick<HTMLAttributes<HTMLDivElement>, "className" | "style" | "aria-label" | "aria-labelledby" | "aria-describedby"> & {
   /** Whether the sheet is open. Sheet owns its own mount lifecycle so exit animations can play. */
   open: boolean;
   /** Called when the sheet requests a state change (Esc, outside press, X button). */
@@ -42,7 +42,24 @@ const sizeClasses = {
 // =============================================================================
 
 const SheetRoot = forwardRef<HTMLDivElement, SheetProps>(
-  ({ open, onOpenChange, side = "right", size = "md", dismissable = true, dismissOnOutsidePress = false, closable, className, style, children }, ref) => {
+  (
+    {
+      open,
+      onOpenChange,
+      side = "right",
+      size = "md",
+      dismissable = true,
+      dismissOnOutsidePress = false,
+      closable,
+      className,
+      style,
+      children,
+      "aria-label": ariaLabel,
+      "aria-labelledby": ariaLabelledBy,
+      "aria-describedby": ariaDescribedBy,
+    },
+    ref
+  ) => {
     const { ref: presenceRef, state, isMounted, show, hide } = usePresence();
 
     // Drive presence from the controlled `open` prop.
@@ -79,7 +96,17 @@ const SheetRoot = forwardRef<HTMLDivElement, SheetProps>(
 
     const { getFloatingProps } = useInteractions([dismiss, role]);
 
-    const sheetContextValue = useMemo(() => ({ onClose: requestClose, closable }), [requestClose, closable]);
+    // Named from its header, same contract as Modal — see SheetContext.
+    const titleId = useId();
+    const [hasTitle, setHasTitle] = useState(false);
+    const registerTitle = useCallback((present: boolean) => setHasTitle(present), []);
+
+    // `aria-labelledby` beats `aria-label` in the name computation, so a caller
+    // who passes a label must not also be pointed at the header — they would
+    // never see their own string win.
+    const labelledBy = ariaLabelledBy ?? (ariaLabel || !hasTitle ? undefined : titleId);
+
+    const sheetContextValue = useMemo(() => ({ onClose: requestClose, closable, titleId, registerTitle }), [requestClose, closable, titleId, registerTitle]);
 
     if (!isMounted) return null;
 
@@ -90,6 +117,13 @@ const SheetRoot = forwardRef<HTMLDivElement, SheetProps>(
       <FloatingFocusManager context={context} modal={false}>
         <div
           ref={mergedRef}
+          // Explicit, though `getFloatingProps` also supplies it from `useRole`:
+          // the ARIA attributes below are only valid on a dialog, and static
+          // analysis cannot see a role that arrives through a spread. Matches Modal.
+          role="dialog"
+          aria-label={ariaLabel}
+          aria-labelledby={labelledBy}
+          aria-describedby={ariaDescribedBy}
           tabIndex={-1}
           data-state={state}
           data-side={side}

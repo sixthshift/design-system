@@ -1,7 +1,7 @@
 import { autoUpdate, flip, offset, shift, size, useFloating } from "@floating-ui/react";
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { forwardRef, type HTMLAttributes, type ReactElement, type Ref, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import { SelectDropdown } from "./SelectDropdown";
+import { SelectDropdown, selectOptionId } from "./SelectDropdown";
 import { SelectTriggerButton, SelectTriggerSearch } from "./SelectTrigger";
 import { useSelectKeyboard } from "./useSelectKeyboard";
 
@@ -77,6 +77,11 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [searchValue, setSearchValue] = useState("");
   const listboxRef = useRef<HTMLDivElement | null>(null);
+  // Also held in state: the listbox is portalled, and FloatingPortal creates its
+  // container in an effect, so the node lands a commit after `open` flips. A ref
+  // alone is still null when the open effect runs — state re-renders us when the
+  // node actually arrives.
+  const [listboxNode, setListboxNode] = useState<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
   const wasOpenRef = useRef(false);
@@ -117,6 +122,11 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
     whileElementsMounted: autoUpdate,
   });
 
+  const setListbox = useCallback((node: HTMLDivElement | null) => {
+    listboxRef.current = node;
+    setListboxNode(node);
+  }, []);
+
   const focusTrigger = useCallback(() => {
     (refs.reference.current as HTMLElement | null)?.focus();
   }, [refs.reference]);
@@ -148,18 +158,38 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
     [isMultiple, setMultiValue, setSingleValue]
   );
 
+  const handleListKeyDown = useSelectKeyboard({
+    open,
+    searchable,
+    searchValue,
+    highlightedIndex,
+    displayOptions: filteredOptions,
+    setOpen,
+    setHighlightedIndex,
+    setSearchValue,
+    handleSelect,
+    focusTrigger,
+  });
+
   const handleTriggerKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLButtonElement>) => {
       if (disabled || collapsed) return;
       if (!open && (event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "Enter" || event.key === " ")) {
         event.preventDefault();
         setOpen(true);
+        return;
       }
       if (searchable && !open && event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
         setOpen(true);
+        return;
       }
+      // Focus normally moves into the listbox as it opens, but it can still be
+      // on the trigger — the frame the dropdown mounts in, or after the user
+      // shift-tabs back to it. Handle navigation here too rather than dropping
+      // the keystroke.
+      handleListKeyDown(event);
     },
-    [disabled, collapsed, open, setOpen, searchable]
+    [disabled, collapsed, open, setOpen, searchable, handleListKeyDown]
   );
 
   const handleSearchChange = useCallback((val: string) => {
@@ -192,6 +222,14 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
     wasOpenRef.current = open;
   }, [open, filteredOptions, searchable, selectedValues]);
 
+  // Non-searchable: focus the listbox itself, so arrow keys reach the scoped
+  // keydown handler and a screen reader follows aria-activedescendant. The
+  // searchable variant keeps focus in its input instead.
+  useEffect(() => {
+    if (!open || searchable) return;
+    listboxNode?.focus();
+  }, [open, searchable, listboxNode]);
+
   // Scroll highlighted option into view
   useEffect(() => {
     if (open && highlightedIndex >= 0) {
@@ -221,26 +259,21 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
     return () => document.removeEventListener("mousedown", handler);
   }, [open, setOpen, refs]);
 
-  useSelectKeyboard({
-    open,
-    searchable,
-    searchValue,
-    highlightedIndex,
-    displayOptions: filteredOptions,
-    setOpen,
-    setHighlightedIndex,
-    setSearchValue,
-    handleSelect,
-    focusTrigger,
-  });
-
   // The listbox id must be unique per instance: it is referenced by
   // aria-controls, and a hardcoded value meant two Selects on one page
   // produced duplicate ids and cross-wired ARIA.
   const listboxId = useId();
+  const activeOptionId = open && highlightedIndex >= 0 && highlightedIndex < filteredOptions.length ? selectOptionId(listboxId, highlightedIndex) : undefined;
 
   // Strip mode from DOM props
   const { mode: _, value: _v, defaultValue: _dv, onValueChange: _oc, ...htmlProps } = restProps as Record<string, unknown>;
+
+  // `role="listbox"` requires an accessible name of its own, and the trigger
+  // can't supply one: its label is the current *value*, and in searchable mode
+  // it is an input whose name would resolve to whatever has been typed. Use the
+  // caller's `aria-label` when there is one, else the placeholder — the closest
+  // thing this component has to a field label.
+  const listboxLabel = typeof htmlProps["aria-label"] === "string" ? (htmlProps["aria-label"] as string) : placeholder;
 
   return (
     <>
@@ -255,7 +288,9 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
           open={open}
           className={className}
           onSearchChange={handleSearchChange}
+          onKeyDown={handleListKeyDown}
           listboxId={listboxId}
+          activeOptionId={activeOptionId}
           props={htmlProps as React.InputHTMLAttributes<HTMLInputElement>}
         />
       ) : (
@@ -280,7 +315,9 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
         <SelectDropdown
           setFloating={refs.setFloating}
           listboxId={listboxId}
-          listboxRef={listboxRef}
+          setListbox={setListbox}
+          label={listboxLabel}
+          activeOptionId={activeOptionId}
           floatingStyles={floatingStyles}
           displayOptions={filteredOptions}
           highlightedIndex={highlightedIndex}
@@ -290,6 +327,7 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
           multiple={isMultiple}
           onSelect={handleSelect}
           onHighlight={setHighlightedIndex}
+          onKeyDown={handleListKeyDown}
         />
       )}
     </>

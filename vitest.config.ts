@@ -15,6 +15,12 @@ const dirname = typeof __dirname !== "undefined" ? __dirname : path.dirname(file
 // unhandled errors while tests still report as passing, so pin them up front.
 const BROWSER_OPTIMIZE_DEPS = ["react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime"];
 
+// `storybook/test` is imported by story files rather than by the test runner, so
+// Vite only discovers it once a story with a play function is loaded — mid-run,
+// which triggers exactly the re-optimize-and-reload described above. Every story
+// file that interacts with its component needs this pinned.
+const STORYBOOK_OPTIMIZE_DEPS = [...BROWSER_OPTIMIZE_DEPS, "storybook/test"];
+
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   // Components import each other by package name, which the `exports` map now
@@ -109,7 +115,7 @@ export default defineConfig({
           // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
           storybookTest({ configDir: path.join(dirname, ".storybook") }),
         ],
-        optimizeDeps: { include: BROWSER_OPTIMIZE_DEPS },
+        optimizeDeps: { include: STORYBOOK_OPTIMIZE_DEPS },
         test: {
           name: "storybook",
           // 57 story files in one browser exhausted memory and killed Chromium
@@ -124,6 +130,33 @@ export default defineConfig({
             instances: [{ browser: "chromium" }],
           },
           setupFiles: [".storybook/vitest.setup.ts"],
+        },
+      },
+      // The same stories again in the dark theme. Identical to the project above
+      // apart from the setup file, which flips the theme global — see
+      // .storybook/vitest.setup.dark.ts for why this is a second project rather
+      // than a decorator or a handful of dark-mode stories.
+      //
+      // Not in `test:stories` yet, so CI does not run it: the first pass reports
+      // 35 contrast violations in the dark palette — Badge, Button, Toggle,
+      // ToggleGroup, Tabs, Text, MetricList, Card, Sparkline — all of them real
+      // and all of them predating this project, which is the point. Run it with
+      // `bun run test:stories:dark`; fold it into `test:stories` once they are
+      // fixed.
+      {
+        extends: true,
+        plugins: [storybookTest({ configDir: path.join(dirname, ".storybook") })],
+        optimizeDeps: { include: STORYBOOK_OPTIMIZE_DEPS },
+        test: {
+          name: "storybook-dark",
+          fileParallelism: false,
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright({}),
+            instances: [{ browser: "chromium" }],
+          },
+          setupFiles: [".storybook/vitest.setup.dark.ts"],
         },
       },
     ],

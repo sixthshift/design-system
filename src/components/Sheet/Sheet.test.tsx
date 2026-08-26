@@ -484,3 +484,42 @@ describe("edge cases", () => {
     expect(screen.getByText("Only content")).toBeInTheDocument();
   });
 });
+
+describe("Sheet accessible name", () => {
+  it("names the dialog from its header", async () => {
+    render(
+      <Sheet open onOpenChange={() => {}}>
+        <SheetHeader>Task details</SheetHeader>
+        <SheetBody>Content</SheetBody>
+      </Sheet>
+    );
+    await waitForAnimation();
+
+    const dialog = screen.getByRole("dialog");
+    const header = screen.getByText("Task details");
+    expect(header.id).not.toBe("");
+    expect(dialog).toHaveAttribute("aria-labelledby", header.id);
+    expect(screen.getByRole("dialog", { name: "Task details" })).toBe(dialog);
+  });
+
+  it("leaves aria-labelledby off when there is no header", async () => {
+    render(
+      <Sheet open onOpenChange={() => {}}>
+        <SheetBody>Content</SheetBody>
+      </Sheet>
+    );
+    await waitForAnimation();
+    expect(screen.getByRole("dialog")).not.toHaveAttribute("aria-labelledby");
+  });
+
+  it("prefers a caller-supplied label over the header", async () => {
+    render(
+      <Sheet open onOpenChange={() => {}} aria-label="Inspector">
+        <SheetHeader>Task details</SheetHeader>
+        <SheetBody>Content</SheetBody>
+      </Sheet>
+    );
+    await waitForAnimation();
+    expect(screen.getByRole("dialog", { name: "Inspector" })).toBeInTheDocument();
+  });
+});

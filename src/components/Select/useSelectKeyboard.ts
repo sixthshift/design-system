@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback } from "react";
 import type { SelectOption } from "./Select";
 
 interface UseSelectKeyboardOptions<T extends string> {
@@ -14,6 +14,20 @@ interface UseSelectKeyboardOptions<T extends string> {
   focusTrigger: () => void;
 }
 
+/**
+ * Returns the keydown handler for an open Select. It is attached to the element
+ * that actually holds focus — the listbox, or the search input in searchable
+ * mode — rather than to `document`.
+ *
+ * A document-level listener fired for every keystroke on the page while any
+ * Select was open, which meant a Select could swallow Escape or an arrow key
+ * from an overlay stacked above it, and two open Selects raced each other. It
+ * also decoupled key handling from focus, so nothing guaranteed the element the
+ * user was typing into was the one being navigated. Scoping the handler to the
+ * focused element makes both problems structurally impossible and is what lets
+ * `aria-activedescendant` mean something: the focused element owns the active
+ * option.
+ */
 export function useSelectKeyboard<T extends string>({
   open,
   searchable,
@@ -26,8 +40,8 @@ export function useSelectKeyboard<T extends string>({
   handleSelect,
   focusTrigger,
 }: UseSelectKeyboardOptions<T>) {
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+  return useCallback(
+    (event: React.KeyboardEvent<HTMLElement>) => {
       if (!open) return;
 
       const isTyping = searchable && event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey;
@@ -101,11 +115,7 @@ export function useSelectKeyboard<T extends string>({
             }
           }
       }
-    };
-
-    if (open) {
-      document.addEventListener("keydown", handleKeyDown);
-      return () => document.removeEventListener("keydown", handleKeyDown);
-    }
-  }, [open, searchable, searchValue, highlightedIndex, displayOptions, setOpen, setHighlightedIndex, setSearchValue, handleSelect, focusTrigger]);
+    },
+    [open, searchable, searchValue, highlightedIndex, displayOptions, setOpen, setHighlightedIndex, setSearchValue, handleSelect, focusTrigger]
+  );
 }

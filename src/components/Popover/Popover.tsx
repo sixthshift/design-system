@@ -44,6 +44,12 @@ const PopoverRoot = ({ open: controlledOpen, onOpenChange, defaultOpen = false, 
 
   const id = useId();
   const contentId = `popover-content-${id}`;
+  // `Popover.Body` is a `role="dialog"`, and a dialog with no accessible name is
+  // announced as just "dialog". There is no title sub-part to read from, so the
+  // trigger — which always has a label, because it is what the user clicked —
+  // names the popover. A caller passing their own `aria-label`/`aria-labelledby`
+  // to `Popover.Body` still wins.
+  const triggerId = `popover-trigger-${id}`;
 
   const contextValue = {
     open,
@@ -56,6 +62,7 @@ const PopoverRoot = ({ open: controlledOpen, onOpenChange, defaultOpen = false, 
     getReferenceProps,
     getFloatingProps,
     contentId,
+    triggerId,
   };
 
   return <PopoverContext.Provider value={contextValue}>{children}</PopoverContext.Provider>;

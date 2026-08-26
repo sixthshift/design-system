@@ -4,10 +4,22 @@ import { Check } from "lucide-react";
 import type React from "react";
 import type { WritableRefObject } from "../../internal/types";
 
+/**
+ * Options are addressed by id, not by focus: the listbox (or the search input)
+ * keeps focus and points `aria-activedescendant` at the highlighted option, so
+ * both sides need to agree on the id.
+ */
+export const selectOptionId = (listboxId: string, index: number) => `${listboxId}-option-${index}`;
+
 interface SelectDropdownProps<T extends string> {
   setFloating: (node: HTMLElement | null) => void;
   listboxId: string;
-  listboxRef: WritableRefObject<HTMLDivElement | null>;
+  /** Publishes the listbox node upward — Select focuses it and scrolls it. */
+  setListbox: (node: HTMLDivElement | null) => void;
+  /** Names the listbox — a bare `role="listbox"` has no accessible name. */
+  label: string;
+  /** The highlighted option's id, or undefined when nothing is highlighted. */
+  activeOptionId: string | undefined;
   floatingStyles: React.CSSProperties;
   displayOptions: readonly { value: T; label: string }[];
   highlightedIndex: number;
@@ -17,12 +29,15 @@ interface SelectDropdownProps<T extends string> {
   multiple: boolean;
   onSelect: (value: T) => void;
   onHighlight: (index: number) => void;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>) => void;
 }
 
 export const SelectDropdown = <T extends string>({
   setFloating,
   listboxId,
-  listboxRef,
+  setListbox,
+  label,
+  activeOptionId,
   floatingStyles,
   displayOptions,
   highlightedIndex,
@@ -32,17 +47,24 @@ export const SelectDropdown = <T extends string>({
   multiple,
   onSelect,
   onHighlight,
+  onKeyDown,
 }: SelectDropdownProps<T>) => (
   <FloatingPortal>
     <div
       ref={(node) => {
         setFloating(node);
-        listboxRef.current = node;
+        setListbox(node);
       }}
       id={listboxId}
       role="listbox"
+      aria-label={label}
       aria-multiselectable={multiple || undefined}
+      aria-activedescendant={activeOptionId}
+      // Focus lands here when the dropdown opens (the searchable variant keeps
+      // it in the input instead), which is what makes `aria-activedescendant`
+      // and the scoped keydown handler work.
       tabIndex={-1}
+      onKeyDown={onKeyDown}
       style={floatingStyles}
       className="z-popover max-h-60 overflow-y-auto rounded-md border border-border-normal bg-bg-normal shadow-lg"
     >
@@ -59,8 +81,15 @@ export const SelectDropdown = <T extends string>({
                 else optionRefs.current.delete(index);
               }}
               type="button"
+              id={selectOptionId(listboxId, index)}
               role="option"
               aria-selected={isSelected}
+              // The options are not tab stops and must not steal focus: the
+              // listbox holds it and delegates via aria-activedescendant, so a
+              // click that moved focus onto the option would strand the keyboard
+              // handler with nothing listening.
+              tabIndex={-1}
+              onMouseDown={(event) => event.preventDefault()}
               onClick={() => onSelect(option.value)}
               onMouseEnter={() => onHighlight(index)}
               className={cn(

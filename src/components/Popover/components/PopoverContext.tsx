@@ -11,6 +11,7 @@ export type PopoverContextValue = {
   getReferenceProps: (props?: React.HTMLProps<HTMLElement>) => Record<string, unknown>;
   getFloatingProps: (props?: React.HTMLProps<HTMLElement>) => Record<string, unknown>;
   contentId: string;
+  triggerId: string;
 };
 
 export const PopoverContext = createContext<PopoverContextValue | null>(null);

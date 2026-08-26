@@ -3,6 +3,7 @@ import { Input } from "@sixthshift/design-system/input";
 import { Label } from "@sixthshift/design-system/label";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, screen, userEvent, within } from "storybook/test";
 import { Popover } from "./Popover";
 
 const meta: Meta<typeof Popover> = {
@@ -17,7 +18,13 @@ const meta: Meta<typeof Popover> = {
 export default meta;
 type Story = StoryObj<typeof Popover>;
 
+/** Opened by the play function so axe audits the popover, not just its trigger. */
 export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: "Open Popover" }));
+    // Named by its trigger — Popover.Body has no title slot to read from.
+    await expect(await screen.findByRole("dialog", { name: "Open Popover" })).toBeInTheDocument();
+  },
   render: () => (
     <Popover>
       <Popover.Trigger asChild>
@@ -82,6 +89,10 @@ export const Controlled: Story = {
 };
 
 export const WithForm: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: /dimensions/i }));
+    await expect(await screen.findByRole("dialog")).toBeInTheDocument();
+  },
   render: () => (
     <Popover>
       <Popover.Trigger asChild>

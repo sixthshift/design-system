@@ -108,6 +108,58 @@ describe("Modal", () => {
   });
 });
 
+describe("accessible name", () => {
+  it("names the dialog from its header", async () => {
+    render(
+      <Modal onOpenChange={() => {}}>
+        <ModalHeader>Confirm delete</ModalHeader>
+        <ModalBody>Content</ModalBody>
+      </Modal>
+    );
+    await waitForAnimation();
+
+    const dialog = screen.getByRole("dialog");
+    const header = screen.getByText("Confirm delete");
+    expect(header.id).not.toBe("");
+    expect(dialog).toHaveAttribute("aria-labelledby", header.id);
+    expect(screen.getByRole("dialog", { name: "Confirm delete" })).toBe(dialog);
+  });
+
+  it("leaves aria-labelledby off when there is no header", async () => {
+    render(
+      <Modal onOpenChange={() => {}}>
+        <ModalBody>Content</ModalBody>
+      </Modal>
+    );
+    await waitForAnimation();
+    // Pointing at an id that never rendered is worse than no reference at all.
+    expect(screen.getByRole("dialog")).not.toHaveAttribute("aria-labelledby");
+  });
+
+  it("prefers a caller-supplied label over the header", async () => {
+    render(
+      <Modal onOpenChange={() => {}} aria-label="Payment details">
+        <ModalHeader>Electric bill</ModalHeader>
+        <ModalBody>Content</ModalBody>
+      </Modal>
+    );
+    await waitForAnimation();
+    expect(screen.getByRole("dialog", { name: "Payment details" })).toBeInTheDocument();
+  });
+
+  it("stops claiming the header as its label when the header takes its own id", async () => {
+    render(
+      <Modal onOpenChange={() => {}}>
+        <ModalHeader id="my-own-heading">Electric bill</ModalHeader>
+        <ModalBody>Content</ModalBody>
+      </Modal>
+    );
+    await waitForAnimation();
+    expect(screen.getByText("Electric bill")).toHaveAttribute("id", "my-own-heading");
+    expect(screen.getByRole("dialog")).not.toHaveAttribute("aria-labelledby");
+  });
+});
+
 describe("ModalHeader", () => {
   it("renders header content", async () => {
     render(

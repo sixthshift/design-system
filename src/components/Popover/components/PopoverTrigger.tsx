@@ -8,7 +8,7 @@ export type PopoverTriggerProps = React.ButtonHTMLAttributes<HTMLButtonElement> 
 };
 
 export const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTriggerProps>(({ asChild = false, children, ...props }, forwardedRef) => {
-  const { refs, getReferenceProps, contentId, open } = usePopoverContext();
+  const { refs, getReferenceProps, contentId, triggerId, open } = usePopoverContext();
   const Comp = asChild ? Slot : "button";
 
   return (
@@ -19,6 +19,7 @@ export const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTrigger
         else if (forwardedRef) forwardedRef.current = node;
       }}
       type={asChild ? undefined : "button"}
+      id={triggerId}
       aria-haspopup="dialog"
       aria-expanded={open}
       aria-controls={open ? contentId : undefined}

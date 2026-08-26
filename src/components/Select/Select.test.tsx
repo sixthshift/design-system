@@ -630,3 +630,69 @@ describe("Select", () => {
     });
   });
 });
+
+describe("Select ARIA wiring", () => {
+  it("names the listbox, which has no label of its own", async () => {
+    const user = userEvent.setup();
+    render(<Select value="apple" options={options} onValueChange={() => {}} placeholder="Choose fruit" />);
+
+    await user.click(screen.getByRole("button"));
+    expect(screen.getByRole("listbox", { name: "Choose fruit" })).toBeInTheDocument();
+  });
+
+  it("prefers a caller-supplied label for the listbox", async () => {
+    const user = userEvent.setup();
+    render(<Select value="apple" options={options} onValueChange={() => {}} aria-label="Fruit" />);
+
+    await user.click(screen.getByRole("button"));
+    expect(screen.getByRole("listbox", { name: "Fruit" })).toBeInTheDocument();
+  });
+
+  it("points aria-activedescendant at the highlighted option", async () => {
+    const user = userEvent.setup();
+    render(<Select value="apple" options={options} onValueChange={() => {}} />);
+
+    await user.click(screen.getByRole("button"));
+    const listbox = screen.getByRole("listbox");
+    // Options are never focused — the listbox holds focus and delegates.
+    expect(listbox).toHaveFocus();
+    expect(listbox).toHaveAttribute("aria-activedescendant", screen.getByRole("option", { name: "Apple" }).id);
+
+    await user.keyboard("{ArrowDown}");
+    expect(listbox).toHaveAttribute("aria-activedescendant", screen.getByRole("option", { name: "Banana" }).id);
+  });
+
+  it("tracks the highlighted option from the search input in searchable mode", async () => {
+    const user = userEvent.setup();
+    render(<Select value="apple" options={options} onValueChange={() => {}} searchable />);
+
+    await user.click(screen.getByRole("button"));
+    const input = screen.getByRole("combobox");
+    expect(input).toHaveFocus();
+
+    await user.keyboard("{ArrowDown}");
+    expect(input).toHaveAttribute("aria-activedescendant", screen.getByRole("option", { name: "Banana" }).id);
+  });
+
+  it("does not act on keystrokes aimed at other elements", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Select value="apple" options={options} onValueChange={() => {}} />
+        <input aria-label="Elsewhere" />
+      </>
+    );
+
+    await user.click(screen.getByRole("button"));
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+
+    // The handler used to live on `document`, so an open Select swallowed keys
+    // from every other control on the page — including Escape from an overlay
+    // stacked above it.
+    screen.getByLabelText("Elsewhere").focus();
+    await user.keyboard("{Escape}{ArrowDown}");
+
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+    expect(screen.getByRole("listbox")).toHaveAttribute("aria-activedescendant", screen.getByRole("option", { name: "Apple" }).id);
+  });
+});

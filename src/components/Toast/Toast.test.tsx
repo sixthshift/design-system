@@ -69,19 +69,21 @@ describe("Toast", () => {
     it("renders neutral intent by default", async () => {
       renderToast({ title: "Title", onClose: () => {} });
       await waitForAnimation();
-      expect(screen.getByRole("alert")).toHaveClass("bg-bg-normal");
+      // Message picks the live-region role from the intent: polite for
+      // everything except danger.
+      expect(screen.getByRole("status")).toHaveClass("bg-bg-normal");
     });
 
     it("renders success intent", async () => {
       renderToast({ intent: "success", title: "Title", onClose: () => {} });
       await waitForAnimation();
-      expect(screen.getByRole("alert")).toHaveClass("bg-bg-success-subtle");
+      expect(screen.getByRole("status")).toHaveClass("bg-bg-success-subtle");
     });
 
     it("renders warning intent", async () => {
       renderToast({ intent: "warning", title: "Title", onClose: () => {} });
       await waitForAnimation();
-      expect(screen.getByRole("alert")).toHaveClass("bg-bg-warning-subtle");
+      expect(screen.getByRole("status")).toHaveClass("bg-bg-warning-subtle");
     });
 
     it("renders danger intent", async () => {

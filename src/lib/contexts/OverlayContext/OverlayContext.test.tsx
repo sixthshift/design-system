@@ -236,7 +236,8 @@ describe("useToast", () => {
 
       await user.click(screen.getByRole("button", { name: "Open toast" }));
 
-      const message = screen.getByRole("alert");
+      // A neutral toast is a polite live region (see Message).
+      const message = screen.getByRole("status");
       const toastRoot = message.parentElement as HTMLElement;
       // OverlayContext positions the stack container; the Toast itself must not
       // also position itself, or the two "fixed" layouts would fight.
@@ -256,7 +257,7 @@ describe("useToast", () => {
       expect(screen.getByText("Saved")).toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: "Dismiss" }));
-      triggerAnimationEnd(screen.getByRole("alert"));
+      triggerAnimationEnd(screen.getByRole("status"));
 
       await waitFor(() => expect(screen.queryByText("Saved")).not.toBeInTheDocument());
     });
@@ -283,7 +284,7 @@ describe("useToast", () => {
       expect(screen.getByText("Saved")).toBeInTheDocument();
 
       await new Promise((r) => setTimeout(r, 60));
-      triggerAnimationEnd(screen.getByRole("alert"));
+      triggerAnimationEnd(screen.getByRole("status"));
 
       await waitFor(() => expect(screen.queryByText("Saved")).not.toBeInTheDocument());
     });

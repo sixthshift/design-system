@@ -1,5 +1,6 @@
 import { Button } from "@sixthshift/design-system/button";
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, screen, userEvent, within } from "storybook/test";
 import { Tooltip } from "./Tooltip";
 
 const meta: Meta<typeof Tooltip> = {
@@ -14,7 +15,15 @@ const meta: Meta<typeof Tooltip> = {
 export default meta;
 type Story = StoryObj<typeof Tooltip>;
 
+/**
+ * Hovered by the play function: a tooltip that is never shown is a tooltip axe
+ * never checks. `delayShow` is 300ms by default, so the query waits.
+ */
 export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.hover(within(canvasElement).getByRole("button", { name: "Hover me" }));
+    await expect(await screen.findByRole("tooltip", {}, { timeout: 2000 })).toBeInTheDocument();
+  },
   render: () => (
     <Tooltip>
       <Tooltip.Trigger asChild>

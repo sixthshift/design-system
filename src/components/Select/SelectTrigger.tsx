@@ -92,6 +92,8 @@ interface SelectTriggerSearchProps {
   /** Consumer ref from Select, attached to this trigger's root element. */
   rootRef?: Ref<HTMLDivElement>;
   listboxId: string;
+  /** Id of the highlighted option — the input keeps focus and delegates to it. */
+  activeOptionId: string | undefined;
   inputRef: React.RefObject<HTMLInputElement | null>;
   searchValue: string;
   disabled: boolean;
@@ -99,6 +101,7 @@ interface SelectTriggerSearchProps {
   open: boolean;
   className: string | undefined;
   onSearchChange: (value: string) => void;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>) => void;
   props: React.InputHTMLAttributes<HTMLInputElement>;
 }
 
@@ -106,6 +109,7 @@ export const SelectTriggerSearch = ({
   setReference,
   rootRef,
   listboxId,
+  activeOptionId,
   inputRef,
   searchValue,
   disabled,
@@ -113,6 +117,7 @@ export const SelectTriggerSearch = ({
   open,
   className,
   onSearchChange,
+  onKeyDown,
   props,
 }: SelectTriggerSearchProps) => (
   // floating-ui anchors to this element and the consumer may also want it, so
@@ -130,6 +135,7 @@ export const SelectTriggerSearch = ({
       type="text"
       value={searchValue}
       onChange={(e) => onSearchChange(e.target.value)}
+      onKeyDown={onKeyDown}
       placeholder={displayLabel}
       disabled={disabled}
       className={cn(
@@ -138,6 +144,7 @@ export const SelectTriggerSearch = ({
       role="combobox"
       aria-expanded={open}
       aria-controls={listboxId}
+      aria-activedescendant={activeOptionId}
       aria-autocomplete="list"
       {...props}
     />

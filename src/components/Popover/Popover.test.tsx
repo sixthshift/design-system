@@ -259,3 +259,29 @@ describe("Popover full composition", () => {
     expect(screen.getByRole("button", { name: "Close Menu" })).toBeInTheDocument();
   });
 });
+
+describe("Popover accessible name", () => {
+  it("names the dialog from its trigger", () => {
+    render(
+      <Popover open>
+        <Popover.Trigger>Filters</Popover.Trigger>
+        <Popover.Body>Content</Popover.Body>
+      </Popover>
+    );
+
+    // Popover.Body is a role="dialog"; without a name it is announced as a bare
+    // "dialog", and the trigger is the only label the primitive has.
+    expect(screen.getByRole("dialog", { name: "Filters" })).toBeInTheDocument();
+  });
+
+  it("lets the caller label the body directly", () => {
+    render(
+      <Popover open>
+        <Popover.Trigger>Filters</Popover.Trigger>
+        <Popover.Body aria-label="Filter options">Content</Popover.Body>
+      </Popover>
+    );
+
+    expect(screen.getByRole("dialog", { name: "Filter options" })).toBeInTheDocument();
+  });
+});

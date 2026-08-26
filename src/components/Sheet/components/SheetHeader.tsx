@@ -5,13 +5,28 @@ import { SheetContext } from "./SheetContext";
 
 export type SheetHeaderProps = React.HTMLAttributes<HTMLDivElement>;
 
-export const SheetHeader = React.forwardRef<HTMLDivElement, SheetHeaderProps>(({ className, children, ...props }, ref) => {
+export const SheetHeader = React.forwardRef<HTMLDivElement, SheetHeaderProps>(({ className, children, id, ...props }, ref) => {
   const context = React.useContext(SheetContext);
   const closable = context?.closable;
   const onClose = context?.onClose;
+  const registerTitle = context?.registerTitle;
+
+  // Report the title to the sheet so it can name itself, and withdraw it on
+  // unmount. A caller-supplied `id` wins over the generated one — which the
+  // sheet can no longer resolve, so it is told there is no title to point at.
+  const ownsTitleId = id === undefined;
+  React.useEffect(() => {
+    registerTitle?.(ownsTitleId);
+    return () => registerTitle?.(false);
+  }, [registerTitle, ownsTitleId]);
 
   return (
-    <div ref={ref} className={cn("flex flex-col space-y-1.5 border-border-normal border-b p-6", closable && "pr-12", className)} {...props}>
+    <div
+      ref={ref}
+      id={id ?? context?.titleId}
+      className={cn("flex flex-col space-y-1.5 border-border-normal border-b p-6", closable && "pr-12", className)}
+      {...props}
+    >
       {children}
       {closable && (
         <button

@@ -6,7 +6,11 @@ import { usePopoverContext } from "./PopoverContext";
 export type PopoverBodyProps = React.HTMLAttributes<HTMLDivElement>;
 
 export const PopoverBody = React.forwardRef<HTMLDivElement, PopoverBodyProps>(({ className, children, ...props }, forwardedRef) => {
-  const { open, refs, floatingStyles, getFloatingProps, contentId } = usePopoverContext();
+  const { open, refs, floatingStyles, getFloatingProps, contentId, triggerId } = usePopoverContext();
+
+  // `aria-labelledby` outranks `aria-label` in the name computation, so the
+  // trigger only names the dialog when the caller hasn't named it themselves.
+  const hasOwnLabel = props["aria-label"] !== undefined || props["aria-labelledby"] !== undefined;
 
   if (!open) return null;
 
@@ -20,6 +24,7 @@ export const PopoverBody = React.forwardRef<HTMLDivElement, PopoverBodyProps>(({
         }}
         id={contentId}
         role="dialog"
+        aria-labelledby={hasOwnLabel ? undefined : triggerId}
         style={floatingStyles}
         className={cn("z-popover rounded-lg border border-border-normal bg-bg-normal p-4 shadow-lg", className)}
         {...getFloatingProps(props)}

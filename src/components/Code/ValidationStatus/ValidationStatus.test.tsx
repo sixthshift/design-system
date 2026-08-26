@@ -5,6 +5,13 @@ import { describe, expect, it } from "vitest";
 import type { ValidationError } from "./ValidationStatus";
 import { ValidationStatus } from "./ValidationStatus";
 
+/**
+ * Every row is a `Message`, and Message's live-region role follows its intent —
+ * assertive for danger, polite for the rest — so a query for the rows has to
+ * accept both.
+ */
+const liveRegions = () => Array.from(document.querySelectorAll<HTMLElement>('[role="alert"], [role="status"]'));
+
 const error = (overrides: Partial<ValidationError> = {}): ValidationError => ({
   line: 1,
   column: 1,
@@ -18,20 +25,20 @@ describe("ValidationStatus", () => {
     it("renders a success message when there are no errors", () => {
       render(<ValidationStatus errors={[]} />);
       expect(screen.getByText("No errors — code is valid")).toBeInTheDocument();
-      expect(screen.getByRole("alert")).toHaveClass("bg-bg-success-subtle");
+      expect(screen.getByRole("status")).toHaveClass("bg-bg-success-subtle");
     });
 
     it("does not render any per-error rows when there are no errors", () => {
       render(<ValidationStatus errors={[]} />);
-      expect(screen.getAllByRole("alert")).toHaveLength(1);
+      expect(liveRegions()).toHaveLength(1);
     });
   });
 
   describe("with errors", () => {
     it("renders a danger summary message", () => {
       render(<ValidationStatus errors={[error()]} />);
-      const alerts = screen.getAllByRole("alert");
-      expect(alerts[0]).toHaveClass("bg-bg-danger-subtle");
+      const regions = liveRegions();
+      expect(regions[0]).toHaveClass("bg-bg-danger-subtle");
     });
 
     it("summarises a single error", () => {
@@ -86,11 +93,11 @@ describe("ValidationStatus", () => {
           ]}
         />
       );
-      const alerts = screen.getAllByRole("alert");
-      // alerts[0] is the summary message; the per-row messages follow in order
-      expect(alerts[1]).toHaveClass("bg-bg-danger-subtle");
-      expect(alerts[2]).toHaveClass("bg-bg-warning-subtle");
-      expect(alerts[3]).toHaveClass("bg-bg-normal");
+      const regions = liveRegions();
+      // regions[0] is the summary message; the per-row messages follow in order
+      expect(regions[1]).toHaveClass("bg-bg-danger-subtle");
+      expect(regions[2]).toHaveClass("bg-bg-warning-subtle");
+      expect(regions[3]).toHaveClass("bg-bg-normal");
     });
   });
 

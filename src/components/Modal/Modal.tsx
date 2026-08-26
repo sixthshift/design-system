@@ -1,14 +1,14 @@
 import { FloatingFocusManager, FloatingOverlay, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import { useMergedFloatingRef, usePresence } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
-import { forwardRef, type HTMLAttributes, type ReactNode, useCallback, useContext, useEffect, useMemo } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode, useCallback, useContext, useEffect, useId, useMemo, useState } from "react";
 import { ModalBody, ModalContext, ModalFooter, ModalHeader } from "./components";
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export type ModalProps = Pick<HTMLAttributes<HTMLDivElement>, "className" | "style"> & {
+export type ModalProps = Pick<HTMLAttributes<HTMLDivElement>, "className" | "style" | "aria-label" | "aria-labelledby" | "aria-describedby"> & {
   /**
    * Called when the modal's open state should change. Today Modal is mount-driven
    * (parent conditionally renders), so this fires only with `false` on dismissal.
@@ -48,7 +48,22 @@ const sizeClasses = {
 // =============================================================================
 
 const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
-  ({ onOpenChange, size = "md", className, style, children, dismissable = true, closable, align = "center" }, ref) => {
+  (
+    {
+      onOpenChange,
+      size = "md",
+      className,
+      style,
+      children,
+      dismissable = true,
+      closable,
+      align = "center",
+      "aria-label": ariaLabel,
+      "aria-labelledby": ariaLabelledBy,
+      "aria-describedby": ariaDescribedBy,
+    },
+    ref
+  ) => {
     // Prefer explicit prop over context (context is set by useModal's overlay system)
     const contextValue = useContext(ModalContext);
     // Context provides a parameterless onClose for programmatic modals; adapt to the boolean shape.
@@ -90,7 +105,19 @@ const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
 
     const { getFloatingProps } = useInteractions([dismiss, role]);
 
-    const modalContextValue = useMemo(() => ({ onClose: handleClose, closable }), [closable, handleClose]); // eslint-disable-line react-hooks/exhaustive-deps
+    // The dialog names itself from its header. `Modal.Header` stamps `titleId`
+    // on itself and reports back, so a headerless modal falls through to the
+    // caller's `aria-label` instead of referencing an id that isn't there.
+    const titleId = useId();
+    const [hasTitle, setHasTitle] = useState(false);
+    const registerTitle = useCallback((present: boolean) => setHasTitle(present), []);
+
+    // `aria-labelledby` beats `aria-label` in the name computation, so a caller
+    // who passes a label must not also be pointed at the header — they would
+    // never see their own string win.
+    const labelledBy = ariaLabelledBy ?? (ariaLabel || !hasTitle ? undefined : titleId);
+
+    const modalContextValue = useMemo(() => ({ onClose: handleClose, closable, titleId, registerTitle }), [closable, handleClose, titleId, registerTitle]);
 
     if (!isMounted) return null;
 
@@ -104,6 +131,9 @@ const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
             ref={mergedRef}
             role="dialog"
             aria-modal="true"
+            aria-label={ariaLabel}
+            aria-labelledby={labelledBy}
+            aria-describedby={ariaDescribedBy}
             tabIndex={-1}
             data-state={state}
             className={cn(

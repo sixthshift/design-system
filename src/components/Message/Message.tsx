@@ -33,6 +33,22 @@ export type MessageProps = React.HTMLAttributes<HTMLDivElement> &
     icon?: React.ReactNode;
   };
 
+/**
+ * A message is a live region, and the intent decides how rudely it interrupts.
+ * `danger` is the only intent that earns `role="alert"` — an assertive region
+ * cuts off whatever the screen reader was saying. Everything else is
+ * `role="status"` (polite), which is announced at the next natural pause. A
+ * success confirmation or a static "Note" callout stamped as `alert` trains
+ * users to ignore the role that actually matters. Consumers can override by
+ * passing their own `role` — `props` is spread after this.
+ */
+const intentRole = {
+  neutral: "status",
+  success: "status",
+  warning: "status",
+  danger: "alert",
+} as const;
+
 export const Message = React.forwardRef<HTMLDivElement, MessageProps>(({ className, intent = "neutral", size, title, icon, children, ...props }, ref) => {
   const hasCompoundChildren = React.Children.toArray(children).some(
     (child) =>
@@ -41,7 +57,7 @@ export const Message = React.forwardRef<HTMLDivElement, MessageProps>(({ classNa
   );
 
   return (
-    <div ref={ref} role="alert" className={cn(messageVariants({ intent, size, className }))} {...props}>
+    <div ref={ref} role={intentRole[intent ?? "neutral"]} className={cn(messageVariants({ intent, size, className }))} {...props}>
       {hasCompoundChildren ? (
         children
       ) : (

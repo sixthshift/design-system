@@ -4,6 +4,7 @@ import { Input } from "@sixthshift/design-system/input";
 import { OverlayProvider, useModal } from "@sixthshift/design-system/overlay";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, screen, userEvent, within } from "storybook/test";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from ".";
 
 const meta: Meta<typeof Modal> = {
@@ -41,7 +42,18 @@ function ModalDemo({
   );
 }
 
+/**
+ * The a11y check runs against whatever is on the page when the story settles,
+ * and every overlay story starts closed — so without a play function axe has
+ * never once audited an open Modal. These interactions exist to put the overlay
+ * (focus trap, labelling, contrast over the backdrop) in front of it.
+ */
 export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: "Open Modal" }));
+    // The dialog is portalled out of the canvas, hence the document-wide query.
+    await expect(await screen.findByRole("dialog", { name: "Confirm Action" })).toBeInTheDocument();
+  },
   render: () => (
     <ModalDemo>
       {({ onClose }) => (
@@ -159,6 +171,10 @@ export const WithHeaderAction: Story = {
 };
 
 export const FormModal: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: "Add New Task" }));
+    await expect(await screen.findByRole("dialog", { name: "Create Task" })).toBeInTheDocument();
+  },
   render: () => (
     <ModalDemo buttonLabel="Add New Task">
       {({ onClose }) => (
@@ -330,6 +346,10 @@ function UseModalDemo() {
 }
 
 export const Programmatic: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: "Open via useModal" }));
+    await expect(await screen.findByRole("dialog", { name: "Programmatic Modal" })).toBeInTheDocument();
+  },
   render: () => (
     <OverlayProvider>
       <UseModalDemo />

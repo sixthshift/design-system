@@ -1,0 +1,28 @@
+{
+  /* Emit config for the published package: ESM + .d.ts into dist/, module tree
+     preserved (no bundling) so subpath exports stay 1:1 and tree-shaking works. */
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "noEmitOnError": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "incremental": false,
+    "removeComments": false
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/__tests__/**",
+    "src/**/__screenshots__/**",
+    "src/**/*.stories.tsx",
+    "src/stories/**",
+    "src/testing/**"
+  ]
+}

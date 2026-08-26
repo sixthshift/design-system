@@ -4,6 +4,7 @@ import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { playwright } from "@vitest/browser-playwright";
 import { configDefaults, defineConfig } from "vitest/config";
+import { sourceAliases } from "./scripts/source-aliases";
 
 const dirname = typeof __dirname !== "undefined" ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
@@ -16,6 +17,10 @@ const BROWSER_OPTIMIZE_DEPS = ["react", "react-dom", "react-dom/client", "react/
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
+  // Components import each other by package name, which the `exports` map now
+  // resolves to compiled `dist/`. Point those back at the working tree so a
+  // stale build cannot masquerade as a passing test run.
+  resolve: { alias: sourceAliases() },
   test: {
     projects: [
       // Unit tests with happy-dom (3-5× faster setup than jsdom)

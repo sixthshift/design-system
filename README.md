@@ -27,7 +27,9 @@ import "@sixthshift/design-system/styles.css";  // compiled Tailwind + base styl
 import { Button } from "@sixthshift/design-system/button";
 ```
 
-**Current consumption constraint:** components ship as TypeScript source; only the CSS is prebuilt (and is included in the published package, so no build runs on install). Consumers therefore need TS/JSX-compatible tooling — Vite, Bun, Next, and similar. Shipping compiled JS is a planned foundations improvement.
+**What ships:** compiled ESM (`.js`) plus type declarations (`.d.ts`) in `dist/`, alongside the prebuilt CSS — every export subpath resolves to build output, so no build runs on install and no consumer toolchain needs to transpile this package. The module tree is preserved rather than bundled, so subpath imports still tree-shake.
+
+TypeScript sources are published too, but only as the target of the declaration and source maps — nothing resolves to them. Go-to-definition lands on real `.tsx`, and stack traces map back to it.
 
 ### Peer dependencies
 
@@ -119,14 +121,14 @@ import uiConfig from "@sixthshift/design-system/tailwind.config";
 
 export default {
   presets: [uiConfig],
-  content: ["./src/**/*.{ts,tsx}", "./node_modules/@sixthshift/design-system/src/**/*.{ts,tsx}"],
+  content: ["./src/**/*.{ts,tsx}", "./node_modules/@sixthshift/design-system/dist/**/*.js"],
 };
 ```
 
 ## Development
 
 ```bash
-bun install          # `prepare` builds theme + styles CSS into dist/
+bun install          # `prepare` builds JS, types, theme and styles into dist/
 bun run storybook    # component workbench on :6006
 bun run dev          # watch-rebuild theme + Tailwind CSS
 bun run test         # unit + date-time tests
@@ -191,12 +193,11 @@ bun run scripts/next-version.ts --explain
 ```
 
 The line between the two halves of that table is **whether the commit can reach
-the published tarball**, not whether it feels important. This package ships raw
-`src/` — 79 of 81 export subpaths point at TypeScript source — so a `refactor:`
-changes the bytes a consumer receives, `build:` changes what lands in `dist/`,
-and `tailwind.config.ts` is itself an exported subpath. Tests, workflows,
-formatting and prose either do not ship or are not user-visible, so they release
-nothing.
+the published tarball**, not whether it feels important. Every code subpath is
+compiled from `src/` into the tarball, so a `refactor:` still changes the bytes
+a consumer receives; `build:` changes what lands in `dist/`, and
+`tailwind.config.ts` is itself an exported subpath. Tests, workflows, formatting
+and prose either do not ship or are not user-visible, so they release nothing.
 
 Two consequences worth knowing:
 

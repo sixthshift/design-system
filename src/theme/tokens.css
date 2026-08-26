@@ -231,6 +231,10 @@
   --fg-on-success-hovered: white;
   --fg-on-success-pressed: white;
   --fg-on-success-disabled: var(--color-slate-300);
+  --fg-on-success-strong: var(--color-slate-50);
+  --fg-on-success-strong-hovered: white;
+  --fg-on-success-strong-pressed: white;
+  --fg-on-success-strong-disabled: var(--color-slate-300);
   --fg-warning: var(--color-topaz-700);
   --fg-warning-hovered: var(--color-topaz-800);
   --fg-warning-pressed: var(--color-topaz-900);
@@ -243,6 +247,10 @@
   --fg-on-warning-hovered: white;
   --fg-on-warning-pressed: white;
   --fg-on-warning-disabled: var(--color-slate-300);
+  --fg-on-warning-strong: var(--color-slate-50);
+  --fg-on-warning-strong-hovered: white;
+  --fg-on-warning-strong-pressed: white;
+  --fg-on-warning-strong-disabled: var(--color-slate-300);
   --fg-danger: var(--color-ruby-700);
   --fg-danger-hovered: var(--color-ruby-800);
   --fg-danger-pressed: var(--color-ruby-900);
@@ -255,6 +263,10 @@
   --fg-on-danger-hovered: white;
   --fg-on-danger-pressed: white;
   --fg-on-danger-disabled: var(--color-slate-300);
+  --fg-on-danger-strong: var(--color-slate-50);
+  --fg-on-danger-strong-hovered: white;
+  --fg-on-danger-strong-pressed: white;
+  --fg-on-danger-strong-disabled: var(--color-slate-300);
 
   /* Border */
   --border-strong: var(--color-slate-800);
@@ -407,6 +419,10 @@
   --fg-on-success-hovered: white;
   --fg-on-success-pressed: white;
   --fg-on-success-disabled: var(--color-slate-500);
+  --fg-on-success-strong: var(--color-slate-900);
+  --fg-on-success-strong-hovered: var(--color-slate-950);
+  --fg-on-success-strong-pressed: black;
+  --fg-on-success-strong-disabled: var(--color-slate-500);
   --fg-warning: var(--color-topaz-300);
   --fg-warning-hovered: var(--color-topaz-200);
   --fg-warning-pressed: var(--color-topaz-100);
@@ -419,6 +435,10 @@
   --fg-on-warning-hovered: white;
   --fg-on-warning-pressed: white;
   --fg-on-warning-disabled: var(--color-slate-500);
+  --fg-on-warning-strong: var(--color-slate-900);
+  --fg-on-warning-strong-hovered: var(--color-slate-950);
+  --fg-on-warning-strong-pressed: black;
+  --fg-on-warning-strong-disabled: var(--color-slate-500);
   --fg-danger: var(--color-ruby-300);
   --fg-danger-hovered: var(--color-ruby-200);
   --fg-danger-pressed: var(--color-ruby-100);
@@ -431,6 +451,10 @@
   --fg-on-danger-hovered: white;
   --fg-on-danger-pressed: white;
   --fg-on-danger-disabled: var(--color-slate-500);
+  --fg-on-danger-strong: var(--color-slate-900);
+  --fg-on-danger-strong-hovered: var(--color-slate-950);
+  --fg-on-danger-strong-pressed: black;
+  --fg-on-danger-strong-disabled: var(--color-slate-500);
 
   /* Border */
   --border-strong: var(--color-slate-200);

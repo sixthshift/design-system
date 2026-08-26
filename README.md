@@ -8,7 +8,7 @@ A single package, `@sixthshift/design-system`: ~80 components (primitives, overl
 
 **Owns:** The component library — 80+ exports via subpath imports, design tokens, theme system (JSON-driven CSS generation), Tailwind config, and Storybook stories. Components span primitives, composites, typography, charts, and overlays.
 
-**Boundaries:** Bundles a `./date-time` module (`@sixthshift/design-system/date-time`, wrapping `@js-temporal/polyfill`) used by the date/time components, Floating UI (popover/tooltip positioning), and CVA (variant styling). Peer-depends on React 18 or 19. No app/domain coupling — domain-specific components live in consuming apps.
+**Boundaries:** Bundles a `./date-time` module (`@sixthshift/design-system/date-time`, wrapping `@js-temporal/polyfill`) used internally by the date/time components — those components exchange ISO 8601 strings, so consuming one does not require adopting Temporal. Also Floating UI (popover/tooltip positioning) and CVA (variant styling). Peer-depends on React 18 or 19. No app/domain coupling — domain-specific components live in consuming apps.
 
 **Surprise:** All components are imported via subpath exports (`@sixthshift/design-system/button`), never from a barrel root — there is no main export. Positioning uses Floating UI, not Radix. Variants use the `variant` (visual) + `intent` (semantic) orthogonal prop pattern via CVA, not className-based styling. Compound components (e.g. Tabs) use `Object.assign` to attach sub-components. Check `src/components/` before creating any new UI element.
 
@@ -79,6 +79,7 @@ import { FormField } from "@sixthshift/design-system/form-field";
 import { LineChart } from "@sixthshift/design-system/line-chart";
 
 // Pickers (Calendar, DatePicker, TimePicker, DateTimePicker, DateTimeRangePicker)
+// — all values are ISO 8601 strings, never date objects
 import { DatePicker } from "@sixthshift/design-system/date-picker";
 
 // Overlays (Modal, Sheet, Toast, Tooltip, Popover, HoverCard)
@@ -106,6 +107,66 @@ Components use two orthogonal props:
 <Button variant="outline" intent="success">Approve</Button>
 <Badge variant="soft" intent="warning">Pending</Badge>
 ```
+
+## Dates and times
+
+Every date/time component takes and returns canonical ISO 8601 strings. There is no
+date library to adopt, and the engine behind the components stays an implementation
+detail.
+
+```tsx
+<DatePicker value="2026-08-26" onChange={(date) => save(date)} />
+<TimePicker value="09:30" onChange={(time) => save(time)} />
+<DateTimePicker value="2026-08-26T00:30:00Z" onChange={(instant) => save(instant)} />
+<DatePicker mode="range" value={{ from: "2026-08-01", to: "2026-08-07" }} onChange={setRange} />
+```
+
+| Type | Shape | Notes |
+| --- | --- | --- |
+| `ISODate` | `"2026-08-26"` | |
+| `ISOTime` | `"09:30"` or `"09:30:00"` | callbacks emit `HH:MM:SS` |
+| `ISOInstant` | `"2026-08-26T00:30:00Z"` | always UTC; an offset like `+10:00` is accepted and normalised |
+
+The types are template literals, so a literal in the wrong shape is a compile error
+— a datetime passed to a `DatePicker`, an offset where `Z` is required. Values
+arriving as `string` from an API are checked at runtime instead, and a value
+carrying a time where a date belongs throws rather than being silently truncated.
+
+Disabling dates is declarative, so the common cases need no date arithmetic:
+
+```tsx
+<DatePicker disabled={{ dayOfWeek: ["sat", "sun"] }} />
+<DatePicker disabled={[{ before: "2026-01-01" }, "2026-12-25"]} />
+```
+
+For building `presets` and bounds, `@sixthshift/design-system/date-time` carries
+ISO-native helpers (`todayISO`, `addDaysISO`, `startOfMonthISO`, `isWeekendISO`,
+`compareISO`, …) so you never need Temporal at a call site. It also still exports
+Temporal itself, for arithmetic the ISO surface deliberately does not carry —
+widen with `fromISODate`, compute, narrow back with `toISODate`.
+
+See [docs/component-catalog.md](docs/component-catalog.md#datetime-pickers) for the
+full prop tables.
+
+### Upgrading from 0.2.x
+
+The pickers previously took and returned `Temporal` objects. At a call site, wrap
+existing values with `serialize()` and parse what comes back, or — better — drop
+Temporal from your own code entirely:
+
+```tsx
+// before
+<DatePicker value={Temporal.PlainDate.from(dueDate)} onChange={(d) => save(d?.toString())} />
+
+// after
+<DatePicker value={dueDate} onChange={(d) => save(d)} />
+```
+
+`DateRangeValue` and `DisabledDateMatcher` are no longer exported; use
+`ISODateRange` and `DisabledDates`. `DateTimeRangeValue` survives as an alias of
+`ISOInstantRange`. The Temporal-typed helpers that `@sixthshift/design-system/calendar`
+re-exported (`isDateDisabled`, `temporalToISO`, and friends) are now internal — the
+ISO helpers above cover what they were reachable for.
 
 ## Theming
 

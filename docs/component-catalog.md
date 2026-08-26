@@ -180,7 +180,66 @@ Wraps `Input` internally.
 
 ### Date/Time Pickers
 
-All date/time components use `@sixthshift/design-system/date-time` types (`Temporal.PlainDate`, `Temporal.PlainTime`, `Temporal.Instant`).
+Every date/time component accepts and emits **canonical ISO 8601 strings**, never
+Temporal objects. Adopting a date picker does not mean adopting a date library.
+
+| Type | Shape | Example |
+|------|-------|---------|
+| `ISODate` | `YYYY-MM-DD` | `"2026-08-26"` |
+| `ISOTime` | `HH:MM` or `HH:MM:SS` in, `HH:MM:SS` out | `"09:30"` |
+| `ISOInstant` | `YYYY-MM-DDTHH:MM:SSZ`, always UTC | `"2026-08-26T00:30:00Z"` |
+| `ISODateRange` | `{ from?: ISODate, to?: ISODate }` | |
+| `ISOInstantRange` | `{ from?: ISOInstant, to?: ISOInstant }` | |
+
+Input is normalised on entry: `"09:30"` and `"09:30:00"` are both valid times, and
+an instant written with a numeric offset (`"2026-08-26T10:30:00+10:00"`) is
+converted to the `Z` form. **Callbacks always emit the canonical form**, so a value
+that round-trips through a component comes back in exactly one shape.
+
+Types come from `@sixthshift/design-system/date-time`, and are also re-exported
+from each picker's own subpath for convenience.
+
+#### Disabling dates
+
+`disabled` (and `disabledDates` on the datetime pickers) takes any of:
+
+| Form | Meaning |
+|------|---------|
+| `"2026-08-26"` | one date |
+| `["2026-08-26", "2026-08-27"]` | several dates |
+| `{ before: "2026-01-01" }` | everything earlier |
+| `{ after: "2026-12-31" }` | everything later |
+| `{ from: "2026-08-01", to: "2026-08-07" }` | an inclusive span |
+| `{ dayOfWeek: ["sat", "sun"] }` | by weekday name |
+| `(date: ISODate) => boolean` | anything else |
+
+The declarative forms exist so the predicate is rarely needed — it receives an ISO
+string, so answering "is this a weekend?" inside one would otherwise require date
+arithmetic. `dayOfWeek` uses names rather than numbers because `weekStartsOn`
+counts from 0 = Sunday while ISO-8601 day numbers start at 1 = Monday.
+
+#### Computing dates without Temporal
+
+`@sixthshift/design-system/date-time` carries ISO-native helpers for the
+arithmetic `presets` and `disabled` values usually need:
+
+```ts
+import { addDaysISO, isWeekendISO, startOfMonthISO, todayISO } from "@sixthshift/design-system/date-time";
+
+const presets = [
+  { label: "Last 7 days", value: { from: addDaysISO(todayISO(), -6), to: todayISO() } },
+  { label: "This month",  value: { from: startOfMonthISO(todayISO()), to: todayISO() } },
+];
+```
+
+Also available: `addMonthsISO`, `addMinutesISO`, `addHoursISO`, `endOfMonthISO`,
+`startOfWeekISO` / `endOfWeekISO`, `startOfYearISO` / `endOfYearISO`,
+`weekdayISO`, `compareISO`, and the `isDateString` / `isTimeString` /
+`isInstantString` guards for validating values that arrive from an API.
+
+For arithmetic beyond that — quarters, timezone-aware boundaries — widen to
+Temporal with `fromISODate` / `fromISOInstant`, compute, and narrow back with
+`toISODate` / `toISOInstant`. That is the intended escape hatch, not a workaround.
 
 #### Calendar
 
@@ -190,11 +249,11 @@ All date/time components use `@sixthshift/design-system/date-time` types (`Tempo
 | Prop | Type | Notes |
 |------|------|-------|
 | `mode` | `"single" \| "range" \| "multiple"` | Selection mode |
-| `value` | `PlainDate \| DateRangeValue \| PlainDate[]` | Depends on mode |
+| `value` | `ISODate \| ISODateRange \| ISODate[]` | Depends on mode |
 | `onSelect` | `(value) => void` | Depends on mode |
-| `month` / `onMonthChange` | `PlainDate` | Controlled month navigation |
-| `minDate` / `maxDate` | `PlainDate` | Date bounds |
-| `disabled` | `DisabledDateMatcher \| DisabledDateMatcher[]` | Flexible disable patterns |
+| `month` / `onMonthChange` | `ISODate` | Controlled month navigation; the day is ignored |
+| `minDate` / `maxDate` | `ISODate` | Date bounds, inclusive |
+| `disabled` | `DisabledDates \| DisabledDates[]` | See [Disabling dates](#disabling-dates) |
 | `presets` | `PresetOption[]` | Sidebar of quick picks |
 | `weekStartsOn` | `0-6` | Week start day |
 | `showFooter` | `boolean` | Today/Cancel/Apply buttons |
@@ -207,9 +266,10 @@ All date/time components use `@sixthshift/design-system/date-time` types (`Tempo
 | Prop | Type | Notes |
 |------|------|-------|
 | `mode` | `"single" \| "range" \| "multiple"` | Selection mode |
-| `value` / `defaultValue` | `PlainDate \| DateRangeValue \| PlainDate[]` | Depends on mode |
+| `value` / `defaultValue` | `ISODate \| ISODateRange \| ISODate[]` | Depends on mode |
 | `onChange` | `(value) => void` | Depends on mode |
-| `minDate` / `maxDate` | `PlainDate` | Date bounds |
+| `minDate` / `maxDate` | `ISODate` | Date bounds, inclusive |
+| `disabled` | `DisabledDates \| DisabledDates[]` | See [Disabling dates](#disabling-dates) |
 | `presets` | `PresetOption[]` | Quick-pick sidebar |
 | `clearable` | `boolean` | Default: `true` |
 | `placeholder` | `string` | Default: `"Select date"` |
@@ -222,38 +282,44 @@ All date/time components use `@sixthshift/design-system/date-time` types (`Tempo
 
 | Prop | Type | Notes |
 |------|------|-------|
-| `value` / `defaultValue` | `Temporal.PlainTime` | Time value |
-| `onChange` | `(value) => void` | Callback |
+| `value` / `defaultValue` | `ISOTime` | `"09:30"` or `"09:30:00"` |
+| `onChange` | `(value: ISOTime \| undefined) => void` | Always emits `HH:MM:SS` |
 | `clockFormat` | `"12h" \| "24h"` | Clock display format |
 | `format` | `"HH:mm" \| "HH:mm:ss"` | Include seconds column |
 | `minuteStep` | `number` | Minute increment (default: 1) |
-| `minTime` / `maxTime` | `PlainTime` | Time bounds |
+| `minTime` / `maxTime` | `ISOTime` | Time bounds, inclusive |
 | `presets` | `TimePresetOption[]` | Quick-pick sidebar |
 
 #### DateTimePicker
 
 **Import:** `@sixthshift/design-system/datetime-picker`
-**Purpose:** Combined date + time picker using `Temporal.Instant` (timezone-aware).
+**Purpose:** Combined date + time picker. The value is an absolute instant, edited
+in the viewer's local timezone and exchanged in UTC.
 
 | Prop | Type | Notes |
 |------|------|-------|
-| `value` / `defaultValue` | `Temporal.Instant` | Combined date+time |
-| `onChange` | `(value) => void` | Callback |
+| `value` / `defaultValue` | `ISOInstant` | Combined date+time, UTC |
+| `onChange` | `(value: ISOInstant \| undefined) => void` | Always emits the `Z` form |
 | `clockFormat` | `"12h" \| "24h"` | Clock display |
 | `showSeconds` | `boolean` | Include seconds |
-| `minDate` / `maxDate` | `PlainDate` | Date bounds |
-| `minTime` / `maxTime` | `PlainTime` | Time bounds |
+| `minDate` / `maxDate` | `ISODate` | Date bounds, inclusive |
+| `minTime` / `maxTime` | `ISOTime` | Time bounds, inclusive |
+| `disabledDates` | `DisabledDates \| DisabledDates[]` | See [Disabling dates](#disabling-dates) |
 | `clearable` | `boolean` | Default: `true` |
 
 #### DateTimeRangePicker
 
 **Import:** `@sixthshift/design-system/datetime-range-picker`
-**Purpose:** Start/end datetime picker for ranges using `Temporal.Instant`.
+**Purpose:** Start/end datetime picker for ranges. Both ends are absolute instants
+in UTC.
 
 | Prop | Type | Notes |
 |------|------|-------|
-| `value` / `defaultValue` | `DateTimeRangeValue` | `{ from?: Instant, to?: Instant }` |
-| `onChange` | `(value) => void` | Callback |
+| `value` / `defaultValue` | `ISOInstantRange` | `{ from?: ISOInstant, to?: ISOInstant }`; `DateTimeRangeValue` is an alias |
+| `onChange` | `(value: ISOInstantRange \| undefined) => void` | Always emits the `Z` form |
+| `minDate` / `maxDate` | `ISODate` | Date bounds, inclusive |
+| `minTime` / `maxTime` | `ISOTime` | Time bounds, inclusive |
+| `disabledDates` | `DisabledDates \| DisabledDates[]` | See [Disabling dates](#disabling-dates) |
 | `clockFormat` | `"12h" \| "24h"` | Clock display |
 | `showSeconds` | `boolean` | Include seconds |
 | `presets` | `DateTimeRangePresetOption[]` | Quick-pick sidebar |

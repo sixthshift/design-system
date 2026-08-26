@@ -130,7 +130,7 @@ The strip is reading-mode, not scanning-mode — natural language reads better h
 
 ## Anti-patterns
 
-- **Raw ISO strings in the UI** (`2026-05-19T14:30:00Z`). Always format.
+- **Raw ISO strings in the UI** (`2026-05-19T14:30:00Z`). Always format. This is about what the *user* sees — the date/time components exchange ISO strings at their prop boundary by design, and format for display internally.
 - **Verbose relative phrases** in scannable contexts ("approximately 2 hours ago", "a few days ago"). Use the scale.
 - **`new Date()`** in component code. Use `Temporal.Now` via `@sixthshift/design-system/date-time`.
 - **Per-page format functions.** If you find yourself writing `formatX` in a page utils file, the helper belongs in `@sixthshift/design-system/date-time` or is a sign the existing helpers don't fit. Push the gap upstream.

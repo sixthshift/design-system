@@ -87,20 +87,42 @@ jobs:
 
   browser:
     name: Browser tests
-    # arm64 to match the devcontainer (.devcontainer/Dockerfile runs on aarch64).
-    # Screenshot baselines are keyed by browser-platform-arch, and the rendering
-    # stack is arch-specific — Playwright ships a separate Chromium build per
-    # arch and its software rasteriser JITs to native code. Matching the arch
-    # means the committed baselines are the ones checked here, so they can be
-    # regenerated locally with `bun run test:visual:update` and CI will agree.
-    # Free for public repositories.
+    # Runs inside the dev container image, not on the bare runner.
+    #
+    # Screenshot baselines compare pixel-for-pixel. Matching the CPU
+    # architecture was necessary but not sufficient: glyph hinting and
+    # antialiasing come from freetype/fontconfig, which ship with the OS image,
+    # and the runner is Ubuntu noble while the devcontainer is Debian bookworm.
+    # The same pinned Chromium therefore drew text slightly differently — 523
+    # pixels on one Card baseline, all of it letter edges.
+    #
+    # Chasing the runner image is a losing game: GitHub rebuilds it on their
+    # schedule and it cannot be pinned. This image can be, so CI steps into it.
+    # Published by .github/workflows/devcontainer-image.yml.
+    #
+    # TODO: replace :latest with the digest that workflow prints. A tag drifts,
+    # which is the exact problem this is here to remove.
     runs-on: ubuntu-24.04-arm
+    container:
+      image: ghcr.io/sixthshift/design-system-dev:latest
+      # Works whether the package is public or private; GHCR packages are
+      # private by default until published visibility is changed.
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: ${{ env.BUN_VERSION }}
+      # No setup-bun here: the image already carries the pinned Bun that the
+      # devcontainer uses, and using it is the whole point of this job.
+      - name: Verify the toolchain came from the image
+        run: |
+          echo "bun    $(bun --version)  (expected ${{ env.BUN_VERSION }})"
+          echo "distro $(. /etc/os-release && echo "$PRETTY_NAME")"
+          test "$(bun --version)" = "${{ env.BUN_VERSION }}"
 
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -121,8 +143,10 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # The image already has Chromium's system libraries (see the Dockerfile),
+      # so only the browser binary is fetched here.
       - name: Install Chromium
-        run: bunx playwright install --with-deps chromium
+        run: bunx playwright install chromium
 
       # 544 story smoke + a11y tests. Requires optimizeDeps.include for the
       # React runtime (see vitest.config.ts) — without it Vite re-optimizes
@@ -130,10 +154,10 @@ jobs:
       - name: Story tests
         run: bun run test:stories
 
-      # Compares against the committed *-chromium-linux-arm64.png baselines.
-      # The arch is still part of the path so an x64 contributor generates their
-      # own set rather than overwriting these — vitest's default path template
-      # ends in process.platform, which is just "linux" on both.
+      # Compares against the committed *-chromium-linux-arm64.png baselines,
+      # which are generated locally with `bun run test:visual:update`. Because
+      # this job renders in the same image, those are the authoritative set —
+      # CI only ever checks them, never writes them.
       - name: Visual regression
         run: bun run test:visual
 

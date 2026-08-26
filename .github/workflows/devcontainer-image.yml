@@ -1,0 +1,65 @@
+# Publishes the dev container image so CI can render inside the exact same
+# environment a developer does.
+#
+# Screenshot baselines compare pixel-for-pixel, and glyph rasterisation comes
+# from freetype/fontconfig, which ship with the OS image. Matching the CPU
+# architecture is not enough: the devcontainer is Debian bookworm while the
+# GitHub runner image is Ubuntu noble, and the same pinned Chromium antialiases
+# text differently on each. Rather than chase the runner image — which GitHub
+# rebuilds on their schedule, not ours — CI steps into this image instead.
+name: Dev container image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".devcontainer/Dockerfile"
+      - ".devcontainer/shell-config.sh"
+      - ".github/workflows/devcontainer-image.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: devcontainer-image
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    name: Build and publish
+    # arm64, matching the devcontainer, so the published image renders the way
+    # a developer's machine does.
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Context is the repository root: the Dockerfile COPYs
+      # .devcontainer/shell-config.sh.
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .devcontainer/Dockerfile
+          platforms: linux/arm64
+          push: true
+          tags: ghcr.io/${{ github.repository }}-dev:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # The digest is what ci.yml should pin. A tag would drift, which is the
+      # exact problem this image exists to remove.
+      - name: Digest to pin
+        run: |
+          echo "::notice title=Pin the browser job to this digest::ghcr.io/${{ github.repository }}-dev@${{ steps.build.outputs.digest }}"
+          echo "ghcr.io/${{ github.repository }}-dev@${{ steps.build.outputs.digest }}"

@@ -36,7 +36,7 @@ export const NavBottom = React.forwardRef<HTMLElement, NavBottomProps>(({ sectio
                 className: cn(
                   "flex flex-col items-center gap-1 rounded-md px-3 py-2 text-xs",
                   "hover:bg-bg-brand-hovered hover:text-fg-on-brand-hovered",
-                  active && "bg-bg-brand-pressed"
+                  active && "bg-bg-brand-pressed text-fg-on-brand-pressed"
                 ),
                 children: (
                   <>

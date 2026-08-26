@@ -36,7 +36,7 @@ const css = readFileSync(TOKENS, "utf8");
 const declarations = (block: string): Map<string, string> => {
   const out = new Map<string, string>();
   for (const [, name, value] of block.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) {
-    out.set(name, value.trim());
+    out.set(name!, value!.trim());
   }
   return out;
 };

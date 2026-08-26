@@ -18,7 +18,7 @@ export const NavItem = ({ item, active, expanded, renderLink }: NavItemProps) =>
         className: cn(
           "flex items-center gap-3 rounded-md px-2 py-2 font-medium text-sm",
           "hover:bg-bg-brand-hovered hover:text-fg-on-brand-hovered",
-          active && "bg-bg-brand-pressed"
+          active && "bg-bg-brand-pressed text-fg-on-brand-pressed"
         ),
         // Only include title when collapsed (for tooltip)
         ...(expanded ? {} : { title: item.label }),

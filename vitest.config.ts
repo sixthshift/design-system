@@ -136,13 +136,6 @@ export default defineConfig({
       // apart from the setup file, which flips the theme global — see
       // .storybook/vitest.setup.dark.ts for why this is a second project rather
       // than a decorator or a handful of dark-mode stories.
-      //
-      // Not in `test:stories` yet, so CI does not run it: the first pass reports
-      // 35 contrast violations in the dark palette — Badge, Button, Toggle,
-      // ToggleGroup, Tabs, Text, MetricList, Card, Sparkline — all of them real
-      // and all of them predating this project, which is the point. Run it with
-      // `bun run test:stories:dark`; fold it into `test:stories` once they are
-      // fixed.
       {
         extends: true,
         plugins: [storybookTest({ configDir: path.join(dirname, ".storybook") })],

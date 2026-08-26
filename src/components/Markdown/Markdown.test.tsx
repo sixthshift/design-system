@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { Markdown } from "./Markdown";
 
@@ -22,6 +22,12 @@ describe("Markdown", () => {
       const { container } = render(<Markdown className="custom-class">content</Markdown>);
       expect(container.firstElementChild).toHaveClass("custom-class");
       expect(container.firstElementChild).toHaveClass("flex");
+    });
+
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(<Markdown ref={ref}>content</Markdown>);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
     });
   });
 

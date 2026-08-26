@@ -1,7 +1,7 @@
 import { FloatingFocusManager, FloatingOverlay, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import { useMergedFloatingRef, usePresence } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
-import { type HTMLAttributes, type ReactNode, useCallback, useContext, useEffect, useMemo } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode, useCallback, useContext, useEffect, useMemo } from "react";
 import { ModalBody, ModalContext, ModalFooter, ModalHeader } from "./components";
 
 // =============================================================================
@@ -47,92 +47,94 @@ const sizeClasses = {
 // Modal
 // =============================================================================
 
-const ModalRoot = ({ onOpenChange, size = "md", className, style, children, dismissable = true, closable, align = "center" }: ModalProps) => {
-  // Prefer explicit prop over context (context is set by useModal's overlay system)
-  const contextValue = useContext(ModalContext);
-  // Context provides a parameterless onClose for programmatic modals; adapt to the boolean shape.
-  const handleDismiss = useCallback(() => {
-    if (onOpenChange) onOpenChange(false);
-    else contextValue?.onClose();
-  }, [onOpenChange, contextValue]);
+const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
+  ({ onOpenChange, size = "md", className, style, children, dismissable = true, closable, align = "center" }, ref) => {
+    // Prefer explicit prop over context (context is set by useModal's overlay system)
+    const contextValue = useContext(ModalContext);
+    // Context provides a parameterless onClose for programmatic modals; adapt to the boolean shape.
+    const handleDismiss = useCallback(() => {
+      if (onOpenChange) onOpenChange(false);
+      else contextValue?.onClose();
+    }, [onOpenChange, contextValue]);
 
-  const { ref: presenceRef, state, isMounted, show, hide } = usePresence();
+    const { ref: presenceRef, state, isMounted, show, hide } = usePresence();
 
-  useEffect(() => {
-    show();
-  }, [show]);
+    useEffect(() => {
+      show();
+    }, [show]);
 
-  const handleClose = useCallback(() => {
-    hide(handleDismiss);
-  }, [handleDismiss, hide]);
+    const handleClose = useCallback(() => {
+      hide(handleDismiss);
+    }, [handleDismiss, hide]);
 
-  const { refs, context } = useFloating({
-    open: true,
-    onOpenChange: (nextOpen) => {
-      if (!nextOpen) handleClose();
-    },
-  });
+    const { refs, context } = useFloating({
+      open: true,
+      onOpenChange: (nextOpen) => {
+        if (!nextOpen) handleClose();
+      },
+    });
 
-  const mergedRef = useMergedFloatingRef(refs, presenceRef);
+    const mergedRef = useMergedFloatingRef<HTMLDivElement>(refs, presenceRef, ref);
 
-  const dismiss = useDismiss(context, {
-    enabled: dismissable,
-    // OverlayContext handles escape key for proper stack ordering
-    escapeKey: false,
-    outsidePress: true,
-    outsidePressEvent: "mousedown",
-  });
+    const dismiss = useDismiss(context, {
+      enabled: dismissable,
+      // OverlayContext handles escape key for proper stack ordering
+      escapeKey: false,
+      outsidePress: true,
+      outsidePressEvent: "mousedown",
+    });
 
-  const role = useRole(context, {
-    role: "dialog",
-  });
+    const role = useRole(context, {
+      role: "dialog",
+    });
 
-  const { getFloatingProps } = useInteractions([dismiss, role]);
+    const { getFloatingProps } = useInteractions([dismiss, role]);
 
-  const modalContextValue = useMemo(() => ({ onClose: handleClose, closable }), [closable, handleClose]); // eslint-disable-line react-hooks/exhaustive-deps
+    const modalContextValue = useMemo(() => ({ onClose: handleClose, closable }), [closable, handleClose]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!isMounted) return null;
+    if (!isMounted) return null;
 
-  const isEntering = state === "entering";
-  const isExiting = state === "exiting";
+    const isEntering = state === "entering";
+    const isExiting = state === "exiting";
 
-  return (
-    <FloatingFocusManager context={context} modal>
-      <FloatingOverlay lockScroll className={cn("fixed inset-0 z-modal bg-bg-overlay", isEntering && "animate-fade-in", isExiting && "animate-fade-out")}>
-        <div
-          ref={mergedRef}
-          role="dialog"
-          aria-modal="true"
-          tabIndex={-1}
-          data-state={state}
-          className={cn(
-            "fixed flex flex-col overflow-hidden outline-hidden",
-            "rounded-xl border border-border-normal bg-bg-normal",
-            // Size
-            sizeClasses[size],
-            // Cap height so ModalBody scrolls instead of overflowing the viewport
-            "max-h-[95%]",
-            // Mobile: slide up from bottom, full width
-            "max-sm:inset-x-0 max-sm:bottom-0 max-sm:rounded-b-none",
-            isEntering && "max-sm:animate-slide-up-in",
-            isExiting && "max-sm:animate-slide-up-out",
-            // Desktop: horizontal center + vertical alignment
-            "sm:left-1/2 sm:-translate-x-1/2",
-            align === "center" && "sm:top-1/2 sm:-translate-y-1/2",
-            align === "top" && "sm:top-[15vh]",
-            isEntering && "sm:animate-fade-in",
-            isExiting && "sm:animate-fade-out",
-            className
-          )}
-          style={style}
-          {...getFloatingProps({})}
-        >
-          <ModalContext.Provider value={modalContextValue}>{children}</ModalContext.Provider>
-        </div>
-      </FloatingOverlay>
-    </FloatingFocusManager>
-  );
-};
+    return (
+      <FloatingFocusManager context={context} modal>
+        <FloatingOverlay lockScroll className={cn("fixed inset-0 z-modal bg-bg-overlay", isEntering && "animate-fade-in", isExiting && "animate-fade-out")}>
+          <div
+            ref={mergedRef}
+            role="dialog"
+            aria-modal="true"
+            tabIndex={-1}
+            data-state={state}
+            className={cn(
+              "fixed flex flex-col overflow-hidden outline-hidden",
+              "rounded-xl border border-border-normal bg-bg-normal",
+              // Size
+              sizeClasses[size],
+              // Cap height so ModalBody scrolls instead of overflowing the viewport
+              "max-h-[95%]",
+              // Mobile: slide up from bottom, full width
+              "max-sm:inset-x-0 max-sm:bottom-0 max-sm:rounded-b-none",
+              isEntering && "max-sm:animate-slide-up-in",
+              isExiting && "max-sm:animate-slide-up-out",
+              // Desktop: horizontal center + vertical alignment
+              "sm:left-1/2 sm:-translate-x-1/2",
+              align === "center" && "sm:top-1/2 sm:-translate-y-1/2",
+              align === "top" && "sm:top-[15vh]",
+              isEntering && "sm:animate-fade-in",
+              isExiting && "sm:animate-fade-out",
+              className
+            )}
+            style={style}
+            {...getFloatingProps({})}
+          >
+            <ModalContext.Provider value={modalContextValue}>{children}</ModalContext.Provider>
+          </div>
+        </FloatingOverlay>
+      </FloatingFocusManager>
+    );
+  }
+);
 ModalRoot.displayName = "Modal";
 
 // =============================================================================

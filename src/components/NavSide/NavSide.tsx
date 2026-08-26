@@ -1,5 +1,6 @@
 import { useComponents } from "@sixthshift/design-system/components";
 import { cn } from "@sixthshift/design-system/utils";
+import * as React from "react";
 import { NavItem } from "./NavItem";
 import type { NavItem as NavItemType, NavSection, RenderLinkFn } from "./types";
 
@@ -16,11 +17,11 @@ export type NavSideProps = {
   className?: string;
 };
 
-export const NavSide = ({ sections, expanded = true, isActive, renderLink, className }: NavSideProps) => {
+export const NavSide = React.forwardRef<HTMLElement, NavSideProps>(({ sections, expanded = true, isActive, renderLink, className }, ref) => {
   const { Link } = useComponents();
   const linkRenderer: RenderLinkFn = renderLink ?? (({ to, ...rest }) => <Link href={to} {...rest} />);
   return (
-    <aside className={cn("flex flex-col bg-bg-brand-strong text-fg-on-brand-strong", expanded ? "w-48" : "w-16", className)}>
+    <aside ref={ref} className={cn("flex flex-col bg-bg-brand-strong text-fg-on-brand-strong", expanded ? "w-48" : "w-16", className)}>
       <nav className="flex-1 overflow-y-auto py-3">
         {sections.map((section, sectionIndex) => (
           <div key={section.id}>
@@ -37,4 +38,5 @@ export const NavSide = ({ sections, expanded = true, isActive, renderLink, class
       </nav>
     </aside>
   );
-};
+});
+NavSide.displayName = "NavSide";

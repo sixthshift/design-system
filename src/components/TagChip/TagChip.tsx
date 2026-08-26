@@ -1,6 +1,7 @@
 import { Badge } from "@sixthshift/design-system/badge";
 import { cn } from "@sixthshift/design-system/utils";
 import { X } from "lucide-react";
+import * as React from "react";
 
 /**
  * One tag, rendered prettily. A `namespace:value` tag (`project:website`)
@@ -22,13 +23,18 @@ export type TagChipProps = {
   className?: string;
 };
 
-export const TagChip = ({ tag, onRemove, size = "sm", className }: TagChipProps) => {
+export const TagChip = React.forwardRef<HTMLSpanElement, TagChipProps>(({ tag, onRemove, size = "sm", className }, ref) => {
   const sep = tag.indexOf(":");
   const namespace = sep > 0 ? tag.slice(0, sep) : null;
   const value = sep > 0 ? tag.slice(sep + 1) : tag;
 
   return (
-    <Badge variant="outline" intent="muted" className={cn("gap-1 font-normal", size === "sm" ? "px-1.5 py-0 text-[10px]" : "px-2 py-0.5 text-xs", className)}>
+    <Badge
+      ref={ref}
+      variant="outline"
+      intent="muted"
+      className={cn("gap-1 font-normal", size === "sm" ? "px-1.5 py-0 text-[10px]" : "px-2 py-0.5 text-xs", className)}
+    >
       {namespace && <span className="text-fg-subtle">{namespace}:</span>}
       <span>{value}</span>
       {onRemove && (
@@ -43,4 +49,5 @@ export const TagChip = ({ tag, onRemove, size = "sm", className }: TagChipProps)
       )}
     </Badge>
   );
-};
+});
+TagChip.displayName = "TagChip";

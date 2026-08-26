@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { Badge } from "./Badge";
 
@@ -19,6 +19,12 @@ describe("Badge", () => {
     it("spreads additional props to the span", () => {
       render(<Badge data-testid="custom-badge">Badge</Badge>);
       expect(screen.getByTestId("custom-badge")).toBeInTheDocument();
+    });
+
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(<Badge ref={ref}>Badge</Badge>);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLSpanElement));
     });
   });
 

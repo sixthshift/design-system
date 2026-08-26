@@ -1,5 +1,6 @@
 import { useComponents } from "@sixthshift/design-system/components";
 import { cn } from "@sixthshift/design-system/utils";
+import * as React from "react";
 import type { NavItem as NavItemType, NavSection, RenderLinkFn } from "../NavSide";
 
 export type NavBottomProps = {
@@ -15,14 +16,14 @@ export type NavBottomProps = {
   className?: string;
 };
 
-export const NavBottom = ({ sections, isActive, renderLink, maxItems = 5, className }: NavBottomProps) => {
+export const NavBottom = React.forwardRef<HTMLElement, NavBottomProps>(({ sections, isActive, renderLink, maxItems = 5, className }, ref) => {
   const { Link } = useComponents();
   const linkRenderer: RenderLinkFn = renderLink ?? (({ to, ...rest }) => <Link href={to} {...rest} />);
   // Flatten all sections and limit to maxItems
   const items = sections.flatMap((section) => section.items).slice(0, maxItems);
 
   return (
-    <nav className={cn("fixed inset-x-0 bottom-0 z-app-bar bg-bg-brand-strong text-fg-on-brand-strong", className)}>
+    <nav ref={ref} className={cn("fixed inset-x-0 bottom-0 z-app-bar bg-bg-brand-strong text-fg-on-brand-strong", className)}>
       <ul className="flex items-center justify-around">
         {items.map((item) => {
           const Icon = item.icon;
@@ -50,4 +51,5 @@ export const NavBottom = ({ sections, isActive, renderLink, maxItems = 5, classN
       </ul>
     </nav>
   );
-};
+});
+NavBottom.displayName = "NavBottom";

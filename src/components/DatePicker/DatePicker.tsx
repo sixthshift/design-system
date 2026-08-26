@@ -2,7 +2,7 @@ import { autoUpdate, FloatingPortal, flip, offset, shift, useClick, useDismiss, 
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import { Calendar as CalendarIcon, X } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 import { useCallback, useId, useMemo, useState } from "react";
 import {
   adaptDisabledDates,
@@ -35,7 +35,7 @@ function toTemporal(mode: DatePickerProps["mode"], value: ISODate | ISODateRange
   return fromISODateOrUndefined(value as ISODate | undefined);
 }
 
-export const DatePicker = (props: DatePickerProps) => {
+export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>((props, ref) => {
   const {
     mode = "single",
     weekStartsOn = 0,
@@ -222,7 +222,7 @@ export const DatePicker = (props: DatePickerProps) => {
   return (
     <>
       {/* Trigger Input */}
-      <div className={cn("relative flex items-center", mode === "range" && "min-w-91.25", mode !== "range" && "min-w-65")}>
+      <div ref={ref} className={cn("relative flex items-center", mode === "range" && "min-w-91.25", mode !== "range" && "min-w-65")}>
         <CalendarIcon className="pointer-events-none absolute left-3 h-4 w-4 text-fg-subtle" />
         <input
           ref={refs.setReference as React.Ref<HTMLInputElement>}
@@ -308,4 +308,5 @@ export const DatePicker = (props: DatePickerProps) => {
       )}
     </>
   );
-};
+});
+DatePicker.displayName = "DatePicker";

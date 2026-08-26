@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { MetricList } from "./MetricList";
 import { MetricRow } from "./MetricRow";
@@ -10,6 +10,12 @@ describe("MetricList", () => {
     it("renders as a div", () => {
       const { container } = render(<MetricList>Content</MetricList>);
       expect((container.firstChild as HTMLElement).tagName).toBe("DIV");
+    });
+
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(<MetricList ref={ref}>Content</MetricList>);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
     });
 
     it("renders an empty list with no rows", () => {

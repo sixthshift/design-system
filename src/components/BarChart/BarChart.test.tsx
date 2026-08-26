@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { BarChartItem } from "./BarChart";
 import { BarChart } from "./BarChart";
 
@@ -174,6 +174,14 @@ describe("BarChart", () => {
       const longLabel = "This is an extremely long label that should not be truncated in the DOM text content";
       render(<BarChart data={[{ label: longLabel, value: 5 }]} />);
       expect(screen.getByText(longLabel)).toBeInTheDocument();
+    });
+  });
+
+  describe("ref forwarding", () => {
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(<BarChart data={basicData} ref={ref} />);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
     });
   });
 

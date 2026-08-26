@@ -1,6 +1,6 @@
 import { cn } from "@sixthshift/design-system/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { HTMLAttributes } from "react";
+import * as React from "react";
 
 const INTENT_CLASSES: Record<string, string> = {
   neutral: "bg-fg-subtle",
@@ -29,22 +29,24 @@ const colorDotVariants = cva("inline-block shrink-0 rounded-full", {
   },
 });
 
-export type ColorDotProps = HTMLAttributes<HTMLSpanElement> &
+export type ColorDotProps = React.HTMLAttributes<HTMLSpanElement> &
   VariantProps<typeof colorDotVariants> & {
     /** Intent name (neutral, brand, success, warning, danger) or arbitrary CSS color */
     color: string;
   };
 
-export const ColorDot = ({ color, size, pulse, className, style, ...props }: ColorDotProps) => {
+export const ColorDot = React.forwardRef<HTMLSpanElement, ColorDotProps>(({ color, size, pulse, className, style, ...props }, ref) => {
   const intentClass = INTENT_CLASSES[color];
 
   return (
     <span
+      ref={ref}
       className={cn(colorDotVariants({ size, pulse }), intentClass, className)}
       style={intentClass ? style : { ...style, backgroundColor: color }}
       {...props}
     />
   );
-};
+});
+ColorDot.displayName = "ColorDot";
 
 export { colorDotVariants };

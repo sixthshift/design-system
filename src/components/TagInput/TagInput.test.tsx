@@ -53,4 +53,10 @@ describe("TagInput", () => {
     fireEvent.click(screen.getByRole("button", { name: "Remove a" }));
     expect(onChange).toHaveBeenCalledWith(["b"]);
   });
+
+  it("forwards ref", () => {
+    const ref = vi.fn();
+    render(<TagInput value={[]} onChange={vi.fn()} ref={ref} />);
+    expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+  });
 });

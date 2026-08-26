@@ -1,6 +1,6 @@
 import { cn } from "@sixthshift/design-system/utils";
 import type * as React from "react";
-import { useCallback, useRef } from "react";
+import { forwardRef, useCallback, useRef } from "react";
 import { useTabsContext } from "./TabsContext";
 import { TabsTrigger } from "./TabsTrigger";
 
@@ -11,7 +11,7 @@ export type TabsListProps = {
   className?: string;
 };
 
-export const TabsList = ({ orientation = "horizontal", className }: TabsListProps) => {
+export const TabsList = forwardRef<HTMLDivElement, TabsListProps>(({ orientation = "horizontal", className }, ref) => {
   const { items, value, onValueChange } = useTabsContext();
   const triggerRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -78,6 +78,7 @@ export const TabsList = ({ orientation = "horizontal", className }: TabsListProp
 
   return (
     <div
+      ref={ref}
       role="tablist"
       aria-orientation={orientation}
       className={cn("inline-flex gap-1", orientation === "vertical" ? "flex-col" : "flex-row items-center", className)}
@@ -95,4 +96,5 @@ export const TabsList = ({ orientation = "horizontal", className }: TabsListProp
       ))}
     </div>
   );
-};
+});
+TabsList.displayName = "TabsList";

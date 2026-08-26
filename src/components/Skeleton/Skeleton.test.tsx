@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { Skeleton } from "./Skeleton";
 
@@ -14,6 +14,12 @@ describe("Skeleton", () => {
     it("spreads additional props", () => {
       render(<Skeleton data-testid="skeleton" aria-label="Loading" />);
       expect(screen.getByTestId("skeleton")).toHaveAttribute("aria-label", "Loading");
+    });
+
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(<Skeleton ref={ref} />);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
     });
   });
 

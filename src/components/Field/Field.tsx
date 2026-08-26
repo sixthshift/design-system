@@ -1,5 +1,5 @@
 import { cn } from "@sixthshift/design-system/utils";
-import type { ReactNode } from "react";
+import * as React from "react";
 
 /**
  * The labelled identifier carve-out used by identity-disclosure surfaces
@@ -22,7 +22,7 @@ export type FieldProps = {
   /** The humane label for what the identifier identifies ("WhatsApp", "Email"). */
   label: string;
   /** The identifier itself. Rendered monospaced + breakable by default. */
-  children: ReactNode;
+  children: React.ReactNode;
   /**
    * `stacked` (default): label above, value below — best for long identifiers
    * that need horizontal room to wrap.
@@ -39,12 +39,12 @@ export type FieldProps = {
   className?: string;
 };
 
-export const Field = ({ label, children, layout = "stacked", mono = true, className }: FieldProps) => {
+export const Field = React.forwardRef<HTMLDivElement, FieldProps>(({ label, children, layout = "stacked", mono = true, className }, ref) => {
   const valueClass = cn("text-fg-subtle text-xs", mono && "break-all font-mono");
 
   if (layout === "row") {
     return (
-      <div className={cn("flex items-baseline justify-between gap-3", className)}>
+      <div ref={ref} className={cn("flex items-baseline justify-between gap-3", className)}>
         <span className="shrink-0 text-fg-subtle text-sm">{label}</span>
         <span className={cn(valueClass, "min-w-0 text-right")}>{children}</span>
       </div>
@@ -52,9 +52,10 @@ export const Field = ({ label, children, layout = "stacked", mono = true, classN
   }
 
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
+    <div ref={ref} className={cn("flex flex-col gap-1", className)}>
       <span className="text-fg-subtle text-xs uppercase tracking-wide">{label}</span>
       <span className={valueClass}>{children}</span>
     </div>
   );
-};
+});
+Field.displayName = "Field";

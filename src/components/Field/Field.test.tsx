@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { Field } from "./Field";
 
@@ -10,6 +10,16 @@ describe("Field", () => {
       render(<Field label="WhatsApp">61400000001@s.whatsapp.net</Field>);
       expect(screen.getByText("WhatsApp")).toBeInTheDocument();
       expect(screen.getByText("61400000001@s.whatsapp.net")).toBeInTheDocument();
+    });
+
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(
+        <Field label="WhatsApp" ref={ref}>
+          jid
+        </Field>
+      );
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
     });
 
     it("renders the value as a ReactNode (not coerced to string)", () => {

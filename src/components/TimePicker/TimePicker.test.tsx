@@ -196,3 +196,11 @@ describe("TimePicker", () => {
     });
   });
 });
+
+describe("TimePicker — ref forwarding", () => {
+  it("forwards ref to the trigger wrapper element", () => {
+    const ref = vi.fn();
+    render(<TimePicker ref={ref} />);
+    expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+  });
+});

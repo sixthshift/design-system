@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useMemo } from "react";
 import { addDaysISO, startOfMonthISO, todayISO } from "../../date-time";
 
@@ -62,7 +63,7 @@ function getDefaultPresets(): PresetOption[] {
  * Wraps DatePicker with mode="range" and adds common range presets.
  * All date values are canonical ISO 8601 strings ("2026-08-26").
  */
-export const DateRangePicker = (props: DateRangePickerProps) => {
+export const DateRangePicker = React.forwardRef<HTMLDivElement, DateRangePickerProps>((props, ref) => {
   const {
     value,
     defaultValue,
@@ -117,5 +118,6 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     ...(clearable !== undefined && { clearable }),
   };
 
-  return <DatePicker {...(datePickerProps as DatePickerRangeProps)} />;
-};
+  return <DatePicker ref={ref} {...(datePickerProps as DatePickerRangeProps)} />;
+});
+DateRangePicker.displayName = "DateRangePicker";

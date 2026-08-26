@@ -1,23 +1,23 @@
 import { Muted } from "@sixthshift/design-system/muted";
 import { cn } from "@sixthshift/design-system/utils";
-import type { HTMLAttributes, ReactNode } from "react";
+import * as React from "react";
 
-export type EmptyStateProps = HTMLAttributes<HTMLDivElement> & {
+export type EmptyStateProps = React.HTMLAttributes<HTMLDivElement> & {
   /** Optional icon to display */
-  icon?: ReactNode;
+  icon?: React.ReactNode;
   /** Message to display */
   message: string;
   /** Optional description for more context */
   description?: string;
   /** Optional action button or element */
-  action?: ReactNode;
+  action?: React.ReactNode;
   /** Additional CSS classes */
   className?: string;
 };
 
-export const EmptyState = ({ icon, message, description, action, className, ...props }: EmptyStateProps) => {
+export const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(({ icon, message, description, action, className, ...props }, ref) => {
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-3 p-8 text-center", className)} {...props}>
+    <div ref={ref} className={cn("flex flex-col items-center justify-center gap-3 p-8 text-center", className)} {...props}>
       {icon && <div className="text-fg-subtle">{icon}</div>}
       <div className="flex flex-col gap-1">
         <Muted>{message}</Muted>
@@ -26,4 +26,5 @@ export const EmptyState = ({ icon, message, description, action, className, ...p
       {action && <div className="mt-2">{action}</div>}
     </div>
   );
-};
+});
+EmptyState.displayName = "EmptyState";

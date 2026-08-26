@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { EmptyState } from "./EmptyState";
 
@@ -14,6 +14,12 @@ describe("EmptyState", () => {
     it("renders as a div", () => {
       const { container } = render(<EmptyState message="No items found" />);
       expect((container.firstChild as HTMLElement).tagName).toBe("DIV");
+    });
+
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(<EmptyState message="No items found" ref={ref} />);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
     });
   });
 

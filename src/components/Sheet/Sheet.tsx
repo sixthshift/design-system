@@ -1,7 +1,7 @@
 import { FloatingFocusManager, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import { useMergedFloatingRef, usePresence } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
-import { type HTMLAttributes, type ReactNode, useCallback, useEffect, useMemo } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode, useCallback, useEffect, useMemo } from "react";
 import { SheetBody, SheetContext, SheetFooter, SheetHeader } from "./components";
 
 // =============================================================================
@@ -41,88 +41,79 @@ const sizeClasses = {
 // Sheet
 // =============================================================================
 
-const SheetRoot = ({
-  open,
-  onOpenChange,
-  side = "right",
-  size = "md",
-  dismissable = true,
-  dismissOnOutsidePress = false,
-  closable,
-  className,
-  style,
-  children,
-}: SheetProps) => {
-  const { ref: presenceRef, state, isMounted, show, hide } = usePresence();
+const SheetRoot = forwardRef<HTMLDivElement, SheetProps>(
+  ({ open, onOpenChange, side = "right", size = "md", dismissable = true, dismissOnOutsidePress = false, closable, className, style, children }, ref) => {
+    const { ref: presenceRef, state, isMounted, show, hide } = usePresence();
 
-  // Drive presence from the controlled `open` prop.
-  // When `open` flips to false, we play the exit animation, then unmount.
-  useEffect(() => {
-    if (open) {
-      show();
-    } else if (isMounted) {
-      hide();
-    }
-  }, [open, isMounted, show, hide]);
+    // Drive presence from the controlled `open` prop.
+    // When `open` flips to false, we play the exit animation, then unmount.
+    useEffect(() => {
+      if (open) {
+        show();
+      } else if (isMounted) {
+        hide();
+      }
+    }, [open, isMounted, show, hide]);
 
-  const requestClose = useCallback(() => {
-    onOpenChange(false);
-  }, [onOpenChange]);
+    const requestClose = useCallback(() => {
+      onOpenChange(false);
+    }, [onOpenChange]);
 
-  const { refs, context } = useFloating({
-    open,
-    onOpenChange: (nextOpen) => {
-      if (!nextOpen) requestClose();
-    },
-  });
+    const { refs, context } = useFloating({
+      open,
+      onOpenChange: (nextOpen) => {
+        if (!nextOpen) requestClose();
+      },
+    });
 
-  const mergedRef = useMergedFloatingRef(refs, presenceRef);
+    const mergedRef = useMergedFloatingRef<HTMLDivElement>(refs, presenceRef, ref);
 
-  const dismiss = useDismiss(context, {
-    enabled: dismissable,
-    escapeKey: true,
-    outsidePress: dismissOnOutsidePress,
-    outsidePressEvent: "mousedown",
-  });
+    const dismiss = useDismiss(context, {
+      enabled: dismissable,
+      escapeKey: true,
+      outsidePress: dismissOnOutsidePress,
+      outsidePressEvent: "mousedown",
+    });
 
-  const role = useRole(context, { role: "dialog" });
+    const role = useRole(context, { role: "dialog" });
 
-  const { getFloatingProps } = useInteractions([dismiss, role]);
+    const { getFloatingProps } = useInteractions([dismiss, role]);
 
-  const sheetContextValue = useMemo(() => ({ onClose: requestClose, closable }), [requestClose, closable]);
+    const sheetContextValue = useMemo(() => ({ onClose: requestClose, closable }), [requestClose, closable]);
 
-  if (!isMounted) return null;
+    if (!isMounted) return null;
 
-  const isEntering = state === "entering";
-  const isExiting = state === "exiting";
+    const isEntering = state === "entering";
+    const isExiting = state === "exiting";
 
-  return (
-    <FloatingFocusManager context={context} modal={false}>
-      <div
-        ref={mergedRef}
-        tabIndex={-1}
-        data-state={state}
-        data-side={side}
-        className={cn(
-          "fixed top-0 bottom-0 z-sheet flex flex-col overflow-hidden bg-bg-normal outline-hidden",
-          "border-border-normal shadow-lg",
-          side === "right" ? "right-0 border-l" : "left-0 border-r",
-          sizeClasses[size],
-          "max-sm:inset-x-0",
-          isEntering && side === "right" && "animate-slide-right-in",
-          isExiting && side === "right" && "animate-slide-right-out",
-          isEntering && side === "left" && "animate-slide-left-in",
-          isExiting && side === "left" && "animate-slide-left-out",
-          className
-        )}
-        style={style}
-        {...getFloatingProps({})}
-      >
-        <SheetContext.Provider value={sheetContextValue}>{children}</SheetContext.Provider>
-      </div>
-    </FloatingFocusManager>
-  );
-};
+    return (
+      <FloatingFocusManager context={context} modal={false}>
+        <div
+          ref={mergedRef}
+          tabIndex={-1}
+          data-state={state}
+          data-side={side}
+          className={cn(
+            "fixed top-0 bottom-0 z-sheet flex flex-col overflow-hidden bg-bg-normal outline-hidden",
+            "border-border-normal shadow-lg",
+            side === "right" ? "right-0 border-l" : "left-0 border-r",
+            sizeClasses[size],
+            "max-sm:inset-x-0",
+            isEntering && side === "right" && "animate-slide-right-in",
+            isExiting && side === "right" && "animate-slide-right-out",
+            isEntering && side === "left" && "animate-slide-left-in",
+            isExiting && side === "left" && "animate-slide-left-out",
+            className
+          )}
+          style={style}
+          {...getFloatingProps({})}
+        >
+          <SheetContext.Provider value={sheetContextValue}>{children}</SheetContext.Provider>
+        </div>
+      </FloatingFocusManager>
+    );
+  }
+);
 SheetRoot.displayName = "Sheet";
 
 // =============================================================================

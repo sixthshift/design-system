@@ -14,6 +14,7 @@
  * because every hook here has to run unconditionally.
  */
 
+import * as React from "react";
 import { useCallback, useMemo } from "react";
 import {
   adaptDisabledDates,
@@ -32,7 +33,7 @@ import type { CalendarProps, CalendarViewProps, DateRangeValue, PresetOption } f
 
 export type { CalendarProps };
 
-export const Calendar = (props: CalendarProps) => {
+export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) => {
   const { mode, month, onMonthChange, minDate, maxDate, disabled, weekStartsOn, showFooter, showToday, onApply, onCancel, className } = props;
 
   const value = "value" in props ? props.value : undefined;
@@ -117,5 +118,6 @@ export const Calendar = (props: CalendarProps) => {
     presets: temporalPresets,
   } as unknown as CalendarViewProps;
 
-  return <CalendarView {...viewProps} />;
-};
+  return <CalendarView ref={ref} {...viewProps} />;
+});
+Calendar.displayName = "Calendar";

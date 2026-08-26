@@ -300,3 +300,11 @@ describe("Calendar — non-canonical input", () => {
     spy.mockRestore();
   });
 });
+
+describe("Calendar — ref forwarding", () => {
+  it("forwards ref to the root element", () => {
+    const ref = vi.fn();
+    render(<Calendar ref={ref} mode="single" value={undefined} onSelect={() => {}} month={FEB_2024} onMonthChange={() => {}} />);
+    expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+  });
+});

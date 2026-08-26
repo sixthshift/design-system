@@ -2,7 +2,7 @@ import { autoUpdate, FloatingPortal, flip, offset, shift, useClick, useDismiss, 
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import { Calendar as CalendarIcon, X } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 import { useCallback, useId, useMemo, useState } from "react";
 import {
   adaptDisabledDates,
@@ -147,7 +147,7 @@ function getDefaultPresets(): DateTimeRangePresetOption[] {
  * Combines date range selection with separate time pickers for start and end times.
  * All values cross the boundary as canonical UTC instant strings.
  */
-export const DateTimeRangePicker = (props: DateTimeRangePickerProps) => {
+export const DateTimeRangePicker = React.forwardRef<HTMLDivElement, DateTimeRangePickerProps>((props, ref) => {
   const {
     value,
     defaultValue,
@@ -486,7 +486,7 @@ export const DateTimeRangePicker = (props: DateTimeRangePickerProps) => {
   return (
     <>
       {/* Trigger Input */}
-      <div className="relative flex min-w-125 items-center">
+      <div ref={ref} className="relative flex min-w-125 items-center">
         <CalendarIcon className="pointer-events-none absolute left-3 h-4 w-4 text-fg-subtle" />
         <input
           ref={refs.setReference as React.Ref<HTMLInputElement>}
@@ -709,4 +709,5 @@ export const DateTimeRangePicker = (props: DateTimeRangePickerProps) => {
       )}
     </>
   );
-};
+});
+DateTimeRangePicker.displayName = "DateTimeRangePicker";

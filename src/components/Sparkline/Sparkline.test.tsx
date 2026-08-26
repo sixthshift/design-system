@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { SparklineProps } from "./Sparkline";
 import { Sparkline } from "./Sparkline";
 
@@ -111,6 +111,14 @@ describe("Sparkline", () => {
       expect(svg).toHaveAttribute("width", "120");
       expect(svg).toHaveAttribute("height", "32");
       expect(svg).toHaveAttribute("viewBox", "0 0 120 32");
+    });
+  });
+
+  describe("ref forwarding", () => {
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(<Sparkline data={[1, 2]} ref={ref} />);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLSpanElement));
     });
   });
 

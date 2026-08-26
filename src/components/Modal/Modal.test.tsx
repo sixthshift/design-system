@@ -54,6 +54,17 @@ describe("Modal", () => {
     expect(screen.getByText("Modal body content")).toBeInTheDocument();
   });
 
+  it("forwards ref to the dialog panel", async () => {
+    const ref = vi.fn();
+    render(
+      <Modal ref={ref} onOpenChange={() => {}}>
+        <ModalBody>Content</ModalBody>
+      </Modal>
+    );
+    await waitForAnimation();
+    expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+  });
+
   describe("sizes", () => {
     it("renders with sm size", async () => {
       render(

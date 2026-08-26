@@ -1,6 +1,6 @@
 import { Caption } from "@sixthshift/design-system/caption";
 import { cn } from "@sixthshift/design-system/utils";
-import type { ReactNode } from "react";
+import * as React from "react";
 
 export type StatsCardProps = {
   /** Title of the stats card */
@@ -8,11 +8,11 @@ export type StatsCardProps = {
   /** Description text shown below the title */
   description: string;
   /** Optional icon displayed in the header */
-  icon?: ReactNode;
+  icon?: React.ReactNode;
   /** Visual status indicator via left border color */
   status?: "healthy" | "warning" | "error" | "neutral";
   /** Card content */
-  children: ReactNode;
+  children: React.ReactNode;
   /** Additional CSS classes */
   className?: string;
 };
@@ -24,9 +24,9 @@ const statusColors = {
   neutral: "border-l-border-subtle",
 };
 
-export const StatsCard = ({ title, description, icon, status = "neutral", children, className }: StatsCardProps) => {
+export const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(({ title, description, icon, status = "neutral", children, className }, ref) => {
   return (
-    <div className={cn("flex flex-col gap-3 rounded border border-border-subtle border-l-2 bg-bg-subtle p-4", statusColors[status], className)}>
+    <div ref={ref} className={cn("flex flex-col gap-3 rounded border border-border-subtle border-l-2 bg-bg-subtle p-4", statusColors[status], className)}>
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-0.5">
           <span className="font-medium text-fg-normal">{title}</span>
@@ -37,4 +37,5 @@ export const StatsCard = ({ title, description, icon, status = "neutral", childr
       <div className="flex-1">{children}</div>
     </div>
   );
-};
+});
+StatsCard.displayName = "StatsCard";

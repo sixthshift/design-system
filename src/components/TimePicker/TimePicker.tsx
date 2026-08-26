@@ -2,7 +2,7 @@ import { autoUpdate, FloatingPortal, flip, offset, shift, useClick, useDismiss, 
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import { Clock, X } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 import { useCallback, useId, useMemo, useState } from "react";
 import { fromISOTime, fromISOTimeOrUndefined, type Temporal, toISOTimeOrUndefined } from "../../date-time";
 import { Button } from "../Button";
@@ -26,7 +26,7 @@ import type { ParsedTime, TimePeriod, TimePickerProps, TimePresetOption } from "
 
 export type { TimePickerProps };
 
-export const TimePicker = (props: TimePickerProps) => {
+export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>((props, ref) => {
   const {
     value,
     defaultValue,
@@ -213,7 +213,7 @@ export const TimePicker = (props: TimePickerProps) => {
   return (
     <>
       {/* Trigger Input */}
-      <div className="relative flex items-center">
+      <div ref={ref} className="relative flex items-center">
         <Clock className="pointer-events-none absolute left-3 h-4 w-4 text-fg-subtle" />
         <input
           ref={refs.setReference as React.Ref<HTMLInputElement>}
@@ -337,4 +337,5 @@ export const TimePicker = (props: TimePickerProps) => {
       )}
     </>
   );
-};
+});
+TimePicker.displayName = "TimePicker";

@@ -1,6 +1,6 @@
 import { Tooltip } from "@sixthshift/design-system/tooltip";
 import { cn } from "@sixthshift/design-system/utils";
-import type * as React from "react";
+import * as React from "react";
 
 export type LineChartDataPoint = {
   label: string;
@@ -96,156 +96,162 @@ function buildPath(points: { x: number; y: number }[], interpolation: Interpolat
   return parts.join(" ");
 }
 
-export const LineChart = ({
-  series,
-  height = 200,
-  showGrid = true,
-  showAxes = true,
-  showDots = true,
-  showLabels = true,
-  showValues = false,
-  interpolation = "monotone",
-  fillArea = false,
-  yMin: yMinProp,
-  yMax: yMaxProp,
-  yTicks = 4,
-  showTooltip = false,
-  formatTooltip,
-  formatValue = (v) => String(v),
-  className,
-  ...rest
-}: LineChartProps) => {
-  const allValues = series.flatMap((s) => s.data.map((d) => d.value));
-  // Math.min() of an empty list is Infinity, which propagates NaN through the
-  // whole scale. Fall back to a plain 0-1 axis when there is no data.
-  const rawMin = yMinProp ?? (allValues.length > 0 ? Math.min(...allValues) : 0);
-  const rawMax = yMaxProp ?? (allValues.length > 0 ? Math.max(...allValues) : 1);
-  const scale = niceScale(rawMin, rawMax, yTicks);
+export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
+  (
+    {
+      series,
+      height = 200,
+      showGrid = true,
+      showAxes = true,
+      showDots = true,
+      showLabels = true,
+      showValues = false,
+      interpolation = "monotone",
+      fillArea = false,
+      yMin: yMinProp,
+      yMax: yMaxProp,
+      yTicks = 4,
+      showTooltip = false,
+      formatTooltip,
+      formatValue = (v) => String(v),
+      className,
+      ...rest
+    }: LineChartProps,
+    ref
+  ) => {
+    const allValues = series.flatMap((s) => s.data.map((d) => d.value));
+    // Math.min() of an empty list is Infinity, which propagates NaN through the
+    // whole scale. Fall back to a plain 0-1 axis when there is no data.
+    const rawMin = yMinProp ?? (allValues.length > 0 ? Math.min(...allValues) : 0);
+    const rawMax = yMaxProp ?? (allValues.length > 0 ? Math.max(...allValues) : 1);
+    const scale = niceScale(rawMin, rawMax, yTicks);
 
-  const labelSet = new Set<string>();
-  for (const s of series) {
-    for (const d of s.data) {
-      labelSet.add(d.label);
+    const labelSet = new Set<string>();
+    for (const s of series) {
+      for (const d of s.data) {
+        labelSet.add(d.label);
+      }
     }
-  }
-  const labels = [...labelSet];
-  const labelCount = labels.length;
-  const labelIndex = new Map(labels.map((l, i) => [l, i]));
+    const labels = [...labelSet];
+    const labelCount = labels.length;
+    const labelIndex = new Map(labels.map((l, i) => [l, i]));
 
-  const padding = showAxes ? PADDING : PADDING_NO_AXES;
-  const viewWidth = 600;
-  const chartW = viewWidth - padding.left - padding.right;
-  const chartH = height - padding.top - padding.bottom;
+    const padding = showAxes ? PADDING : PADDING_NO_AXES;
+    const viewWidth = 600;
+    const chartW = viewWidth - padding.left - padding.right;
+    const chartH = height - padding.top - padding.bottom;
 
-  const xStep = labelCount > 1 ? chartW / (labelCount - 1) : 0;
+    const xStep = labelCount > 1 ? chartW / (labelCount - 1) : 0;
 
-  function toX(i: number) {
-    return padding.left + i * xStep;
-  }
+    function toX(i: number) {
+      return padding.left + i * xStep;
+    }
 
-  function toY(v: number) {
-    const ratio = (v - scale.min) / (scale.max - scale.min);
-    return padding.top + chartH - ratio * chartH;
-  }
+    function toY(v: number) {
+      const ratio = (v - scale.min) / (scale.max - scale.min);
+      return padding.top + chartH - ratio * chartH;
+    }
 
-  const yTickValues: number[] = [];
-  for (let v = scale.min; v <= scale.max + scale.step * 0.01; v += scale.step) {
-    yTickValues.push(Math.round(v * 1e6) / 1e6);
-  }
+    const yTickValues: number[] = [];
+    for (let v = scale.min; v <= scale.max + scale.step * 0.01; v += scale.step) {
+      yTickValues.push(Math.round(v * 1e6) / 1e6);
+    }
 
-  function tooltipText(point: LineChartDataPoint, seriesName?: string) {
-    if (formatTooltip) return formatTooltip(point, seriesName);
-    const prefix = seriesName ? `${seriesName}: ` : `${point.label}: `;
-    return `${prefix}${formatValue(point.value)}`;
-  }
+    function tooltipText(point: LineChartDataPoint, seriesName?: string) {
+      if (formatTooltip) return formatTooltip(point, seriesName);
+      const prefix = seriesName ? `${seriesName}: ` : `${point.label}: `;
+      return `${prefix}${formatValue(point.value)}`;
+    }
 
-  return (
-    <div {...rest} className={cn("relative w-full", className)}>
-      <svg viewBox={`0 0 ${viewWidth} ${height}`} className="w-full" preserveAspectRatio="xMidYMid meet" role="img">
-        <title>Line chart</title>
-        {showGrid &&
-          yTickValues.map((v) => (
-            <line
-              key={`grid-${v}`}
-              x1={padding.left}
-              y1={toY(v)}
-              x2={viewWidth - padding.right}
-              y2={toY(v)}
-              className="stroke-border-subtle"
-              strokeWidth={1}
-              strokeDasharray="4 4"
-            />
-          ))}
+    return (
+      <div ref={ref} {...rest} className={cn("relative w-full", className)}>
+        <svg viewBox={`0 0 ${viewWidth} ${height}`} className="w-full" preserveAspectRatio="xMidYMid meet" role="img">
+          <title>Line chart</title>
+          {showGrid &&
+            yTickValues.map((v) => (
+              <line
+                key={`grid-${v}`}
+                x1={padding.left}
+                y1={toY(v)}
+                x2={viewWidth - padding.right}
+                y2={toY(v)}
+                className="stroke-border-subtle"
+                strokeWidth={1}
+                strokeDasharray="4 4"
+              />
+            ))}
 
-        {showAxes && (
-          <>
-            <line x1={padding.left} y1={padding.top} x2={padding.left} y2={padding.top + chartH} className="stroke-border-normal" strokeWidth={1} />
-            <line
-              x1={padding.left}
-              y1={padding.top + chartH}
-              x2={viewWidth - padding.right}
-              y2={padding.top + chartH}
-              className="stroke-border-normal"
-              strokeWidth={1}
-            />
-            {yTickValues.map((v) => (
-              <text key={`ytick-${v}`} x={padding.left - 8} y={toY(v)} textAnchor="end" dominantBaseline="middle" className="fill-fg-subtle" fontSize={11}>
-                {formatValue(v)}
+          {showAxes && (
+            <>
+              <line x1={padding.left} y1={padding.top} x2={padding.left} y2={padding.top + chartH} className="stroke-border-normal" strokeWidth={1} />
+              <line
+                x1={padding.left}
+                y1={padding.top + chartH}
+                x2={viewWidth - padding.right}
+                y2={padding.top + chartH}
+                className="stroke-border-normal"
+                strokeWidth={1}
+              />
+              {yTickValues.map((v) => (
+                <text key={`ytick-${v}`} x={padding.left - 8} y={toY(v)} textAnchor="end" dominantBaseline="middle" className="fill-fg-subtle" fontSize={11}>
+                  {formatValue(v)}
+                </text>
+              ))}
+            </>
+          )}
+
+          {showLabels &&
+            labels.map((label, i) => (
+              <text key={`xlabel-${label}`} x={toX(i)} y={height - 4} textAnchor="middle" className="fill-fg-subtle" fontSize={11}>
+                {label}
               </text>
             ))}
-          </>
-        )}
 
-        {showLabels &&
-          labels.map((label, i) => (
-            <text key={`xlabel-${label}`} x={toX(i)} y={height - 4} textAnchor="middle" className="fill-fg-subtle" fontSize={11}>
-              {label}
-            </text>
-          ))}
-
-        {series.map((s, si) => {
-          const color = s.color ?? SERIES_COLORS[si % SERIES_COLORS.length];
-          const points = s.data.map((d) => ({ x: toX(labelIndex.get(d.label)!), y: toY(d.value) }));
-          const path = buildPath(points, interpolation);
-
-          return (
-            <g key={s.name ?? si}>
-              {fillArea && path && (
-                <path
-                  d={`${path} L ${points[points.length - 1]!.x} ${padding.top + chartH} L ${points[0]!.x} ${padding.top + chartH} Z`}
-                  fill={color}
-                  opacity={0.1}
-                />
-              )}
-              {path && <path d={path} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />}
-              {showDots && points.map((p, pi) => <circle key={`dot-${s.data[pi]!.label}`} cx={p.x} cy={p.y} r={3} fill={color} />)}
-              {showValues &&
-                points.map((p, vi) => (
-                  <text key={`val-${s.data[vi]!.label}`} x={p.x} y={p.y - 10} textAnchor="middle" className="fill-fg-normal" fontSize={10} fontWeight={600}>
-                    {formatValue(s.data[vi]!.value)}
-                  </text>
-                ))}
-            </g>
-          );
-        })}
-      </svg>
-
-      {showTooltip &&
-        series.map((s, si) =>
-          s.data.map((d) => {
-            const xPct = (toX(labelIndex.get(d.label)!) / viewWidth) * 100;
-            const yPct = (toY(d.value) / height) * 100;
+          {series.map((s, si) => {
+            const color = s.color ?? SERIES_COLORS[si % SERIES_COLORS.length];
+            const points = s.data.map((d) => ({ x: toX(labelIndex.get(d.label)!), y: toY(d.value) }));
+            const path = buildPath(points, interpolation);
 
             return (
-              <Tooltip key={`tip-${s.name ?? si}-${d.label}`} delayShow={0}>
-                <Tooltip.Trigger asChild>
-                  <span className="absolute block -translate-x-1/2 -translate-y-1/2" style={{ left: `${xPct}%`, top: `${yPct}%`, width: 16, height: 16 }} />
-                </Tooltip.Trigger>
-                <Tooltip.Body>{tooltipText(d, s.name)}</Tooltip.Body>
-              </Tooltip>
+              <g key={s.name ?? si}>
+                {fillArea && path && (
+                  <path
+                    d={`${path} L ${points[points.length - 1]!.x} ${padding.top + chartH} L ${points[0]!.x} ${padding.top + chartH} Z`}
+                    fill={color}
+                    opacity={0.1}
+                  />
+                )}
+                {path && <path d={path} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />}
+                {showDots && points.map((p, pi) => <circle key={`dot-${s.data[pi]!.label}`} cx={p.x} cy={p.y} r={3} fill={color} />)}
+                {showValues &&
+                  points.map((p, vi) => (
+                    <text key={`val-${s.data[vi]!.label}`} x={p.x} y={p.y - 10} textAnchor="middle" className="fill-fg-normal" fontSize={10} fontWeight={600}>
+                      {formatValue(s.data[vi]!.value)}
+                    </text>
+                  ))}
+              </g>
             );
-          })
-        )}
-    </div>
-  );
-};
+          })}
+        </svg>
+
+        {showTooltip &&
+          series.map((s, si) =>
+            s.data.map((d) => {
+              const xPct = (toX(labelIndex.get(d.label)!) / viewWidth) * 100;
+              const yPct = (toY(d.value) / height) * 100;
+
+              return (
+                <Tooltip key={`tip-${s.name ?? si}-${d.label}`} delayShow={0}>
+                  <Tooltip.Trigger asChild>
+                    <span className="absolute block -translate-x-1/2 -translate-y-1/2" style={{ left: `${xPct}%`, top: `${yPct}%`, width: 16, height: 16 }} />
+                  </Tooltip.Trigger>
+                  <Tooltip.Body>{tooltipText(d, s.name)}</Tooltip.Body>
+                </Tooltip>
+              );
+            })
+          )}
+      </div>
+    );
+  }
+);
+LineChart.displayName = "LineChart";

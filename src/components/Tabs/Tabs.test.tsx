@@ -454,6 +454,30 @@ describe("Tabs", () => {
     });
   });
 
+  describe("ref forwarding", () => {
+    it("forwards ref on Tabs.List", () => {
+      const ref = vi.fn();
+      render(
+        <Tabs items={items} defaultValue="details">
+          <Tabs.List ref={ref} />
+          <Tabs.Panels />
+        </Tabs>
+      );
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+    });
+
+    it("forwards ref on Tabs.Panels", () => {
+      const ref = vi.fn();
+      render(
+        <Tabs items={items} defaultValue="details">
+          <Tabs.List />
+          <Tabs.Panels ref={ref} />
+        </Tabs>
+      );
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+    });
+  });
+
   describe("edge cases", () => {
     it("renders without error when there is a single tab", () => {
       const singleItem: TabItem[] = [{ value: "only", label: "Only tab", content: <p>Only content</p> }];

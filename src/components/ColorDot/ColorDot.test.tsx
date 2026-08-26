@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { ColorDot } from "./ColorDot";
 
@@ -14,6 +14,12 @@ describe("ColorDot", () => {
     it("spreads additional props to the span", () => {
       render(<ColorDot color="brand" data-testid="dot" aria-label="status" />);
       expect(screen.getByTestId("dot")).toHaveAttribute("aria-label", "status");
+    });
+
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(<ColorDot color="brand" ref={ref} />);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLSpanElement));
     });
   });
 

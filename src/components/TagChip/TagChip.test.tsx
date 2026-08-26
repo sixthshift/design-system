@@ -27,4 +27,10 @@ describe("TagChip", () => {
     fireEvent.click(screen.getByRole("button", { name: "Remove urgent" }));
     expect(onRemove).toHaveBeenCalledOnce();
   });
+
+  it("forwards ref", () => {
+    const ref = vi.fn();
+    render(<TagChip tag="urgent" ref={ref} />);
+    expect(ref).toHaveBeenCalledWith(expect.any(HTMLSpanElement));
+  });
 });

@@ -125,4 +125,12 @@ describe("NavSide", () => {
       expect(aside).toHaveClass("custom-nav");
     });
   });
+
+  describe("ref forwarding", () => {
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(<NavSide sections={mockSections} isActive={defaultIsActive} renderLink={defaultRenderLink} ref={ref} />);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLElement));
+    });
+  });
 });

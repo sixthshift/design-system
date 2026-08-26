@@ -1,4 +1,5 @@
 import { cn } from "@sixthshift/design-system/utils";
+import { forwardRef } from "react";
 import { useTabsContext } from "./TabsContext";
 
 export type TabsPanelsProps = {
@@ -6,7 +7,7 @@ export type TabsPanelsProps = {
   className?: string;
 };
 
-export const TabsPanels = ({ className }: TabsPanelsProps) => {
+export const TabsPanels = forwardRef<HTMLDivElement, TabsPanelsProps>(({ className }, ref) => {
   const { items, value, baseId } = useTabsContext();
 
   const activeItem = items.find((item) => item.value === value);
@@ -19,8 +20,9 @@ export const TabsPanels = ({ className }: TabsPanelsProps) => {
   const content = typeof activeItem.content === "function" ? activeItem.content() : activeItem.content;
 
   return (
-    <div id={panelId} role="tabpanel" aria-labelledby={triggerId} className={cn("focus-visible:outline-hidden", className)}>
+    <div ref={ref} id={panelId} role="tabpanel" aria-labelledby={triggerId} className={cn("focus-visible:outline-hidden", className)}>
       {content}
     </div>
   );
-};
+});
+TabsPanels.displayName = "TabsPanels";

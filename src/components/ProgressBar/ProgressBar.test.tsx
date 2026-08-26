@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { ProgressBar } from "./ProgressBar";
 
@@ -14,6 +14,12 @@ describe("ProgressBar", () => {
     it("hides the fraction text when showFraction is false", () => {
       render(<ProgressBar completed={5} total={8} showFraction={false} />);
       expect(screen.queryByText("5/8")).not.toBeInTheDocument();
+    });
+
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(<ProgressBar completed={1} total={2} ref={ref} />);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
     });
   });
 

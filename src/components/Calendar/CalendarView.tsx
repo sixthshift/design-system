@@ -12,6 +12,7 @@
 
 import { cn } from "@sixthshift/design-system/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   addDays,
@@ -62,7 +63,7 @@ function getRangePositionClasses(rangePosition: RangePosition, isSelected: boole
   }
 }
 
-export const CalendarView = (props: CalendarViewProps) => {
+export const CalendarView = React.forwardRef<HTMLDivElement, CalendarViewProps>((props, ref) => {
   const {
     mode,
     month,
@@ -304,7 +305,7 @@ export const CalendarView = (props: CalendarViewProps) => {
   );
 
   return (
-    <div className={cn("flex", className)}>
+    <div ref={ref} className={cn("flex", className)}>
       {/* Presets Sidebar */}
       {presets && presets.length > 0 && (
         <div className="mr-3 flex flex-col gap-1 border-border-normal border-r pr-3">
@@ -440,4 +441,5 @@ export const CalendarView = (props: CalendarViewProps) => {
       </div>
     </div>
   );
-};
+});
+CalendarView.displayName = "CalendarView";

@@ -2,7 +2,7 @@ import { autoUpdate, FloatingPortal, flip, offset, shift, useClick, useDismiss, 
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import { Clock, X } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 import { useCallback, useId, useMemo, useState } from "react";
 import {
   adaptDisabledDates,
@@ -69,7 +69,7 @@ function formatInstantDisplay(instant: Temporal.Instant, clockFormat: "12h" | "2
  * Combines date and time selection in a single popup with side-by-side layout.
  * Values cross the boundary as canonical UTC instant strings.
  */
-export const DateTimePicker = (props: DateTimePickerProps) => {
+export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerProps>((props, ref) => {
   const {
     value,
     defaultValue,
@@ -285,7 +285,7 @@ export const DateTimePicker = (props: DateTimePickerProps) => {
   return (
     <>
       {/* Trigger Input */}
-      <div className="relative flex items-center">
+      <div ref={ref} className="relative flex items-center">
         <Clock className="pointer-events-none absolute left-3 h-4 w-4 text-fg-subtle" />
         <input
           ref={refs.setReference as React.Ref<HTMLInputElement>}
@@ -423,4 +423,5 @@ export const DateTimePicker = (props: DateTimePickerProps) => {
       )}
     </>
   );
-};
+});
+DateTimePicker.displayName = "DateTimePicker";

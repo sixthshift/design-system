@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { StatsCard } from "./StatsCard";
 
@@ -15,6 +15,16 @@ describe("StatsCard", () => {
       expect(screen.getByText("database")).toBeInTheDocument();
       expect(screen.getByText("Tables and queries")).toBeInTheDocument();
       expect(screen.getByText("1,247")).toBeInTheDocument();
+    });
+
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(
+        <StatsCard title="t" description="d" ref={ref}>
+          content
+        </StatsCard>
+      );
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
     });
 
     it("renders as a div", () => {

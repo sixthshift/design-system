@@ -248,3 +248,11 @@ describe("DatePicker", () => {
     });
   });
 });
+
+describe("DatePicker — ref forwarding", () => {
+  it("forwards ref to the trigger wrapper element", () => {
+    const ref = vi.fn();
+    render(<DatePicker ref={ref} />);
+    expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+  });
+});

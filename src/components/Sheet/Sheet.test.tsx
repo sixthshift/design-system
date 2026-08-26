@@ -55,6 +55,17 @@ describe("Sheet", () => {
       await waitForAnimation();
       expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
+
+    it("forwards ref to the sheet panel", async () => {
+      const ref = vi.fn();
+      render(
+        <Sheet ref={ref} open={true} onOpenChange={() => {}}>
+          <SheetBody>Content</SheetBody>
+        </Sheet>
+      );
+      await waitForAnimation();
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+    });
   });
 
   describe("side prop", () => {

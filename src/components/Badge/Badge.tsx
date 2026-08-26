@@ -1,6 +1,6 @@
 import { cn } from "@sixthshift/design-system/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import type * as React from "react";
+import * as React from "react";
 
 const badgeVariants = cva(
   "inline-flex items-center rounded-md border px-2.5 py-0.5 font-semibold text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-border-brand focus:ring-offset-2",
@@ -52,8 +52,9 @@ const badgeVariants = cva(
 
 export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & VariantProps<typeof badgeVariants>;
 
-export const Badge = ({ className, variant, intent, ...props }: BadgeProps) => {
-  return <span className={cn(badgeVariants({ variant, intent }), className)} {...props} />;
-};
+export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(({ className, variant, intent, ...props }, ref) => {
+  return <span ref={ref} className={cn(badgeVariants({ variant, intent }), className)} {...props} />;
+});
+Badge.displayName = "Badge";
 
 export { badgeVariants };

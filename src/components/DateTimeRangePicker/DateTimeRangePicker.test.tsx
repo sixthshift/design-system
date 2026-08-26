@@ -875,3 +875,11 @@ describe("DateTimeRangePicker", () => {
     });
   });
 });
+
+describe("DateTimeRangePicker — ref forwarding", () => {
+  it("forwards ref to the trigger wrapper element", () => {
+    const ref = vi.fn();
+    render(<DateTimeRangePicker ref={ref} />);
+    expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+  });
+});

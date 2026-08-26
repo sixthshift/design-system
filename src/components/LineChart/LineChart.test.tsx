@@ -1,7 +1,7 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { Interpolation, LineChartSeries } from "./LineChart";
 import { LineChart } from "./LineChart";
 
@@ -242,6 +242,14 @@ describe("LineChart", () => {
       await user.hover(trigger as HTMLElement);
 
       expect(await screen.findByText("A -> 0")).toBeInTheDocument();
+    });
+  });
+
+  describe("ref forwarding", () => {
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(<LineChart series={twoPoints} yMin={0} yMax={10} ref={ref} />);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
     });
   });
 

@@ -1,6 +1,6 @@
 import { TagChip } from "@sixthshift/design-system/tag-chip";
 import { cn } from "@sixthshift/design-system/utils";
-import { type KeyboardEvent, useState } from "react";
+import { forwardRef, type KeyboardEvent, useState } from "react";
 
 /**
  * Token input for tags: existing tags render as removable chips, typing plus
@@ -18,7 +18,7 @@ export type TagInputProps = {
   className?: string;
 };
 
-export const TagInput = ({ value, onChange, placeholder = "Add a tag…", id, className }: TagInputProps) => {
+export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(({ value, onChange, placeholder = "Add a tag…", id, className }, ref) => {
   const [draft, setDraft] = useState("");
 
   const commit = () => {
@@ -38,6 +38,7 @@ export const TagInput = ({ value, onChange, placeholder = "Add a tag…", id, cl
 
   return (
     <div
+      ref={ref}
       className={cn(
         "flex min-h-9 flex-wrap items-center gap-1.5 rounded-md border border-border-normal bg-bg-normal px-2 py-1.5 text-sm shadow-xs transition-colors focus-within:ring-2 focus-within:ring-focus-ring",
         className
@@ -57,4 +58,5 @@ export const TagInput = ({ value, onChange, placeholder = "Add a tag…", id, cl
       />
     </div>
   );
-};
+});
+TagInput.displayName = "TagInput";

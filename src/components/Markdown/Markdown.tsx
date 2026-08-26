@@ -2,6 +2,7 @@ import { Body } from "@sixthshift/design-system/body";
 import { Emphasis } from "@sixthshift/design-system/emphasis";
 import { Heading } from "@sixthshift/design-system/heading";
 import { cn } from "@sixthshift/design-system/utils";
+import * as React from "react";
 import ReactMarkdown from "react-markdown";
 
 export type MarkdownProps = {
@@ -9,8 +10,8 @@ export type MarkdownProps = {
   className?: string;
 };
 
-export const Markdown = ({ children, className }: MarkdownProps) => (
-  <div className={cn("flex flex-col", className)}>
+export const Markdown = React.forwardRef<HTMLDivElement, MarkdownProps>(({ children, className }, ref) => (
+  <div ref={ref} className={cn("flex flex-col", className)}>
     <ReactMarkdown
       components={{
         h1: ({ children }) => <Heading as="h3">{children}</Heading>,
@@ -36,5 +37,5 @@ export const Markdown = ({ children, className }: MarkdownProps) => (
       {children}
     </ReactMarkdown>
   </div>
-);
+));
 Markdown.displayName = "Markdown";

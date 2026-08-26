@@ -1,11 +1,12 @@
 /**
- * TimePicker types
+ * TimePicker types.
  *
- * All time values use Temporal.PlainTime at the component boundary.
- * This provides type safety and semantic clarity about what kind of time is expected.
+ * All time values at the public boundary are ISO 8601 time strings. `"09:30"`
+ * and `"09:30:00"` are both accepted as input; `onChange` always emits the
+ * canonical `HH:MM:SS` form.
  */
 
-import type { Temporal } from "../../date-time";
+import type { ISOTime } from "../../date-time";
 
 // =============================================================================
 // Value Types
@@ -31,7 +32,7 @@ export type ClockFormat = "12h" | "24h";
 
 export type TimePresetOption = {
   label: string;
-  value: Temporal.PlainTime;
+  value: ISOTime;
 };
 
 // =============================================================================
@@ -40,13 +41,13 @@ export type TimePresetOption = {
 
 export type TimePickerProps = {
   /** Controlled value */
-  value?: Temporal.PlainTime | undefined;
+  value?: ISOTime | undefined;
 
   /** Default value for uncontrolled mode */
-  defaultValue?: Temporal.PlainTime | undefined;
+  defaultValue?: ISOTime | undefined;
 
-  /** Called when time changes */
-  onChange?: (time: Temporal.PlainTime | undefined) => void;
+  /** Called when time changes. Always canonical `HH:MM:SS`. */
+  onChange?: (time: ISOTime | undefined) => void;
 
   /** Time format for the value (affects seconds visibility) */
   format?: TimeFormat;
@@ -57,11 +58,11 @@ export type TimePickerProps = {
   /** Minute step interval (default: 1) */
   minuteStep?: 1 | 5 | 10 | 15 | 30;
 
-  /** Minimum selectable time */
-  minTime?: Temporal.PlainTime;
+  /** Earliest selectable time, inclusive */
+  minTime?: ISOTime;
 
-  /** Maximum selectable time */
-  maxTime?: Temporal.PlainTime;
+  /** Latest selectable time, inclusive */
+  maxTime?: ISOTime;
 
   /** Preset options (shown in sidebar) */
   presets?: TimePresetOption[];

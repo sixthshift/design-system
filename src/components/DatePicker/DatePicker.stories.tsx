@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { Temporal } from "../../date-time";
+import { addDaysISO, addMonthsISO, endOfMonthISO, type ISODate, type ISODateRange, startOfMonthISO, todayISO } from "../../date-time";
 import { DatePicker } from "./DatePicker";
-import type { DateRangeValue } from "./datepicker.types";
 
 const meta: Meta<typeof DatePicker> = {
   title: "Components/Inputs/DatePicker",
@@ -25,17 +24,17 @@ export const Default: Story = {
 };
 
 export const WithDefaultValue: Story = {
-  render: () => <DatePicker defaultValue={Temporal.PlainDate.from("2025-01-15")} />,
+  render: () => <DatePicker defaultValue={"2025-01-15"} />,
 };
 
 export const Controlled: Story = {
   render: function ControlledStory() {
-    const [value, setValue] = useState<Temporal.PlainDate | undefined>(Temporal.PlainDate.from("2025-01-15"));
+    const [value, setValue] = useState<ISODate | undefined>("2025-01-15");
 
     return (
       <div className="flex flex-col gap-4">
         <DatePicker value={value} onChange={setValue} />
-        <div className="text-fg-subtle text-sm">Selected: {value?.toString() ?? "none"}</div>
+        <div className="text-fg-subtle text-sm">Selected: {value ?? "none"}</div>
       </div>
     );
   },
@@ -47,16 +46,16 @@ export const Disabled: Story = {
 
 export const WithMinMaxDates: Story = {
   render: () => {
-    const today = Temporal.Now.plainDateISO();
-    const minDate = today.subtract({ days: 7 });
-    const maxDate = today.add({ days: 30 });
+    const today = todayISO();
+    const minDate = addDaysISO(today, -7);
+    const maxDate = addDaysISO(today, 30);
 
     return <DatePicker minDate={minDate} maxDate={maxDate} placeholder="Pick a date (limited range)" />;
   },
 };
 
 export const WithDisabledWeekends: Story = {
-  render: () => <DatePicker disabled={(date) => date.dayOfWeek === 6 || date.dayOfWeek === 7} placeholder="No weekends" />,
+  render: () => <DatePicker disabled={{ dayOfWeek: ["sat", "sun"] }} placeholder="No weekends" />,
 };
 
 export const Invalid: Story = {
@@ -64,7 +63,7 @@ export const Invalid: Story = {
 };
 
 export const NotClearable: Story = {
-  render: () => <DatePicker defaultValue={Temporal.PlainDate.from("2025-01-15")} clearable={false} />,
+  render: () => <DatePicker defaultValue={"2025-01-15"} clearable={false} />,
 };
 
 // =============================================================================
@@ -77,16 +76,16 @@ export const RangeDefault: Story = {
 
 export const RangeControlled: Story = {
   render: function RangeControlledStory() {
-    const [value, setValue] = useState<DateRangeValue>({
-      from: Temporal.PlainDate.from("2025-01-10"),
-      to: Temporal.PlainDate.from("2025-01-20"),
+    const [value, setValue] = useState<ISODateRange>({
+      from: "2025-01-10",
+      to: "2025-01-20",
     });
 
     return (
       <div className="flex flex-col gap-4">
         <DatePicker mode="range" value={value} onChange={(v) => setValue(v ?? { from: undefined, to: undefined })} />
         <div className="text-fg-subtle text-sm">
-          Selected: {value?.from?.toString() ?? "none"} – {value?.to?.toString() ?? "none"}
+          Selected: {value?.from ?? "none"} – {value?.to ?? "none"}
         </div>
       </div>
     );
@@ -95,7 +94,7 @@ export const RangeControlled: Story = {
 
 export const RangeWithPresets: Story = {
   render: function RangeWithPresetsStory() {
-    const today = Temporal.Now.plainDateISO();
+    const today = todayISO();
 
     const presets = [
       {
@@ -108,36 +107,36 @@ export const RangeWithPresets: Story = {
       {
         label: "Yesterday",
         value: {
-          from: today.subtract({ days: 1 }),
-          to: today.subtract({ days: 1 }),
+          from: addDaysISO(today, -1),
+          to: addDaysISO(today, -1),
         },
       },
       {
         label: "Last 7 days",
         value: {
-          from: today.subtract({ days: 7 }),
+          from: addDaysISO(today, -7),
           to: today,
         },
       },
       {
         label: "Last 30 days",
         value: {
-          from: today.subtract({ days: 30 }),
+          from: addDaysISO(today, -30),
           to: today,
         },
       },
       {
         label: "This month",
         value: {
-          from: today.with({ day: 1 }),
-          to: today.with({ day: today.daysInMonth }),
+          from: startOfMonthISO(today),
+          to: endOfMonthISO(today),
         },
       },
       {
         label: "Last month",
         value: {
-          from: today.subtract({ months: 1 }).with({ day: 1 }),
-          to: today.with({ day: 1 }).subtract({ days: 1 }),
+          from: startOfMonthISO(addMonthsISO(today, -1)),
+          to: addDaysISO(startOfMonthISO(today), -1),
         },
       },
     ];
@@ -156,16 +155,12 @@ export const MultipleDefault: Story = {
 
 export const MultipleControlled: Story = {
   render: function MultipleControlledStory() {
-    const [value, setValue] = useState<Temporal.PlainDate[]>([
-      Temporal.PlainDate.from("2025-01-10"),
-      Temporal.PlainDate.from("2025-01-15"),
-      Temporal.PlainDate.from("2025-01-20"),
-    ]);
+    const [value, setValue] = useState<ISODate[]>(["2025-01-10", "2025-01-15", "2025-01-20"]);
 
     return (
       <div className="flex flex-col gap-4">
         <DatePicker mode="multiple" value={value} onChange={setValue} />
-        <div className="text-fg-subtle text-sm">Selected: {value.map((d) => d.toString()).join(", ") || "none"}</div>
+        <div className="text-fg-subtle text-sm">Selected: {value.join(", ") || "none"}</div>
       </div>
     );
   },
@@ -173,7 +168,7 @@ export const MultipleControlled: Story = {
 
 export const MultipleWithMax: Story = {
   render: function MultipleWithMaxStory() {
-    const [value, setValue] = useState<Temporal.PlainDate[]>([]);
+    const [value, setValue] = useState<ISODate[]>([]);
 
     return (
       <div className="flex flex-col gap-4">
@@ -204,7 +199,7 @@ export const InForm: Story = {
           <label htmlFor="dueDate" className="font-medium text-sm">
             Due Date
           </label>
-          <DatePicker name="dueDate" defaultValue={Temporal.PlainDate.from("2025-01-15")} />
+          <DatePicker name="dueDate" defaultValue={"2025-01-15"} />
         </div>
         <button type="submit" className="rounded-md bg-bg-brand px-4 py-2 font-medium text-fg-on-brand text-sm">
           Submit

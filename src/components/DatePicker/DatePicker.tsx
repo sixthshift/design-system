@@ -3,13 +3,37 @@ import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 import type * as React from "react";
-import { useCallback, useId, useState } from "react";
-import { isPlainDate, type Temporal, today } from "../../date-time";
-import { Calendar } from "../Calendar";
+import { useCallback, useId, useMemo, useState } from "react";
+import {
+  adaptDisabledDates,
+  fromISODate,
+  fromISODateOrUndefined,
+  fromISODateRange,
+  type ISODate,
+  type ISODateRange,
+  isPlainDate,
+  type Temporal,
+  today,
+  toISODate,
+  toISODateOrUndefined,
+  toISODateRange,
+} from "../../date-time";
+import { CalendarView } from "../Calendar/CalendarView";
+import type { PresetOption } from "../Calendar/calendar.types";
 import { defaultFormatDisplay, getDisplayValue, temporalToISO } from "./datepicker.hooks";
 import type { DatePickerProps, DateRangeValue } from "./datepicker.types";
 
 export type { DatePickerProps };
+
+/** The Temporal-shaped value the picker holds internally, across all modes. */
+type InternalValue = Temporal.PlainDate | DateRangeValue | Temporal.PlainDate[] | undefined;
+
+/** Widen a public, mode-appropriate ISO value to {@link InternalValue}. */
+function toTemporal(mode: DatePickerProps["mode"], value: ISODate | ISODateRange | ISODate[] | undefined): InternalValue {
+  if (mode === "multiple") return ((value as ISODate[] | undefined) ?? []).map(fromISODate);
+  if (mode === "range") return fromISODateRange(value as ISODateRange | undefined);
+  return fromISODateOrUndefined(value as ISODate | undefined);
+}
 
 export const DatePicker = (props: DatePickerProps) => {
   const {
@@ -37,11 +61,62 @@ export const DatePicker = (props: DatePickerProps) => {
   // Open state
   const [open, setOpen] = useState(false);
 
+  // ---------------------------------------------------------------------------
+  // The ISO boundary.
+  //
+  // Props arrive as canonical ISO strings and callbacks emit them; everything
+  // below this block — state, the calendar grid, display formatting — works in
+  // Temporal, exactly as before.
+  //
+  // Each conversion is memoised on the string it derives from. Temporal values
+  // have no value identity, so converting unmemoised would hand CalendarView a
+  // fresh object every render and invalidate its grid memos. Strings compare by
+  // value, which makes this strictly more stable than passing Temporal in.
+  // ---------------------------------------------------------------------------
+
+  const temporalMinDate = useMemo(() => fromISODateOrUndefined(minDate), [minDate]);
+  const temporalMaxDate = useMemo(() => fromISODateOrUndefined(maxDate), [maxDate]);
+  const temporalDisabled = useMemo(() => adaptDisabledDates(disabled), [disabled]);
+
+  const temporalPresets = useMemo(() => {
+    if (!presets) return undefined;
+    if (mode === "single") {
+      return (presets as PresetOption<ISODate>[]).map((preset) => ({ label: preset.label, value: fromISODate(preset.value) }));
+    }
+    if (mode === "multiple") {
+      return (presets as PresetOption<ISODate[]>[]).map((preset) => ({ label: preset.label, value: preset.value.map(fromISODate) }));
+    }
+    return (presets as PresetOption<ISODateRange>[]).map((preset) => ({
+      label: preset.label,
+      value: fromISODateRange(preset.value) ?? { from: undefined, to: undefined },
+    }));
+  }, [mode, presets]);
+
+  const temporalValue = useMemo(() => toTemporal(mode, value), [mode, value]);
+  // Read once, on mount, by useControllableState's useState initialiser.
+  const temporalDefaultValue = useMemo(() => toTemporal(mode, defaultValue), [mode, defaultValue]);
+
+  const handleChange = useCallback(
+    (next: InternalValue) => {
+      if (!onChange) return;
+      if (mode === "single") {
+        (onChange as (date: ISODate | undefined) => void)(toISODateOrUndefined(next as Temporal.PlainDate | undefined));
+        return;
+      }
+      if (mode === "multiple") {
+        (onChange as (dates: ISODate[]) => void)(((next as Temporal.PlainDate[] | undefined) ?? []).map(toISODate));
+        return;
+      }
+      (onChange as (range: ISODateRange | undefined) => void)(toISODateRange(next as DateRangeValue | undefined));
+    },
+    [mode, onChange]
+  );
+
   // Controllable value state (external/committed value)
-  const [committedValue, setCommittedValue] = useControllableState({
-    value: value as Temporal.PlainDate | DateRangeValue | Temporal.PlainDate[] | undefined,
-    defaultValue: defaultValue as Temporal.PlainDate | DateRangeValue | Temporal.PlainDate[] | undefined,
-    onChange: onChange as ((value: Temporal.PlainDate | DateRangeValue | Temporal.PlainDate[] | undefined) => void) | undefined,
+  const [committedValue, setCommittedValue] = useControllableState<InternalValue>({
+    value: temporalValue,
+    defaultValue: temporalDefaultValue,
+    onChange: handleChange,
   });
 
   // Draft value (internal state while popup is open)
@@ -211,17 +286,17 @@ export const DatePicker = (props: DatePickerProps) => {
             {...getFloatingProps()}
           >
             {/* @ts-expect-error - TypeScript can't properly narrow discriminated union props across component boundaries */}
-            <Calendar
+            <CalendarView
               mode={mode}
               value={draftValue}
               onSelect={setDraftValue}
               month={month}
               onMonthChange={setMonth}
-              minDate={minDate}
-              maxDate={maxDate}
-              disabled={disabled}
+              minDate={temporalMinDate}
+              maxDate={temporalMaxDate}
+              disabled={temporalDisabled}
               weekStartsOn={weekStartsOn}
-              presets={presets}
+              presets={temporalPresets}
               showFooter
               showToday={mode !== "range"}
               onApply={handleApply}

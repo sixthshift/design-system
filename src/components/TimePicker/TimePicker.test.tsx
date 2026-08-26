@@ -3,9 +3,8 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { Temporal } from "../../date-time";
-
 import { TimePicker } from "./TimePicker";
+import type { TimePresetOption } from "./timepicker.types";
 
 // Mock scrollTo for JSDOM
 beforeAll(() => {
@@ -13,9 +12,9 @@ beforeAll(() => {
 });
 
 describe("TimePicker", () => {
-  describe("Temporal type boundary", () => {
-    it("accepts Temporal.PlainTime as value prop", () => {
-      const time = Temporal.PlainTime.from("14:30");
+  describe("ISO string boundary", () => {
+    it("accepts an ISO time as the value prop", () => {
+      const time = "14:30";
       render(<TimePicker value={time} />);
 
       // Should display the formatted time (02:30 PM in 12h format)
@@ -23,7 +22,7 @@ describe("TimePicker", () => {
       expect(input).toHaveValue("02:30 PM");
     });
 
-    it("calls onChange with Temporal.PlainTime when time is selected", async () => {
+    it("calls onChange with a canonical ISO time when a time is selected", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
 
@@ -46,18 +45,17 @@ describe("TimePicker", () => {
       // Click Apply
       await user.click(within(dialog).getByRole("button", { name: "Apply" }));
 
-      // Should have been called with a Temporal.PlainTime
+      // Should have been called with a canonical ISO time string
       expect(handleChange).toHaveBeenCalledTimes(1);
       const calledWith = handleChange.mock.calls[0]![0];
-      expect(calledWith).toBeInstanceOf(Temporal.PlainTime);
-      expect(calledWith.hour).toBe(3);
-      expect(calledWith.minute).toBe(45);
+      expect(typeof calledWith).toBe("string");
+      expect(calledWith).toBe("03:45:00");
     });
 
     it("calls onChange with undefined when time is cleared", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      const time = Temporal.PlainTime.from("14:30");
+      const time = "14:30";
 
       render(<TimePicker value={time} onChange={handleChange} />);
 
@@ -67,9 +65,9 @@ describe("TimePicker", () => {
       expect(handleChange).toHaveBeenCalledWith(undefined);
     });
 
-    it("respects minTime constraint with Temporal.PlainTime", async () => {
+    it("respects an ISO minTime", async () => {
       const user = userEvent.setup();
-      const minTime = Temporal.PlainTime.from("09:00");
+      const minTime = "09:00";
       const handleChange = vi.fn();
 
       render(<TimePicker minTime={minTime} onChange={handleChange} clockFormat="24h" />);
@@ -93,9 +91,9 @@ describe("TimePicker", () => {
       expect(handleChange).not.toHaveBeenCalled();
     });
 
-    it("respects maxTime constraint with Temporal.PlainTime", async () => {
+    it("respects an ISO maxTime", async () => {
       const user = userEvent.setup();
-      const maxTime = Temporal.PlainTime.from("17:00");
+      const maxTime = "17:00";
       const handleChange = vi.fn();
 
       render(<TimePicker maxTime={maxTime} onChange={handleChange} clockFormat="24h" />);
@@ -119,16 +117,16 @@ describe("TimePicker", () => {
       expect(handleChange).not.toHaveBeenCalled();
     });
 
-    it("displays formatted time from Temporal.PlainTime in 24h format", () => {
-      const time = Temporal.PlainTime.from("14:30:45");
+    it("displays a formatted time in 24h format", () => {
+      const time = "14:30:45";
       render(<TimePicker value={time} clockFormat="24h" />);
 
       const input = screen.getByRole("combobox");
       expect(input).toHaveValue("14:30");
     });
 
-    it("displays formatted time from Temporal.PlainTime in 12h format", () => {
-      const time = Temporal.PlainTime.from("14:30");
+    it("displays a formatted time in 12h format", () => {
+      const time = "14:30";
       render(<TimePicker value={time} clockFormat="12h" />);
 
       const input = screen.getByRole("combobox");
@@ -136,14 +134,14 @@ describe("TimePicker", () => {
     });
   });
 
-  describe("presets with Temporal", () => {
-    it("accepts preset values as Temporal.PlainTime", async () => {
+  describe("presets", () => {
+    it("accepts ISO preset values and reports the choice as ISO", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      const morning = Temporal.PlainTime.from("09:00");
-      const afternoon = Temporal.PlainTime.from("14:00");
+      const morning = "09:00";
+      const afternoon = "14:00";
 
-      const presets = [
+      const presets: TimePresetOption[] = [
         { label: "Morning", value: morning },
         { label: "Afternoon", value: afternoon },
       ];
@@ -158,22 +156,21 @@ describe("TimePicker", () => {
 
       expect(handleChange).toHaveBeenCalledTimes(1);
       const calledWith = handleChange.mock.calls[0]![0];
-      expect(calledWith).toBeInstanceOf(Temporal.PlainTime);
-      expect(calledWith.hour).toBe(14);
-      expect(calledWith.minute).toBe(0);
+      expect(typeof calledWith).toBe("string");
+      expect(calledWith).toBe("14:00:00");
     });
   });
 
-  describe("seconds support with Temporal", () => {
-    it("preserves seconds from Temporal.PlainTime when format is HH:mm:ss", () => {
-      const time = Temporal.PlainTime.from("14:30:45");
+  describe("seconds support", () => {
+    it("preserves seconds when format is HH:mm:ss", () => {
+      const time = "14:30:45";
       render(<TimePicker value={time} format="HH:mm:ss" clockFormat="24h" />);
 
       const input = screen.getByRole("combobox");
       expect(input).toHaveValue("14:30:45");
     });
 
-    it("returns Temporal.PlainTime with seconds when format is HH:mm:ss", async () => {
+    it("emits an ISO time with seconds when format is HH:mm:ss", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
 
@@ -194,10 +191,8 @@ describe("TimePicker", () => {
 
       expect(handleChange).toHaveBeenCalledTimes(1);
       const calledWith = handleChange.mock.calls[0]![0];
-      expect(calledWith).toBeInstanceOf(Temporal.PlainTime);
-      expect(calledWith.hour).toBe(10);
-      expect(calledWith.minute).toBe(30);
-      expect(calledWith.second).toBe(15);
+      expect(typeof calledWith).toBe("string");
+      expect(calledWith).toBe("10:30:15");
     });
   });
 });

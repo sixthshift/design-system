@@ -1,11 +1,13 @@
 /**
- * DatePicker types
+ * DatePicker types.
  *
- * All date values use Temporal.PlainDate at the component boundary.
- * This provides type safety and semantic clarity about what kind of date is expected.
+ * All date values at the public boundary are canonical ISO 8601 strings
+ * (`"2026-08-26"`). Temporal is an implementation detail of the calendar grid;
+ * the `*Internal` types below describe that layer and are not exported from
+ * `./index.ts`.
  */
 
-import type { Temporal, WeekStartsOn } from "../../date-time";
+import type { DisabledDates, ISODate, ISODateRange, Temporal, TemporalDisabledMatcher, WeekStartsOn } from "../../date-time";
 import type { PresetOption as CalendarPresetOption } from "../Calendar/calendar.types";
 
 // =============================================================================
@@ -13,7 +15,18 @@ import type { PresetOption as CalendarPresetOption } from "../Calendar/calendar.
 // =============================================================================
 
 /**
- * Date range value for range mode
+ * Selection mode for the DatePicker
+ */
+export type DatePickerMode = "single" | "range" | "multiple";
+
+// =============================================================================
+// Internal (Temporal) types
+// =============================================================================
+
+/**
+ * Date range value in Temporal terms, used by `datepicker.hooks`.
+ *
+ * The public equivalent is `ISODateRange`.
  */
 export type DateRangeValue = {
   from: Temporal.PlainDate | undefined;
@@ -21,24 +34,10 @@ export type DateRangeValue = {
 };
 
 /**
- * Selection mode for the DatePicker
+ * Temporal-shaped disabled matchers, produced from the public
+ * {@link DisabledDates} by `adaptDisabledDates`.
  */
-export type DatePickerMode = "single" | "range" | "multiple";
-
-// =============================================================================
-// Disabled Date Matching
-// =============================================================================
-
-/**
- * Matchers for disabling dates
- */
-export type DisabledDateMatcher =
-  | Temporal.PlainDate // Single date
-  | Temporal.PlainDate[] // Array of dates
-  | ((date: Temporal.PlainDate) => boolean) // Custom function
-  | { before: Temporal.PlainDate } // All dates before
-  | { after: Temporal.PlainDate } // All dates after
-  | { from: Temporal.PlainDate; to: Temporal.PlainDate }; // Date range
+export type DisabledDateMatcher = TemporalDisabledMatcher;
 
 // =============================================================================
 // Props (discriminated union by mode)
@@ -48,14 +47,14 @@ type DatePickerBaseProps = {
   /** First day of week (0 = Sunday, 1 = Monday) */
   weekStartsOn?: WeekStartsOn;
 
-  /** Minimum selectable date */
-  minDate?: Temporal.PlainDate;
+  /** Earliest selectable date, inclusive */
+  minDate?: ISODate;
 
-  /** Maximum selectable date */
-  maxDate?: Temporal.PlainDate;
+  /** Latest selectable date, inclusive */
+  maxDate?: ISODate;
 
-  /** Disabled dates */
-  disabled?: DisabledDateMatcher | DisabledDateMatcher[];
+  /** Which dates to refuse. See `DisabledDates`. */
+  disabled?: DisabledDates | DisabledDates[];
 
   /** Placeholder text */
   placeholder?: string;
@@ -82,39 +81,39 @@ type DatePickerBaseProps = {
 export type DatePickerSingleProps = DatePickerBaseProps & {
   mode?: "single";
   /** Controlled value */
-  value?: Temporal.PlainDate | undefined;
+  value?: ISODate | undefined;
   /** Default value for uncontrolled mode */
-  defaultValue?: Temporal.PlainDate | undefined;
+  defaultValue?: ISODate | undefined;
   /** Called when date changes */
-  onChange?: (date: Temporal.PlainDate | undefined) => void;
+  onChange?: (date: ISODate | undefined) => void;
   /** Preset options (shown in left sidebar) */
-  presets?: CalendarPresetOption<Temporal.PlainDate>[];
+  presets?: CalendarPresetOption<ISODate>[];
 };
 
 export type DatePickerRangeProps = DatePickerBaseProps & {
   mode: "range";
   /** Controlled value */
-  value?: DateRangeValue | undefined;
+  value?: ISODateRange | undefined;
   /** Default value for uncontrolled mode */
-  defaultValue?: DateRangeValue | undefined;
+  defaultValue?: ISODateRange | undefined;
   /** Called when range changes */
-  onChange?: (range: DateRangeValue | undefined) => void;
+  onChange?: (range: ISODateRange | undefined) => void;
   /** Preset options (shown in left sidebar) */
-  presets?: CalendarPresetOption<DateRangeValue>[];
+  presets?: CalendarPresetOption<ISODateRange>[];
 };
 
 export type DatePickerMultipleProps = DatePickerBaseProps & {
   mode: "multiple";
   /** Controlled value (array of dates) */
-  value?: Temporal.PlainDate[] | undefined;
+  value?: ISODate[] | undefined;
   /** Default value for uncontrolled mode */
-  defaultValue?: Temporal.PlainDate[] | undefined;
+  defaultValue?: ISODate[] | undefined;
   /** Called when selection changes */
-  onChange?: (dates: Temporal.PlainDate[]) => void;
+  onChange?: (dates: ISODate[]) => void;
   /** Maximum number of dates that can be selected */
   max?: number | undefined;
   /** Preset options (shown in left sidebar) */
-  presets?: CalendarPresetOption<Temporal.PlainDate[]>[];
+  presets?: CalendarPresetOption<ISODate[]>[];
 };
 
 /**

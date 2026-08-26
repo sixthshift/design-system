@@ -4,13 +4,27 @@ import { render, screen, within } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as TemporalModule from "../../date-time";
-import { Temporal } from "../../date-time";
+import {
+  addDaysISO,
+  addHoursISO,
+  fromISOInstant,
+  type ISODate,
+  type ISOInstantRange,
+  isInstantString,
+  startOfMonthISO,
+  Temporal,
+  toISOInstant,
+} from "../../date-time";
 import { DateTimeRangePicker } from "./DateTimeRangePicker";
 import type { DateTimeRangeValue } from "./datetimerangepicker.types";
 
-function getDay(container: HTMLElement, day: number, base?: Temporal.PlainDate): HTMLElement {
-  const date = (base ?? Temporal.PlainDate.from("2025-01-15")).with({ day });
-  const el = container.querySelector(`[data-date="${date.toString()}"]`);
+function isoDay(day: number, base: ISODate = "2025-01-15"): ISODate {
+  return addDaysISO(startOfMonthISO(base), day - 1);
+}
+
+function getDay(container: HTMLElement, day: number, base?: ISODate): HTMLElement {
+  const date = isoDay(day, base);
+  const el = container.querySelector(`[data-date="${date}"]`);
   if (!el) throw new Error(`Day button for ${date} not found`);
   return el as HTMLElement;
 }
@@ -112,8 +126,8 @@ describe("DateTimeRangePicker", () => {
   });
 
   it("displays selected datetime range in input", () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} />);
 
@@ -126,8 +140,8 @@ describe("DateTimeRangePicker", () => {
 
   it("clears value when clear button clicked", async () => {
     const user = userEvent.setup();
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
     const onChange = vi.fn();
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} onChange={onChange} />);
@@ -179,22 +193,22 @@ describe("DateTimeRangePicker", () => {
     const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1]?.[0] as DateTimeRangeValue;
     expect(lastCall).toBeDefined();
 
-    expect(lastCall.from).toBeInstanceOf(Temporal.Instant);
+    expect(isInstantString(lastCall.from)).toBe(true);
     expect(lastCall.to).toBeDefined();
-    expect(lastCall.to).toBeInstanceOf(Temporal.Instant);
+    expect(isInstantString(lastCall.to)).toBe(true);
 
     // Convert to zoned datetime to check the day
     const tz = Temporal.Now.timeZoneId();
-    const fromDate = lastCall.from!.toZonedDateTimeISO(tz).toPlainDate();
-    const toDate = lastCall.to!.toZonedDateTimeISO(tz).toPlainDate();
+    const fromDate = fromISOInstant(lastCall.from!).toZonedDateTimeISO(tz).toPlainDate();
+    const toDate = fromISOInstant(lastCall.to!).toZonedDateTimeISO(tz).toPlainDate();
     expect(fromDate.day).toBe(15);
     expect(toDate.day).toBe(20);
   });
 
   it("selects start and end times", async () => {
     const user = userEvent.setup();
-    const from = Temporal.Instant.from("2025-01-15T00:00:00Z");
-    const to = Temporal.Instant.from("2025-01-20T00:00:00Z");
+    const from = "2025-01-15T00:00:00Z";
+    const to = "2025-01-20T00:00:00Z";
     const onChange = vi.fn();
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} onChange={onChange} placeholder="Select range" />);
@@ -251,12 +265,12 @@ describe("DateTimeRangePicker", () => {
     expect(onChange).toHaveBeenCalled();
     const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1]?.[0] as DateTimeRangeValue;
     expect(lastCall).toBeDefined();
-    expect(lastCall.from).toBeInstanceOf(Temporal.Instant);
-    expect(lastCall.to).toBeInstanceOf(Temporal.Instant);
+    expect(isInstantString(lastCall.from)).toBe(true);
+    expect(isInstantString(lastCall.to)).toBe(true);
 
     const tz = Temporal.Now.timeZoneId();
-    const fromDateTime = lastCall.from!.toZonedDateTimeISO(tz).toPlainDateTime();
-    const toDateTime = lastCall.to!.toZonedDateTimeISO(tz).toPlainDateTime();
+    const fromDateTime = fromISOInstant(lastCall.from!).toZonedDateTimeISO(tz).toPlainDateTime();
+    const toDateTime = fromISOInstant(lastCall.to!).toZonedDateTimeISO(tz).toPlainDateTime();
     expect(fromDateTime.hour).toBe(14);
     expect(fromDateTime.minute).toBe(30);
     expect(toDateTime.hour).toBe(16);
@@ -313,8 +327,8 @@ describe("DateTimeRangePicker", () => {
 
   it("allows clearing and re-selecting range", async () => {
     const user = userEvent.setup();
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} />);
 
@@ -373,7 +387,7 @@ describe("DateTimeRangePicker", () => {
     const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1]?.[0] as DateTimeRangeValue;
     expect(lastCall).toBeDefined();
     if (lastCall.from && lastCall.to) {
-      expect(Temporal.Instant.compare(lastCall.from, lastCall.to)).toBeLessThanOrEqual(0);
+      expect(Temporal.Instant.compare(fromISOInstant(lastCall.from), fromISOInstant(lastCall.to))).toBeLessThanOrEqual(0);
     }
   });
 
@@ -418,7 +432,7 @@ describe("DateTimeRangePicker", () => {
 
     // Verify range is approximately 24 hours
     if (range.from && range.to) {
-      const duration = range.from.until(range.to);
+      const duration = fromISOInstant(range.from).until(fromISOInstant(range.to));
       expect(Math.abs(duration.total("hours") - 24)).toBeLessThan(1);
     }
   });
@@ -429,8 +443,8 @@ describe("DateTimeRangePicker", () => {
       {
         label: "Next Week",
         value: () => {
-          const now = TemporalModule.now();
-          const nextWeek = now.add({ hours: 7 * 24 });
+          const now = toISOInstant(TemporalModule.now());
+          const nextWeek = addHoursISO(now, 7 * 24);
           return { from: now, to: nextWeek };
         },
       },
@@ -465,7 +479,7 @@ describe("DateTimeRangePicker", () => {
 
   it("respects minDate constraint", async () => {
     const user = userEvent.setup();
-    const minDate = Temporal.PlainDate.from("2025-01-15");
+    const minDate = "2025-01-15";
 
     render(<DateTimeRangePicker minDate={minDate} placeholder="Select range" />);
 
@@ -486,7 +500,7 @@ describe("DateTimeRangePicker", () => {
 
   it("respects maxDate constraint", async () => {
     const user = userEvent.setup();
-    const maxDate = Temporal.PlainDate.from("2025-01-20");
+    const maxDate = "2025-01-20";
 
     render(<DateTimeRangePicker maxDate={maxDate} placeholder="Select range" />);
 
@@ -507,7 +521,7 @@ describe("DateTimeRangePicker", () => {
 
   it("disables dates based on disabledDates matcher", async () => {
     const user = userEvent.setup();
-    const isWeekend = (date: Temporal.PlainDate) => date.dayOfWeek === 6 || date.dayOfWeek === 7;
+    const isWeekend = { dayOfWeek: ["sat", "sun"] } as const;
 
     render(<DateTimeRangePicker disabledDates={isWeekend} placeholder="Select range" />);
 
@@ -529,9 +543,9 @@ describe("DateTimeRangePicker", () => {
 
   it("respects minTime constraint for both pickers", async () => {
     const user = userEvent.setup();
-    const from = Temporal.Instant.from("2025-01-15T00:00:00Z");
-    const to = Temporal.Instant.from("2025-01-20T00:00:00Z");
-    const minTime = Temporal.PlainTime.from("09:00:00");
+    const from = "2025-01-15T00:00:00Z";
+    const to = "2025-01-20T00:00:00Z";
+    const minTime = "09:00:00";
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} minTime={minTime} placeholder="Select range" />);
 
@@ -560,9 +574,9 @@ describe("DateTimeRangePicker", () => {
 
   it("respects maxTime constraint for both pickers", async () => {
     const user = userEvent.setup();
-    const from = Temporal.Instant.from("2025-01-15T00:00:00Z");
-    const to = Temporal.Instant.from("2025-01-20T00:00:00Z");
-    const maxTime = Temporal.PlainTime.from("17:00:00");
+    const from = "2025-01-15T00:00:00Z";
+    const to = "2025-01-20T00:00:00Z";
+    const maxTime = "17:00:00";
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} maxTime={maxTime} placeholder="Select range" />);
 
@@ -596,8 +610,8 @@ describe("DateTimeRangePicker", () => {
 
   it("respects minuteStep in both time pickers", async () => {
     const user = userEvent.setup();
-    const from = Temporal.Instant.from("2025-01-15T14:00:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:00:00Z");
+    const from = "2025-01-15T14:00:00Z";
+    const to = "2025-01-20T16:00:00Z";
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} minuteStep={15} placeholder="Select range" />);
 
@@ -633,8 +647,8 @@ describe("DateTimeRangePicker", () => {
   // =============================================================================
 
   it("displays in 12-hour format with AM/PM", () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} clockFormat="12h" />);
 
@@ -644,8 +658,8 @@ describe("DateTimeRangePicker", () => {
   });
 
   it("displays in 24-hour format", () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} clockFormat="24h" />);
 
@@ -655,8 +669,8 @@ describe("DateTimeRangePicker", () => {
   });
 
   it("shows seconds when showSeconds is true", () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:45Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:30Z");
+    const from = "2025-01-15T14:30:45Z";
+    const to = "2025-01-20T16:45:30Z";
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} showSeconds />);
 
@@ -670,8 +684,8 @@ describe("DateTimeRangePicker", () => {
   // =============================================================================
 
   it("works as controlled component", () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
     const onChange = vi.fn();
 
     const { rerender } = render(<DateTimeRangePicker value={{ from, to }} onChange={onChange} />);
@@ -680,16 +694,16 @@ describe("DateTimeRangePicker", () => {
     expect(input.value).toMatch(/Jan(uary)?\s+\d{1,2},\s+2025/);
 
     // Update controlled value
-    const newFrom = Temporal.Instant.from("2025-02-01T10:00:00Z");
-    const newTo = Temporal.Instant.from("2025-02-05T12:00:00Z");
+    const newFrom = "2025-02-01T10:00:00Z";
+    const newTo = "2025-02-05T12:00:00Z";
     rerender(<DateTimeRangePicker value={{ from: newFrom, to: newTo }} onChange={onChange} />);
 
     expect(input.value).toMatch(/Feb(ruary)?\s+\d{1,2},\s+2025/);
   });
 
   it("works as uncontrolled component with defaultValue", () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} />);
 
@@ -726,18 +740,18 @@ describe("DateTimeRangePicker", () => {
 
   it("submits datetime range values in form", async () => {
     const user = userEvent.setup();
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
 
     const handleSubmit = vi.fn((e: React.FormEvent) => {
       e.preventDefault();
       const formData = new FormData(e.target as HTMLFormElement);
-      // FormData returns strings from hidden inputs, need to parse them
-      const fromStr = formData.get("range.from") as string;
-      const toStr = formData.get("range.to") as string;
+      // The hidden inputs already carry canonical ISO instants, so there is
+      // nothing for the consumer to parse — this is the whole point of the
+      // string boundary.
       return {
-        from: fromStr ? Temporal.Instant.from(fromStr) : null,
-        to: toStr ? Temporal.Instant.from(toStr) : null,
+        from: formData.get("range.from") as string | null,
+        to: formData.get("range.to") as string | null,
       };
     });
 
@@ -753,16 +767,17 @@ describe("DateTimeRangePicker", () => {
 
     expect(handleSubmit).toHaveBeenCalled();
     const result = handleSubmit.mock.results[0]!.value;
-    // Should have Instant objects (can call toString() to get ISO format)
-    expect(result.from).toBeInstanceOf(Temporal.Instant);
-    expect(result.to).toBeInstanceOf(Temporal.Instant);
-    expect(result.from.toString()).toMatch(/2025-01-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z/);
-    expect(result.to.toString()).toMatch(/2025-01-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z/);
+    expect(typeof result.from).toBe("string");
+    expect(typeof result.to).toBe("string");
+    expect(isInstantString(result.from)).toBe(true);
+    expect(isInstantString(result.to)).toBe(true);
+    expect(result.from).toMatch(/^2025-01-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
+    expect(result.to).toMatch(/^2025-01-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
   });
 
   it("uses name prop for form field", () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
 
     render(<DateTimeRangePicker name="eventRange" defaultValue={{ from, to }} />);
 
@@ -796,9 +811,9 @@ describe("DateTimeRangePicker", () => {
 
   describe("Instant Range Value Handling", () => {
     it("accepts and displays Instant range values in user timezone", async () => {
-      const range = {
-        from: Temporal.Instant.from("2025-01-24T16:00:00Z"),
-        to: Temporal.Instant.from("2025-01-24T23:30:00Z"),
+      const range: ISOInstantRange = {
+        from: "2025-01-24T16:00:00Z",
+        to: "2025-01-24T23:30:00Z",
       };
       render(<DateTimeRangePicker value={range} />);
 
@@ -809,7 +824,7 @@ describe("DateTimeRangePicker", () => {
       expect(input.value).toContain("–"); // Range separator
     });
 
-    it("calls onChange with Instant range when user selects dates", async () => {
+    it("calls onChange with a canonical UTC instant range when user selects dates", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
       render(<DateTimeRangePicker onChange={onChange} />);
@@ -832,14 +847,14 @@ describe("DateTimeRangePicker", () => {
       expect(result).toHaveProperty("from");
       expect(result).toHaveProperty("to");
       if (result?.from) {
-        expect(result.from).toBeInstanceOf(Temporal.Instant);
+        expect(isInstantString(result.from)).toBe(true);
       }
       if (result?.to) {
-        expect(result.to).toBeInstanceOf(Temporal.Instant);
+        expect(isInstantString(result.to)).toBe(true);
       }
     });
 
-    it("preset ranges return Instant values", async () => {
+    it("preset ranges return canonical UTC instant strings", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
       render(<DateTimeRangePicker onChange={onChange} showPresets />);
@@ -855,8 +870,8 @@ describe("DateTimeRangePicker", () => {
       expect(result).toBeDefined();
       expect(result?.from).toBeDefined();
       expect(result?.to).toBeDefined();
-      expect(result?.from).toBeInstanceOf(Temporal.Instant);
-      expect(result?.to).toBeInstanceOf(Temporal.Instant);
+      expect(isInstantString(result?.from)).toBe(true);
+      expect(isInstantString(result?.to)).toBe(true);
     });
   });
 });

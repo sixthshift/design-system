@@ -1,33 +1,33 @@
-import type { Temporal, WeekStartsOn } from "../../date-time";
+/**
+ * DateRangePicker types.
+ *
+ * All values at the public boundary are canonical ISO 8601 date strings
+ * (`"2026-08-26"`).
+ */
 
-export type DateRangeValue = {
-  from: Temporal.PlainDate | undefined;
-  to: Temporal.PlainDate | undefined;
-};
+import type { DisabledDates, ISODate, ISODateRange, WeekStartsOn } from "../../date-time";
 
+/**
+ * A preset range.
+ *
+ * The value is a function so that relative ranges ("Last 7 days") are computed
+ * when the picker renders rather than when the preset list is defined.
+ */
 export type PresetOption = {
   label: string;
-  value: () => DateRangeValue;
+  value: () => ISODateRange;
 };
-
-export type DisabledDateMatcher =
-  | Temporal.PlainDate
-  | Temporal.PlainDate[]
-  | ((date: Temporal.PlainDate) => boolean)
-  | { before: Temporal.PlainDate }
-  | { after: Temporal.PlainDate }
-  | { from: Temporal.PlainDate; to: Temporal.PlainDate };
 
 export type DateRangePickerProps = {
   // Value (controlled/uncontrolled)
-  value?: DateRangeValue;
-  defaultValue?: DateRangeValue;
-  onChange?: (range: DateRangeValue | undefined) => void;
+  value?: ISODateRange;
+  defaultValue?: ISODateRange;
+  onChange?: (range: ISODateRange | undefined) => void;
 
   // Constraints
-  minDate?: Temporal.PlainDate;
-  maxDate?: Temporal.PlainDate;
-  disabled?: DisabledDateMatcher | DisabledDateMatcher[];
+  minDate?: ISODate;
+  maxDate?: ISODate;
+  disabled?: DisabledDates | DisabledDates[];
 
   // Presets
   presets?: PresetOption[];

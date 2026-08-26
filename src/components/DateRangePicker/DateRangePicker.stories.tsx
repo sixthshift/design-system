@@ -1,8 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { Temporal } from "../../date-time";
+import {
+  addDaysISO,
+  addMonthsISO,
+  endOfYearISO,
+  fromISODate,
+  type ISODateRange,
+  startOfMonthISO,
+  startOfWeekISO,
+  startOfYearISO,
+  todayISO,
+  toISODate,
+} from "../../date-time";
 import { DateRangePicker } from "./DateRangePicker";
-import type { DateRangeValue } from "./daterangepicker.types";
 
 const meta: Meta<typeof DateRangePicker> = {
   title: "Components/Inputs/DateRangePicker",
@@ -26,24 +36,24 @@ export const Default: Story = {
 
 export const WithDefaultValue: Story = {
   render: () => {
-    const from = Temporal.PlainDate.from("2025-01-10");
-    const to = Temporal.PlainDate.from("2025-01-20");
+    const from = "2025-01-10";
+    const to = "2025-01-20";
     return <DateRangePicker defaultValue={{ from, to }} />;
   },
 };
 
 export const Controlled: Story = {
   render: function ControlledStory() {
-    const [value, setValue] = useState<DateRangeValue>({
-      from: Temporal.PlainDate.from("2025-01-10"),
-      to: Temporal.PlainDate.from("2025-01-20"),
+    const [value, setValue] = useState<ISODateRange>({
+      from: "2025-01-10",
+      to: "2025-01-20",
     });
 
     return (
       <div className="flex flex-col gap-4">
         <DateRangePicker value={value} onChange={(v) => setValue(v ?? { from: undefined, to: undefined })} />
         <div className="text-fg-subtle text-sm">
-          Selected: {value?.from?.toString() ?? "none"} – {value?.to?.toString() ?? "none"}
+          Selected: {value?.from ?? "none"} – {value?.to ?? "none"}
         </div>
       </div>
     );
@@ -60,8 +70,8 @@ export const Invalid: Story = {
 
 export const NotClearable: Story = {
   render: () => {
-    const from = Temporal.PlainDate.from("2025-01-10");
-    const to = Temporal.PlainDate.from("2025-01-20");
+    const from = "2025-01-10";
+    const to = "2025-01-20";
     return <DateRangePicker defaultValue={{ from, to }} clearable={false} />;
   },
 };
@@ -80,36 +90,38 @@ export const WithCustomPresets: Story = {
       {
         label: "Next 7 days",
         value: () => {
-          const today = Temporal.Now.plainDateISO();
-          const nextWeek = today.add({ days: 7 });
+          const today = todayISO();
+          const nextWeek = addDaysISO(today, 7);
           return { from: today, to: nextWeek };
         },
       },
       {
         label: "Next 30 days",
         value: () => {
-          const today = Temporal.Now.plainDateISO();
-          const nextMonth = today.add({ days: 30 });
+          const today = todayISO();
+          const nextMonth = addDaysISO(today, 30);
           return { from: today, to: nextMonth };
         },
       },
       {
         label: "This quarter",
         value: () => {
-          const today = Temporal.Now.plainDateISO();
-          const month = today.month;
-          const quarterStartMonth = Math.floor((month - 1) / 3) * 3 + 1;
-          const quarterStart = today.with({ month: quarterStartMonth, day: 1 });
-          const quarterEnd = quarterStart.add({ months: 3 }).subtract({ days: 1 });
+          // Quarter boundaries are past what the ISO helpers cover, so this
+          // reaches for the date engine directly — the documented escape hatch
+          // for arithmetic the ISO surface intentionally does not carry.
+          const today = fromISODate(todayISO());
+          const quarterStartMonth = Math.floor((today.month - 1) / 3) * 3 + 1;
+          const quarterStart = toISODate(today.with({ month: quarterStartMonth, day: 1 }));
+          const quarterEnd = addDaysISO(addMonthsISO(quarterStart, 3), -1);
           return { from: quarterStart, to: quarterEnd };
         },
       },
       {
         label: "This year",
         value: () => {
-          const today = Temporal.Now.plainDateISO();
-          const yearStart = today.with({ month: 1, day: 1 });
-          const yearEnd = today.with({ month: 12, day: 31 });
+          const today = todayISO();
+          const yearStart = startOfYearISO(today);
+          const yearEnd = endOfYearISO(today);
           return { from: yearStart, to: yearEnd };
         },
       },
@@ -129,28 +141,28 @@ export const WithoutPresets: Story = {
 
 export const WithMinMaxDates: Story = {
   render: () => {
-    const today = Temporal.Now.plainDateISO();
-    const minDate = today.subtract({ days: 7 });
-    const maxDate = today.add({ days: 30 });
+    const today = todayISO();
+    const minDate = addDaysISO(today, -7);
+    const maxDate = addDaysISO(today, 30);
 
     return <DateRangePicker minDate={minDate} maxDate={maxDate} placeholder="Limited to past 7 days and next 30 days" />;
   },
 };
 
 export const WithDisabledWeekends: Story = {
-  render: () => <DateRangePicker disabled={(date) => date.dayOfWeek === 6 || date.dayOfWeek === 7} placeholder="Weekdays only" />,
+  render: () => <DateRangePicker disabled={{ dayOfWeek: ["sat", "sun"] }} placeholder="Weekdays only" />,
 };
 
 export const PastDatesOnly: Story = {
   render: () => {
-    const today = Temporal.Now.plainDateISO();
+    const today = todayISO();
     return <DateRangePicker maxDate={today} placeholder="Past dates only" />;
   },
 };
 
 export const FutureDatesOnly: Story = {
   render: () => {
-    const today = Temporal.Now.plainDateISO();
+    const today = todayISO();
     return <DateRangePicker minDate={today} placeholder="Future dates only" />;
   },
 };
@@ -181,8 +193,8 @@ export const InForm: Story = {
           <DateRangePicker
             name="dateRange"
             defaultValue={{
-              from: Temporal.PlainDate.from("2025-01-10"),
-              to: Temporal.PlainDate.from("2025-01-20"),
+              from: "2025-01-10",
+              to: "2025-01-20",
             }}
           />
         </div>
@@ -225,9 +237,9 @@ export const CustomPlaceholder: Story = {
 
 export const ActivityLogFilter: Story = {
   render: function ActivityLogFilterStory() {
-    const [value, setValue] = useState<DateRangeValue>({
-      from: Temporal.Now.plainDateISO().subtract({ days: 7 }),
-      to: Temporal.Now.plainDateISO(),
+    const [value, setValue] = useState<ISODateRange>({
+      from: addDaysISO(todayISO(), -7),
+      to: todayISO(),
     });
 
     return (
@@ -235,7 +247,7 @@ export const ActivityLogFilter: Story = {
         <div className="font-medium text-sm">Filter Activity Log</div>
         <DateRangePicker value={value} onChange={(v) => setValue(v ?? { from: undefined, to: undefined })} placeholder="Filter by date..." />
         <div className="text-fg-subtle text-sm">
-          Showing activity from {value?.from?.toString() ?? "..."} to {value?.to?.toString() ?? "..."}
+          Showing activity from {value?.from ?? "..."} to {value?.to ?? "..."}
         </div>
       </div>
     );
@@ -244,42 +256,42 @@ export const ActivityLogFilter: Story = {
 
 export const ReportDateRange: Story = {
   render: function ReportDateRangeStory() {
-    const [value, setValue] = useState<DateRangeValue>({
-      from: Temporal.Now.plainDateISO().with({ day: 1 }),
-      to: Temporal.Now.plainDateISO(),
+    const [value, setValue] = useState<ISODateRange>({
+      from: startOfMonthISO(todayISO()),
+      to: todayISO(),
     });
 
     const customPresets = [
       {
         label: "This week",
         value: () => {
-          const today = Temporal.Now.plainDateISO();
-          const weekStart = today.subtract({ days: today.dayOfWeek });
+          const today = todayISO();
+          const weekStart = startOfWeekISO(today, 0);
           return { from: weekStart, to: today };
         },
       },
       {
         label: "This month",
         value: () => {
-          const today = Temporal.Now.plainDateISO();
-          const monthStart = today.with({ day: 1 });
+          const today = todayISO();
+          const monthStart = startOfMonthISO(today);
           return { from: monthStart, to: today };
         },
       },
       {
         label: "Last month",
         value: () => {
-          const today = Temporal.Now.plainDateISO();
-          const lastMonthStart = today.subtract({ months: 1 }).with({ day: 1 });
-          const lastMonthEnd = today.with({ day: 1 }).subtract({ days: 1 });
+          const today = todayISO();
+          const lastMonthStart = startOfMonthISO(addMonthsISO(today, -1));
+          const lastMonthEnd = addDaysISO(startOfMonthISO(today), -1);
           return { from: lastMonthStart, to: lastMonthEnd };
         },
       },
       {
         label: "Last 3 months",
         value: () => {
-          const today = Temporal.Now.plainDateISO();
-          const threeMonthsAgo = today.subtract({ months: 3 });
+          const today = todayISO();
+          const threeMonthsAgo = addMonthsISO(today, -3);
           return { from: threeMonthsAgo, to: today };
         },
       },
@@ -304,8 +316,8 @@ export const ReportDateRange: Story = {
 
 export const BookingDateRange: Story = {
   render: function BookingDateRangeStory() {
-    const today = Temporal.Now.plainDateISO();
-    const maxDate = today.add({ months: 6 }); // Can only book 6 months ahead
+    const today = todayISO();
+    const maxDate = addMonthsISO(today, 6); // Can only book 6 months ahead
 
     return (
       <div className="flex flex-col gap-4">

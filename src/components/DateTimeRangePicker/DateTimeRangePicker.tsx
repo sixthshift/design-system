@@ -4,10 +4,21 @@ import { cn } from "@sixthshift/design-system/utils";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 import type * as React from "react";
 import { useCallback, useId, useMemo, useState } from "react";
-import { now, Temporal, today } from "../../date-time";
+import {
+  adaptDisabledDates,
+  fromISODateOrUndefined,
+  fromISOInstantRange,
+  fromISOTimeOrUndefined,
+  now,
+  Temporal,
+  type TemporalInstantRange,
+  today,
+  toISOInstant,
+  toISOInstantRange,
+} from "../../date-time";
 
 import { Button } from "../Button";
-import { Calendar } from "../Calendar";
+import { CalendarView } from "../Calendar/CalendarView";
 import type { DateRangeValue } from "../Calendar/calendar.types";
 import { Separator } from "../Separator";
 import { PeriodSelector } from "../TimePicker/PeriodSelector";
@@ -57,9 +68,12 @@ function formatInstantDisplay(instant: Temporal.Instant, clockFormat: "12h" | "2
 }
 
 /**
- * Format an Instant range for display
+ * Format an Instant range for display.
+ *
+ * Takes the internal Temporal range, not the public ISO shape — display runs
+ * below the boundary.
  */
-function formatRangeDisplay(range: DateTimeRangeValue | undefined, clockFormat: "12h" | "24h", showSeconds: boolean): string {
+function formatRangeDisplay(range: TemporalInstantRange | undefined, clockFormat: "12h" | "24h", showSeconds: boolean): string {
   if (!range?.from && !range?.to) {
     return "";
   }
@@ -78,7 +92,7 @@ function formatRangeDisplay(range: DateTimeRangeValue | undefined, clockFormat: 
 /**
  * Default preset ranges for DateTimeRangePicker
  *
- * Uses clean hour boundaries and returns Instant values
+ * Uses clean hour boundaries and returns canonical UTC instant strings
  */
 function getDefaultPresets(): DateTimeRangePresetOption[] {
   return [
@@ -87,7 +101,7 @@ function getDefaultPresets(): DateTimeRangePresetOption[] {
       value: () => {
         const end = now().round({ smallestUnit: "hour", roundingMode: "ceil" });
         const start = end.subtract({ hours: 1 });
-        return { from: start, to: end };
+        return { from: toISOInstant(start), to: toISOInstant(end) };
       },
     },
     {
@@ -95,7 +109,7 @@ function getDefaultPresets(): DateTimeRangePresetOption[] {
       value: () => {
         const end = now().round({ smallestUnit: "hour", roundingMode: "ceil" });
         const start = end.subtract({ hours: 24 });
-        return { from: start, to: end };
+        return { from: toISOInstant(start), to: toISOInstant(end) };
       },
     },
     {
@@ -103,7 +117,7 @@ function getDefaultPresets(): DateTimeRangePresetOption[] {
       value: () => {
         const end = now().round({ smallestUnit: "hour", roundingMode: "ceil" });
         const start = end.subtract({ hours: 7 * 24 });
-        return { from: start, to: end };
+        return { from: toISOInstant(start), to: toISOInstant(end) };
       },
     },
     {
@@ -111,7 +125,7 @@ function getDefaultPresets(): DateTimeRangePresetOption[] {
       value: () => {
         const end = now().round({ smallestUnit: "hour", roundingMode: "ceil" });
         const start = end.subtract({ hours: 30 * 24 });
-        return { from: start, to: end };
+        return { from: toISOInstant(start), to: toISOInstant(end) };
       },
     },
     {
@@ -121,7 +135,7 @@ function getDefaultPresets(): DateTimeRangePresetOption[] {
         const tz = Temporal.Now.timeZoneId();
         const zonedNow = end.toZonedDateTimeISO(tz);
         const startOfMonth = zonedNow.toPlainDate().with({ day: 1 }).toPlainDateTime(Temporal.PlainTime.from("00:00:00")).toZonedDateTime(tz).toInstant();
-        return { from: startOfMonth, to: end };
+        return { from: toISOInstant(startOfMonth), to: toISOInstant(end) };
       },
     },
   ];
@@ -131,7 +145,7 @@ function getDefaultPresets(): DateTimeRangePresetOption[] {
  * DateTimeRangePicker - A component for selecting a datetime range
  *
  * Combines date range selection with separate time pickers for start and end times.
- * Uses Temporal.PlainDateTime for all values.
+ * All values cross the boundary as canonical UTC instant strings.
  */
 export const DateTimeRangePicker = (props: DateTimeRangePickerProps) => {
   const {
@@ -161,11 +175,30 @@ export const DateTimeRangePicker = (props: DateTimeRangePickerProps) => {
   // Open state
   const [open, setOpen] = useState(false);
 
+  // ---------------------------------------------------------------------------
+  // The ISO boundary.
+  //
+  // Both ends of the range cross as canonical UTC instant strings; constraints
+  // cross as ISO dates and times. Below this block everything is Temporal, as
+  // before. Each conversion is memoised on its source value so the Temporal
+  // objects handed downstream stay referentially stable.
+  // ---------------------------------------------------------------------------
+
+  const temporalValue = useMemo(() => fromISOInstantRange(value), [value]);
+  const temporalDefaultValue = useMemo(() => fromISOInstantRange(defaultValue), [defaultValue]);
+  const temporalMinDate = useMemo(() => fromISODateOrUndefined(minDate), [minDate]);
+  const temporalMaxDate = useMemo(() => fromISODateOrUndefined(maxDate), [maxDate]);
+  const temporalMinTime = useMemo(() => fromISOTimeOrUndefined(minTime), [minTime]);
+  const temporalMaxTime = useMemo(() => fromISOTimeOrUndefined(maxTime), [maxTime]);
+  const temporalDisabledDates = useMemo(() => adaptDisabledDates(disabledDates), [disabledDates]);
+
+  const handleChange = useCallback((next: TemporalInstantRange | undefined) => onChange?.(toISOInstantRange(next)), [onChange]);
+
   // Controllable value state (external/committed value)
-  const [committedValue, setCommittedValue] = useControllableState({
-    value,
-    defaultValue,
-    onChange,
+  const [committedValue, setCommittedValue] = useControllableState<TemporalInstantRange | undefined>({
+    value: temporalValue,
+    defaultValue: temporalDefaultValue,
+    onChange: handleChange,
   });
 
   // Draft state (date range + time parts for both start and end)
@@ -303,8 +336,8 @@ export const DateTimeRangePicker = (props: DateTimeRangePickerProps) => {
     };
   }, [clockFormat, draftEndHour, draftEndMinute, draftEndSecond, draftEndPeriod]);
 
-  // Combine draft dates and times into DateTimeRangeValue
-  const getDraftRange = useCallback((): DateTimeRangeValue => {
+  // Combine draft dates and times into the internal Temporal range
+  const getDraftRange = useCallback((): TemporalInstantRange => {
     const tz = Temporal.Now.timeZoneId();
 
     const from = draftDateRange?.from
@@ -392,7 +425,7 @@ export const DateTimeRangePicker = (props: DateTimeRangePickerProps) => {
   // Apply preset
   const _handlePresetClick = useCallback(
     (preset: { label: string; value: DateTimeRangeValue }) => {
-      setCommittedValue(preset.value);
+      setCommittedValue(fromISOInstantRange(preset.value));
       setOpen(false);
     },
     [setCommittedValue]
@@ -445,9 +478,9 @@ export const DateTimeRangePicker = (props: DateTimeRangePickerProps) => {
   const checkTimeDisabled = useCallback(
     (hour: number, minute: number, second: number): boolean => {
       const temporal = Temporal.PlainTime.from({ hour, minute, second });
-      return isTimeDisabled(temporal, minTime, maxTime);
+      return isTimeDisabled(temporal, temporalMinTime, temporalMaxTime);
     },
-    [minTime, maxTime]
+    [temporalMinTime, temporalMaxTime]
   );
 
   return (
@@ -531,15 +564,15 @@ export const DateTimeRangePicker = (props: DateTimeRangePickerProps) => {
               )}
 
               {/* Date Calendar */}
-              <Calendar
+              <CalendarView
                 mode="range"
                 value={draftDateRange}
                 onSelect={setDraftDateRange as (range: DateRangeValue | undefined) => void}
                 month={month}
                 onMonthChange={setMonth}
-                minDate={minDate}
-                maxDate={maxDate}
-                disabled={disabledDates}
+                minDate={temporalMinDate}
+                maxDate={temporalMaxDate}
+                disabled={temporalDisabledDates}
                 weekStartsOn={weekStartsOn}
                 showFooter={false}
               />

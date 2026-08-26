@@ -3,14 +3,18 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { Temporal } from "../../date-time";
+import { addDaysISO, type ISODate, type ISODateRange, startOfMonthISO, todayISO } from "../../date-time";
 
 import { DateRangePicker } from "./DateRangePicker";
-import type { DateRangeValue } from "./daterangepicker.types";
+import type { PresetOption } from "./daterangepicker.types";
 
-function getDay(container: HTMLElement, day: number, base?: Temporal.PlainDate): HTMLElement {
-  const date = (base ?? Temporal.Now.plainDateISO()).with({ day });
-  const el = container.querySelector(`[data-date="${date.toString()}"]`);
+function isoDay(day: number, base: ISODate = todayISO()): ISODate {
+  return addDaysISO(startOfMonthISO(base), day - 1);
+}
+
+function getDay(container: HTMLElement, day: number, base?: ISODate): HTMLElement {
+  const date = isoDay(day, base);
+  const el = container.querySelector(`[data-date="${date}"]`);
   if (!el) throw new Error(`Day button for ${date} not found`);
   return el as HTMLElement;
 }
@@ -119,11 +123,11 @@ describe("DateRangePicker", () => {
 
       // Should call onChange with range
       expect(handleChange).toHaveBeenCalledTimes(1);
-      const range: DateRangeValue = handleChange.mock.calls[0]![0];
-      expect(range.from).toBeInstanceOf(Temporal.PlainDate);
-      expect(range.to).toBeInstanceOf(Temporal.PlainDate);
-      expect(range.from?.day).toBe(10);
-      expect(range.to?.day).toBe(20);
+      const range: ISODateRange = handleChange.mock.calls[0]![0];
+      expect(typeof range.from).toBe("string");
+      expect(typeof range.to).toBe("string");
+      expect(range.from).toBe(isoDay(10));
+      expect(range.to).toBe(isoDay(20));
     });
 
     it("swaps dates if user selects to before from", async () => {
@@ -145,14 +149,14 @@ describe("DateRangePicker", () => {
       await user.click(within(dialog).getByRole("button", { name: /apply/i }));
 
       // Should swap: from=10, to=20
-      const range: DateRangeValue = handleChange.mock.calls[0]![0];
-      expect(range.from?.day).toBe(10);
-      expect(range.to?.day).toBe(20);
+      const range: ISODateRange = handleChange.mock.calls[0]![0];
+      expect(range.from).toBe(isoDay(10));
+      expect(range.to).toBe(isoDay(20));
     });
 
     it("displays selected range in formatted text", () => {
-      const from = Temporal.PlainDate.from("2025-01-15");
-      const to = Temporal.PlainDate.from("2025-01-22");
+      const from = "2025-01-15";
+      const to = "2025-01-22";
 
       render(<DateRangePicker value={{ from, to }} />);
 
@@ -162,7 +166,7 @@ describe("DateRangePicker", () => {
     });
 
     it("displays single date range with same formatting", () => {
-      const date = Temporal.PlainDate.from("2025-01-15");
+      const date = "2025-01-15";
 
       render(<DateRangePicker value={{ from: date, to: date }} />);
 
@@ -171,7 +175,7 @@ describe("DateRangePicker", () => {
     });
 
     it("displays partial range (only from)", () => {
-      const from = Temporal.PlainDate.from("2025-01-15");
+      const from = "2025-01-15";
 
       render(<DateRangePicker value={{ from, to: undefined }} />);
 
@@ -180,7 +184,7 @@ describe("DateRangePicker", () => {
     });
 
     it("displays partial range (only to)", () => {
-      const to = Temporal.PlainDate.from("2025-01-22");
+      const to = "2025-01-22";
 
       render(<DateRangePicker value={{ from: undefined, to }} />);
 
@@ -191,8 +195,8 @@ describe("DateRangePicker", () => {
     it("clears range when clear button is clicked", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      const from = Temporal.PlainDate.from("2025-01-15");
-      const to = Temporal.PlainDate.from("2025-01-22");
+      const from = "2025-01-15";
+      const to = "2025-01-22";
 
       render(<DateRangePicker value={{ from, to }} onChange={handleChange} />);
 
@@ -238,10 +242,10 @@ describe("DateRangePicker", () => {
 
       // Should call onChange with today's date range
       expect(handleChange).toHaveBeenCalledTimes(1);
-      const range: DateRangeValue = handleChange.mock.calls[0]![0];
-      const today = Temporal.Now.plainDateISO();
-      expect(Temporal.PlainDate.compare(range.from!, today)).toBe(0);
-      expect(Temporal.PlainDate.compare(range.to!, today)).toBe(0);
+      const range: ISODateRange = handleChange.mock.calls[0]![0];
+      const today = todayISO();
+      expect(range.from).toBe(today);
+      expect(range.to).toBe(today);
     });
 
     it("applies Last 7 days preset correctly", async () => {
@@ -257,12 +261,12 @@ describe("DateRangePicker", () => {
       await user.click(within(dialog).getByRole("button", { name: "Last 7 days" }));
       await user.click(within(dialog).getByRole("button", { name: /apply/i }));
 
-      const range: DateRangeValue = handleChange.mock.calls[0]![0];
-      const today = Temporal.Now.plainDateISO();
-      const weekAgo = today.subtract({ days: 6 });
+      const range: ISODateRange = handleChange.mock.calls[0]![0];
+      const today = todayISO();
+      const weekAgo = addDaysISO(today, -6);
 
-      expect(Temporal.PlainDate.compare(range.from!, weekAgo)).toBe(0);
-      expect(Temporal.PlainDate.compare(range.to!, today)).toBe(0);
+      expect(range.from).toBe(weekAgo);
+      expect(range.to).toBe(today);
     });
 
     it("hides presets when showPresets={false}", async () => {
@@ -280,9 +284,9 @@ describe("DateRangePicker", () => {
     it("uses custom presets when provided", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      const customDate = Temporal.PlainDate.from("2025-12-25");
+      const customDate = "2025-12-25";
 
-      const customPresets = [
+      const customPresets: PresetOption[] = [
         {
           label: "Christmas 2025",
           value: () => ({ from: customDate, to: customDate }),
@@ -304,17 +308,16 @@ describe("DateRangePicker", () => {
       await user.click(within(dialog).getByRole("button", { name: "Christmas 2025" }));
       await user.click(within(dialog).getByRole("button", { name: /apply/i }));
 
-      const range: DateRangeValue = handleChange.mock.calls[0]![0];
-      expect(Temporal.PlainDate.compare(range.from!, customDate)).toBe(0);
-      expect(Temporal.PlainDate.compare(range.to!, customDate)).toBe(0);
+      const range: ISODateRange = handleChange.mock.calls[0]![0];
+      expect(range.from).toBe(customDate);
+      expect(range.to).toBe(customDate);
     });
   });
 
   describe("Constraints", () => {
     it("respects minDate constraint (disables earlier dates)", async () => {
       const user = userEvent.setup();
-      const now = Temporal.Now.plainDateISO();
-      const minDate = now.with({ day: 10 });
+      const minDate = isoDay(10);
 
       render(<DateRangePicker minDate={minDate} />);
 
@@ -332,8 +335,7 @@ describe("DateRangePicker", () => {
 
     it("respects maxDate constraint (disables later dates)", async () => {
       const user = userEvent.setup();
-      const now = Temporal.Now.plainDateISO();
-      const maxDate = now.with({ day: 20 });
+      const maxDate = isoDay(20);
 
       render(<DateRangePicker maxDate={maxDate} />);
 
@@ -352,13 +354,13 @@ describe("DateRangePicker", () => {
     it("respects disabled date matcher (function)", async () => {
       const user = userEvent.setup();
       // Disable weekends
-      const isWeekend = (date: Temporal.PlainDate) => date.dayOfWeek === 6 || date.dayOfWeek === 7;
+      const isWeekend = { dayOfWeek: ["sat", "sun"] } as const;
 
       render(<DateRangePicker disabled={isWeekend} />);
 
       await user.click(screen.getByRole("combobox"));
 
-      // This test verifies the function receives Temporal.PlainDate
+      // This test verifies the declarative day-of-week matcher is accepted
       // The actual weekend days depend on the current month
       // Just verify the picker opens and accepts the function
       expect(screen.getByRole("dialog")).toBeInTheDocument();
@@ -368,8 +370,8 @@ describe("DateRangePicker", () => {
   describe("State Management", () => {
     it("controlled mode: uses external value prop", async () => {
       const handleChange = vi.fn();
-      const from = Temporal.PlainDate.from("2025-01-10");
-      const to = Temporal.PlainDate.from("2025-01-20");
+      const from = "2025-01-10";
+      const to = "2025-01-20";
 
       const { rerender } = render(<DateRangePicker value={{ from, to }} onChange={handleChange} />);
 
@@ -378,8 +380,8 @@ describe("DateRangePicker", () => {
       expect(input).toHaveValue("January 10, 2025 – January 20, 2025");
 
       // Change external value
-      const newFrom = Temporal.PlainDate.from("2025-02-05");
-      const newTo = Temporal.PlainDate.from("2025-02-15");
+      const newFrom = "2025-02-05";
+      const newTo = "2025-02-15";
       rerender(<DateRangePicker value={{ from: newFrom, to: newTo }} onChange={handleChange} />);
 
       // Should update display
@@ -389,8 +391,8 @@ describe("DateRangePicker", () => {
     it("uncontrolled mode: manages internal state with defaultValue", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      const from = Temporal.PlainDate.from("2025-01-10");
-      const to = Temporal.PlainDate.from("2025-01-20");
+      const from = "2025-01-10";
+      const to = "2025-01-20";
 
       render(<DateRangePicker defaultValue={{ from, to }} onChange={handleChange} />);
 
@@ -401,7 +403,7 @@ describe("DateRangePicker", () => {
       // Select new range
       await user.click(input);
       const dialog = screen.getByRole("dialog");
-      const jan2025 = Temporal.PlainDate.from("2025-01-01");
+      const jan2025 = "2025-01-01";
       await user.click(getDay(dialog, 5, jan2025));
       await user.click(getDay(dialog, 15, jan2025));
       await user.click(within(dialog).getByRole("button", { name: /apply/i }));
@@ -428,18 +430,18 @@ describe("DateRangePicker", () => {
       await user.click(within(dialog).getByRole("button", { name: /apply/i }));
 
       expect(handleChange).toHaveBeenCalledTimes(1);
-      const range: DateRangeValue = handleChange.mock.calls[0]![0];
+      const range: ISODateRange = handleChange.mock.calls[0]![0];
       expect(range).toHaveProperty("from");
       expect(range).toHaveProperty("to");
-      expect(range.from).toBeInstanceOf(Temporal.PlainDate);
-      expect(range.to).toBeInstanceOf(Temporal.PlainDate);
+      expect(typeof range.from).toBe("string");
+      expect(typeof range.to).toBe("string");
     });
   });
 
   describe("Form Integration", () => {
     it("creates hidden inputs with name.from and name.to", () => {
-      const from = Temporal.PlainDate.from("2025-01-15");
-      const to = Temporal.PlainDate.from("2025-01-22");
+      const from = "2025-01-15";
+      const to = "2025-01-22";
 
       const { container } = render(<DateRangePicker name="dateRange" value={{ from, to }} />);
 
@@ -456,8 +458,8 @@ describe("DateRangePicker", () => {
     });
 
     it("creates no hidden inputs when name is not provided", () => {
-      const from = Temporal.PlainDate.from("2025-01-15");
-      const to = Temporal.PlainDate.from("2025-01-22");
+      const from = "2025-01-15";
+      const to = "2025-01-22";
 
       const { container } = render(<DateRangePicker value={{ from, to }} />);
 
@@ -466,7 +468,7 @@ describe("DateRangePicker", () => {
     });
 
     it("creates hidden inputs only for defined values", () => {
-      const from = Temporal.PlainDate.from("2025-01-15");
+      const from = "2025-01-15";
 
       const { container } = render(<DateRangePicker name="dateRange" value={{ from, to: undefined }} />);
 
@@ -506,8 +508,8 @@ describe("DateRangePicker", () => {
     it("reverts to committed value on cancel", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      const from = Temporal.PlainDate.from("2025-01-10");
-      const to = Temporal.PlainDate.from("2025-01-20");
+      const from = "2025-01-10";
+      const to = "2025-01-20";
 
       render(<DateRangePicker value={{ from, to }} onChange={handleChange} />);
 
@@ -517,7 +519,7 @@ describe("DateRangePicker", () => {
       // Open picker and make changes
       await user.click(input);
       const dialog = screen.getByRole("dialog");
-      const jan2025 = Temporal.PlainDate.from("2025-01-01");
+      const jan2025 = "2025-01-01";
       await user.click(getDay(dialog, 5, jan2025));
       await user.click(getDay(dialog, 15, jan2025));
 
@@ -549,9 +551,9 @@ describe("DateRangePicker", () => {
 
       // onChange should be called with committed value
       expect(handleChange).toHaveBeenCalledTimes(1);
-      const range: DateRangeValue = handleChange.mock.calls[0]![0];
-      expect(range.from?.day).toBe(10);
-      expect(range.to?.day).toBe(20);
+      const range: ISODateRange = handleChange.mock.calls[0]![0];
+      expect(range.from).toBe(isoDay(10));
+      expect(range.to).toBe(isoDay(20));
     });
   });
 

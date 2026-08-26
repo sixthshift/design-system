@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { today } from "../../date-time";
+import { addDaysISO, startOfMonthISO, todayISO } from "../../date-time";
 
 import { DatePicker } from "../DatePicker";
 import type { DatePickerRangeProps } from "../DatePicker/datepicker.types";
@@ -14,49 +14,43 @@ function getDefaultPresets(): PresetOption[] {
     {
       label: "Today",
       value: () => {
-        const t = today();
+        const t = todayISO();
         return { from: t, to: t };
       },
     },
     {
       label: "Yesterday",
       value: () => {
-        const yesterday = today().subtract({ days: 1 });
+        const yesterday = addDaysISO(todayISO(), -1);
         return { from: yesterday, to: yesterday };
       },
     },
     {
       label: "Last 7 days",
       value: () => {
-        const t = today();
-        const weekAgo = t.subtract({ days: 6 });
-        return { from: weekAgo, to: t };
+        const t = todayISO();
+        return { from: addDaysISO(t, -6), to: t };
       },
     },
     {
       label: "Last 30 days",
       value: () => {
-        const t = today();
-        const monthAgo = t.subtract({ days: 29 });
-        return { from: monthAgo, to: t };
+        const t = todayISO();
+        return { from: addDaysISO(t, -29), to: t };
       },
     },
     {
       label: "This month",
       value: () => {
-        const t = today();
-        const firstDay = t.with({ day: 1 });
-        return { from: firstDay, to: t };
+        const t = todayISO();
+        return { from: startOfMonthISO(t), to: t };
       },
     },
     {
       label: "Last month",
       value: () => {
-        const t = today();
-        const firstDayThisMonth = t.with({ day: 1 });
-        const lastDayLastMonth = firstDayThisMonth.subtract({ days: 1 });
-        const firstDayLastMonth = lastDayLastMonth.with({ day: 1 });
-        return { from: firstDayLastMonth, to: lastDayLastMonth };
+        const lastDayLastMonth = addDaysISO(startOfMonthISO(todayISO()), -1);
+        return { from: startOfMonthISO(lastDayLastMonth), to: lastDayLastMonth };
       },
     },
   ];
@@ -66,7 +60,7 @@ function getDefaultPresets(): PresetOption[] {
  * DateRangePicker - A specialized date range picker component
  *
  * Wraps DatePicker with mode="range" and adds common range presets.
- * Uses Temporal.PlainDate for all date values.
+ * All date values are canonical ISO 8601 strings ("2026-08-26").
  */
 export const DateRangePicker = (props: DateRangePickerProps) => {
   const {

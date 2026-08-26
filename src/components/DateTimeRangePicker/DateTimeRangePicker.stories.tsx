@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { Temporal } from "../../date-time";
+import { addDaysISO, addHoursISO, fromISOInstant, type ISOInstantRange, nowISO, Temporal, todayISO, toISOInstant } from "../../date-time";
 import { DateTimeRangePicker } from "./DateTimeRangePicker";
 
 const meta: Meta<typeof DateTimeRangePicker> = {
@@ -25,26 +25,26 @@ export const Default: Story = {
 
 export const WithDefaultValue: Story = {
   render: () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
     return <DateTimeRangePicker defaultValue={{ from, to }} />;
   },
 };
 
 export const Controlled: Story = {
   render: function ControlledStory() {
-    const [value, setValue] = useState<{ from: Temporal.Instant | undefined; to: Temporal.Instant | undefined } | undefined>({
-      from: Temporal.Instant.from("2025-01-15T14:30:00Z"),
-      to: Temporal.Instant.from("2025-01-20T16:45:00Z"),
+    const [value, setValue] = useState<ISOInstantRange | undefined>({
+      from: "2025-01-15T14:30:00Z",
+      to: "2025-01-20T16:45:00Z",
     });
 
     return (
       <div className="flex flex-col gap-4">
         <DateTimeRangePicker value={value} onChange={setValue} />
         <div className="text-fg-subtle text-sm">
-          From: {value?.from?.toString() ?? "none"}
+          From: {value?.from ?? "none"}
           <br />
-          To: {value?.to?.toString() ?? "none"}
+          To: {value?.to ?? "none"}
         </div>
       </div>
     );
@@ -61,8 +61,8 @@ export const Invalid: Story = {
 
 export const NotClearable: Story = {
   render: () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
     return <DateTimeRangePicker defaultValue={{ from, to }} clearable={false} />;
   },
 };
@@ -73,32 +73,32 @@ export const NotClearable: Story = {
 
 export const Format12Hour: Story = {
   render: () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
     return <DateTimeRangePicker defaultValue={{ from, to }} clockFormat="12h" placeholder="12-hour format (with AM/PM)" />;
   },
 };
 
 export const Format24Hour: Story = {
   render: () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:00Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:00Z");
+    const from = "2025-01-15T14:30:00Z";
+    const to = "2025-01-20T16:45:00Z";
     return <DateTimeRangePicker defaultValue={{ from, to }} clockFormat="24h" placeholder="24-hour format" />;
   },
 };
 
 export const WithSeconds: Story = {
   render: () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:45Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:30Z");
+    const from = "2025-01-15T14:30:45Z";
+    const to = "2025-01-20T16:45:30Z";
     return <DateTimeRangePicker defaultValue={{ from, to }} showSeconds placeholder="With seconds column" />;
   },
 };
 
 export const WithSeconds24Hour: Story = {
   render: () => {
-    const from = Temporal.Instant.from("2025-01-15T14:30:45Z");
-    const to = Temporal.Instant.from("2025-01-20T16:45:30Z");
+    const from = "2025-01-15T14:30:45Z";
+    const to = "2025-01-20T16:45:30Z";
     return <DateTimeRangePicker defaultValue={{ from, to }} clockFormat="24h" showSeconds placeholder="24h with seconds" />;
   },
 };
@@ -117,9 +117,9 @@ export const MinuteStep30: Story = {
 
 export const WithMinMaxDate: Story = {
   render: () => {
-    const today = Temporal.Now.plainDateISO();
-    const minDate = today.subtract({ days: 7 });
-    const maxDate = today.add({ days: 30 });
+    const today = todayISO();
+    const minDate = addDaysISO(today, -7);
+    const maxDate = addDaysISO(today, 30);
 
     return <DateTimeRangePicker minDate={minDate} maxDate={maxDate} placeholder="Limited to past 7 days and next 30 days" />;
   },
@@ -127,29 +127,29 @@ export const WithMinMaxDate: Story = {
 
 export const WithMinMaxTime: Story = {
   render: () => {
-    const minTime = Temporal.PlainTime.from("09:00:00");
-    const maxTime = Temporal.PlainTime.from("17:00:00");
+    const minTime = "09:00:00";
+    const maxTime = "17:00:00";
 
     return <DateTimeRangePicker minTime={minTime} maxTime={maxTime} placeholder="Business hours only (9 AM - 5 PM)" />;
   },
 };
 
 export const WithDisabledWeekends: Story = {
-  render: () => <DateTimeRangePicker disabledDates={(date) => date.dayOfWeek === 6 || date.dayOfWeek === 7} placeholder="Weekdays only" />,
+  render: () => <DateTimeRangePicker disabledDates={{ dayOfWeek: ["sat", "sun"] }} placeholder="Weekdays only" />,
 };
 
 export const FutureDatesOnly: Story = {
   render: () => {
-    const today = Temporal.Now.plainDateISO();
+    const today = todayISO();
     return <DateTimeRangePicker minDate={today} placeholder="Future dates only" />;
   },
 };
 
 export const BusinessHoursWeekdaysOnly: Story = {
   render: () => {
-    const minTime = Temporal.PlainTime.from("09:00:00");
-    const maxTime = Temporal.PlainTime.from("17:00:00");
-    const isWeekend = (date: Temporal.PlainDate) => date.dayOfWeek === 6 || date.dayOfWeek === 7;
+    const minTime = "09:00:00";
+    const maxTime = "17:00:00";
+    const isWeekend = { dayOfWeek: ["sat", "sun"] } as const;
 
     return <DateTimeRangePicker minTime={minTime} maxTime={maxTime} disabledDates={isWeekend} minuteStep={30} placeholder="Business hours, weekdays only" />;
   },
@@ -169,31 +169,32 @@ export const WithCustomPresets: Story = {
       {
         label: "Next 24 hours",
         value: () => {
-          const now = Temporal.Now.instant();
-          const tomorrow = now.add({ hours: 24 });
+          const now = nowISO();
+          const tomorrow = addHoursISO(now, 24);
           return { from: now, to: tomorrow };
         },
       },
       {
         label: "This week",
         value: () => {
-          const now = Temporal.Now.instant();
+          // Week-start-in-local-timezone needs zoned arithmetic, so this one
+          // reaches for the engine and serialises on the way back out.
+          const now = fromISOInstant(nowISO());
           const tz = Temporal.Now.timeZoneId();
-          const zoned = now.toZonedDateTimeISO(tz);
-          const plainDate = zoned.toPlainDate();
+          const plainDate = now.toZonedDateTimeISO(tz).toPlainDate();
           const startOfWeek = plainDate
             .subtract({ days: plainDate.dayOfWeek })
             .toPlainDateTime(Temporal.PlainTime.from("00:00:00"))
             .toZonedDateTime(tz)
             .toInstant();
-          return { from: startOfWeek, to: now };
+          return { from: toISOInstant(startOfWeek), to: toISOInstant(now) };
         },
       },
       {
         label: "Last 90 days",
         value: () => {
-          const now = Temporal.Now.instant();
-          const ninetyDaysAgo = now.subtract({ hours: 90 * 24 });
+          const now = nowISO();
+          const ninetyDaysAgo = addHoursISO(now, -(90 * 24));
           return { from: ninetyDaysAgo, to: now };
         },
       },
@@ -233,8 +234,8 @@ export const InForm: Story = {
           <DateTimeRangePicker
             name="eventRange"
             defaultValue={{
-              from: Temporal.Instant.from("2025-01-15T14:30:00Z"),
-              to: Temporal.Instant.from("2025-01-20T16:45:00Z"),
+              from: "2025-01-15T14:30:00Z",
+              to: "2025-01-20T16:45:00Z",
             }}
           />
         </div>
@@ -275,39 +276,39 @@ export const CustomPlaceholder: Story = {
 
 export const ActivityLogFilter: Story = {
   render: function ActivityLogFilterStory() {
-    const [value, setValue] = useState<{ from: Temporal.Instant | undefined; to: Temporal.Instant | undefined } | undefined>(undefined);
+    const [value, setValue] = useState<ISOInstantRange | undefined>(undefined);
 
     // Presets for activity log filtering
     const activityPresets = [
       {
         label: "Last hour",
         value: () => {
-          const now = Temporal.Now.instant();
-          const hourAgo = now.subtract({ hours: 1 });
+          const now = nowISO();
+          const hourAgo = addHoursISO(now, -1);
           return { from: hourAgo, to: now };
         },
       },
       {
         label: "Last 24 hours",
         value: () => {
-          const now = Temporal.Now.instant();
-          const dayAgo = now.subtract({ hours: 24 });
+          const now = nowISO();
+          const dayAgo = addHoursISO(now, -24);
           return { from: dayAgo, to: now };
         },
       },
       {
         label: "Last 7 days",
         value: () => {
-          const now = Temporal.Now.instant();
-          const weekAgo = now.subtract({ hours: 7 * 24 });
+          const now = nowISO();
+          const weekAgo = addHoursISO(now, -(7 * 24));
           return { from: weekAgo, to: now };
         },
       },
       {
         label: "Last 30 days",
         value: () => {
-          const now = Temporal.Now.instant();
-          const monthAgo = now.subtract({ hours: 30 * 24 });
+          const now = nowISO();
+          const monthAgo = addHoursISO(now, -(30 * 24));
           return { from: monthAgo, to: now };
         },
       },
@@ -324,8 +325,8 @@ export const ActivityLogFilter: Story = {
           <div className="rounded-md bg-bg-subtle p-3 text-sm">
             <div className="font-medium">Filtering events:</div>
             <div className="text-fg-subtle">
-              From {value.from.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} to{" "}
-              {value.to.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+              From {fromISOInstant(value.from).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} to{" "}
+              {fromISOInstant(value.to).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
             </div>
           </div>
         )}
@@ -336,9 +337,9 @@ export const ActivityLogFilter: Story = {
 
 export const ReportDateRange: Story = {
   render: function ReportDateRangeStory() {
-    const [value, setValue] = useState<{ from: Temporal.Instant | undefined; to: Temporal.Instant | undefined } | undefined>(undefined);
+    const [value, setValue] = useState<ISOInstantRange | undefined>(undefined);
 
-    const today = Temporal.Now.plainDateISO();
+    const today = todayISO();
     const maxDate = today; // Can't generate reports for future dates
 
     return (
@@ -353,7 +354,7 @@ export const ReportDateRange: Story = {
             <div className="font-medium text-fg-brand text-xs">Report Period</div>
             <div className="mt-2 text-sm">
               {(() => {
-                const duration = value.from.until(value.to);
+                const duration = fromISOInstant(value.from).until(fromISOInstant(value.to));
                 const days = Math.floor(duration.total("days"));
                 const hours = Math.floor(duration.total("hours")) % 24;
                 return `${days} days, ${hours} hours`;
@@ -368,9 +369,9 @@ export const ReportDateRange: Story = {
 
 export const TimeTracking: Story = {
   render: function TimeTrackingStory() {
-    const [value, setValue] = useState<{ from: Temporal.Instant | undefined; to: Temporal.Instant | undefined } | undefined>(undefined);
+    const [value, setValue] = useState<ISOInstantRange | undefined>(undefined);
 
-    const today = Temporal.Now.plainDateISO();
+    const today = todayISO();
 
     return (
       <div className="flex flex-col gap-4">
@@ -392,7 +393,7 @@ export const TimeTracking: Story = {
             <div className="text-fg-subtle text-xs">Total time worked</div>
             <div className="font-medium text-lg">
               {(() => {
-                const duration = value.from.until(value.to);
+                const duration = fromISOInstant(value.from).until(fromISOInstant(value.to));
                 const hours = Math.floor(duration.total("hours"));
                 const minutes = Math.floor(duration.total("minutes")) % 60;
                 return `${hours}h ${minutes}m`;
@@ -407,12 +408,12 @@ export const TimeTracking: Story = {
 
 export const EventScheduler: Story = {
   render: function EventSchedulerStory() {
-    const [value, setValue] = useState<{ from: Temporal.Instant | undefined; to: Temporal.Instant | undefined } | undefined>(undefined);
+    const [value, setValue] = useState<ISOInstantRange | undefined>(undefined);
 
-    const today = Temporal.Now.plainDateISO();
-    const minTime = Temporal.PlainTime.from("08:00:00");
-    const maxTime = Temporal.PlainTime.from("22:00:00");
-    const isWeekend = (date: Temporal.PlainDate) => date.dayOfWeek === 6 || date.dayOfWeek === 7;
+    const today = todayISO();
+    const minTime = "08:00:00";
+    const maxTime = "22:00:00";
+    const isWeekend = { dayOfWeek: ["sat", "sun"] } as const;
 
     return (
       <div className="flex flex-col gap-4">
@@ -436,15 +437,15 @@ export const EventScheduler: Story = {
             <div className="mt-1 flex flex-col gap-1 text-sm">
               <div>
                 <span className="text-fg-subtle">Starts:</span>{" "}
-                {value.from.toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                {fromISOInstant(value.from).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
               </div>
               <div>
                 <span className="text-fg-subtle">Ends:</span>{" "}
-                {value.to.toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                {fromISOInstant(value.to).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
               </div>
               <div>
                 <span className="text-fg-subtle">Duration:</span> {(() => {
-                  const duration = value.from.until(value.to);
+                  const duration = fromISOInstant(value.from).until(fromISOInstant(value.to));
                   const hours = Math.floor(duration.total("hours"));
                   const minutes = Math.floor(duration.total("minutes")) % 60;
                   return `${hours}h ${minutes}m`;
@@ -460,10 +461,10 @@ export const EventScheduler: Story = {
 
 export const MaintenanceWindow: Story = {
   render: function MaintenanceWindowStory() {
-    const [value, setValue] = useState<{ from: Temporal.Instant | undefined; to: Temporal.Instant | undefined } | undefined>(undefined);
+    const [value, setValue] = useState<ISOInstantRange | undefined>(undefined);
 
-    const today = Temporal.Now.plainDateISO();
-    const maxDate = today.add({ days: 90 }); // Schedule maintenance within 90 days
+    const today = todayISO();
+    const maxDate = addDaysISO(today, 90); // Schedule maintenance within 90 days
 
     return (
       <div className="flex flex-col gap-4">
@@ -477,7 +478,7 @@ export const MaintenanceWindow: Story = {
             <div className="font-medium text-fg-danger text-xs">⚠️ Scheduled Downtime</div>
             <div className="mt-2 text-sm">
               <div>
-                {value.from.toLocaleString("en-US", {
+                {fromISOInstant(value.from).toLocaleString("en-US", {
                   weekday: "long",
                   month: "long",
                   day: "numeric",
@@ -486,7 +487,7 @@ export const MaintenanceWindow: Story = {
                   hour12: false,
                 })}{" "}
                 -{" "}
-                {value.to.toLocaleString("en-US", {
+                {fromISOInstant(value.to).toLocaleString("en-US", {
                   hour: "2-digit",
                   minute: "2-digit",
                   hour12: false,
@@ -494,7 +495,7 @@ export const MaintenanceWindow: Story = {
               </div>
               <div className="mt-1 text-fg-subtle text-xs">
                 Duration: {(() => {
-                  const duration = value.from.until(value.to);
+                  const duration = fromISOInstant(value.from).until(fromISOInstant(value.to));
                   const hours = Math.floor(duration.total("hours"));
                   const minutes = Math.floor(duration.total("minutes")) % 60;
                   return `${hours}h ${minutes}m`;
@@ -510,11 +511,11 @@ export const MaintenanceWindow: Story = {
 
 export const AvailabilitySelector: Story = {
   render: function AvailabilitySelectorStory() {
-    const [value, setValue] = useState<{ from: Temporal.Instant | undefined; to: Temporal.Instant | undefined } | undefined>(undefined);
+    const [value, setValue] = useState<ISOInstantRange | undefined>(undefined);
 
-    const today = Temporal.Now.plainDateISO();
-    const minTime = Temporal.PlainTime.from("09:00:00");
-    const maxTime = Temporal.PlainTime.from("17:00:00");
+    const today = todayISO();
+    const minTime = "09:00:00";
+    const maxTime = "17:00:00";
 
     return (
       <div className="flex flex-col gap-4">
@@ -535,8 +536,8 @@ export const AvailabilitySelector: Story = {
           <div className="rounded-md bg-bg-success-subtle p-3">
             <div className="font-medium text-fg-success text-xs">✓ Available</div>
             <div className="mt-2 text-sm">
-              {value.from.toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} -{" "}
-              {value.to.toLocaleString("en-US", { hour: "numeric", minute: "2-digit" })}
+              {fromISOInstant(value.from).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} -{" "}
+              {fromISOInstant(value.to).toLocaleString("en-US", { hour: "numeric", minute: "2-digit" })}
             </div>
           </div>
         )}

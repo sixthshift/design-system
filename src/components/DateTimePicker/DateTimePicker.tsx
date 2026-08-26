@@ -3,11 +3,19 @@ import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import { Clock, X } from "lucide-react";
 import type * as React from "react";
-import { useCallback, useId, useState } from "react";
-import { Temporal, today } from "../../date-time";
+import { useCallback, useId, useMemo, useState } from "react";
+import {
+  adaptDisabledDates,
+  fromISODateOrUndefined,
+  fromISOInstantOrUndefined,
+  fromISOTimeOrUndefined,
+  Temporal,
+  today,
+  toISOInstantOrUndefined,
+} from "../../date-time";
 
 import { Button } from "../Button";
-import { Calendar } from "../Calendar";
+import { CalendarView } from "../Calendar/CalendarView";
 import { Separator } from "../Separator";
 import { PeriodSelector } from "../TimePicker/PeriodSelector";
 import { TimeColumn } from "../TimePicker/TimeColumn";
@@ -59,7 +67,7 @@ function formatInstantDisplay(instant: Temporal.Instant, clockFormat: "12h" | "2
  * DateTimePicker - A component for selecting both date and time
  *
  * Combines date and time selection in a single popup with side-by-side layout.
- * Uses Temporal.Instant for all values (timezone-aware).
+ * Values cross the boundary as canonical UTC instant strings.
  */
 export const DateTimePicker = (props: DateTimePickerProps) => {
   const {
@@ -87,11 +95,30 @@ export const DateTimePicker = (props: DateTimePickerProps) => {
   // Open state
   const [open, setOpen] = useState(false);
 
+  // ---------------------------------------------------------------------------
+  // The ISO boundary.
+  //
+  // The value crosses as a canonical UTC instant string; constraints cross as
+  // ISO dates and times. Below this block everything is Temporal, exactly as
+  // before. Each conversion is memoised on its source string so the Temporal
+  // values stay referentially stable across renders.
+  // ---------------------------------------------------------------------------
+
+  const temporalValue = useMemo(() => fromISOInstantOrUndefined(value), [value]);
+  const temporalDefaultValue = useMemo(() => fromISOInstantOrUndefined(defaultValue), [defaultValue]);
+  const temporalMinDate = useMemo(() => fromISODateOrUndefined(minDate), [minDate]);
+  const temporalMaxDate = useMemo(() => fromISODateOrUndefined(maxDate), [maxDate]);
+  const temporalMinTime = useMemo(() => fromISOTimeOrUndefined(minTime), [minTime]);
+  const temporalMaxTime = useMemo(() => fromISOTimeOrUndefined(maxTime), [maxTime]);
+  const temporalDisabledDates = useMemo(() => adaptDisabledDates(disabledDates), [disabledDates]);
+
+  const handleChange = useCallback((next: Temporal.Instant | undefined) => onChange?.(toISOInstantOrUndefined(next)), [onChange]);
+
   // Controllable value state (external/committed value)
-  const [committedValue, setCommittedValue] = useControllableState({
-    value,
-    defaultValue,
-    onChange,
+  const [committedValue, setCommittedValue] = useControllableState<Temporal.Instant | undefined>({
+    value: temporalValue,
+    defaultValue: temporalDefaultValue,
+    onChange: handleChange,
   });
 
   // Draft state (date + time parts)
@@ -250,9 +277,9 @@ export const DateTimePicker = (props: DateTimePickerProps) => {
   const checkTimeDisabled = useCallback(
     (hour: number, minute: number, second: number): boolean => {
       const temporal = Temporal.PlainTime.from({ hour, minute, second });
-      return isTimeDisabled(temporal, minTime, maxTime);
+      return isTimeDisabled(temporal, temporalMinTime, temporalMaxTime);
     },
-    [minTime, maxTime]
+    [temporalMinTime, temporalMaxTime]
   );
 
   return (
@@ -310,15 +337,15 @@ export const DateTimePicker = (props: DateTimePickerProps) => {
           >
             <div className="flex gap-4">
               {/* Date Calendar (left side) */}
-              <Calendar
+              <CalendarView
                 mode="single"
                 value={draftDate}
                 onSelect={setDraftDate as (date: Temporal.PlainDate | undefined) => void}
                 month={month}
                 onMonthChange={setMonth}
-                minDate={minDate}
-                maxDate={maxDate}
-                disabled={disabledDates}
+                minDate={temporalMinDate}
+                maxDate={temporalMaxDate}
+                disabled={temporalDisabledDates}
                 weekStartsOn={weekStartsOn}
                 showFooter={false}
               />

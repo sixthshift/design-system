@@ -1,27 +1,31 @@
-import type { Temporal, WeekStartsOn } from "../../date-time";
+/**
+ * DateTimePicker types.
+ *
+ * The value is an absolute instant, exchanged as a canonical UTC ISO string
+ * (`"2026-08-26T00:30:00Z"`). Input written with a numeric offset is accepted and
+ * normalised to the `Z` form, so one instant always has one representation.
+ *
+ * Date and time constraints are plain dates and wall-clock times, since they
+ * describe the picker's grid rather than an absolute moment.
+ */
 
-export type DisabledDateMatcher =
-  | Temporal.PlainDate
-  | Temporal.PlainDate[]
-  | ((date: Temporal.PlainDate) => boolean)
-  | { before: Temporal.PlainDate }
-  | { after: Temporal.PlainDate }
-  | { from: Temporal.PlainDate; to: Temporal.PlainDate };
+import type { DisabledDates, ISODate, ISOInstant, ISOTime, WeekStartsOn } from "../../date-time";
 
 export type DateTimePickerProps = {
-  // Value (controlled/uncontrolled) - NOW USES INSTANT
-  value?: Temporal.Instant | undefined;
-  defaultValue?: Temporal.Instant | undefined;
-  onChange?: (instant: Temporal.Instant | undefined) => void;
+  // Value (controlled/uncontrolled) — an absolute instant, in UTC
+  value?: ISOInstant | undefined;
+  defaultValue?: ISOInstant | undefined;
+  /** Called with a canonical UTC instant string, or undefined when cleared. */
+  onChange?: (instant: ISOInstant | undefined) => void;
 
   // Date constraints
-  minDate?: Temporal.PlainDate;
-  maxDate?: Temporal.PlainDate;
-  disabledDates?: DisabledDateMatcher | DisabledDateMatcher[];
+  minDate?: ISODate;
+  maxDate?: ISODate;
+  disabledDates?: DisabledDates | DisabledDates[];
 
   // Time constraints
-  minTime?: Temporal.PlainTime;
-  maxTime?: Temporal.PlainTime;
+  minTime?: ISOTime;
+  maxTime?: ISOTime;
   minuteStep?: 1 | 5 | 10 | 15 | 30;
 
   // Time format

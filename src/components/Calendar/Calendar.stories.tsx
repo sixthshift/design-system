@@ -1,8 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import * as React from "react";
-import { endOfWeek, startOfWeek, type Temporal, today } from "../../date-time";
+import {
+  addDaysISO,
+  addMonthsISO,
+  type DisabledDates as DisabledDatesProp,
+  endOfWeekISO,
+  type ISODate,
+  type ISODateRange,
+  isWeekendISO,
+  startOfWeekISO,
+  todayISO,
+} from "../../date-time";
 import { Calendar } from "./Calendar";
-import type { DateRangeValue, PresetOption } from "./calendar.types";
+import type { PresetOption } from "./calendar.types";
 
 const meta: Meta<typeof Calendar> = {
   title: "Components/Inputs/Calendar",
@@ -23,12 +33,12 @@ type Story = StoryObj<typeof Calendar>;
 export const SingleMode: Story = {
   name: "Single Mode",
   render: function SingleModeStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(today());
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(todayISO());
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
-        <div className="text-fg-subtle text-sm">Selected: {value?.toString() ?? "None"}</div>
+        <div className="text-fg-subtle text-sm">Selected: {value ?? "None"}</div>
         <Calendar mode="single" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} />
       </div>
     );
@@ -38,12 +48,12 @@ export const SingleMode: Story = {
 export const SingleModeUncontrolled: Story = {
   name: "Single Mode - Uncontrolled",
   render: function SingleModeUncontrolledStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
-        <div className="text-fg-subtle text-sm">Selected: {value?.toString() ?? "None"}</div>
+        <div className="text-fg-subtle text-sm">Selected: {value ?? "None"}</div>
         <Calendar mode="single" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} />
       </div>
     );
@@ -53,8 +63,8 @@ export const SingleModeUncontrolled: Story = {
 export const SingleModeWithToday: Story = {
   name: "Single Mode - With Today Button",
   render: function SingleModeWithTodayStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(today());
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(todayISO());
+    const [month, setMonth] = React.useState(todayISO());
 
     return <Calendar mode="single" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} showFooter showToday />;
   },
@@ -63,8 +73,8 @@ export const SingleModeWithToday: Story = {
 export const SingleModeWithActions: Story = {
   name: "Single Mode - With Actions",
   render: function SingleModeWithActionsStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(today());
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(todayISO());
+    const [month, setMonth] = React.useState(todayISO());
     const [log, setLog] = React.useState<string[]>([]);
 
     return (
@@ -77,7 +87,7 @@ export const SingleModeWithActions: Story = {
           onMonthChange={setMonth}
           showFooter
           showToday
-          onApply={() => setLog((prev) => [...prev, `Applied: ${value?.toString() ?? "None"}`])}
+          onApply={() => setLog((prev) => [...prev, `Applied: ${value ?? "None"}`])}
           onCancel={() => {
             setValue(undefined);
             setLog((prev) => [...prev, "Cancelled"]);
@@ -105,13 +115,13 @@ export const SingleModeWithActions: Story = {
 export const RangeMode: Story = {
   name: "Range Mode",
   render: function RangeModeStory() {
-    const [value, setValue] = React.useState<DateRangeValue | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODateRange | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
         <div className="text-fg-subtle text-sm">
-          Range: {value?.from?.toString() ?? "None"} to {value?.to?.toString() ?? "None"}
+          Range: {value?.from ?? "None"} to {value?.to ?? "None"}
         </div>
         <Calendar mode="range" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} />
       </div>
@@ -122,16 +132,16 @@ export const RangeMode: Story = {
 export const RangeModeWithInitialValue: Story = {
   name: "Range Mode - With Initial Value",
   render: function RangeModeWithInitialValueStory() {
-    const [value, setValue] = React.useState<DateRangeValue | undefined>({
-      from: today(),
-      to: today().add({ days: 7 }),
+    const [value, setValue] = React.useState<ISODateRange | undefined>({
+      from: todayISO(),
+      to: addDaysISO(todayISO(), 7),
     });
-    const [month, setMonth] = React.useState(today());
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
         <div className="text-fg-subtle text-sm">
-          Range: {value?.from?.toString() ?? "None"} to {value?.to?.toString() ?? "None"}
+          Range: {value?.from ?? "None"} to {value?.to ?? "None"}
         </div>
         <Calendar mode="range" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} />
       </div>
@@ -142,18 +152,18 @@ export const RangeModeWithInitialValue: Story = {
 export const RangeModeWithActions: Story = {
   name: "Range Mode - With Actions",
   render: function RangeModeWithActionsStory() {
-    const [value, setValue] = React.useState<DateRangeValue | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
-    const [committed, setCommitted] = React.useState<DateRangeValue | undefined>(undefined);
+    const [value, setValue] = React.useState<ISODateRange | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
+    const [committed, setCommitted] = React.useState<ISODateRange | undefined>(undefined);
 
     return (
       <div className="space-y-3">
         <div className="text-fg-subtle text-sm">
           <div>
-            Current selection: {value?.from?.toString() ?? "None"} to {value?.to?.toString() ?? "None"}
+            Current selection: {value?.from ?? "None"} to {value?.to ?? "None"}
           </div>
           <div>
-            Committed: {committed?.from?.toString() ?? "None"} to {committed?.to?.toString() ?? "None"}
+            Committed: {committed?.from ?? "None"} to {committed?.to ?? "None"}
           </div>
         </div>
         <Calendar
@@ -180,12 +190,12 @@ export const RangeModeWithActions: Story = {
 export const MultipleMode: Story = {
   name: "Multiple Mode",
   render: function MultipleModeStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate[]>([today(), today().add({ days: 3 }), today().add({ days: 7 })]);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate[]>([todayISO(), addDaysISO(todayISO(), 3), addDaysISO(todayISO(), 7)]);
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
-        <div className="text-fg-subtle text-sm">Selected: {value.length === 0 ? "None" : value.map((d) => d.toString()).join(", ")}</div>
+        <div className="text-fg-subtle text-sm">Selected: {value.length === 0 ? "None" : value.join(", ")}</div>
         <Calendar mode="multiple" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} />
       </div>
     );
@@ -195,14 +205,14 @@ export const MultipleMode: Story = {
 export const MultipleModeWithMax: Story = {
   name: "Multiple Mode - With Max Limit",
   render: function MultipleModeWithMaxStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate[]>([]);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate[]>([]);
+    const [month, setMonth] = React.useState(todayISO());
     const max = 5;
 
     return (
       <div className="space-y-2">
         <div className="text-fg-subtle text-sm">
-          Selected ({value.length}/{max}): {value.length === 0 ? "None" : value.map((d) => d.toString()).join(", ")}
+          Selected ({value.length}/{max}): {value.length === 0 ? "None" : value.join(", ")}
         </div>
         <Calendar mode="multiple" value={value} onSelect={setValue} max={max} month={month} onMonthChange={setMonth} showFooter showToday />
       </div>
@@ -217,10 +227,10 @@ export const MultipleModeWithMax: Story = {
 export const DisabledDates: Story = {
   name: "Disabled Dates - Specific",
   render: function DisabledDatesStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
-    const disabled = [today().add({ days: 1 }), today().add({ days: 3 }), today().add({ days: 5 }), today().add({ days: 10 })];
+    const disabled = [addDaysISO(todayISO(), 1), addDaysISO(todayISO(), 3), addDaysISO(todayISO(), 5), addDaysISO(todayISO(), 10)];
 
     return (
       <div className="space-y-2">
@@ -234,13 +244,13 @@ export const DisabledDates: Story = {
 export const DisabledBefore: Story = {
   name: "Disabled Dates - Before Today",
   render: function DisabledBeforeStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
         <div className="text-fg-subtle text-sm">All dates before today are disabled</div>
-        <Calendar mode="single" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} disabled={{ before: today() }} />
+        <Calendar mode="single" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} disabled={{ before: todayISO() }} />
       </div>
     );
   },
@@ -249,9 +259,9 @@ export const DisabledBefore: Story = {
 export const DisabledAfter: Story = {
   name: "Disabled Dates - After Limit",
   render: function DisabledAfterStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
-    const limit = today().add({ days: 14 });
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
+    const limit = addDaysISO(todayISO(), 14);
 
     return (
       <div className="space-y-2">
@@ -265,8 +275,8 @@ export const DisabledAfter: Story = {
 export const DisabledRange: Story = {
   name: "Disabled Dates - Range",
   render: function DisabledRangeStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
@@ -277,7 +287,7 @@ export const DisabledRange: Story = {
           onSelect={setValue}
           month={month}
           onMonthChange={setMonth}
-          disabled={{ from: today().add({ days: 5 }), to: today().add({ days: 10 }) }}
+          disabled={{ from: addDaysISO(todayISO(), 5), to: addDaysISO(todayISO(), 10) }}
         />
       </div>
     );
@@ -287,18 +297,13 @@ export const DisabledRange: Story = {
 export const DisabledFunction: Story = {
   name: "Disabled Dates - Function (Weekends)",
   render: function DisabledFunctionStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
-
-    const isWeekend = (date: Temporal.PlainDate) => {
-      const dayOfWeek = date.dayOfWeek;
-      return dayOfWeek === 6 || dayOfWeek === 7; // Saturday or Sunday
-    };
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
         <div className="text-fg-subtle text-sm">Weekends are disabled</div>
-        <Calendar mode="single" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} disabled={isWeekend} />
+        <Calendar mode="single" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} disabled={{ dayOfWeek: ["sat", "sun"] }} />
       </div>
     );
   },
@@ -307,18 +312,13 @@ export const DisabledFunction: Story = {
 export const DisabledMultiple: Story = {
   name: "Disabled Dates - Multiple Matchers",
   render: function DisabledMultipleStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
-    const isWeekend = (date: Temporal.PlainDate) => {
-      const dayOfWeek = date.dayOfWeek;
-      return dayOfWeek === 6 || dayOfWeek === 7;
-    };
-
-    const disabled = [
-      isWeekend,
-      { before: today() },
-      today().add({ days: 15 }), // Specific date
+    const disabled: DisabledDatesProp[] = [
+      { dayOfWeek: ["sat", "sun"] },
+      { before: todayISO() },
+      addDaysISO(todayISO(), 15), // Specific date
     ];
 
     return (
@@ -337,15 +337,15 @@ export const DisabledMultiple: Story = {
 export const MinMaxDates: Story = {
   name: "Min/Max Dates",
   render: function MinMaxDatesStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
-    const minDate = today().subtract({ days: 7 });
-    const maxDate = today().add({ days: 30 });
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
+    const minDate = addDaysISO(todayISO(), -7);
+    const maxDate = addDaysISO(todayISO(), 30);
 
     return (
       <div className="space-y-2">
         <div className="text-fg-subtle text-sm">
-          Only dates from {minDate.toString()} to {maxDate.toString()} are selectable
+          Only dates from {minDate} to {maxDate} are selectable
         </div>
         <Calendar mode="single" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} minDate={minDate} maxDate={maxDate} />
       </div>
@@ -360,20 +360,20 @@ export const MinMaxDates: Story = {
 export const SingleModePresets: Story = {
   name: "Single Mode - With Presets",
   render: function SingleModePresetsStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
-    const presets: PresetOption<Temporal.PlainDate>[] = [
-      { label: "Today", value: today() },
-      { label: "Tomorrow", value: today().add({ days: 1 }) },
-      { label: "In 3 days", value: today().add({ days: 3 }) },
-      { label: "Next week", value: today().add({ weeks: 1 }) },
-      { label: "Next month", value: today().add({ months: 1 }) },
+    const presets: PresetOption<ISODate>[] = [
+      { label: "Today", value: todayISO() },
+      { label: "Tomorrow", value: addDaysISO(todayISO(), 1) },
+      { label: "In 3 days", value: addDaysISO(todayISO(), 3) },
+      { label: "Next week", value: addDaysISO(todayISO(), 7) },
+      { label: "Next month", value: addMonthsISO(todayISO(), 1) },
     ];
 
     return (
       <div className="space-y-2">
-        <div className="text-fg-subtle text-sm">Selected: {value?.toString() ?? "None"}</div>
+        <div className="text-fg-subtle text-sm">Selected: {value ?? "None"}</div>
         <Calendar mode="single" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} presets={presets} />
       </div>
     );
@@ -383,40 +383,40 @@ export const SingleModePresets: Story = {
 export const RangeModePresets: Story = {
   name: "Range Mode - With Presets",
   render: function RangeModePresetsStory() {
-    const [value, setValue] = React.useState<DateRangeValue | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODateRange | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
-    const presets: PresetOption<DateRangeValue>[] = [
+    const presets: PresetOption<ISODateRange>[] = [
       {
         label: "Today",
-        value: { from: today(), to: today() },
+        value: { from: todayISO(), to: todayISO() },
       },
       {
         label: "This week",
-        value: { from: startOfWeek(today(), 0), to: endOfWeek(today(), 0) },
+        value: { from: startOfWeekISO(todayISO(), 0), to: endOfWeekISO(todayISO(), 0) },
       },
       {
         label: "Next 7 days",
-        value: { from: today(), to: today().add({ days: 6 }) },
+        value: { from: todayISO(), to: addDaysISO(todayISO(), 6) },
       },
       {
         label: "Next 14 days",
-        value: { from: today(), to: today().add({ days: 13 }) },
+        value: { from: todayISO(), to: addDaysISO(todayISO(), 13) },
       },
       {
         label: "Next 30 days",
-        value: { from: today(), to: today().add({ days: 29 }) },
+        value: { from: todayISO(), to: addDaysISO(todayISO(), 29) },
       },
       {
         label: "Last 7 days",
-        value: { from: today().subtract({ days: 6 }), to: today() },
+        value: { from: addDaysISO(todayISO(), -6), to: todayISO() },
       },
     ];
 
     return (
       <div className="space-y-2">
         <div className="text-fg-subtle text-sm">
-          Range: {value?.from?.toString() ?? "None"} to {value?.to?.toString() ?? "None"}
+          Range: {value?.from ?? "None"} to {value?.to ?? "None"}
         </div>
         <Calendar mode="range" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} presets={presets} />
       </div>
@@ -427,37 +427,32 @@ export const RangeModePresets: Story = {
 export const MultipleModePresets: Story = {
   name: "Multiple Mode - With Presets",
   render: function MultipleModePresetsStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate[]>([]);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate[]>([]);
+    const [month, setMonth] = React.useState(todayISO());
 
-    const isWeekday = (date: Temporal.PlainDate) => {
-      const dayOfWeek = date.dayOfWeek;
-      return dayOfWeek >= 1 && dayOfWeek <= 5; // Monday through Friday
-    };
-
-    const presets: PresetOption<Temporal.PlainDate[]>[] = [
+    const presets: PresetOption<ISODate[]>[] = [
       {
         label: "Next 5 weekdays",
-        value: Array.from({ length: 10 }, (_, i) => today().add({ days: i + 1 }))
-          .filter(isWeekday)
+        value: Array.from({ length: 10 }, (_, i) => addDaysISO(todayISO(), i + 1))
+          .filter((date) => !isWeekendISO(date))
           .slice(0, 5),
       },
       {
         label: "Next weekend",
-        value: Array.from({ length: 10 }, (_, i) => today().add({ days: i + 1 }))
-          .filter((d) => d.dayOfWeek === 6 || d.dayOfWeek === 7)
+        value: Array.from({ length: 10 }, (_, i) => addDaysISO(todayISO(), i + 1))
+          .filter(isWeekendISO)
           .slice(0, 2),
       },
       {
         label: "Next 3 days",
-        value: [today().add({ days: 1 }), today().add({ days: 2 }), today().add({ days: 3 })],
+        value: [addDaysISO(todayISO(), 1), addDaysISO(todayISO(), 2), addDaysISO(todayISO(), 3)],
       },
     ];
 
     return (
       <div className="space-y-2">
         <div className="text-fg-subtle text-sm">
-          Selected ({value.length}): {value.length === 0 ? "None" : value.map((d) => d.toString()).join(", ")}
+          Selected ({value.length}): {value.length === 0 ? "None" : value.join(", ")}
         </div>
         <Calendar mode="multiple" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} presets={presets} />
       </div>
@@ -472,8 +467,8 @@ export const MultipleModePresets: Story = {
 export const WeekStartsSunday: Story = {
   name: "Week Starts on Sunday",
   render: function WeekStartsSundayStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
@@ -487,8 +482,8 @@ export const WeekStartsSunday: Story = {
 export const WeekStartsMonday: Story = {
   name: "Week Starts on Monday",
   render: function WeekStartsMondayStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
@@ -502,8 +497,8 @@ export const WeekStartsMonday: Story = {
 export const WeekStartsSaturday: Story = {
   name: "Week Starts on Saturday",
   render: function WeekStartsSaturdayStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
@@ -521,28 +516,28 @@ export const WeekStartsSaturday: Story = {
 export const RangeModeComplete: Story = {
   name: "Range Mode - Complete Example",
   render: function RangeModeCompleteStory() {
-    const [value, setValue] = React.useState<DateRangeValue | undefined>({
-      from: today(),
-      to: today().add({ days: 7 }),
+    const [value, setValue] = React.useState<ISODateRange | undefined>({
+      from: todayISO(),
+      to: addDaysISO(todayISO(), 7),
     });
-    const [month, setMonth] = React.useState(today());
-    const [committed, setCommitted] = React.useState<DateRangeValue | undefined>(value);
+    const [month, setMonth] = React.useState(todayISO());
+    const [committed, setCommitted] = React.useState<ISODateRange | undefined>(value);
 
-    const presets: PresetOption<DateRangeValue>[] = [
-      { label: "This week", value: { from: startOfWeek(today(), 1), to: endOfWeek(today(), 1) } },
-      { label: "Next 7 days", value: { from: today(), to: today().add({ days: 6 }) } },
-      { label: "Next 14 days", value: { from: today(), to: today().add({ days: 13 }) } },
-      { label: "Next 30 days", value: { from: today(), to: today().add({ days: 29 }) } },
+    const presets: PresetOption<ISODateRange>[] = [
+      { label: "This week", value: { from: startOfWeekISO(todayISO(), 1), to: endOfWeekISO(todayISO(), 1) } },
+      { label: "Next 7 days", value: { from: todayISO(), to: addDaysISO(todayISO(), 6) } },
+      { label: "Next 14 days", value: { from: todayISO(), to: addDaysISO(todayISO(), 13) } },
+      { label: "Next 30 days", value: { from: todayISO(), to: addDaysISO(todayISO(), 29) } },
     ];
 
     return (
       <div className="space-y-3">
         <div className="space-y-1 text-fg-subtle text-sm">
           <div>
-            Current: {value?.from?.toString() ?? "None"} to {value?.to?.toString() ?? "None"}
+            Current: {value?.from ?? "None"} to {value?.to ?? "None"}
           </div>
           <div>
-            Committed: {committed?.from?.toString() ?? "None"} to {committed?.to?.toString() ?? "None"}
+            Committed: {committed?.from ?? "None"} to {committed?.to ?? "None"}
           </div>
         </div>
         <Calendar
@@ -551,8 +546,8 @@ export const RangeModeComplete: Story = {
           onSelect={setValue}
           month={month}
           onMonthChange={setMonth}
-          minDate={today()}
-          maxDate={today().add({ months: 3 })}
+          minDate={todayISO()}
+          maxDate={addMonthsISO(todayISO(), 3)}
           presets={presets}
           showFooter
           onApply={() => setCommitted(value)}
@@ -567,26 +562,21 @@ export const RangeModeComplete: Story = {
 export const MultipleModeComplete: Story = {
   name: "Multiple Mode - Complete Example",
   render: function MultipleModeCompleteStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate[]>([today(), today().add({ days: 2 }), today().add({ days: 4 })]);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate[]>([todayISO(), addDaysISO(todayISO(), 2), addDaysISO(todayISO(), 4)]);
+    const [month, setMonth] = React.useState(todayISO());
     const max = 10;
 
-    const isWeekend = (date: Temporal.PlainDate) => {
-      const dayOfWeek = date.dayOfWeek;
-      return dayOfWeek === 6 || dayOfWeek === 7;
-    };
-
-    const presets: PresetOption<Temporal.PlainDate[]>[] = [
+    const presets: PresetOption<ISODate[]>[] = [
       {
         label: "Next 3 weekdays",
-        value: Array.from({ length: 20 }, (_, i) => today().add({ days: i + 1 }))
-          .filter((d) => !isWeekend(d))
+        value: Array.from({ length: 20 }, (_, i) => addDaysISO(todayISO(), i + 1))
+          .filter((date) => !isWeekendISO(date))
           .slice(0, 3),
       },
       {
         label: "Next 5 weekdays",
-        value: Array.from({ length: 20 }, (_, i) => today().add({ days: i + 1 }))
-          .filter((d) => !isWeekend(d))
+        value: Array.from({ length: 20 }, (_, i) => addDaysISO(todayISO(), i + 1))
+          .filter((date) => !isWeekendISO(date))
           .slice(0, 5),
       },
     ];
@@ -597,7 +587,7 @@ export const MultipleModeComplete: Story = {
           <div>
             Selected ({value.length}/{max}):
           </div>
-          <div className="mt-1">{value.length === 0 ? "None" : value.map((d) => d.toString()).join(", ")}</div>
+          <div className="mt-1">{value.length === 0 ? "None" : value.join(", ")}</div>
         </div>
         <Calendar
           mode="multiple"
@@ -606,8 +596,8 @@ export const MultipleModeComplete: Story = {
           max={max}
           month={month}
           onMonthChange={setMonth}
-          minDate={today()}
-          disabled={isWeekend}
+          minDate={todayISO()}
+          disabled={{ dayOfWeek: ["sat", "sun"] }}
           presets={presets}
           showFooter
           showToday
@@ -627,8 +617,8 @@ export const MultipleModeComplete: Story = {
 export const EmptyState: Story = {
   name: "Empty State",
   render: function EmptyStateStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
@@ -642,8 +632,8 @@ export const EmptyState: Story = {
 export const AllDatesDisabled: Story = {
   name: "All Dates Disabled",
   render: function AllDatesDisabledStory() {
-    const [value, setValue] = React.useState<Temporal.PlainDate | undefined>(undefined);
-    const [month, setMonth] = React.useState(today());
+    const [value, setValue] = React.useState<ISODate | undefined>(undefined);
+    const [month, setMonth] = React.useState(todayISO());
 
     return (
       <div className="space-y-2">
@@ -654,8 +644,8 @@ export const AllDatesDisabled: Story = {
           onSelect={setValue}
           month={month}
           onMonthChange={setMonth}
-          minDate={today()}
-          maxDate={today().subtract({ days: 1 })}
+          minDate={todayISO()}
+          maxDate={addDaysISO(todayISO(), -1)}
         />
       </div>
     );

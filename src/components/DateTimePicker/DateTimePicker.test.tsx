@@ -3,13 +3,17 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { Temporal } from "../../date-time";
+import { addDaysISO, fromISOInstant, type ISODate, isInstantString, startOfMonthISO, Temporal, todayISO } from "../../date-time";
 
 import { DateTimePicker } from "./DateTimePicker";
 
-function getDay(container: HTMLElement, day: number, base?: Temporal.PlainDate): HTMLElement {
-  const date = (base ?? Temporal.Now.plainDateISO()).with({ day });
-  const el = container.querySelector(`[data-date="${date.toString()}"]`);
+function isoDay(day: number, base: ISODate = todayISO()): ISODate {
+  return addDaysISO(startOfMonthISO(base), day - 1);
+}
+
+function getDay(container: HTMLElement, day: number, base?: ISODate): HTMLElement {
+  const date = isoDay(day, base);
+  const el = container.querySelector(`[data-date="${date}"]`);
   if (!el) throw new Error(`Day button for ${date} not found`);
   return el as HTMLElement;
 }
@@ -143,11 +147,11 @@ describe("DateTimePicker", () => {
       // Should call onChange with Instant
       expect(handleChange).toHaveBeenCalledTimes(1);
       const result = handleChange.mock.calls[0]![0];
-      expect(result).toBeInstanceOf(Temporal.Instant);
+      expect(isInstantString(result)).toBe(true);
     });
 
     it("displays selected datetime in formatted text", () => {
-      const dateTime = Temporal.Instant.from("2025-01-15T14:30:00Z");
+      const dateTime = "2025-01-15T14:30:00Z";
 
       render(<DateTimePicker value={dateTime} />);
 
@@ -158,7 +162,7 @@ describe("DateTimePicker", () => {
     });
 
     it("displays datetime with 24h format", () => {
-      const dateTime = Temporal.Instant.from("2025-01-15T14:30:00Z");
+      const dateTime = "2025-01-15T14:30:00Z";
 
       render(<DateTimePicker value={dateTime} clockFormat="24h" />);
 
@@ -169,7 +173,7 @@ describe("DateTimePicker", () => {
     });
 
     it("displays datetime with seconds when showSeconds is true", () => {
-      const dateTime = Temporal.Instant.from("2025-01-15T14:30:45Z");
+      const dateTime = "2025-01-15T14:30:45Z";
 
       render(<DateTimePicker value={dateTime} showSeconds />);
 
@@ -183,7 +187,7 @@ describe("DateTimePicker", () => {
     it("clears datetime when clear button is clicked", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      const dateTime = Temporal.Instant.from("2025-01-15T14:30:00Z");
+      const dateTime = "2025-01-15T14:30:00Z";
 
       render(<DateTimePicker value={dateTime} onChange={handleChange} />);
 
@@ -194,30 +198,30 @@ describe("DateTimePicker", () => {
       expect(handleChange).toHaveBeenCalledWith(undefined);
     });
 
-    it("combines date and time into Temporal.PlainDateTime", async () => {
+    it("combines date and time into a single instant", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
 
       // Use a fixed start date that's not today (otherwise clicking today
       // de-selects the default draftDate set on open).
-      const startValue = Temporal.Instant.from("2025-06-10T12:00:00Z");
+      const startValue = "2025-06-10T12:00:00Z";
       render(<DateTimePicker value={startValue} onChange={handleChange} />);
 
       await user.click(screen.getByRole("combobox"));
       const dialog = screen.getByRole("dialog");
 
       // Select a different date in the same month
-      const targetDate = Temporal.PlainDate.from("2025-06-20");
+      const targetDate = "2025-06-20";
       await user.click(getDay(dialog, 20, targetDate));
 
       // Apply
       await user.click(within(dialog).getByRole("button", { name: /apply/i }));
 
       const result = handleChange.mock.calls[0]![0];
-      expect(result).toBeInstanceOf(Temporal.Instant);
+      expect(isInstantString(result)).toBe(true);
 
       // Check date component by converting to local timezone
-      const zoned = result.toZonedDateTimeISO(Temporal.Now.timeZoneId());
+      const zoned = fromISOInstant(result).toZonedDateTimeISO(Temporal.Now.timeZoneId());
       expect(zoned.day).toBe(20);
       // Should have time component (even if default)
       expect(zoned.hour).toBeGreaterThanOrEqual(0);
@@ -228,8 +232,7 @@ describe("DateTimePicker", () => {
   describe("Constraints", () => {
     it("respects minDate constraint (disables earlier dates)", async () => {
       const user = userEvent.setup();
-      const now = Temporal.Now.plainDateISO();
-      const minDate = now.with({ day: 10 });
+      const minDate = isoDay(10);
 
       render(<DateTimePicker minDate={minDate} />);
 
@@ -247,8 +250,7 @@ describe("DateTimePicker", () => {
 
     it("respects maxDate constraint (disables later dates)", async () => {
       const user = userEvent.setup();
-      const now = Temporal.Now.plainDateISO();
-      const maxDate = now.with({ day: 20 });
+      const maxDate = isoDay(20);
 
       render(<DateTimePicker maxDate={maxDate} />);
 
@@ -267,7 +269,7 @@ describe("DateTimePicker", () => {
     it("respects disabled date matcher (function)", async () => {
       const user = userEvent.setup();
       // Disable weekends
-      const isWeekend = (date: Temporal.PlainDate) => date.dayOfWeek === 6 || date.dayOfWeek === 7;
+      const isWeekend = { dayOfWeek: ["sat", "sun"] } as const;
 
       render(<DateTimePicker disabledDates={isWeekend} />);
 
@@ -344,7 +346,7 @@ describe("DateTimePicker", () => {
   describe("State Management", () => {
     it("controlled mode: uses external value prop", () => {
       const handleChange = vi.fn();
-      const dateTime = Temporal.Instant.from("2025-01-15T14:30:00Z");
+      const dateTime = "2025-01-15T14:30:00Z";
 
       const { rerender } = render(<DateTimePicker value={dateTime} onChange={handleChange} />);
 
@@ -353,7 +355,7 @@ describe("DateTimePicker", () => {
       expect(input.value).toMatch(/Jan(uary)?\s+\d{1,2},\s+2025/);
 
       // Change external value
-      const newDateTime = Temporal.Instant.from("2025-02-20T10:15:00Z");
+      const newDateTime = "2025-02-20T10:15:00Z";
       rerender(<DateTimePicker value={newDateTime} onChange={handleChange} />);
 
       // Should update display
@@ -363,7 +365,7 @@ describe("DateTimePicker", () => {
     it("uncontrolled mode: manages internal state with defaultValue", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      const dateTime = Temporal.Instant.from("2025-01-15T14:30:00Z");
+      const dateTime = "2025-01-15T14:30:00Z";
 
       render(<DateTimePicker defaultValue={dateTime} onChange={handleChange} />);
 
@@ -374,7 +376,7 @@ describe("DateTimePicker", () => {
       // Select new datetime
       await user.click(input);
       const dialog = screen.getByRole("dialog");
-      const jan2025 = Temporal.PlainDate.from("2025-01-01");
+      const jan2025 = "2025-01-01";
       await user.click(getDay(dialog, 20, jan2025));
       await user.click(within(dialog).getByRole("button", { name: /apply/i }));
 
@@ -397,13 +399,13 @@ describe("DateTimePicker", () => {
 
       expect(handleChange).toHaveBeenCalledTimes(1);
       const result = handleChange.mock.calls[0]![0];
-      expect(result).toBeInstanceOf(Temporal.Instant);
+      expect(isInstantString(result)).toBe(true);
     });
   });
 
   describe("Form Integration", () => {
     it("creates hidden input with ISO 8601 datetime string", () => {
-      const dateTime = Temporal.Instant.from("2025-01-15T14:30:45Z");
+      const dateTime = "2025-01-15T14:30:45Z";
 
       const { container } = render(<DateTimePicker name="eventDateTime" value={dateTime} />);
 
@@ -414,7 +416,7 @@ describe("DateTimePicker", () => {
     });
 
     it("creates no hidden input when name is not provided", () => {
-      const dateTime = Temporal.Instant.from("2025-01-15T14:30:00Z");
+      const dateTime = "2025-01-15T14:30:00Z";
 
       const { container } = render(<DateTimePicker value={dateTime} />);
 
@@ -450,7 +452,7 @@ describe("DateTimePicker", () => {
     it("reverts to committed value on cancel", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      const dateTime = Temporal.Instant.from("2025-01-15T14:30:00Z");
+      const dateTime = "2025-01-15T14:30:00Z";
 
       render(<DateTimePicker value={dateTime} onChange={handleChange} />);
 
@@ -460,7 +462,7 @@ describe("DateTimePicker", () => {
       // Open picker and make changes
       await user.click(input);
       const dialog = screen.getByRole("dialog");
-      const jan2025 = Temporal.PlainDate.from("2025-01-01");
+      const jan2025 = "2025-01-01";
       await user.click(getDay(dialog, 20, jan2025));
 
       // Cancel instead of apply
@@ -479,14 +481,14 @@ describe("DateTimePicker", () => {
 
       // Use a fixed start date that's not today (otherwise clicking today
       // de-selects the default draftDate set on open).
-      const startValue = Temporal.Instant.from("2025-06-10T12:00:00Z");
+      const startValue = "2025-06-10T12:00:00Z";
       render(<DateTimePicker value={startValue} onChange={handleChange} />);
 
       await user.click(screen.getByRole("combobox"));
       const dialog = screen.getByRole("dialog");
 
       // Make draft changes — click a different day in the same month
-      const targetDate = Temporal.PlainDate.from("2025-06-20");
+      const targetDate = "2025-06-20";
       await user.click(getDay(dialog, 20, targetDate));
 
       // Apply (commit draft)
@@ -495,8 +497,8 @@ describe("DateTimePicker", () => {
       // onChange should be called with committed value
       expect(handleChange).toHaveBeenCalledTimes(1);
       const result = handleChange.mock.calls[0]![0];
-      expect(result).toBeInstanceOf(Temporal.Instant);
-      const zoned = result.toZonedDateTimeISO(Temporal.Now.timeZoneId());
+      expect(isInstantString(result)).toBe(true);
+      const zoned = fromISOInstant(result).toZonedDateTimeISO(Temporal.Now.timeZoneId());
       expect(zoned.day).toBe(20);
     });
   });
@@ -532,7 +534,7 @@ describe("DateTimePicker", () => {
 
   describe("Instant Value Handling", () => {
     it("accepts and displays Instant value in user timezone", async () => {
-      const instant = Temporal.Instant.from("2026-01-24T23:30:00Z");
+      const instant = "2026-01-24T23:30:00Z";
       render(<DateTimePicker value={instant} />);
 
       const input = screen.getByRole("combobox") as HTMLInputElement;
@@ -541,7 +543,7 @@ describe("DateTimePicker", () => {
       expect(input.value).toContain("2026");
     });
 
-    it("calls onChange with Instant when user selects date and time", async () => {
+    it("calls onChange with a canonical UTC instant string when user selects date and time", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
       render(<DateTimePicker onChange={onChange} />);
@@ -557,19 +559,16 @@ describe("DateTimePicker", () => {
       await user.click(within(dialog).getByRole("button", { name: /apply/i }));
 
       // Should be called with Instant
-      expect(onChange).toHaveBeenCalledWith(
-        expect.objectContaining({
-          toString: expect.any(Function),
-        })
-      );
       const result = onChange.mock.calls[0]![0];
-      expect(result).toBeInstanceOf(Temporal.Instant);
+      expect(typeof result).toBe("string");
+      expect(isInstantString(result)).toBe(true);
+      expect(result).toMatch(/Z$/);
     });
 
     it("converts Instant to ZonedDateTime for internal display state", async () => {
       const user = userEvent.setup();
       // 11:30 PM UTC = 3:30 PM PST (same day in PST)
-      const instant = Temporal.Instant.from("2026-01-24T23:30:00Z");
+      const instant = "2026-01-24T23:30:00Z";
       render(<DateTimePicker value={instant} />);
 
       await user.click(screen.getByRole("combobox"));

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { Temporal } from "../../date-time";
+import type { ISODate, ISOTime } from "../../date-time";
 import { DatePicker } from "../DatePicker";
 import { TimePicker } from "./TimePicker";
 
@@ -25,17 +25,17 @@ export const Default: Story = {
 };
 
 export const WithDefaultValue: Story = {
-  render: () => <TimePicker defaultValue={Temporal.PlainTime.from("14:30")} />,
+  render: () => <TimePicker defaultValue={"14:30"} />,
 };
 
 export const Controlled: Story = {
   render: function ControlledStory() {
-    const [value, setValue] = useState<Temporal.PlainTime | undefined>(Temporal.PlainTime.from("09:00"));
+    const [value, setValue] = useState<ISOTime | undefined>("09:00");
 
     return (
       <div className="flex flex-col gap-4">
         <TimePicker value={value} onChange={setValue} />
-        <div className="text-fg-subtle text-sm">Selected: {value?.toString() ?? "none"}</div>
+        <div className="text-fg-subtle text-sm">Selected: {value ?? "none"}</div>
       </div>
     );
   },
@@ -54,11 +54,11 @@ export const Invalid: Story = {
 // =============================================================================
 
 export const TwelveHourFormat: Story = {
-  render: () => <TimePicker clockFormat="12h" defaultValue={Temporal.PlainTime.from("14:30")} placeholder="12-hour format" />,
+  render: () => <TimePicker clockFormat="12h" defaultValue={"14:30"} placeholder="12-hour format" />,
 };
 
 export const TwentyFourHourFormat: Story = {
-  render: () => <TimePicker clockFormat="24h" defaultValue={Temporal.PlainTime.from("14:30")} placeholder="24-hour format" />,
+  render: () => <TimePicker clockFormat="24h" defaultValue={"14:30"} placeholder="24-hour format" />,
 };
 
 // =============================================================================
@@ -66,15 +66,15 @@ export const TwentyFourHourFormat: Story = {
 // =============================================================================
 
 export const FiveMinuteSteps: Story = {
-  render: () => <TimePicker minuteStep={5} defaultValue={Temporal.PlainTime.from("14:30")} placeholder="5-minute steps" />,
+  render: () => <TimePicker minuteStep={5} defaultValue={"14:30"} placeholder="5-minute steps" />,
 };
 
 export const FifteenMinuteSteps: Story = {
-  render: () => <TimePicker minuteStep={15} defaultValue={Temporal.PlainTime.from("14:30")} placeholder="15-minute steps" />,
+  render: () => <TimePicker minuteStep={15} defaultValue={"14:30"} placeholder="15-minute steps" />,
 };
 
 export const ThirtyMinuteSteps: Story = {
-  render: () => <TimePicker minuteStep={30} defaultValue={Temporal.PlainTime.from("14:00")} placeholder="30-minute steps" />,
+  render: () => <TimePicker minuteStep={30} defaultValue={"14:00"} placeholder="30-minute steps" />,
 };
 
 // =============================================================================
@@ -82,11 +82,11 @@ export const ThirtyMinuteSteps: Story = {
 // =============================================================================
 
 export const WithSeconds: Story = {
-  render: () => <TimePicker format="HH:mm:ss" defaultValue={Temporal.PlainTime.from("14:30:45")} placeholder="With seconds" />,
+  render: () => <TimePicker format="HH:mm:ss" defaultValue={"14:30:45"} placeholder="With seconds" />,
 };
 
 export const WithSecondsTwentyFourHour: Story = {
-  render: () => <TimePicker format="HH:mm:ss" clockFormat="24h" defaultValue={Temporal.PlainTime.from("14:30:45")} placeholder="24h with seconds" />,
+  render: () => <TimePicker format="HH:mm:ss" clockFormat="24h" defaultValue={"14:30:45"} placeholder="24h with seconds" />,
 };
 
 // =============================================================================
@@ -94,17 +94,15 @@ export const WithSecondsTwentyFourHour: Story = {
 // =============================================================================
 
 export const WithMinTime: Story = {
-  render: () => <TimePicker minTime={Temporal.PlainTime.from("09:00")} placeholder="Min: 9:00 AM" />,
+  render: () => <TimePicker minTime={"09:00"} placeholder="Min: 9:00 AM" />,
 };
 
 export const WithMaxTime: Story = {
-  render: () => <TimePicker maxTime={Temporal.PlainTime.from("17:00")} placeholder="Max: 5:00 PM" />,
+  render: () => <TimePicker maxTime={"17:00"} placeholder="Max: 5:00 PM" />,
 };
 
 export const BusinessHours: Story = {
-  render: () => (
-    <TimePicker minTime={Temporal.PlainTime.from("09:00")} maxTime={Temporal.PlainTime.from("17:00")} minuteStep={15} placeholder="Business hours only" />
-  ),
+  render: () => <TimePicker minTime={"09:00"} maxTime={"17:00"} minuteStep={15} placeholder="Business hours only" />,
 };
 
 // =============================================================================
@@ -116,10 +114,10 @@ export const WithPresets: Story = {
     <TimePicker
       placeholder="Select a time"
       presets={[
-        { label: "Morning", value: Temporal.PlainTime.from("09:00") },
-        { label: "Noon", value: Temporal.PlainTime.from("12:00") },
-        { label: "Afternoon", value: Temporal.PlainTime.from("14:00") },
-        { label: "Evening", value: Temporal.PlainTime.from("18:00") },
+        { label: "Morning", value: "09:00" },
+        { label: "Noon", value: "12:00" },
+        { label: "Afternoon", value: "14:00" },
+        { label: "Evening", value: "18:00" },
       ]}
     />
   ),
@@ -127,7 +125,7 @@ export const WithPresets: Story = {
 
 export const MeetingScheduler: Story = {
   render: function MeetingSchedulerStory() {
-    const [value, setValue] = useState<Temporal.PlainTime | undefined>();
+    const [value, setValue] = useState<ISOTime | undefined>();
 
     return (
       <div className="flex flex-col gap-4">
@@ -135,18 +133,18 @@ export const MeetingScheduler: Story = {
           value={value}
           onChange={setValue}
           minuteStep={30}
-          minTime={Temporal.PlainTime.from("08:00")}
-          maxTime={Temporal.PlainTime.from("18:00")}
+          minTime={"08:00"}
+          maxTime={"18:00"}
           placeholder="Schedule a meeting"
           presets={[
-            { label: "Start of day", value: Temporal.PlainTime.from("08:00") },
-            { label: "Morning", value: Temporal.PlainTime.from("10:00") },
-            { label: "Lunch", value: Temporal.PlainTime.from("12:00") },
-            { label: "Afternoon", value: Temporal.PlainTime.from("14:00") },
-            { label: "End of day", value: Temporal.PlainTime.from("17:00") },
+            { label: "Start of day", value: "08:00" },
+            { label: "Morning", value: "10:00" },
+            { label: "Lunch", value: "12:00" },
+            { label: "Afternoon", value: "14:00" },
+            { label: "End of day", value: "17:00" },
           ]}
         />
-        <div className="text-fg-subtle text-sm">Meeting time: {value?.toString() ?? "not set"}</div>
+        <div className="text-fg-subtle text-sm">Meeting time: {value ?? "not set"}</div>
       </div>
     );
   },
@@ -172,7 +170,7 @@ export const InForm: Story = {
           <label htmlFor="appointmentTime" className="font-medium text-sm">
             Appointment Time
           </label>
-          <TimePicker name="appointmentTime" defaultValue={Temporal.PlainTime.from("10:30")} />
+          <TimePicker name="appointmentTime" defaultValue={"10:30"} />
         </div>
         <button type="submit" className="rounded-md bg-bg-brand px-4 py-2 font-medium text-fg-on-brand text-sm">
           Submit
@@ -189,8 +187,8 @@ export const InForm: Story = {
 
 export const DateTimeExample: Story = {
   render: function DateTimeExampleStory() {
-    const [date, setDate] = useState<Temporal.PlainDate | undefined>(Temporal.PlainDate.from("2025-01-15"));
-    const [time, setTime] = useState<Temporal.PlainTime | undefined>(Temporal.PlainTime.from("14:30"));
+    const [date, setDate] = useState<ISODate | undefined>("2025-01-15");
+    const [time, setTime] = useState<ISOTime | undefined>("14:30");
 
     return (
       <div className="flex flex-col gap-4">

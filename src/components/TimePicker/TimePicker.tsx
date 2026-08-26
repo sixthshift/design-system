@@ -3,7 +3,8 @@ import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import { Clock, X } from "lucide-react";
 import type * as React from "react";
-import { useCallback, useId, useState } from "react";
+import { useCallback, useId, useMemo, useState } from "react";
+import { fromISOTime, fromISOTimeOrUndefined, type Temporal, toISOTimeOrUndefined } from "../../date-time";
 import { Button } from "../Button";
 import { Separator } from "../Separator";
 import { PeriodSelector } from "./PeriodSelector";
@@ -46,11 +47,27 @@ export const TimePicker = (props: TimePickerProps) => {
   // Open state
   const [open, setOpen] = useState(false);
 
+  // ---------------------------------------------------------------------------
+  // The ISO boundary.
+  //
+  // Props arrive as ISO time strings and onChange emits the canonical
+  // `HH:MM:SS` form; everything below works in Temporal.PlainTime as before.
+  // Each conversion is memoised on its source string, so the Temporal values
+  // handed to the hooks below stay referentially stable across renders.
+  // ---------------------------------------------------------------------------
+
+  const temporalValue = useMemo(() => fromISOTimeOrUndefined(value), [value]);
+  const temporalDefaultValue = useMemo(() => fromISOTimeOrUndefined(defaultValue), [defaultValue]);
+  const temporalMinTime = useMemo(() => fromISOTimeOrUndefined(minTime), [minTime]);
+  const temporalMaxTime = useMemo(() => fromISOTimeOrUndefined(maxTime), [maxTime]);
+
+  const handleChange = useCallback((next: Temporal.PlainTime | undefined) => onChange?.(toISOTimeOrUndefined(next)), [onChange]);
+
   // Controllable value state (external/committed value)
-  const [committedValue, setCommittedValue] = useControllableState({
-    value,
-    defaultValue,
-    onChange,
+  const [committedValue, setCommittedValue] = useControllableState<Temporal.PlainTime | undefined>({
+    value: temporalValue,
+    defaultValue: temporalDefaultValue,
+    onChange: handleChange,
   });
 
   // Parse committed value
@@ -108,13 +125,13 @@ export const TimePicker = (props: TimePickerProps) => {
     const temporalTime = parsedToTemporal(parsed);
 
     // Check if disabled
-    if (isTimeDisabled(temporalTime, minTime, maxTime)) {
+    if (isTimeDisabled(temporalTime, temporalMinTime, temporalMaxTime)) {
       return;
     }
 
     setCommittedValue(temporalTime);
     setOpen(false);
-  }, [getDraftTime, minTime, maxTime, setCommittedValue]);
+  }, [getDraftTime, temporalMinTime, temporalMaxTime, setCommittedValue]);
 
   // Cancel changes
   const handleCancel = useCallback(() => {
@@ -144,7 +161,7 @@ export const TimePicker = (props: TimePickerProps) => {
   // Preset selection
   const handlePresetClick = useCallback(
     (preset: TimePresetOption) => {
-      const parsed = temporalToParsed(preset.value);
+      const parsed = temporalToParsed(fromISOTime(preset.value));
       setDraftHour(clockFormat === "12h" ? to12Hour(parsed.hour).hour12 : parsed.hour);
       setDraftMinute(parsed.minute);
       setDraftSecond(parsed.second);
@@ -157,7 +174,7 @@ export const TimePicker = (props: TimePickerProps) => {
   const isPresetActive = useCallback(
     (preset: TimePresetOption): boolean => {
       const draftTime = getDraftTime();
-      const presetParsed = temporalToParsed(preset.value);
+      const presetParsed = temporalToParsed(fromISOTime(preset.value));
 
       return (
         draftTime.hour === presetParsed.hour && draftTime.minute === presetParsed.minute && (format === "HH:mm" || draftTime.second === presetParsed.second)

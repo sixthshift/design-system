@@ -1,20 +1,25 @@
-import type { Temporal, WeekStartsOn } from "../../date-time";
+/**
+ * DateTimeRangePicker types.
+ *
+ * Both ends of the range are absolute instants, exchanged as canonical UTC ISO
+ * strings (`"2026-08-26T00:30:00Z"`). Date and time constraints are plain dates
+ * and wall-clock times, since they describe the picker's grid rather than an
+ * absolute moment.
+ */
 
-export type DisabledDateMatcher =
-  | Temporal.PlainDate
-  | Temporal.PlainDate[]
-  | ((date: Temporal.PlainDate) => boolean)
-  | { before: Temporal.PlainDate }
-  | { after: Temporal.PlainDate }
-  | { from: Temporal.PlainDate; to: Temporal.PlainDate };
+import type { DisabledDates, ISODate, ISOInstantRange, ISOTime, WeekStartsOn } from "../../date-time";
 
-export type DateTimeRangeValue = {
-  from: Temporal.Instant | undefined;
-  to: Temporal.Instant | undefined;
-};
+/**
+ * A datetime range.
+ *
+ * Alias of `ISOInstantRange`, kept under this name because it is the historical
+ * public type for this component.
+ */
+export type DateTimeRangeValue = ISOInstantRange;
 
 export type DateTimeRangePresetOption = {
   label: string;
+  /** Called when the picker renders, so relative ranges stay current. */
   value: () => DateTimeRangeValue;
 };
 
@@ -29,13 +34,13 @@ export type DateTimeRangePickerProps = {
   showPresets?: boolean; // Default: true
 
   // Date constraints
-  minDate?: Temporal.PlainDate;
-  maxDate?: Temporal.PlainDate;
-  disabledDates?: DisabledDateMatcher | DisabledDateMatcher[];
+  minDate?: ISODate;
+  maxDate?: ISODate;
+  disabledDates?: DisabledDates | DisabledDates[];
 
   // Time constraints (apply to both start and end times)
-  minTime?: Temporal.PlainTime;
-  maxTime?: Temporal.PlainTime;
+  minTime?: ISOTime;
+  maxTime?: ISOTime;
   minuteStep?: 1 | 5 | 10 | 15 | 30;
 
   // Time format

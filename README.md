@@ -160,9 +160,9 @@ by [release-please](https://github.com/googleapis/release-please).
 | Commit | Bump |
 | --- | --- |
 | `feat:` | minor |
-| `fix:`, `perf:` | patch |
+| `fix:`, `perf:`, `refactor:`, `build:`, `revert:` | patch |
 | `feat!:`, or a `BREAKING CHANGE:` footer | breaking |
-| `chore:`, `ci:`, `docs:`, `test:`, `refactor:`, `style:`, `build:` | no release |
+| `chore:`, `ci:`, `docs:`, `style:`, `test:` | no release |
 
 Below `1.0.0` a breaking change moves the **minor** rather than declaring
 `1.0.0` — going stable stays a deliberate act (`bump-minor-pre-major` in
@@ -174,9 +174,23 @@ publishes the GitHub Release, and publishes to npm with
 [provenance](https://docs.npmjs.com/generating-provenance-statements) — a
 verifiable link from the tarball back to the commit and workflow that built it.
 
-Only `feat`, `fix`, `perf` and `revert` appear in the changelog; the rest are
-released silently or not at all. A user-visible change therefore needs a
-user-visible type — a rename dressed up as `refactor:` will not be announced.
+The line between the two halves of that table is **whether the commit can reach
+the published tarball**, not whether it feels important. This package ships raw
+`src/` — 79 of 81 export subpaths point at TypeScript source — so a `refactor:`
+changes the bytes a consumer receives, and `tailwind.config.ts` is itself an
+exported subpath. Tests, workflows, formatting and prose either do not ship or
+are not user-visible, so they release nothing.
+
+Worth knowing about the types that release nothing: release-please bumps *every*
+conventional commit to at least a patch, then abandons the release if the
+rendered changelog comes out empty. So a push containing only hidden types
+produces no release at all, and a commit with no conventional prefix is dropped
+before that point. Two consequences:
+
+- A dependency change that consumers receive belongs under `fix(deps):`, not
+  `chore(deps):` — `dependencies` in `package.json` ships.
+- A renamed or removed export needs `feat!:` or a `BREAKING CHANGE:` footer.
+  Filed as `refactor:` it now cuts a patch, which understates it.
 
 Two repository secrets are required:
 

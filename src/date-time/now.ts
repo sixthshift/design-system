@@ -5,6 +5,7 @@
  */
 
 import { Temporal } from "@js-temporal/polyfill";
+import type { ISODate, ISODateTime, ISOInstant } from "./iso";
 
 /**
  * Get the current instant (point in time)
@@ -14,10 +15,10 @@ export function now(): Temporal.Instant {
 }
 
 /**
- * Get the current instant as an ISO 8601 string
+ * Get the current instant as a canonical ISO 8601 string (UTC, `...Z`)
  */
-export function nowISO(): string {
-  return Temporal.Now.instant().toString();
+export function nowISO(): ISOInstant {
+  return Temporal.Now.instant().toString() as ISOInstant;
 }
 
 /**
@@ -28,10 +29,10 @@ export function today(): Temporal.PlainDate {
 }
 
 /**
- * Get today's date as an ISO 8601 string
+ * Get today's date as a canonical ISO 8601 string (`YYYY-MM-DD`)
  */
-export function todayISO(): string {
-  return Temporal.Now.plainDateISO().toString();
+export function todayISO(): ISODate {
+  return Temporal.Now.plainDateISO().toString() as ISODate;
 }
 
 /**
@@ -49,10 +50,10 @@ export function nowDateTime(): Temporal.PlainDateTime {
 }
 
 /**
- * Get the current date/time as an ISO 8601 string (without timezone info)
+ * Get the current date/time as a canonical ISO 8601 string (no timezone)
  */
-export function nowDateTimeISO(): string {
-  return Temporal.Now.plainDateTimeISO().toString();
+export function nowDateTimeISO(): ISODateTime {
+  return Temporal.Now.plainDateTimeISO().toString() as ISODateTime;
 }
 
 /**

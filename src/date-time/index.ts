@@ -39,6 +39,67 @@ export type { Temporal as TemporalNamespace } from "@js-temporal/polyfill";
 export { Temporal } from "@js-temporal/polyfill";
 
 // =============================================================================
+// ISO 8601 strings — the component boundary
+// =============================================================================
+//
+// Every date/time component accepts and emits these types, never Temporal. This
+// section is the only part of the module a consumer needs in order to use the
+// pickers; everything below it is for date arithmetic they choose to opt into.
+
+export type {
+  DisabledDates,
+  ISODate,
+  ISODateRange,
+  ISODateTime,
+  ISOInstant,
+  ISOInstantRange,
+  ISOTime,
+  TemporalDateRange,
+  TemporalDisabledMatcher,
+  TemporalInstantRange,
+  Weekday,
+} from "./iso";
+export {
+  adaptDisabledDates,
+  // ISO-native arithmetic (no Temporal needed at the call site)
+  addDaysISO,
+  addHoursISO,
+  addMinutesISO,
+  addMonthsISO,
+  compareISO,
+  endOfMonthISO,
+  endOfWeekISO,
+  endOfYearISO,
+  // Widening: ISO string -> Temporal
+  fromISODate,
+  fromISODateOrUndefined,
+  fromISODateRange,
+  fromISOInstant,
+  fromISOInstantOrUndefined,
+  fromISOInstantRange,
+  fromISOTime,
+  fromISOTimeOrUndefined,
+  // Strict boundary guards
+  isDateString,
+  isInstantString,
+  isTimeString,
+  isWeekendISO,
+  startOfMonthISO,
+  startOfWeekISO,
+  startOfYearISO,
+  // Narrowing: string | Temporal -> canonical ISO
+  toISODate,
+  toISODateOrUndefined,
+  toISODateRange,
+  toISOInstant,
+  toISOInstantOrUndefined,
+  toISOInstantRange,
+  toISOTime,
+  toISOTimeOrUndefined,
+  weekdayISO,
+} from "./iso";
+
+// =============================================================================
 // Parsing: ISO 8601 string → Temporal
 // =============================================================================
 

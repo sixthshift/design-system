@@ -3,12 +3,30 @@
 #
 # Triggered by workflow_run rather than push so it only ever runs on a commit
 # that already went green — versioning a broken main would publish it.
+#
+# This is also the only entry point to release.yml. npm's trusted publishing
+# authorises the calling workflow, not the one holding the publish step, and
+# permits one publisher per package — so the publisher registered on npmjs.com
+# names this file, and release.yml stays workflow_call-only.
 name: Version
 
 on:
   workflow_run:
     workflows: ["CI"]
     types: [completed]
+
+  # The retry path. Publishing happens after the bump commit and tag are already
+  # pushed, so a failure there (a registry outage, an auth misconfiguration)
+  # leaves a version tagged but unpublished — and nothing could re-enter the
+  # publish, because this workflow only ever derives *new* versions and
+  # release.yml cannot be triggered directly without invalidating the OIDC claim.
+  # Dispatching an existing tag here runs the publish against it and nothing else.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: An existing v* tag to publish, e.g. v0.2.0.
+        required: true
+        type: string
 
 concurrency:
   group: version
@@ -25,8 +43,11 @@ jobs:
     name: Derive and tag
     # workflow_run also fires for pull requests and for failed runs. The last
     # clause is a second net under [skip ci] below: if CI ever does run on the
-    # bot's own bump commit, this still refuses to version it again.
+    # bot's own bump commit, this still refuses to version it again. A manual
+    # dispatch skips this job outright — it publishes a tag that already exists
+    # and must not derive or move a version.
     if: >-
+      github.event_name == 'workflow_run' &&
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_branch == 'main' &&
@@ -114,15 +135,21 @@ jobs:
   publish:
     name: Publish
     needs: bump
-    if: needs.bump.outputs.released == 'true'
-    # A reusable workflow cannot hold more permission than the job calling it,
-    # so id-token must be granted here or --provenance fails inside release.yml.
+    # A manual dispatch skips `bump`, and a skipped dependency would normally
+    # cascade and skip this job too — hence !cancelled() rather than resting on
+    # the needs result alone. A *failed* bump still stops here: on the
+    # workflow_run path `released` is empty, and the dispatch clause is false.
+    if: >-
+      !cancelled() &&
+      (needs.bump.outputs.released == 'true' || github.event_name == 'workflow_dispatch')
+    # A reusable workflow cannot hold more permission than the job calling it, so
+    # id-token must be granted here or the OIDC exchange inside release.yml has
+    # no token to present, and both auth and provenance fail with it.
     permissions:
       contents: read
       id-token: write
-    # Reuses the same definition a hand-pushed tag goes through, so there is one
-    # publish path rather than two that can drift apart.
+    # One publish definition, entered from both the automatic and manual paths,
+    # rather than two that can drift apart.
     uses: ./.github/workflows/release.yml
     with:
-      ref: v${{ needs.bump.outputs.version }}
-    secrets: inherit
+      ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || format('v{0}', needs.bump.outputs.version) }}

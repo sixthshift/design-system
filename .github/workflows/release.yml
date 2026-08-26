@@ -1,28 +1,28 @@
-# Publishes to npm when a v* tag is pushed.
+# Publishes to npm once version.yml has tagged a release.
 #
-# Publishing from CI rather than a laptop is what makes provenance possible:
-# npm records a signed, verifiable link from the tarball back to this workflow
-# and the exact commit that produced it. That attestation cannot be generated
-# locally, and it shows on the package page.
+# Authentication is npm trusted publishing (OIDC): GitHub Actions mints a
+# short-lived token for this single run and npm exchanges it against the trusted
+# publisher configured on the package. There is no NPM_TOKEN — nothing to leak,
+# nothing to rotate, and no 2FA prompt to get stuck behind in an unattended run.
+# Provenance comes with it: npm records a signed, verifiable link from the
+# tarball back to this workflow and the exact commit that produced it.
+#
+# npm authorises the *calling* workflow rather than the one containing the
+# publish step, and allows exactly one trusted publisher per package. version.yml
+# is therefore the sole entry point, and the publisher registered on npmjs.com
+# must name `version.yml`. Do not add `push:` or `workflow_dispatch:` triggers
+# here — that would make this file the top-level workflow for those runs, and the
+# OIDC claim would no longer match the configuration, so npm would reject the
+# publish. Manual releases go through version.yml's workflow_dispatch instead.
 name: Release
 
 on:
-  # A human pushing a tag by hand.
-  push:
-    tags: ["v*"]
-  # The automatic path: version.yml calls this after it has written the bump
-  # commit and tag. A tag pushed with GITHUB_TOKEN deliberately does not trigger
-  # workflows, so the tag trigger above would never fire for it — calling this
-  # workflow directly is what avoids needing a personal access token.
   workflow_call:
     inputs:
       ref:
         description: The tag to publish.
         required: true
         type: string
-    secrets:
-      NPM_TOKEN:
-        required: true
 
 concurrency:
   group: release-${{ github.ref }}
@@ -41,20 +41,32 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      # Required for provenance — this is the OIDC token npm exchanges to prove
-      # where the build came from.
+      # The OIDC token npm exchanges for publish rights and provenance. A
+      # reusable workflow cannot hold more permission than the job calling it,
+      # so version.yml has to grant this as well.
       id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref || github.ref }}
+          ref: ${{ inputs.ref }}
 
-      # setup-node provides the registry auth wiring that NODE_AUTH_TOKEN feeds,
-      # and an npm new enough to support --provenance.
+      # Deliberately no `registry-url`. That input makes setup-node write
+      # //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN} into .npmrc, and with
+      # no token in the environment — the intended state here — it expands to an
+      # empty value. npm reads the line as "credentials are configured", never
+      # starts the OIDC exchange, and fails with ENEEDAUTH or a 404. The default
+      # registry is already registry.npmjs.org, so the line buys nothing.
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org
+          node-version: 24
+
+      # Trusted publishing requires npm >= 11.5.1. Node 24 ships an npm 11, but
+      # the patch level rides along with whichever Node build the runner
+      # resolves, so pin it here rather than inherit it.
+      - name: Pin npm
+        run: |
+          npm install -g npm@^11.5.1
+          npm --version
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -74,7 +86,7 @@ jobs:
       # the right name, which cannot be undone after 72 hours. Fail before that.
       - name: Verify the tag matches package.json
         run: |
-          REF="${{ inputs.ref || github.ref_name }}"
+          REF="${{ inputs.ref }}"
           TAG="${REF#v}"
           PKG="$(node -p "require('./package.json').version")"
           echo "tag=$TAG  package.json=$PKG"
@@ -100,12 +112,12 @@ jobs:
       - name: Pack preview
         run: npm pack --dry-run
 
-      # publishConfig.access is already "public"; --access is repeated here so
-      # the intent is legible at the call site.
+      # No --provenance: trusted publishing generates and publishes the
+      # attestation on its own, and no NODE_AUTH_TOKEN, which would suppress the
+      # OIDC exchange. publishConfig.access is already "public"; --access repeats
+      # it so the intent is legible at the call site.
       - name: Publish
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
 
       - name: Summary
         run: |

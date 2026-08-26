@@ -40,7 +40,10 @@ const lightTheme: editor.IStandaloneThemeData = {
     "editor.background": "#fafafa",
     "editor.foreground": "#383a42",
     "editor.lineHighlightBackground": "#f2f2f2",
-    "editorLineNumber.foreground": "#9d9d9f",
+    // Gutter numbers are text as far as axe is concerned, so they carry the
+    // full 4.5:1 obligation rather than the 3:1 one non-text contrast gets.
+    // #9d9d9f managed 2.59 against this background and failed the story test.
+    "editorLineNumber.foreground": "#6f6f71",
     "editorLineNumber.activeForeground": "#383a42",
     "editor.selectionBackground": "#e5e5e6",
     "editor.inactiveSelectionBackground": "#e5e5e680",
@@ -89,7 +92,9 @@ const darkTheme: editor.IStandaloneThemeData = {
     "editor.background": "#282c34",
     "editor.foreground": "#abb2bf",
     "editor.lineHighlightBackground": "#2c313a",
-    "editorLineNumber.foreground": "#495162",
+    // 4.77:1, up from #495162's 1.76. Same obligation as the light theme;
+    // this one was never caught only because no story exercises it.
+    "editorLineNumber.foreground": "#8f97a8",
     "editorLineNumber.activeForeground": "#abb2bf",
     "editor.selectionBackground": "#3e4451",
     "editor.inactiveSelectionBackground": "#3e445180",

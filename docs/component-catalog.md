@@ -422,7 +422,7 @@ Built on top of `Message`. Enter/exit animations included.
 #### TagChip
 
 **Import:** `@sixthshift/design-system/tag-chip`
-**Purpose:** One tag, rendered prettily (`project:x` → "project: x"). Pure presentation — the web `TagRef` resolves `person:` tags to a name chip before they reach here (never a raw id).
+**Purpose:** One tag, rendered prettily (`project:x` → "project: x"). Pure presentation — a consuming app's `TagRef` resolves entity-reference tags to a name chip before they reach here (never a raw id).
 
 | Prop | Type | Notes |
 |------|------|-------|
@@ -573,7 +573,7 @@ The base `Text` component is a polymorphic wrapper. The named typography compone
 #### Markdown
 
 **Import:** `@sixthshift/design-system/markdown`
-**Purpose:** Renders a markdown string to styled HTML using PA typography components.
+**Purpose:** Renders a markdown string to styled HTML using the design system's typography components.
 
 | Prop | Type | Notes |
 |------|------|-------|
@@ -752,7 +752,7 @@ Auto-generates `id` and wires `aria-describedby`/`aria-invalid` onto the child i
 ### Code Editor
 
 **Import:** `@sixthshift/design-system/code-editor`
-**Purpose:** Monaco-based code editor with TypeScript support, semantic tokens, and PA theme.
+**Purpose:** Monaco-based code editor with TypeScript support, semantic tokens, and the design system theme.
 
 | Prop | Type | Notes |
 |------|------|-------|

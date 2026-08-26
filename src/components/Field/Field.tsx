@@ -3,10 +3,10 @@ import * as React from "react";
 
 /**
  * The labelled identifier carve-out used by identity-disclosure surfaces
- * (Person Detail's Identifiers card, Calendar Event's per-source provenance).
+ * (a detail page's Identifiers card, a calendar event's per-source provenance).
  *
  * Field exists because identifiers (JIDs, external IDs, OAuth subs) are
- * *content* on these surfaces — they answer "what does PA know about this
+ * *content* on these surfaces — they answer "what does the app know about this
  * contact?" The default value rendering is monospaced with `break-all`
  * because a raw JID is the canonical case and it must wrap inside the row.
  *

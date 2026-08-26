@@ -1,20 +1,20 @@
 # Forms
 
-How PA handles user input: validation, errors, submit affordances, modal forms vs page forms.
+How the design system handles user input: validation, errors, submit affordances, modal forms vs page forms.
 
-Form UX is the part of PA most likely to drift. Every Create modal, Edit modal, and settings panel is a form, and each one improvises slightly differently. This doc codifies the patterns so they converge.
+Form UX is the part of a product most likely to drift. Every Create modal, Edit modal, and settings panel is a form, and each one improvises slightly differently. This doc codifies the patterns so they converge.
 
 ## Form types
 
-PA has three form contexts. They share rules but differ in shape:
+There are three form contexts. They share rules but differ in shape:
 
 | Form type | Where | Shape |
 |---|---|---|
-| **Modal form** | CreateTask, CreateNote, CreatePerson | A modal with fields + Cancel/Save buttons |
+| **Modal form** | Create / Edit dialogs | A modal with fields + Cancel/Save buttons |
 | **Page form** | Settings, integration config | Inline on a page, with Save at the bottom |
 | **Inline edit** | Edit a single field in place | Click-to-edit pattern, blur-to-save |
 
-Modal forms are the most common in PA.
+Modal forms are the most common.
 
 ## Validation
 
@@ -46,7 +46,7 @@ Per [Copy Conventions](copy-conventions.md):
 - Use sentence case: "Name must be at least 2 characters"
 - Don't use "Please" — it adds nothing
 - Don't apologize ("Sorry, that email is taken")
-- Be specific: "This email is already used by another person" not "Invalid"
+- Be specific: "This email is already in use" not "Invalid"
 
 ## Submit affordances
 
@@ -56,9 +56,9 @@ The submit button names what's about to happen, not just "Submit":
 
 | Form | Label |
 |---|---|
-| Create | "Create Task", "Create Note", "Add Person" |
+| Create | "Create Item", "Create Document", "Add Member" |
 | Edit | "Save Changes" or "Save" |
-| Delete | "Delete Task" (in a confirmation modal) |
+| Delete | "Delete Item" (in a confirmation modal) |
 
 Never use "OK", "Submit", "Apply" — they don't name the action.
 
@@ -82,7 +82,7 @@ Always put the primary action on the *right* in horizontal button rows. Cancel o
 
 ```tsx
 <Modal>
-  <Modal.Header>Create Task</Modal.Header>
+  <Modal.Header>Create Item</Modal.Header>
   <Modal.Body>
     {/* form fields */}
     {/* cross-field error banner if needed */}
@@ -90,7 +90,7 @@ Always put the primary action on the *right* in horizontal button rows. Cancel o
   <Modal.Footer>
     <Button variant="outline" onClick={onClose}>Cancel</Button>
     <Button variant="solid" onClick={onSubmit} disabled={isSubmitting}>
-      {isSubmitting ? "Creating…" : "Create Task"}
+      {isSubmitting ? "Creating…" : "Create Item"}
     </Button>
   </Modal.Footer>
 </Modal>
@@ -114,14 +114,10 @@ A modal form closes when:
 
 If the user has typed something and tries to close, **prompt before discarding**:
 
-> Discard changes? Your task hasn't been saved.
+> Discard changes? Your edits haven't been saved.
 > [Cancel] [Discard]
 
 Don't silently lose user input.
-
-### Worked example
-
-`packages/web/src/modules/library/tasks/components/CreateTaskModal.tsx` is the closest reference implementation. `CreateNoteModal.tsx` and `CreateHabitModal.tsx` follow similar shapes with domain-specific fields.
 
 ## Page forms
 
@@ -164,7 +160,7 @@ Inline edits are best for *small* fields where the cost of being wrong is low an
 
 ## Open questions
 
-- **Form library.** PA doesn't currently mandate one (no react-hook-form, no Formik in @sixthshift/design-system). Validation is hand-rolled per form. Worth deciding if/when to add one.
+- **Form library.** The system doesn't currently mandate one (no react-hook-form, no Formik in @sixthshift/design-system). Validation is hand-rolled per form. Worth deciding if/when to add one.
 - **Dirty-state tracking.** Right now each form tracks its own dirty state. A `useDirtyForm` hook in `@sixthshift/design-system/hooks` could centralize this and the discard-prompt.
 - **Server-side validation surfacing.** When the server rejects a submit with field errors, mapping those to per-field state isn't standardized.
 

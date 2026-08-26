@@ -41,14 +41,14 @@ describe("LineChart", () => {
         <LineChart
           series={[
             {
-              name: "Tasks",
+              name: "Sessions",
               data: [
                 { label: "A", value: 1 },
                 { label: "B", value: 2 },
               ],
             },
             {
-              name: "Habits",
+              name: "Signups",
               data: [
                 { label: "A", value: 3 },
                 { label: "B", value: 4 },

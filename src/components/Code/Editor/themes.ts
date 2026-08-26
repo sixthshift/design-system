@@ -1,7 +1,7 @@
 import type { editor } from "monaco-editor";
 
-export const PA_THEME_LIGHT = "pa-light";
-export const PA_THEME_DARK = "pa-dark";
+export const EDITOR_THEME_LIGHT = "ds-light";
+export const EDITOR_THEME_DARK = "ds-dark";
 
 const lightTheme: editor.IStandaloneThemeData = {
   base: "vs",
@@ -107,6 +107,6 @@ const darkTheme: editor.IStandaloneThemeData = {
 };
 
 export function defineThemes(monaco: typeof import("monaco-editor")) {
-  monaco.editor.defineTheme(PA_THEME_LIGHT, lightTheme);
-  monaco.editor.defineTheme(PA_THEME_DARK, darkTheme);
+  monaco.editor.defineTheme(EDITOR_THEME_LIGHT, lightTheme);
+  monaco.editor.defineTheme(EDITOR_THEME_DARK, darkTheme);
 }

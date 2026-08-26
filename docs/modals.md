@@ -2,7 +2,7 @@
 
 When to use a modal, what size, how it closes, and when *not* to use one.
 
-PA uses modals deliberately. A modal is a focused interruption — it earns the user's attention by being modal. Use it when the interruption is justified; otherwise route to a page, open a sheet, or display inline.
+Use modals deliberately. A modal is a focused interruption — it earns the user's attention by being modal. Use it when the interruption is justified; otherwise route to a page, open a sheet, or display inline.
 
 ## When to use a modal
 
@@ -11,8 +11,8 @@ Three legitimate cases:
 | Case | Example |
 |---|---|
 | **Consequence** | Confirming a delete, archive, or bulk operation |
-| **Focused form** | Quick Add, Create Task, Create Note |
-| **Preview for a resolution entity** | Opening a Task, Habit, or Event from a row to glance + act |
+| **Focused form** | Quick Add, Create Item, Create Document |
+| **Preview for a resolution entity** | Opening an actionable item from a row to glance + act |
 
 If the interaction is *editorial* (deep editing, multi-step), strongly prefer a page. Modals are for short, focused intent — including the **preview** form for resolution entities, which is short by construction.
 
@@ -33,10 +33,10 @@ If a modal is reaching for `size="lg"`, consider whether it has overgrown its ro
 - **A preview modal at `size="lg"`** — preview modals are five-slot decision frames; they shouldn't need `lg`. If yours does, you're cramming page content into a preview. Strip back.
 - **A focused form at `size="lg"`** — if the form needs that much room, it's probably multi-step or workspace-shaped. Route to a page.
 
-### Examples in PA
+### Examples
 
-- `size="sm"` — `RenameAssistThreadModal.tsx` (one field, focused); confirmation modals
-- `size="md"` — `CreateTaskModal.tsx`, `CreateNoteModal.tsx`, `CreatePersonModal.tsx` (default for Create flows); typical preview modals for resolution entities
+- `size="sm"` — a rename dialog (one field, focused); confirmation modals
+- `size="md"` — Create flows (the default); typical preview modals for resolution entities
 - `size="lg"` — reserved for richer focused forms; preview modals shouldn't reach this size
 
 ## Structure
@@ -45,13 +45,13 @@ Every modal uses the three sub-components: `Header`, `Body`, `Footer`. None are 
 
 ```tsx
 <Modal onClose={onClose} size="md">
-  <Modal.Header>Create Task</Modal.Header>
+  <Modal.Header>Create Item</Modal.Header>
   <Modal.Body>
     {/* content */}
   </Modal.Body>
   <Modal.Footer>
     <Button variant="outline" onClick={onClose}>Cancel</Button>
-    <Button variant="solid" onClick={onSave}>Create Task</Button>
+    <Button variant="solid" onClick={onSave}>Create Item</Button>
   </Modal.Footer>
 </Modal>
 ```
@@ -59,7 +59,7 @@ Every modal uses the three sub-components: `Header`, `Body`, `Footer`. None are 
 ### Header
 
 - A single line, sentence case, no trailing punctuation.
-- Names what the modal is *for*: "Create Task", "Delete Person", "Edit Note".
+- Names what the modal is *for*: "Create Item", "Delete Document", "Edit Profile".
 - No subtitle unless the modal's purpose isn't obvious from the title alone.
 
 ### Body
@@ -90,7 +90,7 @@ A modal can be closed by any of:
 
 For modals containing forms with unsaved input, **backdrop click should prompt before closing**, not silently lose data:
 
-> Discard changes? Your task hasn't been saved.
+> Discard changes? Your edits haven't been saved.
 > [Cancel] [Discard]
 
 For read-only modals (previews, inspectors), backdrop click closes immediately.
@@ -122,7 +122,7 @@ Conventions:
 
 ## Modal vs sheet vs popover
 
-PA has three overlay primitives. Pick by what kind of interruption fits:
+There are three overlay primitives. Pick by what kind of interruption fits:
 
 | Primitive | Feels like | Use for |
 |---|---|---|
@@ -135,13 +135,13 @@ If the user might want to keep the underlying page partially visible / interacti
 ## Anti-patterns
 
 - **Modal as deep workspace.** If the user is settling in to edit or read at length, that's the page. Modal previews are dismissed in seconds; modal workspaces aren't a thing.
-- **Modal preview for a reference (content) entity.** Notes and Messages don't get modal previews — the list row IS the preview, and clicks route to the page. Wrapping them in a modal adds friction without answering a new question.
+- **Modal preview for a reference (content) entity.** Documents and messages don't get modal previews — the list row IS the preview, and clicks route to the page. Wrapping them in a modal adds friction without answering a new question.
 - **Preview modal that mirrors the page.** A preview that's "the page minus a few cards" is dead weight. The preview must answer a different question (the decision question) than the page (the workspace question). If you can't name two distinct questions, drop the preview.
 - **Stacked modals.** Don't open a modal from inside a modal. If a confirmation is needed mid-form, use an inline state in the existing modal.
 - **Modal with no clear primary action.** Every modal earns its existence with a verb. If there's no verb, it's a panel.
 - **Generic title ("Edit").** Name what's being edited.
 - **Silent backdrop dismiss with unsaved data.** Always prompt.
-- **Submit and Cancel reversed.** Primary action goes on the right. Reversing this trains users to misread modals across PA.
+- **Submit and Cancel reversed.** Primary action goes on the right. Reversing this trains users to misread modals across the product.
 - **Massive modal with scrolling content.** If the body needs to scroll a lot, this should be a page.
 
 ## Accessibility

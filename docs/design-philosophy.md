@@ -1,12 +1,12 @@
 # Design Philosophy (Engineering)
 
-PA aims for a calm, personal, context-rich interface — spacious by default, information-dense when it matters. This doc covers how builders honor that aim as they ship features: the engineering practices that make the design language *real* in code.
+This design system aims for a calm, personal, context-rich interface — spacious by default, information-dense when it matters. This doc covers how builders honor that aim as they ship features: the engineering practices that make the design language *real* in code.
 
 The pages should feel less like a SaaS dashboard and more like Things or Linear: quiet, opinionated, warm. The mechanics below are how that shows up in the implementation.
 
 ## Component philosophy
 
-PA's primitives are built around a small set of principles:
+The primitives are built around a small set of principles:
 
 - **Orthogonal API.** `variant` × `intent` = predictable, composable. A primary danger button is `<Button variant="solid" intent="danger">`, not a custom `<DangerButton>`. If a component grows three special-case props, the orthogonal axes are wrong — refactor.
 - **Polymorphic.** `asChild` pattern for flexibility without wrapper hell.
@@ -46,7 +46,7 @@ Two display strategies, each with its own trigger:
 - **Context (inline).** Information about *what you're looking at*. Relationships, metadata, derived state. Never in tooltips or modals — visible at a glance, on the row, in the page.
 - **Consequence (modal/dialog).** Actions that *do* something. Deletion, bulk changes, irreversible operations. The modal creates a natural pause; that pause is the design.
 
-Friction should be proportional to consequence. A delete confirmation modal is appropriate; a "view related notes" modal is not.
+Friction should be proportional to consequence. A delete confirmation modal is appropriate; a "view related items" modal is not.
 
 ## Accessibility as elegance
 
@@ -65,10 +65,10 @@ The bar: tab through the page with your eyes closed mentally. If you can navigat
 Items show *why* they matter, not just what they are. Implemented as a small block beneath the main row content:
 
 ```tsx
-<TaskRow>
-  <Title>Send proposal to Sarah</Title>
-  <Context>Meeting with her today at 2pm</Context>
-</TaskRow>
+<ItemRow>
+  <Title>Send the quarterly proposal</Title>
+  <Context>Due today at 2pm</Context>
+</ItemRow>
 ```
 
 Context comes from query-time relationships, not stored fields. The row is a view, not a record.
@@ -103,4 +103,3 @@ Product-level UI decisions that are closed. Skills and reviews enforce these; re
 - [Visual Hierarchy](visual-hierarchy.md) — surfaces, elevation, the type ramp, axes
 - [Design Tokens](design-tokens.md) — named values
 - [Component API Design](component-api-design.md) — how primitives encode meaning via variants
-- [UX Principles](ux-principles.md) — user experience principles

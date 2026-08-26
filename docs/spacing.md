@@ -1,12 +1,12 @@
 # Spacing
 
-Builder reference for spacing in PA. When to use which `gap-*`, `p-*`, and how rhythm composes.
+Builder reference for spacing. When to use which `gap-*`, `p-*`, and how rhythm composes.
 
-PA uses Tailwind's 4px-scale spacing, with deliberate conventions about which values appear at which composition levels. Following these conventions creates the consistent rhythm that makes pages feel like they belong to the same product.
+The system uses Tailwind's 4px-scale spacing, with deliberate conventions about which values appear at which composition levels. Following these conventions creates the consistent rhythm that makes pages feel like they belong to the same product.
 
 ## The scale
 
-PA uses a small subset of Tailwind's spacing scale. If you reach for a value not in this list, you're probably composing wrong.
+Only a small subset of Tailwind's spacing scale is used. If you reach for a value not in this list, you're probably composing wrong.
 
 | Tailwind | Pixels | Role |
 |---|---|---|
@@ -19,7 +19,7 @@ PA uses a small subset of Tailwind's spacing scale. If you reach for a value not
 | `12` | 48px | Page-level rhythm, between unrelated areas |
 | `16` | 64px | Top-of-page breathing room, rarely needed |
 
-Values **not** in this list (`5`, `7`, `9`, `10`, `11`, etc.) should not appear in PA UI code. If you find yourself reaching for one, the layout has an off-by-one problem you can usually fix with `4` or `6`.
+Values **not** in this list (`5`, `7`, `9`, `10`, `11`, etc.) should not appear in UI code. If you find yourself reaching for one, the layout has an off-by-one problem you can usually fix with `4` or `6`.
 
 ## Padding conventions
 
@@ -54,7 +54,7 @@ Rows are *inside* a card, which already has padding. Avoid doubling — if the c
 
 ### Between rows in a list
 - Index page stream rows: no gap, rely on row padding (`py-1.5` or `py-2`) for separation
-- Card grid (Library landing tiles): `gap-4`
+- Card grid (landing tiles): `gap-4`
 
 ### Between content blocks in a card
 - Multiple related sections: `gap-4`
@@ -78,14 +78,14 @@ This three-tier rhythm reads as one composition. Adding a fourth tier (e.g., `ga
 
 ## Banded streams (whitespace as separator)
 
-The People page uses **larger gaps between bands** of differently-stated rows (active / reach-out / quiet) to create soft section breaks without explicit dividers.
+A banded index stream uses **larger gaps between bands** of differently-stated rows (e.g. active / needs review / quiet) to create soft section breaks without explicit dividers.
 
-Pattern (from `PeopleStream.tsx`):
+Pattern:
 ```tsx
 <div className="flex flex-col gap-6">
   {bands.map((band) => (
     <div key={band.state} className="flex flex-col">
-      {band.entries.map((entry) => <PersonRow ... />)}
+      {band.entries.map((entry) => <ItemRow ... />)}
     </div>
   ))}
 </div>

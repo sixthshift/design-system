@@ -5,8 +5,8 @@ import type { BarChartItem } from "./BarChart";
 import { BarChart } from "./BarChart";
 
 const basicData: BarChartItem[] = [
-  { label: "Tasks", value: 12 },
-  { label: "Habits", value: 14 },
+  { label: "Documents", value: 12 },
+  { label: "Projects", value: 14 },
   { label: "Events", value: 6 },
 ];
 
@@ -14,8 +14,8 @@ describe("BarChart", () => {
   describe("rendering", () => {
     it("renders a row for each data item", () => {
       render(<BarChart data={basicData} />);
-      expect(screen.getByText("Tasks")).toBeInTheDocument();
-      expect(screen.getByText("Habits")).toBeInTheDocument();
+      expect(screen.getByText("Documents")).toBeInTheDocument();
+      expect(screen.getByText("Projects")).toBeInTheDocument();
       expect(screen.getByText("Events")).toBeInTheDocument();
     });
 
@@ -44,7 +44,7 @@ describe("BarChart", () => {
       render(<BarChart data={basicData} showValues={false} />);
       expect(screen.queryByText("12")).not.toBeInTheDocument();
       expect(screen.queryByText("14")).not.toBeInTheDocument();
-      expect(screen.getByText("Tasks")).toBeInTheDocument();
+      expect(screen.getByText("Documents")).toBeInTheDocument();
     });
 
     it("formats values with formatValue", () => {

@@ -1,6 +1,6 @@
 # Component API Design
 
-PA has three component API shapes — props-based, render props, and compound components — each with different trade-offs. This doc explains the choice.
+The design system has three component API shapes — props-based, render props, and compound components — each with different trade-offs. This doc explains the choice.
 
 ## The three shapes
 
@@ -9,7 +9,7 @@ PA has three component API shapes — props-based, render props, and compound co
 Pass collections as array props with configuration.
 
 ```tsx
-<TaskList tasks={tasks} onTaskClick={handleClick} />
+<ItemList items={items} onItemClick={handleClick} />
 ```
 
 **Pros:**
@@ -31,9 +31,9 @@ Pass collections as array props with configuration.
 Pass data with a render function for custom item rendering.
 
 ```tsx
-<TaskList tasks={tasks}>
-  {(task) => <CustomTaskCard task={task} />}
-</TaskList>
+<ItemList items={items}>
+  {(item) => <CustomItemCard item={item} />}
+</ItemList>
 ```
 
 **Pros:**
@@ -54,20 +54,20 @@ Pass data with a render function for custom item rendering.
 Split component into composable sub-components connected via React Context.
 
 ```tsx
-<TaskList>
-  <TaskList.Header>
-    <TaskList.Column>Title</TaskList.Column>
-    <TaskList.Column>Due</TaskList.Column>
-  </TaskList.Header>
-  <TaskList.Body tasks={tasks}>
-    {(task) => (
-      <TaskList.Row>
-        <TaskList.Cell>{task.title}</TaskList.Cell>
-        <TaskList.Cell>{task.dueAt}</TaskList.Cell>
-      </TaskList.Row>
+<ItemList>
+  <ItemList.Header>
+    <ItemList.Column>Title</ItemList.Column>
+    <ItemList.Column>Due</ItemList.Column>
+  </ItemList.Header>
+  <ItemList.Body items={items}>
+    {(item) => (
+      <ItemList.Row>
+        <ItemList.Cell>{item.title}</ItemList.Cell>
+        <ItemList.Cell>{item.dueAt}</ItemList.Cell>
+      </ItemList.Row>
     )}
-  </TaskList.Body>
-</TaskList>
+  </ItemList.Body>
+</ItemList>
 ```
 
 **Pros:**
@@ -103,19 +103,19 @@ Provide both simple and advanced APIs in the same component.
 
 ```tsx
 // Simple case — props
-<TaskList tasks={tasks} />
+<ItemList items={items} />
 
 // Complex case — compound
-<TaskList>
-  <TaskList.Filters>
+<ItemList>
+  <ItemList.Filters>
     <SearchBox />
     <StatusFilter />
-  </TaskList.Filters>
-  <TaskList.Items tasks={tasks}>
-    {(task) => <CustomTaskCard task={task} />}
-  </TaskList.Items>
-  <TaskList.Pagination />
-</TaskList>
+  </ItemList.Filters>
+  <ItemList.Items items={items}>
+    {(item) => <CustomItemCard item={item} />}
+  </ItemList.Items>
+  <ItemList.Pagination />
+</ItemList>
 ```
 
 Simple props for common cases, compound components for power users.
@@ -139,11 +139,11 @@ Simple props for common cases, compound components for power users.
 - Building a component library
 - Users need to extend/customize
 
-## PA-specific guidance
+## System-specific guidance
 
-Given PA's data-centric architecture:
+Given the data-centric architecture of consuming apps:
 
-1. **Collections (tasks, habits, events)** → Start with props-based arrays
+1. **Collections (items, records, events)** → Start with props-based arrays
 2. **Complex displays (timeline, dashboard cards)** → Compound components
 3. **Filters/aggregations** → Render props for flexibility
 
@@ -171,4 +171,4 @@ How that lands in current code:
 
 **When the rule is ambiguous:** ask whether a typical consumer would put different markup in each child. If yes, compound. If they'd `.map()` over data to produce each child, array prop. If both feel plausible, the array prop is the more constrained, type-safer choice — start there and refactor to compound if the constraint becomes painful.
 
-**Limit of the array-prop shape:** when consumers need per-item custom rendering (a Tab trigger with a badge, a Select option with an icon), the array prop becomes a `renderItem` render-prop or the primitive switches to compound. That refactor is the signal that the simple shape ran out, not a sign you should have started with compound. Most PA primitives never need it.
+**Limit of the array-prop shape:** when consumers need per-item custom rendering (a Tab trigger with a badge, a Select option with an icon), the array prop becomes a `renderItem` render-prop or the primitive switches to compound. That refactor is the signal that the simple shape ran out, not a sign you should have started with compound. Most primitives here never need it.

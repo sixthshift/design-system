@@ -5,7 +5,7 @@ import { useCallback, useRef } from "react";
 import { useTheme } from "../../../hooks/useTheme";
 import type { ValidationError } from "../ValidationStatus";
 import { createSemanticTokensProvider, workerExtensionUrl } from "./semanticTokenProvider";
-import { defineThemes, PA_THEME_DARK, PA_THEME_LIGHT } from "./themes";
+import { defineThemes, EDITOR_THEME_DARK, EDITOR_THEME_LIGHT } from "./themes";
 
 let semanticTokensRegistered = false;
 function registerSemanticTokenProviders(monaco: typeof import("monaco-editor")) {
@@ -51,7 +51,7 @@ export type EditorProps = Omit<HTMLAttributes<HTMLDivElement>, "onChange"> & {
  */
 export const Editor = ({ value, onChange, onValidate, readOnly = false, className, typeDefinitions, compilerOptions = {}, ...props }: EditorProps) => {
   const { resolvedTheme } = useTheme();
-  const monacoTheme = resolvedTheme === "dark" ? PA_THEME_DARK : PA_THEME_LIGHT;
+  const monacoTheme = resolvedTheme === "dark" ? EDITOR_THEME_DARK : EDITOR_THEME_LIGHT;
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   const handleEditorDidMount = useCallback(

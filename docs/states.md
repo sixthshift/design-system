@@ -17,13 +17,13 @@ Every data view is in one of a few states at any moment. Loaded is the happy pat
 
 The states above are *what the user sees*. This section is *where in the tree the switch happens*. Three tiers catch loading and error, each at a different scope, so a failure or a pending fetch is handled by the narrowest boundary that contains it.
 
-1. **Shell** — the router `<Outlet>` is wrapped once in `withSuspenseAndErrorBoundary` (`packages/web/src/layouts/AppLayout/MainContentLayout.tsx:7`). This is the backstop: a global `Spinner` while *any* route is still resolving, and a generic "Something went wrong" with a `Try again` (`reset`) button for anything that escapes the tiers below. It catches errors no route claimed.
+1. **Shell** — the app wraps its router `<Outlet>` once in `withSuspenseAndErrorBoundary`. This is the backstop: a global `Spinner` while *any* route is still resolving, and a generic "Something went wrong" with a `Try again` (`reset`) button for anything that escapes the tiers below. It catches errors no route claimed.
 
-2. **Route** — each route sets `errorComponent` in its definition (e.g. `packages/web/src/routes/library.routes.ts:30`). Most routes point it at `PageError`; a route with a richer failure story points it at a page-specific component (the `$taskId` route uses `TaskDetailPageError`, `library.routes.ts:45`). This tier catches errors thrown during the route's loader or render — including the `NotFoundError` a loader throws for a missing resource — and renders the failure *inside* the shell chrome rather than replacing the whole app.
+2. **Route** — each route sets `errorComponent` in its definition. Most routes point it at a shared page-level error component; a route with a richer failure story points it at one specific to that page. This tier catches errors thrown during the route's loader or render — including the `NotFoundError` a loader throws for a missing resource — and renders the failure *inside* the shell chrome rather than replacing the whole app.
 
-3. **Page** — a data-driven page wraps its own component in `withSuspense(...)` (`packages/web/src/modules/library/tasks/pages/TaskDetailPage/TaskDetailPage.tsx:15`). The page's own loading fallback (here a centered `Spinner`) renders *inside* the shell, so the nav stays put while just the content region shows a skeleton or spinner. This is the tier that owns the *initial-load* state from the table above.
+3. **Page** — a data-driven page wraps its own component in `withSuspense(...)`. The page's own loading fallback (here a centered `Spinner`) renders *inside* the shell, so the nav stays put while just the content region shows a skeleton or spinner. This is the tier that owns the *initial-load* state from the table above.
 
-The rule of thumb: shell catches the unclaimed, route catches the route's own load/render failure, page owns its own pending fetch. A page never needs an `isLoading` branch in its body — Suspense at tier 3 handles it; the body only runs once data is present (note `TaskDetailPage` reads `useLoaderData()` directly with no loading guard).
+The rule of thumb: shell catches the unclaimed, route catches the route's own load/render failure, page owns its own pending fetch. A page never needs an `isLoading` branch in its body — Suspense at tier 3 handles it; the body only runs once data is present, so a detail page can read its loader data directly with no loading guard.
 
 ### States are wrappers, not props
 
@@ -39,9 +39,9 @@ States are composed *around* a component as HOC wrappers, never threaded through
 
 Why externalize: an `isEmpty`/`isLoading`/`error` triplet on every component metastasizes — each one re-implements the same three branches, and the happy-path render gets deformed by edge handling it shouldn't carry (see *Edges are part of the problem*). Lifting state into a wrapper keeps the component a pure function of *loaded* data; the wrapper owns the off-states. It also lets the same component sit behind different policies (Suspense in one place, an explicit fallback in another) without touching it.
 
-### `PageError` anatomy
+### Page-level error anatomy
 
-`PageError` (`packages/web/src/components/errors/PageError.tsx:12`) is the default route `errorComponent`. It branches on the error kind:
+The default route `errorComponent` branches on the error kind:
 
 - **Not found** — when `isNotFoundError(error)` (a loader threw `NotFoundError` for a missing resource), it renders an `EmptyState`: "Not found" with a *Go Home* link. A missing resource is an empty, not a crash.
 - **Generic** — anything else renders "Something went wrong" with two recovery actions: **Go Back** (`router.history.back()`, leave the broken route) and **Try Again** (`reset`, re-mount and re-run the loader). The raw `error.message` shows in a muted monospace `Caption` — acceptable at the route boundary, but never leaked into normal content (see *Tone* below).
@@ -56,17 +56,17 @@ An empty page that says "No items yet" wastes the user's attention. Tell them wh
 
 ### 2. Default to "connect a service"
 
-PA's primary onramp is connecting external data sources. For domains that can be populated from integrations (Tasks, People, Notes, Events, Habit Checkins), the empty state should prompt connecting *first*; manual entry is the fallback, not the happy path.
+Where a product's primary onramp is connecting external data sources, any domain that can be populated from an integration should prompt connecting *first*; manual entry is the fallback, not the happy path.
 
 Good:
-> No tasks yet. **Connect Todoist** to pull yours in, or create one manually.
+> No items yet. **Connect a source** to pull yours in, or create one manually.
 
 Bad:
-> Click + to add your first task.
+> Click + to add your first item.
 
 ### 3. Tone: encouraging, not chirpy
 
-PA is warm but not playful. Don't use exclamation marks. Don't apologize ("Oops, nothing here!"). State the fact, then offer the path.
+The voice is warm but not playful. Don't use exclamation marks. Don't apologize ("Oops, nothing here!"). State the fact, then offer the path.
 
 ## Loading states
 
@@ -74,11 +74,7 @@ PA is warm but not playful. Don't use exclamation marks. Don't apologize ("Oops,
 
 For the first paint of a data view, render skeletons that match the eventual layout. The user shouldn't see the page jump from "nothing" → "everything." Skeletons preserve layout stability.
 
-Convention: each component that has a meaningful loading state ships a sibling skeleton file. Existing examples in the codebase:
-
-- `packages/web/src/modules/activity/components/ActivityStream/ActivityStream.skeleton.tsx`
-- `packages/web/src/modules/assist/components/ThreadList.skeleton.tsx`
-- `packages/web/src/modules/automations/pages/AutomationsPage/AutomationsPage.skeleton.tsx`
+Convention: each component that has a meaningful loading state ships a sibling skeleton file next to it — `ItemStream.tsx` and `ItemStream.skeleton.tsx`, `ThingsPage.tsx` and `ThingsPage.skeleton.tsx`.
 
 Use the `Skeleton` primitive for the shimmer blocks. Match the row count to a believable default (5–10 rows for streams).
 
@@ -86,7 +82,7 @@ Use the `Skeleton` primitive for the shimmer blocks. Match the row count to a be
 
 When an already-rendered list fetches the next page, show a small inline spinner at the bottom. Don't replace rendered content with a skeleton.
 
-Pattern, from `packages/web/src/components/InfiniteList.tsx`:
+Pattern, for an infinite list:
 
 ```tsx
 {isFetchingNextPage && (
@@ -118,7 +114,7 @@ If an action the user took failed (delete, update, etc.), the page itself is fin
 Tell the user what failed and what they can do.
 
 Good:
-> Couldn't load tasks. [Retry]
+> Couldn't load items. [Retry]
 
 Bad:
 > Oops! Something went wrong.

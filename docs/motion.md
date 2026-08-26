@@ -1,8 +1,8 @@
 # Motion
 
-Builder reference for animation and motion in PA. Minimal by principle; when motion appears, it has a job.
+Builder reference for animation and motion. Minimal by principle; when motion appears, it has a job.
 
-PA isn't an animation-heavy product. The goal isn't to add motion — it's to use motion *only* where it conveys causality. Animation that doesn't explain something is decoration, and decoration belongs elsewhere.
+This isn't an animation-heavy system. The goal isn't to add motion — it's to use motion *only* where it conveys causality. Animation that doesn't explain something is decoration, and decoration belongs elsewhere.
 
 ## When motion applies
 
@@ -10,13 +10,13 @@ Motion has a job in three places:
 
 1. **State transitions** — hover, focus, open/close, expand/collapse. The animation conveys *something just changed*.
 2. **Causality** — a click produces a visible effect; the animation links cause to effect (the toast that slides in *because* you triggered an action).
-3. **Layout continuity** — the same element moves to a new position; the animation preserves identity (rare in PA today).
+3. **Layout continuity** — the same element moves to a new position; the animation preserves identity (rare today).
 
 If a proposed animation doesn't fit one of those, it's decoration. Don't add it.
 
 ## Default vocabulary
 
-PA uses a small set of motion primitives via Tailwind utilities and the `transition` family.
+The system uses a small set of motion primitives via Tailwind utilities and the `transition` family.
 
 ### Duration
 
@@ -31,7 +31,7 @@ Avoid durations over 300ms — they feel sluggish. Avoid under 75ms — they fee
 
 ### Easing
 
-PA uses the default `transition` easing (`ease`) for most animations. When something needs deliberate easing:
+The default `transition` easing (`ease`) covers most animations. When something needs deliberate easing:
 
 - `ease-in-out` — modal/sheet open + close
 - `ease-out` — toast slide-in (decelerates as it arrives)
@@ -67,9 +67,9 @@ Beyond `transition`, the design system defines a small named-animation vocabular
 | `animate-slide-left-in` | translateX −100% → 0 | 200ms ease-out forwards |
 | `animate-slide-left-out` | translateX 0 → −100% | 200ms ease-out forwards |
 
-Every animation uses `ease-out forwards`: the element decelerates as it arrives and holds its end state. The slide axes match where a surface lives — `slide-up` for bottom sheets, `slide-right`/`slide-left` for side panels. **There is no `slide-down`**: nothing in PA enters from the top edge, so the keyframe was never defined. Add it to the config first if a top-anchored surface ever needs it; don't fake it with negative `slide-up`. Only the fade pair has `-slow` variants (for backdrops that should lag slightly behind their panel); the slide pairs do not.
+Every animation uses `ease-out forwards`: the element decelerates as it arrives and holds its end state. The slide axes match where a surface lives — `slide-up` for bottom sheets, `slide-right`/`slide-left` for side panels. **There is no `slide-down`**: nothing enters from the top edge, so the keyframe was never defined. Add it to the config first if a top-anchored surface ever needs it; don't fake it with negative `slide-up`. Only the fade pair has `-slow` variants (for backdrops that should lag slightly behind their panel); the slide pairs do not.
 
-In practice the most-used animations are Tailwind's built-in `animate-spin` (spinners) and `animate-pulse` (skeletons); the fade/slide pairs above are PA's custom set and are consumed almost entirely by overlay primitives.
+In practice the most-used animations are Tailwind's built-in `animate-spin` (spinners) and `animate-pulse` (skeletons); the fade/slide pairs above are the custom set and are consumed almost entirely by overlay primitives.
 
 ## Where motion is built in
 
@@ -87,22 +87,22 @@ Buttons, inputs, links handle hover/focus via `transition-colors` baked in.
 ## Motion anti-patterns
 
 - **Decorative entrance animations.** Page elements fading in on load. Don't.
-- **Bouncing or springy easing.** PA isn't playful. No spring physics, no overshoot.
-- **Parallax, scroll-driven animation.** Not PA's voice.
+- **Bouncing or springy easing.** The voice isn't playful. No spring physics, no overshoot.
+- **Parallax, scroll-driven animation.** Not the voice.
 - **Animations longer than 300ms.** Slow animations feel laggy, especially repeated ones.
 - **Animations that block input.** A modal open animation shouldn't make the close button un-clickable during the transition.
-- **Auto-playing carousels or rotating banners.** PA doesn't market to its user.
+- **Auto-playing carousels or rotating banners.** The UI doesn't market to its user.
 - **Hover states on touch devices.** Use `@media (hover: hover)` or the form-factor hook to gate hover-only affordances.
 
 ## Reduced motion
 
-PA honors `prefers-reduced-motion` globally, not per component. A base-layer rule in [`src/theme/tokens.css`](../src/theme/tokens.css) emits a `@media (prefers-reduced-motion: reduce)` block that pins `animation-duration` and `transition-duration` to `0.01ms !important` and `animation-iteration-count` to `1` for every element (`*, *::before, *::after`).
+The system honors `prefers-reduced-motion` globally, not per component. A base-layer rule in [`src/theme/tokens.css`](../src/theme/tokens.css) emits a `@media (prefers-reduced-motion: reduce)` block that pins `animation-duration` and `transition-duration` to `0.01ms !important` and `animation-iteration-count` to `1` for every element (`*, *::before, *::after`).
 
 This means the named animations and `transition` utilities above effectively snap to their end state for users who ask for reduced motion — including continuous animations like `animate-spin` and `animate-pulse`, which stop after one iteration. Nothing per-component is required; don't re-implement the check at the call site.
 
 ## Open questions
 
-- **List re-order animations.** When a row changes position (e.g., a task completes and moves to the completed band), should the move animate? Current behavior: instant. Probably should animate gently (150–200ms) for continuity.
+- **List re-order animations.** When a row changes position (e.g., an item completes and moves to the completed band), should the move animate? Current behavior: instant. Probably should animate gently (150–200ms) for continuity.
 - **Page transitions.** Currently none. If/when added (probably never), they'd need their own duration and easing.
 
 ## Related

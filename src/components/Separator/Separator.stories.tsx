@@ -23,14 +23,14 @@ export const Horizontal: Story = {
   render: () => (
     <div className="w-64">
       <div className="space-y-1">
-        <h4 className="font-medium text-sm leading-none">Personal Assistant</h4>
-        <p className="text-fg-subtle text-sm">Connect the dots of you.</p>
+        <h4 className="font-medium text-sm leading-none">Design System</h4>
+        <p className="text-fg-subtle text-sm">Tokens, themes, and components.</p>
       </div>
       <Separator className="my-4" />
       <div className="flex h-5 items-center space-x-4 text-sm">
-        <div>Dashboard</div>
+        <div>Overview</div>
         <Separator orientation="vertical" />
-        <div>Tasks</div>
+        <div>Components</div>
         <Separator orientation="vertical" />
         <div>Settings</div>
       </div>

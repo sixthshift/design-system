@@ -196,7 +196,7 @@ describe("Real-world: Task due dates (TaskItem.tsx)", () => {
   });
 });
 
-describe("Real-world: Habits tracking (Now.utils.ts)", () => {
+describe("Real-world: streak tracking", () => {
   test("generate past week dates", () => {
     const todayDate = today();
     const pastWeek: string[] = [];
@@ -216,7 +216,7 @@ describe("Real-world: Habits tracking (Now.utils.ts)", () => {
     expect(pastWeek[0]).toBe(serialize(subtractDays(todayDate, 6)));
   });
 
-  test("check if habit was completed today", () => {
+  test("check if the streak was completed today", () => {
     const todayDate = today();
     expect(isToday(todayDate)).toBe(true);
 

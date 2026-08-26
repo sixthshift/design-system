@@ -1,8 +1,8 @@
 # Density Modes
 
-Builder reference for choosing density on a PA page. Three modes: Read, Scan, Browse. Pick one per page.
+Builder reference for choosing density on a page. Three modes: Read, Scan, Browse. Pick one per page.
 
-PA has three implicit density tiers; this doc formalizes them with concrete rules so a builder can pick decisively. The mode shapes padding, line-height, row height, and how much information appears per viewport.
+There are three implicit density tiers; this doc formalizes them with concrete rules so a builder can pick decisively. The mode shapes padding, line-height, row height, and how much information appears per viewport.
 
 ## The three modes
 
@@ -16,7 +16,7 @@ Pick one per **page**, not per section. A page in two modes is two pages.
 
 ## Read density
 
-For: Detail pages (TaskDetail, PersonDetail), modals, the Now view, anywhere the user is *focusing on one thing*.
+For: Detail pages, modals, focus views, anywhere the user is *focusing on one thing*.
 
 ### Concrete rules
 
@@ -28,11 +28,11 @@ For: Detail pages (TaskDetail, PersonDetail), modals, the Now view, anywhere the
 - **Items per viewport**: ~5–10 distinct elements
 
 ### Example
-The Person Detail page (`packages/web/src/modules/library/people/pages/PersonDetailPage.tsx`) uses Read density: title at `text-2xl`, generous `gap-6` between sections, fields stacked with comfortable padding.
+A detail page in Read density: title at `text-2xl`, generous `gap-6` between sections, fields stacked with comfortable padding.
 
 ## Scan density
 
-For: Index pages (People, Notes, Tasks), Library, dashboards. The user is *moving through items* but reading some.
+For: Index pages, libraries, dashboards. The user is *moving through items* but reading some.
 
 ### Concrete rules
 
@@ -45,7 +45,7 @@ For: Index pages (People, Notes, Tasks), Library, dashboards. The user is *movin
 - **Items per viewport**: ~15–25 rows
 
 ### Example
-The People page (`packages/web/src/modules/library/people/pages/PeoplePage/PeoplePage.tsx`) uses Scan density: rows with `py-1.5` padding, `gap-6` between active/reach-out/quiet bands, relationships and recency as quiet right-aligned labels.
+An index page in Scan density: rows with `py-1.5` padding, `gap-6` between status bands, secondary metadata and recency as quiet right-aligned labels.
 
 ## Browse density
 
@@ -61,7 +61,7 @@ For: A–Z directories, large search-result lists, terminology references. The u
 - **Typography**: small (`text-sm` or `text-xs`)
 
 ### Example
-None yet in PA. When the People directory grows past ~100 entries and lens-stream becomes inefficient, a Browse-density "All People A–Z" view would be the right answer.
+No example yet. When a directory index grows past ~100 entries and lens-stream browsing becomes inefficient, a Browse-density "All items A–Z" view is the right answer.
 
 ## Mixing modes — the anti-pattern
 
@@ -90,7 +90,7 @@ A short decision tree:
    - Medium (skimming, sometimes stopping) → Scan
    - Shallow (lookup, click through) → Browse
 
-When in doubt, prefer the next mode *down* in density. Lighter pages read better than crammed ones; PA's pillar is calm power.
+When in doubt, prefer the next mode *down* in density. Lighter pages read better than crammed ones; the pillar is calm power.
 
 ## Related
 

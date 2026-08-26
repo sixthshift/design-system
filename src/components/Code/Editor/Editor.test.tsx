@@ -167,13 +167,13 @@ describe("Editor", () => {
     it("uses the light Monaco theme when resolvedTheme is light", () => {
       themeState.resolvedTheme = "light";
       render(<Editor value="" onChange={() => {}} />);
-      expect(capturedProps?.theme).toBe("pa-light");
+      expect(capturedProps?.theme).toBe("ds-light");
     });
 
     it("uses the dark Monaco theme when resolvedTheme is dark", () => {
       themeState.resolvedTheme = "dark";
       render(<Editor value="" onChange={() => {}} />);
-      expect(capturedProps?.theme).toBe("pa-dark");
+      expect(capturedProps?.theme).toBe("ds-dark");
     });
   });
 
@@ -183,7 +183,7 @@ describe("Editor", () => {
       const { monaco, definedThemes } = createFakeMonaco();
       capturedProps?.beforeMount(monaco);
 
-      expect(Object.keys(definedThemes)).toEqual(["pa-light", "pa-dark"]);
+      expect(Object.keys(definedThemes)).toEqual(["ds-light", "ds-dark"]);
     });
 
     it("registers a semantic tokens provider for typescript and javascript exactly once", () => {

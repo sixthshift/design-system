@@ -16,11 +16,11 @@ type Story = StoryObj<typeof BarChart>;
 export const Default: Story = {
   args: {
     data: [
-      { label: "Tasks", value: 12 },
-      { label: "Habits", value: 14 },
+      { label: "Documents", value: 12 },
+      { label: "Projects", value: 14 },
       { label: "Events", value: 6 },
-      { label: "Notes", value: 4 },
-      { label: "People", value: 2 },
+      { label: "Comments", value: 4 },
+      { label: "Members", value: 2 },
     ],
   },
 };

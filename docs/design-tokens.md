@@ -1,10 +1,10 @@
 # Design Tokens
 
-Design tokens, component patterns, and styling architecture for Personal Assistant.
+Design tokens, component patterns, and styling architecture for the design system.
 
 ## Overview
 
-The PA design system is built on:
+The design system is built on:
 
 - **`src/theme/tokens.css`**: Source of truth for color tokens
 - **CSS Variables**: Runtime theming with light/dark modes

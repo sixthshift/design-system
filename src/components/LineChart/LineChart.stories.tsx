@@ -15,27 +15,27 @@ type Story = StoryObj<typeof LineChart>;
 
 const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const taskData = weekdays.map((label, i) => ({
+const sessionsData = weekdays.map((label, i) => ({
   label,
   value: [5, 8, 3, 12, 7, 2, 9][i]!,
 }));
 
-const habitData = weekdays.map((label, i) => ({
+const signupsData = weekdays.map((label, i) => ({
   label,
   value: [3, 4, 2, 5, 4, 1, 3][i]!,
 }));
 
 export const Default: Story = {
   args: {
-    series: [{ data: taskData, name: "Tasks" }],
+    series: [{ data: sessionsData, name: "Sessions" }],
   },
 };
 
 export const MultipleSeries: Story = {
   args: {
     series: [
-      { data: taskData, name: "Tasks" },
-      { data: habitData, name: "Habits" },
+      { data: sessionsData, name: "Sessions" },
+      { data: signupsData, name: "Signups" },
     ],
     height: 240,
   },
@@ -43,7 +43,7 @@ export const MultipleSeries: Story = {
 
 export const WithArea: Story = {
   args: {
-    series: [{ data: taskData, name: "Tasks" }],
+    series: [{ data: sessionsData, name: "Sessions" }],
     fillArea: true,
     height: 200,
   },
@@ -51,7 +51,7 @@ export const WithArea: Story = {
 
 export const WithValues: Story = {
   args: {
-    series: [{ data: taskData, name: "Tasks" }],
+    series: [{ data: sessionsData, name: "Sessions" }],
     showValues: true,
     height: 220,
   },
@@ -59,28 +59,28 @@ export const WithValues: Story = {
 
 export const Linear: Story = {
   args: {
-    series: [{ data: taskData, name: "Tasks" }],
+    series: [{ data: sessionsData, name: "Sessions" }],
     interpolation: "linear",
   },
 };
 
 export const StepAfter: Story = {
   args: {
-    series: [{ data: taskData, name: "Tasks" }],
+    series: [{ data: sessionsData, name: "Sessions" }],
     interpolation: "stepAfter",
   },
 };
 
 export const StepBefore: Story = {
   args: {
-    series: [{ data: taskData, name: "Tasks" }],
+    series: [{ data: sessionsData, name: "Sessions" }],
     interpolation: "stepBefore",
   },
 };
 
 export const MinimalNoAxes: Story = {
   args: {
-    series: [{ data: taskData, name: "Tasks" }],
+    series: [{ data: sessionsData, name: "Sessions" }],
     showAxes: false,
     showGrid: false,
     showLabels: false,
@@ -107,15 +107,15 @@ export const TemperatureChart: Story = {
 export const CustomColors: Story = {
   args: {
     series: [
-      { data: taskData, name: "Tasks", color: "var(--fg-danger)" },
-      { data: habitData, name: "Habits", color: "var(--fg-success)" },
+      { data: sessionsData, name: "Sessions", color: "var(--fg-danger)" },
+      { data: signupsData, name: "Signups", color: "var(--fg-success)" },
     ],
   },
 };
 
 export const WithTooltip: Story = {
   args: {
-    series: [{ data: taskData, name: "Tasks" }],
+    series: [{ data: sessionsData, name: "Sessions" }],
     showTooltip: true,
   },
 };
@@ -123,8 +123,8 @@ export const WithTooltip: Story = {
 export const WithTooltipMultiSeries: Story = {
   args: {
     series: [
-      { data: taskData, name: "Tasks" },
-      { data: habitData, name: "Habits" },
+      { data: sessionsData, name: "Sessions" },
+      { data: signupsData, name: "Signups" },
     ],
     showTooltip: true,
     height: 240,

@@ -90,7 +90,7 @@ const Comp = asChild ? Slot : "button";
 
 `Slot` (`internal/Slot.tsx`) clones the single child and merges props onto it — composing event handlers (`childValue` then `parentValue`), concatenating `className`, shallow-merging `style`, and merging refs (`Slot.tsx:21-50`).
 
-**Use the in-house `Slot`, not Radix's.** It's ~75 lines with no dependency, and PA's merge semantics are deliberate (handler order, className concat). Pulling in `@radix-ui/react-slot` would add a dependency for behavior already owned here, and would couple the override semantics to an external package's choices.
+**Use the in-house `Slot`, not Radix's.** It's ~75 lines with no dependency, and the in-house merge semantics are deliberate (handler order, className concat). Pulling in `@radix-ui/react-slot` would add a dependency for behavior already owned here, and would couple the override semantics to an external package's choices.
 
 **`as?` + a typed element union** — for text/display primitives where polymorphism means "render a different tag," not "become the child":
 

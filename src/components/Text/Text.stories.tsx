@@ -95,11 +95,11 @@ export const ArticleExample: Story = {
       <Heading as="h1">Getting Started</Heading>
       <Text className="text-fg-subtle">Published December 15, 2025</Text>
       <Text>
-        Personal Assistant is a self-hosted life management platform. Unlike cloud services, your data stays on your own server, giving you complete control and
-        privacy.
+        This design system ships tokens, a theme pipeline, and a React component library. Install it as a versioned dependency and configure it through the theme
+        surface.
       </Text>
       <Heading as="h2">Installation</Heading>
-      <Text>Getting started is easy. You can run PA using Docker or install it directly on your server.</Text>
+      <Text>Getting started is easy. Install the package from npm, then import the components you need via their subpaths.</Text>
       <Heading as="h3">Using Docker</Heading>
       <Text className="text-fg-subtle text-sm">Docker is the recommended method for most users.</Text>
     </article>

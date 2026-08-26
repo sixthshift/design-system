@@ -2,11 +2,11 @@
 
 Visual hierarchy is the practice of expressing structure, importance, and grouping through visual cues — not through labels or chrome. Several distinct "axes" can carry that load, and a coherent design language picks which axis is doing what.
 
-This doc names PA's axes, states which ones are formalized, and goes deep on the surface system (the most load-bearing axis for index pages).
+This doc names the axes, states which ones are formalized, and goes deep on the surface system (the most load-bearing axis for index pages).
 
 ## The axes
 
-| Axis | Expresses | PA tools | Codified? |
+| Axis | Expresses | Tools | Codified? |
 |---|---|---|---|
 | **Spatial** | Grouping, flow, relationships | Position, alignment, proximity, whitespace | Partially — `max-w-3xl` centered for index pages, `gap-*` for vertical rhythm |
 | **Depth** | Containment, lift, layering | Surfaces, elevation, tonal contrast, shadow | Yes — see [Surface system](#the-surface-system) |
@@ -21,7 +21,7 @@ Two axes are load-bearing on most pages: **depth** (this surface holds data) and
 
 ### Two levels, no more
 
-PA uses **exactly two surface levels**:
+The system uses **exactly two surface levels**:
 
 | Level | Background | Border | Shadow | Used for |
 |---|---|---|---|---|
@@ -32,7 +32,7 @@ Modals are not a third level; they're an overlay primitive with their own elevat
 
 ### Why two and not more
 
-More levels create ambiguity ("is this level 2 or level 3?") and force the eye to parse depth gradations that don't carry meaning. Two levels are sufficient for PA's job — index pages and detail pages — and they read confidently:
+More levels create ambiguity ("is this level 2 or level 3?") and force the eye to parse depth gradations that don't carry meaning. Two levels are sufficient for the job — index pages and detail pages — and they read confidently:
 
 - **Brighter on duller** signals containment.
 - **Bordered + lifted** confirms it.
@@ -65,7 +65,7 @@ Together they read as a z-axis shift.
 
 ## Typographic ramp
 
-PA's text primitives encode a ramp; importance is expressed by position in the ramp, not by ad-hoc weight/size changes.
+The text primitives encode a ramp; importance is expressed by position in the ramp, not by ad-hoc weight/size changes.
 
 | Primitive | Role |
 |---|---|
@@ -92,19 +92,19 @@ Color is *not* used to express containment (use depth) or importance (use typogr
 
 ## Density (informal)
 
-PA has three implicit density modes; they're not formalized but worth naming so we agree when we're choosing:
+There are three implicit density modes; they're not formalized but worth naming so we agree when we're choosing:
 
 | Mode | When | Look |
 |---|---|---|
 | **Read** | Detail pages, modals, focused reading | Spacious. Generous padding, body line-height, one focus per viewport |
-| **Scan** | Index streams (People, Notes, Tasks) | Medium. Tight rows, breathing whitespace bands between groups |
+| **Scan** | Index streams | Medium. Tight rows, breathing whitespace bands between groups |
 | **Browse** | Directories, A–Z lists, search results | Dense. Single-line rows, minimal padding, optimized for vertical scanning |
 
 A page should pick one. Mixing them on the same surface (e.g. a "Read"-style card next to "Browse"-style rows) creates the rhythm jolt that makes pages feel clunky.
 
 ## Motion
 
-PA uses minimal motion by principle:
+The system uses minimal motion by principle:
 
 - **State transitions** (hover, focus, open/close) — short, eased, just enough to convey causality.
 - **Page transitions** — none. Navigation is instant.
@@ -127,7 +127,7 @@ When deciding how to express something visually:
 
 When two axes could express the same thing, **prefer the quieter one**. Color is loud; reserve it. Depth is medium; use it for containment. Typography and whitespace are quiet; lean on them.
 
-## Examples in PA
+## Examples
 
 ### Library landing
 - Base: page body with title text on `bg-bg-subtle`
@@ -135,11 +135,11 @@ When two axes could express the same thing, **prefer the quieter one**. Color is
 - Type ramp: `Heading` for "Library", `Subtitle` for description, `Emphasis` for tile titles, `Muted` for tile descriptions
 - Density: Read (browsing tiles, one at a time)
 
-### Library / People (index)
+### Index page
 - Base: page header (title, insight strip, search, actions) on `bg-bg-subtle`
-- Elevated: one `Card` containing the lens chips + person stream
-- Type ramp: `Heading` for title, `Subtitle` for insight strip, body for names, `Muted` for relationship/recency
-- Density: Scan (rows with breathing whitespace between active/reach-out/quiet bands)
+- Elevated: one `Card` containing the lens chips + item stream
+- Type ramp: `Heading` for title, `Subtitle` for insight strip, body for item titles, `Muted` for secondary metadata and recency
+- Density: Scan (rows with breathing whitespace between status bands)
 
 ### Modals
 - Use the `Modal` primitive's built-in elevation (don't roll your own elevated surface for modal content)

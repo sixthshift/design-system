@@ -51,7 +51,7 @@ Animations are defined once. `animate-fade-in/out` (Modal overlay + desktop moda
 
 ## OverlayContext responsibilities
 
-`OverlayProvider` is mounted once at the app root with the two portal targets (`packages/web/src/main.tsx:36`):
+`OverlayProvider` is mounted once at the app root with the two portal targets:
 
 ```tsx
 const modalRoot = document.getElementById("modal-root");

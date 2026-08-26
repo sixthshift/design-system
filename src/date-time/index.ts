@@ -315,7 +315,6 @@ export {
 //     until: dateRange?.to ? serialize(dateRange.to) : undefined,
 //   };
 //
-// See: packages/web/src/api/activity-log/useActivityLog.ts for reference implementation
 // =============================================================================
 
 // =============================================================================

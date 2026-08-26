@@ -24,6 +24,10 @@ npm install @sixthshift/design-system
 @import "@sixthshift/design-system/theme.css";
 ```
 
+That second line is opinionated: it replaces Tailwind's default palette with this
+system's tokens and takes over a few globals. See
+[what the theme takes over](#what-the-theme-takes-over) before adopting it.
+
 ```tsx
 // anywhere — components via subpath exports (no barrel root)
 import { Button } from "@sixthshift/design-system/button";
@@ -37,7 +41,7 @@ TypeScript sources are published too, but only as the target of the declaration 
 
 ### Peer dependencies
 
-`react` and `react-dom` are the only required peers, at **18 or 19**. CI runs the type-check and the full unit suite against both on every change, so the range is verified rather than merely declared.
+`react`, `react-dom` and `tailwindcss` are the required peers — React at **18 or 19**, Tailwind at **4**. CI runs the type-check and the full unit suite against both React versions on every change, so that range is verified rather than merely declared.
 
 Everything else is an **optional** peer — install it only if you import the entry point that needs it. Nothing else in the library imports them, and package managers do not warn about a missing optional peer.
 
@@ -199,6 +203,32 @@ detection already covers `node_modules` imports. There is no preset, no
 **Tailwind 4 is required, not optional.** Every component is a set of Tailwind
 classes, so without it they render unstyled. That is why `tailwindcss` is a
 non-optional peer dependency.
+
+### What the theme takes over
+
+This is a design system, not a component grab-bag: importing `theme.css` adopts
+its opinions across your whole app, not just inside its components. All of it is
+deliberate, and all of it is worth knowing before you commit.
+
+| What | Effect on your app |
+| --- | --- |
+| **Tailwind's default palette is removed** | `bg-red-500`, `text-gray-700`, `border-gray-200` and the rest stop compiling — in your own markup too. What remains is this system's tokens (`bg-bg-brand`, `text-fg-subtle`, `border-border-normal`, …) plus `white`, `black`, `transparent` and `current`. A colour that was never designed should not be one class away. |
+| **`dark:` means `[data-theme="dark"]`** | Not `prefers-color-scheme`. Theming here is a runtime attribute swap, so every `dark:` utility in your app follows the attribute instead of the OS setting. |
+| **`font-sans` and `font-mono`** | Resolve to Inter Variable and JetBrains Mono. Install the [font peers](#fonts) or the stacks fall through to the system defaults. |
+| **Three global rules** | `*` gets `border-color: var(--border-normal)`, so a bare `border` is the token colour rather than `currentColor`; `:focus-visible` gets the system focus ring; and under `prefers-reduced-motion` every animation and transition is pinned to `0.01ms`. These apply to your elements as well as ours. |
+| **`--color-{emerald,sky,slate}-*`** | 33 variable names shared with Tailwind's palette hold this system's values. Only reachable if you read the variables directly in your own CSS. |
+
+If you want a specific stock colour back, re-declare it in your own `@theme`
+block after the import — everything you do not name stays gone:
+
+```css
+@import "tailwindcss";
+@import "@sixthshift/design-system/theme.css";
+
+@theme {
+  --color-red-500: oklch(63.7% 0.237 25.331);
+}
+```
 
 ## Development
 

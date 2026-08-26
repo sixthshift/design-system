@@ -2,17 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Dev: All",
-      "dependsOn": ["Dev: UI", "Dev: Storybook"],
-      "dependsOrder": "parallel",
-      "problemMatcher": [],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
-    },
-    {
-      "label": "Dev: UI",
+      "label": "Dev: Storybook",
       "type": "shell",
       "command": "bun",
       "args": ["run", "dev"],
@@ -21,19 +11,11 @@
         "panel": "dedicated"
       },
       "isBackground": true,
-      "problemMatcher": []
-    },
-    {
-      "label": "Dev: Storybook",
-      "type": "shell",
-      "command": "bun",
-      "args": ["run", "storybook"],
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated"
-      },
-      "isBackground": true,
-      "problemMatcher": []
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     }
   ]
 }

@@ -234,7 +234,7 @@ block after the import — everything you do not name stays gone:
 
 ```bash
 bun install          # `prepare` builds JS, types and styles into dist/
-bun run storybook    # component workbench on :6006
+bun run dev          # component workbench on :6006
 bun run test         # unit + date-time tests
 bun run type-check   # tsc --noEmit (src and tests)
 bun run check        # biome lint + format

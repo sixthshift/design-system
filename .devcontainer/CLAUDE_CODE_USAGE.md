@@ -33,7 +33,7 @@ clauded      # claude --dangerously-skip-permissions (alias)
 
 ## Project specifics
 
-- **Storybook** on port 6006 (`bun run storybook`) — forwarded to the host. Main dev surface for the component library.
+- **Storybook** on port 6006 (`bun run dev`) — forwarded to the host. Main dev surface for the component library.
 - **Tests** run under vitest with a browser-mode project (`@vitest/browser-playwright`). Playwright's chromium is **not** baked into the image — run `bunx playwright install --with-deps chromium` inside the container if you need the browser suite. Unit tests (`bun run test`) work without it.
 - No database or Docker sidecars — this is a pure library/monorepo build.
 

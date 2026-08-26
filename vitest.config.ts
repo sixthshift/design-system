@@ -23,9 +23,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: "unit",
-          // scripts/ is build tooling, but next-version.ts decides published
-          // version numbers, so it is covered here too.
-          include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
+          include: ["src/**/*.test.{ts,tsx}"],
           // *.visual.test.tsx also ends in .test.tsx — it belongs to the
           // browser-mode "visual" project, not here.
           exclude: [...configDefaults.exclude, "src/date-time/**", "src/**/*.visual.test.tsx"],

@@ -153,9 +153,9 @@ src/
 
 Semver via git tags (`v0.1.0`, ...). Component props **and token names** are public API — renaming a token is a breaking change.
 
-Versioning is automatic. Every push to `main` that passes CI is read for
-[Conventional Commit](https://www.conventionalcommits.org) subjects, and a bot
-commits the version bump, tags it, and publishes:
+Versioning and releasing are automatic, driven by
+[Conventional Commit](https://www.conventionalcommits.org) subjects and handled
+by [release-please](https://github.com/googleapis/release-please).
 
 | Commit | Bump |
 | --- | --- |
@@ -165,21 +165,27 @@ commits the version bump, tags it, and publishes:
 | `chore:`, `ci:`, `docs:`, `test:`, `refactor:`, `style:`, `build:` | no release |
 
 Below `1.0.0` a breaking change moves the **minor** rather than declaring
-`1.0.0` — going stable stays a deliberate, manual act. The rules live in
-`scripts/next-version.ts` and are unit-tested; preview what the next release
-would be with:
+`1.0.0` — going stable stays a deliberate act (`bump-minor-pre-major` in
+`release-please-config.json`).
 
-```bash
-bun run scripts/next-version.ts --explain
-```
-
-Releases are published from CI, not a laptop, so every tarball carries npm
+Each push to `main` updates a release pull request carrying the version bump and
+the `CHANGELOG.md` entry. That PR is merged automatically, which cuts the tag,
+publishes the GitHub Release, and publishes to npm with
 [provenance](https://docs.npmjs.com/generating-provenance-statements) — a
-verifiable link back to the commit and workflow that built it.
+verifiable link from the tarball back to the commit and workflow that built it.
 
-Publishing needs an `NPM_TOKEN` repository secret (an npm **automation** token,
-so it works with 2FA enabled). Tagging by hand still works and goes through the
-same publish path:
+Only `feat`, `fix`, `perf` and `revert` appear in the changelog; the rest are
+released silently or not at all. A user-visible change therefore needs a
+user-visible type — a rename dressed up as `refactor:` will not be announced.
+
+Two repository secrets are required:
+
+| Secret | Why |
+| --- | --- |
+| `NPM_TOKEN` | Publishing. Must be an npm **automation** token, so it works with 2FA. |
+| `RELEASE_PLEASE_TOKEN` | A fine-grained PAT with contents + pull-requests write. GitHub suppresses workflow runs for events caused by `GITHUB_TOKEN`, so auto-merging with it would merge the release PR and never trigger the release. |
+
+Tagging by hand still works and goes through the same publish path:
 
 ```bash
 git tag v0.2.0 && git push origin v0.2.0

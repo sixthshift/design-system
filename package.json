@@ -30,6 +30,7 @@
     "src",
     "dist",
     "tailwind.config.ts",
+    "CHANGELOG.md",
     "!src/**/*.test.ts",
     "!src/**/*.test.tsx",
     "!src/**/__tests__",

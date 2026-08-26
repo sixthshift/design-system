@@ -1,0 +1,73 @@
+# Versioning and releasing, driven by Conventional Commits.
+#
+# On each push to main, release-please maintains a release PR carrying the
+# version bump and the CHANGELOG entry. Because this is a solo project the PR is
+# merged automatically; merging it triggers this workflow again, at which point
+# release-please cuts the tag and GitHub Release and the publish job runs.
+name: Release Please
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    name: Maintain the release PR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      prs_created: ${{ steps.release.outputs.prs_created }}
+      pr: ${{ steps.release.outputs.pr }}
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      # A PAT rather than GITHUB_TOKEN, and this is the whole reason one is
+      # needed: GitHub deliberately suppresses workflow runs for events caused
+      # by GITHUB_TOKEN. The auto-merge below has to produce a push that
+      # triggers this workflow a second time, otherwise the release PR merges
+      # and nothing is ever tagged or published.
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      # Solo project, so no review gate is wanted. --auto defers to required
+      # status checks where branch protection defines them; without protection
+      # rules GitHub rejects --auto, so fall back to merging directly. Either
+      # way the merge is attributed to the PAT and re-triggers this workflow.
+      - name: Auto-merge the release PR
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          PR_NUMBER: ${{ fromJson(steps.release.outputs.pr).number }}
+        run: |
+          echo "Merging release PR #$PR_NUMBER"
+          gh pr merge "$PR_NUMBER" --squash --auto \
+            || gh pr merge "$PR_NUMBER" --squash
+
+  publish:
+    name: Publish
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    # A reusable workflow cannot hold more permission than the job calling it,
+    # so id-token must be granted here or --provenance fails inside release.yml.
+    permissions:
+      contents: read
+      id-token: write
+    # The same publish definition a hand-pushed tag goes through, so there is
+    # one path rather than two that can drift apart.
+    uses: ./.github/workflows/release.yml
+    with:
+      ref: ${{ needs.release-please.outputs.tag_name }}
+    secrets: inherit

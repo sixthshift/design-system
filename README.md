@@ -78,7 +78,7 @@ import { FormField } from "@sixthshift/design-system/form-field";
 // Charts (LineChart, BarChart, Sparkline, HeatMap)
 import { LineChart } from "@sixthshift/design-system/line-chart";
 
-// Pickers (Calendar, DatePicker, TimePicker, DateTimePicker, DateTimeRangePicker)
+// Pickers (Calendar, DatePicker, TimePicker, DateTimePicker, DateRangePicker, DateTimeRangePicker)
 // — all values are ISO 8601 strings, never date objects
 import { DatePicker } from "@sixthshift/design-system/date-picker";
 
@@ -267,11 +267,14 @@ Two consequences worth knowing:
 - A renamed or removed export needs `feat!:` or a `BREAKING CHANGE:` footer.
   Filed as `refactor:` it cuts a patch, which understates it.
 
-One repository secret is required:
-
-| Secret | Why |
-| --- | --- |
-| `NPM_TOKEN` | Publishing. Must be an npm **automation** token, so it works with 2FA. |
+No repository secret is required. Publishing goes through npm trusted
+publishing (OIDC): GitHub Actions mints a short-lived token scoped to the run,
+npm exchanges it against the trusted publisher configured on the package, and
+provenance is attached automatically. There is nothing to leak and nothing to
+rotate. npm authorises the *calling* workflow rather than the one containing
+the publish step, so `version.yml` has to stay the sole entry point — see
+[`.github/workflows/release.yml`](.github/workflows/release.yml) for the
+detail.
 
 Tagging by hand still works and goes through the same publish path:
 

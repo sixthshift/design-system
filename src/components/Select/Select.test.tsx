@@ -363,6 +363,38 @@ describe("Select", () => {
     });
   });
 
+  describe("ref forwarding", () => {
+    it("forwards ref", () => {
+      const ref = vi.fn();
+      render(<Select ref={ref} value="apple" options={options} onValueChange={() => {}} />);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+    });
+
+    it("keeps the ref on an element when the searchable trigger replaces the button", async () => {
+      // The trigger swaps from a button variant to an input variant on open, so
+      // the ref detaches and reattaches. It must land on the new root, not go
+      // null and stay there.
+      const user = userEvent.setup();
+      const seen: (HTMLDivElement | null)[] = [];
+      render(<Select ref={(node) => seen.push(node)} value="apple" options={options} onValueChange={() => {}} searchable />);
+
+      await user.click(screen.getByRole("button"));
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+      expect(seen.at(-1)).toBeInstanceOf(HTMLDivElement);
+    });
+
+    it("does not steal the floating-ui reference from the searchable trigger", async () => {
+      // Both refs share one callback on that element; the dropdown can only
+      // position if floating-ui still sees the anchor.
+      const user = userEvent.setup();
+      const ref = vi.fn();
+      render(<Select ref={ref} value="apple" options={options} onValueChange={() => {}} searchable />);
+
+      await user.click(screen.getByRole("button"));
+      expect(screen.getByRole("listbox")).toBeInTheDocument();
+    });
+  });
+
   describe("searchable mode", () => {
     it("renders as button when closed", () => {
       render(<Select value="apple" options={options} onValueChange={() => {}} searchable />);

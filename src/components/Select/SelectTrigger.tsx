@@ -1,9 +1,12 @@
 import { cn } from "@sixthshift/design-system/utils";
 import { ChevronDown, X } from "lucide-react";
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, Ref } from "react";
+import type { WritableRefObject } from "../../internal/types";
 
 interface SelectTriggerButtonProps {
   setReference: (node: HTMLElement | null) => void;
+  /** Consumer ref from Select, attached to this trigger's root element. */
+  rootRef?: Ref<HTMLDivElement>;
   listboxId: string;
   open: boolean;
   disabled: boolean;
@@ -19,6 +22,7 @@ interface SelectTriggerButtonProps {
 
 export const SelectTriggerButton = ({
   setReference,
+  rootRef,
   listboxId,
   open,
   disabled,
@@ -37,7 +41,7 @@ export const SelectTriggerButton = ({
   const showClear = showClearButton && !collapsed;
 
   return (
-    <div className="relative w-full">
+    <div ref={rootRef} className="relative w-full">
       <button
         ref={setReference}
         type="button"
@@ -85,6 +89,8 @@ export const SelectTriggerButton = ({
 
 interface SelectTriggerSearchProps {
   setReference: (node: HTMLElement | null) => void;
+  /** Consumer ref from Select, attached to this trigger's root element. */
+  rootRef?: Ref<HTMLDivElement>;
   listboxId: string;
   inputRef: React.RefObject<HTMLInputElement | null>;
   searchValue: string;
@@ -98,6 +104,7 @@ interface SelectTriggerSearchProps {
 
 export const SelectTriggerSearch = ({
   setReference,
+  rootRef,
   listboxId,
   inputRef,
   searchValue,
@@ -108,7 +115,16 @@ export const SelectTriggerSearch = ({
   onSearchChange,
   props,
 }: SelectTriggerSearchProps) => (
-  <div ref={setReference} className={cn("relative flex w-full items-center", className)}>
+  // floating-ui anchors to this element and the consumer may also want it, so
+  // both refs run off one callback rather than one silently winning.
+  <div
+    ref={(node) => {
+      setReference(node);
+      if (typeof rootRef === "function") rootRef(node);
+      else if (rootRef) (rootRef as WritableRefObject<HTMLDivElement | null>).current = node;
+    }}
+    className={cn("relative flex w-full items-center", className)}
+  >
     <input
       ref={inputRef as React.RefObject<HTMLInputElement>}
       type="text"

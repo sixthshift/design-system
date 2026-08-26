@@ -1,6 +1,6 @@
 import { autoUpdate, flip, offset, shift, size, useFloating } from "@floating-ui/react";
 import { useControllableState } from "@sixthshift/design-system/hooks";
-import { type HTMLAttributes, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { forwardRef, type HTMLAttributes, type ReactElement, type Ref, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { SelectDropdown } from "./SelectDropdown";
 import { SelectTriggerButton, SelectTriggerSearch } from "./SelectTrigger";
 import { useSelectKeyboard } from "./useSelectKeyboard";
@@ -37,7 +37,13 @@ type SelectMultipleProps<T extends string = string> = SelectBaseProps<T> & {
 
 export type SelectProps<T extends string = string> = SelectSingleProps<T> | SelectMultipleProps<T>;
 
-export const Select = <T extends string = string>(props: SelectProps<T>) => {
+/**
+ * `forwardRef` erases the generic, so the implementation takes the ref as an
+ * ordinary second argument and the exported `Select` re-declares the generic
+ * signature over it. Consumers keep `Select<"a" | "b">` inference *and* get a
+ * ref; without the cast they would have to choose.
+ */
+const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(props: SelectProps<T>, rootRef: Ref<HTMLDivElement>) {
   const {
     options,
     onBlur,
@@ -241,6 +247,7 @@ export const Select = <T extends string = string>(props: SelectProps<T>) => {
       {searchable && open && !collapsed ? (
         <SelectTriggerSearch
           setReference={refs.setReference}
+          rootRef={rootRef}
           inputRef={inputRef}
           searchValue={searchValue}
           disabled={disabled}
@@ -254,6 +261,7 @@ export const Select = <T extends string = string>(props: SelectProps<T>) => {
       ) : (
         <SelectTriggerButton
           setReference={refs.setReference}
+          rootRef={rootRef}
           open={open}
           disabled={disabled}
           collapsed={collapsed}
@@ -286,4 +294,15 @@ export const Select = <T extends string = string>(props: SelectProps<T>) => {
       )}
     </>
   );
-};
+});
+
+SelectRoot.displayName = "Select";
+
+/**
+ * The trigger is the ref target: `register` from a form library and
+ * scroll-into-view both want it, and it is a `<div>` in both the button and the
+ * searchable variants. It does swap nodes when the searchable trigger replaces
+ * the button one, so a callback ref sees null and then the new element — normal
+ * for conditional rendering, but worth knowing if you cache the node.
+ */
+export const Select = SelectRoot as <T extends string = string>(props: SelectProps<T> & { ref?: Ref<HTMLDivElement> }) => ReactElement;

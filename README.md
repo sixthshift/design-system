@@ -153,20 +153,37 @@ src/
 
 Semver via git tags (`v0.1.0`, ...). Component props **and token names** are public API — renaming a token is a breaking change.
 
+Versioning is automatic. Every push to `main` that passes CI is read for
+[Conventional Commit](https://www.conventionalcommits.org) subjects, and a bot
+commits the version bump, tags it, and publishes:
+
+| Commit | Bump |
+| --- | --- |
+| `feat:` | minor |
+| `fix:`, `perf:` | patch |
+| `feat!:`, or a `BREAKING CHANGE:` footer | breaking |
+| `chore:`, `ci:`, `docs:`, `test:`, `refactor:`, `style:`, `build:` | no release |
+
+Below `1.0.0` a breaking change moves the **minor** rather than declaring
+`1.0.0` — going stable stays a deliberate, manual act. The rules live in
+`scripts/next-version.ts` and are unit-tested; preview what the next release
+would be with:
+
+```bash
+bun run scripts/next-version.ts --explain
+```
+
 Releases are published from CI, not a laptop, so every tarball carries npm
 [provenance](https://docs.npmjs.com/generating-provenance-statements) — a
 verifiable link back to the commit and workflow that built it.
 
-```bash
-# bump the version in package.json, commit, then:
-git tag v0.1.1
-git push origin v0.1.1
-```
+Publishing needs an `NPM_TOKEN` repository secret (an npm **automation** token,
+so it works with 2FA enabled). Tagging by hand still works and goes through the
+same publish path:
 
-Pushing the tag runs `.github/workflows/release.yml`, which refuses to publish
-if the tag and `package.json` disagree, re-runs type-check/lint/tests, and then
-publishes. It needs an `NPM_TOKEN` repository secret (an npm **automation**
-token, so it works with 2FA enabled).
+```bash
+git tag v0.2.0 && git push origin v0.2.0
+```
 
 ## Docs
 

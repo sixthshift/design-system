@@ -1,0 +1,106 @@
+# Derives the next version from Conventional Commits after CI passes on main,
+# commits the bump, tags it, and hands off to the release workflow.
+#
+# Triggered by workflow_run rather than push so it only ever runs on a commit
+# that already went green — versioning a broken main would publish it.
+name: Version
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+concurrency:
+  group: version
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  BUN_VERSION: "1.3.9"
+
+jobs:
+  bump:
+    name: Derive and tag
+    # workflow_run also fires for pull requests and for failed runs.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      released: ${{ steps.derive.outputs.released }}
+      version: ${{ steps.derive.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The commit CI actually validated, not whatever main points at now.
+          ref: ${{ github.event.workflow_run.head_sha }}
+          # Full history and tags: the derivation walks commits since the last v* tag.
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      # scripts/next-version.ts is unit-tested (scripts/next-version.test.ts).
+      # feat -> minor, fix/perf -> patch, `!` or a BREAKING CHANGE footer ->
+      # breaking; chore/ci/docs/test/refactor/style/build release nothing. Below
+      # 1.0.0 a breaking change moves the minor rather than declaring 1.0.0.
+      - name: Derive the next version
+        id: derive
+        run: |
+          NEXT="$(bun run scripts/next-version.ts)"
+          if [ -z "$NEXT" ]; then
+            echo "released=false" >> "$GITHUB_OUTPUT"
+            echo "No releasable commits since the last tag — nothing to publish." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "released=true" >> "$GITHUB_OUTPUT"
+          echo "version=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "Next version: \`v$NEXT\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit and tag
+        if: steps.derive.outputs.released == 'true'
+        run: |
+          VERSION="${{ steps.derive.outputs.version }}"
+
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            pkg.version = process.argv[1];
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          " "$VERSION"
+
+          # Keep the manifest formatted the way the repo's formatter expects, so
+          # the next run's `biome check` does not trip over the bot's commit.
+          bunx biome format --write package.json
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          # [skip ci] keeps CI from running on the bot's own commit, which would
+          # trigger this workflow again and loop forever.
+          git commit -m "chore(release): v$VERSION [skip ci]"
+          git tag "v$VERSION"
+          git push origin HEAD:main
+          git push origin "v$VERSION"
+
+  publish:
+    name: Publish
+    needs: bump
+    if: needs.bump.outputs.released == 'true'
+    # A reusable workflow cannot hold more permission than the job calling it,
+    # so id-token must be granted here or --provenance fails inside release.yml.
+    permissions:
+      contents: read
+      id-token: write
+    # Reuses the same definition a hand-pushed tag goes through, so there is one
+    # publish path rather than two that can drift apart.
+    uses: ./.github/workflows/release.yml
+    with:
+      ref: v${{ needs.bump.outputs.version }}
+    secrets: inherit

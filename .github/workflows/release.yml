@@ -7,8 +7,22 @@
 name: Release
 
 on:
+  # A human pushing a tag by hand.
   push:
     tags: ["v*"]
+  # The automatic path: version.yml calls this after it has written the bump
+  # commit and tag. A tag pushed with GITHUB_TOKEN deliberately does not trigger
+  # workflows, so the tag trigger above would never fire for it — calling this
+  # workflow directly is what avoids needing a personal access token.
+  workflow_call:
+    inputs:
+      ref:
+        description: The tag to publish.
+        required: true
+        type: string
+    secrets:
+      NPM_TOKEN:
+        required: true
 
 concurrency:
   group: release-${{ github.ref }}
@@ -32,6 +46,8 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
 
       # setup-node provides the registry auth wiring that NODE_AUTH_TOKEN feeds,
       # and an npm new enough to support --provenance.
@@ -58,11 +74,12 @@ jobs:
       # the right name, which cannot be undone after 72 hours. Fail before that.
       - name: Verify the tag matches package.json
         run: |
-          TAG="${GITHUB_REF_NAME#v}"
+          REF="${{ inputs.ref || github.ref_name }}"
+          TAG="${REF#v}"
           PKG="$(node -p "require('./package.json').version")"
           echo "tag=$TAG  package.json=$PKG"
           if [ "$TAG" != "$PKG" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $PKG"
+            echo "::error::Tag $REF does not match package.json version $PKG"
             exit 1
           fi
 

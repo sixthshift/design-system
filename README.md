@@ -153,6 +153,21 @@ src/
 
 Semver via git tags (`v0.1.0`, ...). Component props **and token names** are public API — renaming a token is a breaking change.
 
+Releases are published from CI, not a laptop, so every tarball carries npm
+[provenance](https://docs.npmjs.com/generating-provenance-statements) — a
+verifiable link back to the commit and workflow that built it.
+
+```bash
+# bump the version in package.json, commit, then:
+git tag v0.1.1
+git push origin v0.1.1
+```
+
+Pushing the tag runs `.github/workflows/release.yml`, which refuses to publish
+if the tag and `package.json` disagree, re-runs type-check/lint/tests, and then
+publishes. It needs an `NPM_TOKEN` repository secret (an npm **automation**
+token, so it works with 2FA enabled).
+
 ## Docs
 
 Design-system knowledge lives in [`docs/`](docs/): [design tokens](docs/design-tokens.md), [component catalog](docs/component-catalog.md), [component authoring](docs/component-authoring.md), [component API design](docs/component-api-design.md), [composition](docs/composition.md), [visual hierarchy](docs/visual-hierarchy.md), [spacing](docs/spacing.md), [motion](docs/motion.md), [states](docs/states.md), [overlays](docs/overlay-primitives.md), [forms](docs/forms.md), [modals](docs/modals.md), [responsive](docs/responsive.md), [density](docs/density.md), [copy](docs/copy-conventions.md), [time formatting](docs/time-formatting.md), [UX principles](docs/ux-principles.md), [design philosophy](docs/design-philosophy.md).

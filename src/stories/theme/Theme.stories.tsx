@@ -1,8 +1,8 @@
 import { Heading } from "@sixthshift/design-system/heading";
 import { Text } from "@sixthshift/design-system/text";
 import type { Meta, StoryObj } from "@storybook/react";
-import theme from "../../theme/theme.json";
 import { FocusDemo, FocusRingDemo, InteractiveButton, TokenGroup } from "./components";
+import { readIdentity, readTokens } from "./read-tokens";
 
 const meta: Meta = {
   title: "Design System/Theme",
@@ -14,10 +14,10 @@ const meta: Meta = {
 export default meta;
 type Story = StoryObj;
 
-// Convert theme tokens to CSS custom properties for inline styles
-const lightThemeVars = Object.fromEntries(Object.entries(theme.light).map(([key, value]) => [`--${key}`, value])) as React.CSSProperties;
-
-const darkThemeVars = Object.fromEntries(Object.entries(theme.dark).map(([key, value]) => [`--${key}`, value])) as React.CSSProperties;
+// Pin a subtree to one mode's values, so light and dark can sit on one page.
+// Read from the stylesheet at render time — tokens.css is the only source.
+const modeVars = (mode: "light" | "dark") =>
+  Object.fromEntries(Object.entries(readTokens(mode)).map(([token, value]) => [`--${token}`, value])) as React.CSSProperties;
 
 const baseTokens = {
   Background: [
@@ -81,13 +81,13 @@ export const AllTokens: Story = {
   render: () => (
     <div className="space-y-8">
       <div>
-        <Heading as="h2">{theme.name} Theme</Heading>
-        <Text className="text-fg-subtle">Version {theme.version}</Text>
+        <Heading as="h2">{readIdentity().name} Theme</Heading>
+        <Text className="text-fg-subtle">Version {readIdentity().version}</Text>
       </div>
       <div
         className="space-y-6 rounded-lg p-6"
         style={{
-          ...lightThemeVars,
+          ...modeVars("light"),
           backgroundColor: "var(--bg-subtle)",
           color: "var(--fg-normal)",
         }}
@@ -101,7 +101,7 @@ export const AllTokens: Story = {
       <div
         className="space-y-6 rounded-lg p-6"
         style={{
-          ...darkThemeVars,
+          ...modeVars("dark"),
           backgroundColor: "var(--bg-subtle)",
           color: "var(--fg-normal)",
         }}
@@ -130,7 +130,7 @@ export const InteractiveStates: Story = {
       <div
         className="space-y-6 rounded-xl p-6"
         style={{
-          ...lightThemeVars,
+          ...modeVars("light"),
           backgroundColor: "var(--bg-subtle)",
           color: "var(--fg-normal)",
         }}
@@ -155,7 +155,7 @@ export const InteractiveStates: Story = {
       <div
         className="space-y-6 rounded-xl p-6"
         style={{
-          ...darkThemeVars,
+          ...modeVars("dark"),
           backgroundColor: "var(--bg-subtle)",
           color: "var(--fg-normal)",
         }}

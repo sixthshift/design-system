@@ -29,7 +29,6 @@
   "files": [
     "src",
     "dist",
-    "tailwind.config.ts",
     "!src/**/*.test.ts",
     "!src/**/*.test.tsx",
     "!src/**/__tests__",
@@ -39,13 +38,11 @@
     "!src/testing"
   ],
   "exports": {
-    "./styles.css": "./dist/styles.css",
-    "./theme.css": "./dist/theme.generated.css",
+    "./theme.css": "./src/theme/tokens.css",
     "./theme": {
       "types": "./dist/theme/index.d.ts",
       "import": "./dist/theme/index.js"
     },
-    "./tailwind.config": "./tailwind.config.ts",
     "./utils": {
       "types": "./dist/lib/utils.d.ts",
       "import": "./dist/lib/utils.js"
@@ -365,13 +362,8 @@
   },
   "scripts": {
     "prepare": "bun run build",
-    "build": "bun run clean:dist && bun run build:js && bun run build:theme && bun run build:css && bun run scripts/check-exports.ts",
+    "build": "bun run clean:dist && bun run build:js && bun run scripts/check-exports.ts",
     "build:js": "tsc -p tsconfig.build.json && bun run scripts/fix-extensions.ts",
-    "build:theme": "bun run scripts/generate-theme.ts -i src/theme/theme.json -p src/theme/palette.json -t src/theme/typography.json -o dist/theme.generated.css",
-    "build:css": "tailwindcss -i src/styles/base.css -o dist/styles.css --minify",
-    "dev": "bun run dev:css & bun run dev:theme",
-    "dev:css": "tailwindcss -i src/styles/base.css -o dist/styles.css --watch",
-    "dev:theme": "bun run scripts/watch-theme.ts",
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build",
     "test": "vitest run --project unit --project date-time --reporter=dot",
@@ -441,7 +433,8 @@
     "monaco-editor": "^0.55.1",
     "react": "^18.2.0 || ^19.0.0",
     "react-dom": "^18.2.0 || ^19.0.0",
-    "react-markdown": "^10.1.0"
+    "react-markdown": "^10.1.0",
+    "tailwindcss": "^4.0.0"
   },
   "peerDependenciesMeta": {
     "@fontsource-variable/inter": {

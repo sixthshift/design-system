@@ -2,11 +2,12 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, beforeAll } from "vitest";
 
 // The real theme surface — screenshots are only meaningful if the tokens, base
-// styles and fonts that ship to consumers are the ones on screen.
+// styles and fonts are the ones on screen. .storybook/styles.css is the same
+// stylesheet Storybook renders with: a consumer-shaped entry point, widened to
+// the story-only utilities the baselines are screenshots of.
 import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
-import "./dist/theme.generated.css";
-import "./src/styles/base.css";
+import "./.storybook/styles.css";
 
 // Belt-and-braces with the browser context's reducedMotion (see vitest.config.ts).
 // A screenshot taken mid-transition is not reproducible, and `animate-spin` on a

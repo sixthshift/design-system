@@ -1,25 +1,46 @@
 /**
  * Theme Schema
  *
- * Type definitions for the PA design system token structure.
- * These types enforce the naming convention: {context}-{semantic}
+ * The naming convention for design tokens, as types and as data:
+ *
+ *   {context}-[on-]{intent}[-{weight}][-{state}]
+ *
+ * src/theme/tokens.css is the only place tokens are defined, and nothing derives
+ * TypeScript from it. These types describe the *shape* a token name can take
+ * rather than enumerating the names that happen to exist today, which is why the
+ * vocabulary below is the thing to edit when the system grows a new axis.
+ *
+ * The trade that makes explicit: the union is complete but permissive. Every real
+ * token is assignable, and a few combinations it accepts are not defined. Keeping
+ * this vocabulary and tokens.css describing the same system is a manual job — a
+ * token whose name falls outside the grid below is unnameable in TypeScript even
+ * though its utility compiles.
+ *
+ * To read a value, read the CSS: `var(--bg-brand)` in a stylesheet, or
+ * `getComputedStyle(document.documentElement).getPropertyValue("--bg-brand")`
+ * at runtime.
  */
 
 // =============================================================================
 // PRIMITIVES
 // =============================================================================
 
-/** HSL color value without wrapper, e.g., "239 84% 67%" */
-export type HSLValue = string;
-
 /** Hex color value, e.g., "#6366f1" */
 export type HexValue = string;
+
+/**
+ * HSL color value without wrapper, e.g., "239 84% 67%"
+ *
+ * @deprecated Tokens hold hex values and palette references, never bare HSL
+ * triples. Kept only so the export surface stays stable.
+ */
+export type HSLValue = string;
 
 /** Color mode */
 export type ColorMode = "light" | "dark";
 
 // =============================================================================
-// TOKEN STRUCTURE
+// VOCABULARY
 // =============================================================================
 
 /** Contexts - what CSS property this affects */
@@ -38,49 +59,71 @@ export type Feedback = (typeof feedback)[number];
 export const semantics = [...hierarchy, ...feedback] as const;
 export type Semantic = (typeof semantics)[number];
 
+/** Every intent a token can carry, including the ones outside the grid above */
+export const intents = [...semantics, "brand", "overlay"] as const;
+export type Intent = (typeof intents)[number];
+
+/** Weight modifiers, applied to brand and feedback intents */
+export const weights = ["subtle", "strong"] as const;
+export type Weight = (typeof weights)[number];
+
+/** Interaction states */
+export const states = ["hovered", "pressed", "disabled"] as const;
+export type State = (typeof states)[number];
+
+/** Tokens that are a category of one, outside the grid */
+export const standaloneTokens = ["focus-ring"] as const;
+export type StandaloneToken = (typeof standaloneTokens)[number];
+
 // =============================================================================
-// TOKEN NAMES (derived types)
+// TOKEN NAMES
 // =============================================================================
 
-/** Background tokens: bg-{semantic} */
-export type BgToken = `bg-${Semantic}`;
+/** Intents that take a weight modifier — the hierarchy trio *is* the weight. */
+type Weightable = Exclude<Intent, Hierarchy>;
 
-/** Foreground tokens: fg-{semantic} | fg-on-{semantic} */
-export type FgToken = `fg-${Semantic}` | `fg-on-${Semantic}`;
+/** `brand` | `brand-subtle` | `danger-strong` | ... */
+type WeightedIntent = Intent | `${Weightable}-${Weight}`;
 
-/** Border tokens: border-{semantic} */
-export type BorderToken = `border-${Semantic}`;
+/** Any of the above, optionally in an interaction state */
+type Stateful<T extends string> = T | `${T}-${State}`;
+
+/** Background tokens */
+export type BgToken = Stateful<`bg-${WeightedIntent}`>;
+
+/** Foreground tokens, including the `fg-on-*` pairs */
+export type FgToken = Stateful<`fg-${WeightedIntent}`> | Stateful<`fg-on-${WeightedIntent}`>;
+
+/** Border tokens */
+export type BorderToken = Stateful<`border-${WeightedIntent}`>;
+
+/** Every token name the convention allows */
+export type TokenName = BgToken | FgToken | BorderToken | StandaloneToken;
 
 /** All color tokens */
-export type ColorToken = BgToken | FgToken | BorderToken;
+export type ColorToken = TokenName;
 
 /** CSS variable name format */
 export type CSSVarName = `--${ColorToken}`;
 
+/** @deprecated Use {@link BgToken}. */
+export type BgKey = BgToken;
+/** @deprecated Use {@link FgToken}. */
+export type FgKey = FgToken;
+/** @deprecated Use {@link BorderToken}. */
+export type BorderKey = BorderToken;
+/** @deprecated Use {@link TokenName}. */
+export type TokenKey = TokenName;
+
 // =============================================================================
-// THEME SCHEMA
+// THEME SHAPE
 // =============================================================================
 
-/** Background token keys */
-export type BgKey = `bg-${Semantic}`;
+/** A set of token values for one mode */
+export type ColorModeSchema = Partial<Record<TokenName, HexValue>>;
 
-/** Foreground token keys */
-export type FgKey = `fg-${Semantic}` | `fg-on-${Semantic}`;
-
-/** Border token keys */
-export type BorderKey = `border-${Semantic}`;
-
-/** All token keys */
-export type TokenKey = BgKey | FgKey | BorderKey;
-
-/** Color mode schema (light or dark) - flat structure */
-export type ColorModeSchema = {
-  [K in TokenKey]: HexValue;
-};
-
-/** Complete theme schema */
+/** A complete theme */
 export type ThemeSchema = {
-  $schema?: string;
   name: string;
   version: string;
   light: ColorModeSchema;
@@ -91,32 +134,17 @@ export type ThemeSchema = {
 // UTILITIES
 // =============================================================================
 
-/** Get all token names for a context */
-export function getTokenNames(context: "bg"): BgToken[];
-export function getTokenNames(context: "fg"): FgToken[];
-export function getTokenNames(context: "border"): BorderToken[];
-export function getTokenNames(context: Context): ColorToken[] {
-  switch (context) {
-    case "bg":
-      return semantics.map((s) => `bg-${s}` as BgToken);
-    case "fg":
-      return [...semantics.map((s) => `fg-${s}` as FgToken), ...semantics.map((s) => `fg-on-${s}` as FgToken)];
-    case "border":
-      return semantics.map((s) => `border-${s}` as BorderToken);
-  }
-}
-
-/** Get all token names */
-export function getAllTokenNames(): ColorToken[] {
-  return [...getTokenNames("bg"), ...getTokenNames("fg"), ...getTokenNames("border")];
-}
-
 /** Type-safe CSS var reference */
 export function cssVar(token: ColorToken): string {
   return `var(--${token})`;
 }
 
-/** Type-safe HSL wrapper for Tailwind */
+/**
+ * Type-safe HSL wrapper for Tailwind
+ *
+ * @deprecated Token values are hex and palette references, so wrapping one in
+ * `hsl()` yields invalid CSS. Use {@link cssVar}.
+ */
 export function hsl(token: ColorToken): string {
   return `hsl(var(--${token}))`;
 }

@@ -27,7 +27,7 @@ export function sourceAliases(): Record<string, string> {
   const aliases: Record<string, string> = {};
 
   for (const [subpath, target] of Object.entries(pkg.exports)) {
-    if (typeof target === "string") continue; // CSS and tailwind.config ship as-is
+    if (typeof target === "string") continue; // CSS ships as-is
     const stem = resolve(ROOT, target.import.replace(/^\.\/dist\//, "src/").replace(/\.js$/, ""));
     const source = [`${stem}.ts`, `${stem}.tsx`].find(existsSync);
     if (source === undefined) {

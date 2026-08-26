@@ -3,8 +3,7 @@ import type { Preview } from "@storybook/react-vite";
 
 import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
-import "../dist/theme.generated.css";
-import "../src/styles/base.css";
+import "./styles.css";
 
 const preview: Preview = {
   parameters: {

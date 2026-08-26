@@ -38,8 +38,8 @@ jobs:
           key: bun-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}
           restore-keys: bun-${{ runner.os }}-${{ runner.arch }}-
 
-      # the `prepare` script runs `bun run build`, producing dist/theme.generated.css
-      # and dist/styles.css — so there is no separate build step below.
+      # the `prepare` script runs `bun run build`, which compiles dist/ — so
+      # there is no separate build step below.
       - name: Install dependencies
         run: bun install --frozen-lockfile
 

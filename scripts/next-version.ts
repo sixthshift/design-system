@@ -13,6 +13,12 @@
  *   bun run scripts/next-version.ts --explain
  */
 
+/// <reference types="bun" />
+// Bun's ambient types are referenced here rather than in tsconfig's `types`,
+// which is deliberately empty: this file needs `Bun` and `import.meta.dir`, and
+// scoping the reference to the scripts that use them keeps those globals out of
+// the library's own compilation (tsconfig.build.json compiles src/ only).
+
 type Bump = "major" | "minor" | "patch";
 
 const RANK: Record<Bump, number> = { patch: 0, minor: 1, major: 2 };

@@ -1,7 +1,8 @@
 /**
  * Theme Exports
  *
- * Re-exports schema types and utilities for use in other packages.
+ * The token naming vocabulary and its types. Token *values* live in
+ * src/theme/tokens.css and are read from the stylesheet, not from here.
  */
 
 export type {
@@ -20,18 +21,25 @@ export type {
   HexValue,
   Hierarchy,
   HSLValue,
+  Intent,
   Semantic,
+  StandaloneToken,
+  State,
   ThemeSchema,
   TokenKey,
+  TokenName,
+  Weight,
 } from "./schema";
 
 export {
   contexts,
   cssVar,
   feedback,
-  getAllTokenNames,
-  getTokenNames,
   hierarchy,
   hsl,
+  intents,
   semantics,
+  standaloneTokens,
+  states,
+  weights,
 } from "./schema";

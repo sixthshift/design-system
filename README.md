@@ -18,18 +18,22 @@ A single package, `@sixthshift/design-system`: ~80 components (primitives, overl
 npm install @sixthshift/design-system
 ```
 
-```tsx
-// app entry — styles once
-import "@sixthshift/design-system/theme.css";   // CSS variables (light/dark via data-theme on <html>)
-import "@sixthshift/design-system/styles.css";  // compiled Tailwind + base styles
+```css
+/* your CSS entry — Tailwind 4 is a required peer */
+@import "tailwindcss";
+@import "@sixthshift/design-system/theme.css";
+```
 
+```tsx
 // anywhere — components via subpath exports (no barrel root)
 import { Button } from "@sixthshift/design-system/button";
 ```
 
-**What ships:** compiled ESM (`.js`) plus type declarations (`.d.ts`) in `dist/`, alongside the prebuilt CSS — every export subpath resolves to build output, so no build runs on install and no consumer toolchain needs to transpile this package. The module tree is preserved rather than bundled, so subpath imports still tree-shake.
+**What ships:** compiled ESM (`.js`) plus type declarations (`.d.ts`) in `dist/`, and the tokens as CSS. No prebuilt stylesheet: the components are Tailwind classes, so your build compiles them from the `@theme` block `theme.css` brings with it. Nothing runs on install and no consumer toolchain has to transpile this package. The module tree is preserved rather than bundled, so subpath imports still tree-shake.
 
 TypeScript sources are published too, but only as the target of the declaration and source maps — nothing resolves to them. Go-to-definition lands on real `.tsx`, and stack traces map back to it.
+
+**Module resolution:** subpath types only resolve under `"moduleResolution": "bundler"`, `"node16"`, or `"nodenext"` in `tsconfig.json`. The older `"node"` setting ignores the `exports` map entirely and fails with `TS2307` on every subpath. The package is also ESM-only — every `exports` entry has an `"import"` condition and nothing else, so `require("@sixthshift/design-system/button")` fails with `ERR_PACKAGE_PATH_NOT_EXPORTED`. A CJS test runner (e.g. Jest without ESM configured) needs to be set up for ESM before it can import this package.
 
 ### Peer dependencies
 
@@ -170,28 +174,37 @@ ISO helpers above cover what they were reachable for.
 
 ## Theming
 
-Tokens are JSON (`src/theme/{palette,theme,typography}.json`) compiled to CSS variables (`theme.css`). Light/dark switch via `data-theme` attribute on the root element. Consumers restyle by overriding CSS variables at runtime — component source stays untouched. See [docs/design-tokens.md](docs/design-tokens.md) for the full token reference.
+Tokens are CSS (`src/theme/tokens.css`), published as `theme.css`. That one file
+holds the palette, the semantic tokens for each mode, and the `@theme` block that
+tells Tailwind which utilities exist — so a token and its utility can never
+disagree.
+
+Light/dark switch via the `data-theme` attribute on the root element. Consumers
+restyle by overriding CSS variables at runtime — component source stays
+untouched. See [docs/design-tokens.md](docs/design-tokens.md) for the full token
+reference.
 
 ### Tailwind integration
 
-If your app uses Tailwind and you want to extend the theme:
+The two `@import` lines above are the whole integration. That single theme import
+carries the token variables *and* the `@theme` block declaring the library's
+utilities, so `bg-bg-brand`, `z-modal`, `animate-fade-in` and `dark:*` compile in
+your build alongside your own classes — same pass, same tree-shaking, and
+`className="mt-8"` on a library component works like any other Tailwind class.
 
-```ts
-// tailwind.config.ts
-import uiConfig from "@sixthshift/design-system/tailwind.config";
+Add the library to your `content` sources only if you scan explicitly; automatic
+detection already covers `node_modules` imports. There is no preset, no
+`@config`, and no prebuilt stylesheet to import.
 
-export default {
-  presets: [uiConfig],
-  content: ["./src/**/*.{ts,tsx}", "./node_modules/@sixthshift/design-system/dist/**/*.js"],
-};
-```
+**Tailwind 4 is required, not optional.** Every component is a set of Tailwind
+classes, so without it they render unstyled. That is why `tailwindcss` is a
+non-optional peer dependency.
 
 ## Development
 
 ```bash
-bun install          # `prepare` builds JS, types, theme and styles into dist/
+bun install          # `prepare` builds JS, types and styles into dist/
 bun run storybook    # component workbench on :6006
-bun run dev          # watch-rebuild theme + Tailwind CSS
 bun run test         # unit + date-time tests
 bun run type-check   # tsc --noEmit (src and tests)
 bun run check        # biome lint + format
@@ -256,9 +269,9 @@ bun run scripts/next-version.ts --explain
 The line between the two halves of that table is **whether the commit can reach
 the published tarball**, not whether it feels important. Every code subpath is
 compiled from `src/` into the tarball, so a `refactor:` still changes the bytes
-a consumer receives; `build:` changes what lands in `dist/`, and
-`tailwind.config.ts` is itself an exported subpath. Tests, workflows, formatting
-and prose either do not ship or are not user-visible, so they release nothing.
+a consumer receives, and `build:` changes what lands in `dist/`. Tests,
+workflows, formatting and prose either do not ship or are not user-visible, so
+they release nothing.
 
 Two consequences worth knowing:
 

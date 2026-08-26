@@ -6,9 +6,9 @@ Design tokens, component patterns, and styling architecture for Personal Assista
 
 The PA design system is built on:
 
-- **Theme JSON**: Source of truth for color tokens
+- **`src/theme/tokens.css`**: Source of truth for color tokens
 - **CSS Variables**: Runtime theming with light/dark modes
-- **Tailwind CSS**: Utility-first styling mapped to CSS variables
+- **Tailwind CSS**: Utilities declared by the same file, via `@theme`
 - **CVA**: Type-safe component variants
 
 ```mermaid
@@ -17,17 +17,17 @@ config:
   layout: elk
 ---
 flowchart TB
-    Theme["<b>Theme</b> (src/theme/)<br/>JSON files defining color tokens + palette"]
-    CSS["<b>CSS Variables</b> (theme.generated.css)<br/>Runtime values for light/dark mode"]
-    Config["<b>Tailwind Config</b> (tailwind.config.ts)<br/>Maps CSS vars to utility classes"]
+    Tokens["<b>Tokens</b> (src/theme/tokens.css)<br/>Palette, semantic tokens per mode, and the @theme block"]
+    CSS["<b>theme.css</b><br/>The same file, published as-is for consumers"]
+    Utilities["<b>Utilities</b><br/>Compiled by the consuming app's Tailwind build from @theme"]
     Components["<b>Components</b> (src/components/*)<br/>CVA variants using Tailwind classes"]
 
-    Theme -->|generates| CSS
-    CSS -->|consumed by| Config
-    Config -->|used in| Components
+    Tokens -->|published as| CSS
+    Tokens -->|compiled into| Utilities
+    Utilities -->|used in| Components
 
     classDef engine fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
-    class Theme,CSS,Config,Components engine
+    class Tokens,CSS,Utilities,Components engine
 ```
 
 ---
@@ -124,7 +124,7 @@ Each scale has values from 50 (lightest) to 950 (darkest).
 
 ## Z-Index Scale
 
-Stacking is a named token scale (`tailwind.config.ts`), not ad-hoc `z-[n]`. Use the token; never a raw value.
+Stacking is a named token scale (the `--z-index-*` entries in `src/theme/tokens.css`), not ad-hoc `z-[n]`. Use the token; never a raw value. Tailwind v4 accepts bare values like `z-10` whatever the theme says, so this one is convention rather than a compile error.
 
 | Token              | Value | Layer                          |
 |--------------------|-------|--------------------------------|
@@ -282,8 +282,8 @@ Render component styles on a different element:
 ```
 src/
 ├── theme/
-│   ├── palette.json       # Color scales (ocean, emerald, etc.)
-│   ├── theme.json         # Token definitions (light/dark)
+│   ├── tokens.css         # Source of truth: palette, tokens, @theme
+│   ├── schema.ts          # The naming vocabulary, as types
 │   ├── schema.ts          # TypeScript types for tokens
 │   └── index.ts           # Exports
 ├── styles/
@@ -299,10 +299,10 @@ src/
 
 ### Import Order
 
-```tsx
-// In your app entry point:
-import '@sixthshift/design-system/theme.css';   // CSS variables (generated)
-import '@sixthshift/design-system/styles.css';  // Tailwind + base styles
+```css
+/* In your CSS entry point: */
+@import "tailwindcss";
+@import "@sixthshift/design-system/theme.css";
 ```
 
 ---

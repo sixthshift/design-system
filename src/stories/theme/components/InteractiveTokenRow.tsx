@@ -1,9 +1,7 @@
 import { Text } from "@sixthshift/design-system/text";
-import theme from "../../../theme/theme.json";
+import { readTokens, type TokenSet } from "../read-tokens";
 
 const interactiveStates = ["hovered", "pressed", "disabled"] as const;
-
-type ThemeMode = typeof theme.light;
 
 export function InteractiveTokenRow({ baseToken, type, mode }: { baseToken: string; type: "bg" | "fg" | "border"; mode: "light" | "dark" }) {
   // Check if this is a fg-on-* token
@@ -36,8 +34,8 @@ export function InteractiveTokenRow({ baseToken, type, mode }: { baseToken: stri
   };
 
   const getValue = (token: string): string => {
-    const themeMode = theme[mode] as ThemeMode;
-    const value = themeMode[token as keyof ThemeMode];
+    const themeMode: TokenSet = readTokens(mode);
+    const value = themeMode[token];
     if (!value) return "";
     // Extract just the color reference, e.g., "var(--color-emerald-100)" -> "emerald-100"
     const match = value.match(/var\(--color-([^)]+)\)/);

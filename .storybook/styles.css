@@ -1,0 +1,34 @@
+/**
+ * The consuming app's stylesheet — for Storybook and the screenshot tests.
+ *
+ * Deliberately shaped like what a consumer writes: pull in Tailwind, pull in the
+ * theme, let the build compile the utilities. Storybook and the screenshot tests
+ * are the only things that render this library at runtime, so this is where that
+ * app lives; nothing in this directory is published.
+ *
+ * Two differences from a real consumer, both on purpose:
+ *
+ *   - the scan covers stories and tests as well as components, because the
+ *     visual baselines are screenshots of exactly those compositions;
+ *   - the page-level styles below are the workbench's own. The library does not
+ *     ship them, so this is the app choosing them, which is the point.
+ */
+
+@import "tailwindcss" source(none);
+@import "../src/theme/tokens.css";
+
+@source "../src";
+
+@layer base {
+  body {
+    @apply bg-bg-normal text-fg-normal;
+    font-family: var(--font-sans);
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}

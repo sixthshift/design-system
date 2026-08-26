@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import palette from "../../theme/palette.json";
+import { readPalette } from "../theme/read-tokens";
 import { ColorSwatch } from "./components";
 
 const meta: Meta = {
@@ -12,13 +12,14 @@ const meta: Meta = {
 export default meta;
 type Story = StoryObj;
 
-function ColorScale({ name, colors }: { name: string; colors: Record<string, string> }) {
+function ColorScale({ name, scale }: { name: string; scale: string }) {
+  const steps = readPalette()[scale] ?? {};
   return (
     <div className="mb-8">
       <h3 className="mb-3 font-semibold text-lg">{name}</h3>
       <div className="flex flex-wrap gap-2">
-        {Object.entries(colors).map(([key, hex]) => (
-          <ColorSwatch key={key} hex={hex} label={key} />
+        {Object.entries(steps).map(([step, hex]) => (
+          <ColorSwatch key={step} hex={hex} label={step} />
         ))}
       </div>
     </div>
@@ -28,43 +29,43 @@ function ColorScale({ name, colors }: { name: string; colors: Record<string, str
 export const AllScales: Story = {
   render: () => (
     <div className="space-y-8">
-      <ColorScale name="Slate" colors={palette.slate} />
-      <ColorScale name="Ocean" colors={palette.ocean} />
-      <ColorScale name="Sky" colors={palette.sky} />
-      <ColorScale name="Earth" colors={palette.earth} />
-      <ColorScale name="Emerald" colors={palette.emerald} />
-      <ColorScale name="Topaz" colors={palette.topaz} />
-      <ColorScale name="Ruby" colors={palette.ruby} />
+      <ColorScale name="Slate" scale="slate" />
+      <ColorScale name="Ocean" scale="ocean" />
+      <ColorScale name="Sky" scale="sky" />
+      <ColorScale name="Earth" scale="earth" />
+      <ColorScale name="Emerald" scale="emerald" />
+      <ColorScale name="Topaz" scale="topaz" />
+      <ColorScale name="Ruby" scale="ruby" />
     </div>
   ),
 };
 
 export const Slate: Story = {
-  render: () => <ColorScale name="Slate" colors={palette.slate} />,
+  render: () => <ColorScale name="Slate" scale="slate" />,
 };
 
 export const Ocean: Story = {
-  render: () => <ColorScale name="Ocean" colors={palette.ocean} />,
+  render: () => <ColorScale name="Ocean" scale="ocean" />,
 };
 
 export const Sky: Story = {
-  render: () => <ColorScale name="Sky" colors={palette.sky} />,
+  render: () => <ColorScale name="Sky" scale="sky" />,
 };
 
 export const Earth: Story = {
-  render: () => <ColorScale name="Earth" colors={palette.earth} />,
+  render: () => <ColorScale name="Earth" scale="earth" />,
 };
 
 export const Emerald: Story = {
-  render: () => <ColorScale name="Emerald" colors={palette.emerald} />,
+  render: () => <ColorScale name="Emerald" scale="emerald" />,
 };
 
 export const Topaz: Story = {
-  render: () => <ColorScale name="Topaz" colors={palette.topaz} />,
+  render: () => <ColorScale name="Topaz" scale="topaz" />,
 };
 
 export const Ruby: Story = {
-  render: () => <ColorScale name="Ruby" colors={palette.ruby} />,
+  render: () => <ColorScale name="Ruby" scale="ruby" />,
 };
 
 export const SourceColors: Story = {

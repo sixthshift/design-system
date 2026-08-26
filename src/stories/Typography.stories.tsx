@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import typography from "../theme/typography.json";
 
 const meta: Meta = {
   title: "Design System/Typography",
@@ -16,19 +15,19 @@ export const FontFamilies: Story = {
     <div className="space-y-8">
       <div>
         <p className="mb-2 text-fg-subtle text-sm">Sans — Inter Variable</p>
-        <p className="text-4xl" style={{ fontFamily: typography.fonts.sans }}>
+        <p className="text-4xl" style={{ fontFamily: "var(--font-sans)" }}>
           The quick brown fox jumps over the lazy dog
         </p>
-        <p className="mt-2 text-lg" style={{ fontFamily: typography.fonts.sans }}>
+        <p className="mt-2 text-lg" style={{ fontFamily: "var(--font-sans)" }}>
           ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789
         </p>
       </div>
       <div>
         <p className="mb-2 text-fg-subtle text-sm">Mono — JetBrains Mono Variable</p>
-        <p className="text-4xl" style={{ fontFamily: typography.fonts.mono }}>
+        <p className="text-4xl" style={{ fontFamily: "var(--font-mono)" }}>
           The quick brown fox jumps over the lazy dog
         </p>
-        <p className="mt-2 text-lg" style={{ fontFamily: typography.fonts.mono }}>
+        <p className="mt-2 text-lg" style={{ fontFamily: "var(--font-mono)" }}>
           ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789
         </p>
       </div>
@@ -103,7 +102,7 @@ export const MonospaceShowcase: Story = {
     <div className="space-y-6">
       <div>
         <p className="mb-2 text-fg-subtle text-sm">Code Block</p>
-        <pre className="rounded-lg bg-slate-900 p-4 text-slate-100" style={{ fontFamily: typography.fonts.mono }}>
+        <pre className="rounded-lg bg-slate-900 p-4 text-slate-100" style={{ fontFamily: "var(--font-mono)" }}>
           {`function greet(name: string): string {
   return \`Hello, \${name}!\`;
 }
@@ -116,7 +115,7 @@ console.log(result); // Hello, World!`}
         <p className="mb-2 text-fg-subtle text-sm">Inline Code</p>
         <p className="text-lg">
           Use the{" "}
-          <code className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-900" style={{ fontFamily: typography.fonts.mono }}>
+          <code className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-900" style={{ fontFamily: "var(--font-mono)" }}>
             npm install
           </code>{" "}
           command to install dependencies.
@@ -124,7 +123,7 @@ console.log(result); // Hello, World!`}
       </div>
       <div>
         <p className="mb-2 text-fg-subtle text-sm">Tabular Numbers</p>
-        <div style={{ fontFamily: typography.fonts.mono }} className="space-y-1 text-lg">
+        <div style={{ fontFamily: "var(--font-mono)" }} className="space-y-1 text-lg">
           <p>1,234.56</p>
           <p>12,345.67</p>
           <p>123,456.78</p>

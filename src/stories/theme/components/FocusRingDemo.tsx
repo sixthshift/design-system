@@ -1,9 +1,9 @@
 import { Heading } from "@sixthshift/design-system/heading";
 import { Text } from "@sixthshift/design-system/text";
-import theme from "../../../theme/theme.json";
+import { readTokens } from "../read-tokens";
 
 export function FocusRingDemo({ mode }: { mode: "light" | "dark" }) {
-  const value = theme[mode]["focus-ring" as keyof (typeof theme)["light"]];
+  const value = readTokens(mode)["focus-ring"];
 
   return (
     <div>

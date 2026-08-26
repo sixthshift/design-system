@@ -12,6 +12,13 @@
  * extension are left alone. An unresolvable specifier fails the build rather
  * than shipping a broken import.
  */
+
+/// <reference types="bun" />
+// Bun's ambient types are referenced here rather than in tsconfig's `types`,
+// which is deliberately empty: this file needs `Bun` and `import.meta.dir`, and
+// scoping the reference to the scripts that use them keeps those globals out of
+// the library's own compilation (tsconfig.build.json compiles src/ only).
+
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 

@@ -376,7 +376,17 @@ describe("Select", () => {
       // null and stay there.
       const user = userEvent.setup();
       const seen: (HTMLDivElement | null)[] = [];
-      render(<Select ref={(node) => seen.push(node)} value="apple" options={options} onValueChange={() => {}} searchable />);
+      render(
+        <Select
+          ref={(node) => {
+            seen.push(node);
+          }}
+          value="apple"
+          options={options}
+          onValueChange={() => {}}
+          searchable
+        />
+      );
 
       await user.click(screen.getByRole("button"));
       expect(screen.getByRole("combobox")).toBeInTheDocument();

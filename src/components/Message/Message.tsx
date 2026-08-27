@@ -24,12 +24,12 @@ export const messageVariants = cva(
   {
     variants: {
       size: {
-        default: "p-4",
+        md: "p-4",
         sm: "gap-2 p-3 text-xs",
       },
     },
     defaultVariants: {
-      size: "default",
+      size: "md",
     },
   }
 );
@@ -90,8 +90,8 @@ function intentRole(intent: MessageIntent): "status" | "alert" {
  * never heard of, gets `role="status"` (polite — announced at the next
  * natural pause). An unrecognised intent still falls through to
  * `role="status"` rather than resolving to no role at all. `role` can be
- * overridden directly if a specific case needs it. `size` (`"default"` |
- * `"sm"`) is geometry only (padding/gap/font-size) and carries no color.
+ * overridden directly if a specific case needs it. `size` (`"md"` | `"sm"`)
+ * is geometry only (padding/gap/font-size) and carries no color.
  *
  * Two ways to give it content: the simple API (`title` + `icon` props, with
  * `children` as the description), or compound children (`Message.Icon`,

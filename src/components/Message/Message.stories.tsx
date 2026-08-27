@@ -17,7 +17,7 @@ const meta: Meta<typeof Message> = {
     },
     size: {
       control: "select",
-      options: ["default", "sm"],
+      options: ["md", "sm"],
     },
     title: {
       control: "text",
@@ -82,7 +82,7 @@ export const IntentVariants: Story = {
 export const SizeVariants: Story = {
   render: () => (
     <div className="flex flex-col gap-3">
-      <Message size="default" title="Default Size">
+      <Message size="md" title="Medium Size">
         This is the default size message with standard padding.
       </Message>
       <Message size="sm" title="Small Size">

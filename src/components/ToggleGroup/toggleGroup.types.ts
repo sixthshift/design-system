@@ -35,6 +35,8 @@ export type ToggleGroupBaseProps = Omit<React.HTMLAttributes<HTMLDivElement>, "o
   intent?: ButtonIntentName;
   /** Button size (xl excluded — too large for grouped toggles) */
   size?: Exclude<ToggleProp<"size">, "xl">;
+  /** Square every item at the current size, for icon-only options */
+  iconOnly?: boolean;
   /** Disable all options */
   disabled?: boolean;
 };

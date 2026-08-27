@@ -4,7 +4,7 @@ import { buttonRecipe } from "../Button/Button";
 import type { ToggleGroupBaseProps, ToggleGroupOption } from "./toggleGroup.types";
 
 type ItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
-  Required<Pick<ToggleGroupBaseProps, "appearance" | "orientation" | "variant" | "intent" | "size">> & {
+  Required<Pick<ToggleGroupBaseProps, "appearance" | "orientation" | "variant" | "intent" | "size" | "iconOnly">> & {
     option: ToggleGroupOption;
     selected: boolean;
     groupDisabled?: boolean | undefined;
@@ -13,7 +13,7 @@ type ItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   };
 
 const ToggleGroupItem = React.forwardRef<HTMLButtonElement, ItemProps>(
-  ({ option, selected, groupDisabled, appearance, orientation, variant, intent, size, index, total, ...props }, ref) => {
+  ({ option, selected, groupDisabled, appearance, orientation, variant, intent, size, iconOnly, index, total, ...props }, ref) => {
     const isDisabled = groupDisabled || option.disabled;
     const isFirst = index === 0;
     const isLast = index === total - 1;
@@ -23,7 +23,7 @@ const ToggleGroupItem = React.forwardRef<HTMLButtonElement, ItemProps>(
     // Both modes share the same base: buttonVariants + the pressed-state cells
     // in recipes/toggle.css. Segmented just overrides border/shadow/rounding
     // so items join cleanly.
-    const recipe = buttonRecipe({ variant, intent, size });
+    const recipe = buttonRecipe({ variant, intent, size, iconOnly });
 
     return (
       <button

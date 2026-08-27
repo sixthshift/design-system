@@ -345,7 +345,7 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>((pro
                     <Button type="button" variant="ghost" size="sm" onClick={handleCancel}>
                       Cancel
                     </Button>
-                    <Button type="button" variant="solid" size="sm" onClick={handleApply}>
+                    <Button type="button" variant="solid" intent="brand" size="sm" onClick={handleApply}>
                       Apply
                     </Button>
                   </div>

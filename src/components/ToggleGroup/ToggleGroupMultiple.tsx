@@ -15,7 +15,8 @@ const ToggleGroupMultiple = React.forwardRef<HTMLDivElement, ToggleGroupMultiple
       orientation = "horizontal",
       variant = "solid",
       intent = "neutral",
-      size = "default",
+      size = "md",
+      iconOnly = false,
       disabled,
       className,
       ...props
@@ -46,6 +47,7 @@ const ToggleGroupMultiple = React.forwardRef<HTMLDivElement, ToggleGroupMultiple
             variant={variant}
             intent={intent}
             size={size}
+            iconOnly={iconOnly}
             index={index}
             total={options.length}
             aria-pressed={value.includes(option.value)}

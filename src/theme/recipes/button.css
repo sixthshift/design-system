@@ -40,11 +40,24 @@
   /* solid — a filled surface, with text read on top of it. The `fg-on-*`
      partner is the pairing check-contrast.ts verifies, so these four cells
      inherit that guarantee rather than restating it. */
-  .btn[data-variant="solid"][data-intent="neutral"] {
+  .btn[data-variant="solid"][data-intent="brand"] {
     --button-bg: var(--bg-brand);
     --button-bg-hovered: var(--bg-brand-hovered);
     --button-bg-pressed: var(--bg-brand-pressed);
     --button-fg: var(--fg-on-brand);
+  }
+
+  /* `neutral` means *no colour family* — the grey tiers. It used to resolve to
+     the brand fill, which made `intent="neutral"` mean one thing on Button and
+     another on Badge, Message and ColorDot, where it was already grey. Button
+     was the outlier; this is the cell that ends that. A brand-coloured button
+     is now `intent="brand"`, which is also Button's default, so a bare
+     `<Button>` is unchanged. */
+  .btn[data-variant="solid"][data-intent="neutral"] {
+    --button-bg: var(--bg-strong);
+    --button-bg-hovered: var(--bg-strong-hovered);
+    --button-bg-pressed: var(--bg-strong-pressed);
+    --button-fg: var(--fg-on-strong);
   }
 
   .btn[data-variant="solid"][data-intent="danger"] {
@@ -75,11 +88,20 @@
     --button-bg: var(--bg-normal);
   }
 
+  /* `neutral` here needed no change: outline and ghost were already grey — it
+     was only the solid and link cells that read as brand. */
   .btn[data-variant="outline"][data-intent="neutral"],
   .btn[data-variant="ghost"][data-intent="neutral"] {
     --button-bg-hovered: var(--bg-subtle-hovered);
     --button-bg-pressed: var(--bg-subtle-pressed);
     --button-fg: var(--fg-normal);
+  }
+
+  .btn[data-variant="outline"][data-intent="brand"],
+  .btn[data-variant="ghost"][data-intent="brand"] {
+    --button-bg-hovered: var(--bg-brand-subtle-hovered);
+    --button-bg-pressed: var(--bg-brand-subtle-pressed);
+    --button-fg: var(--fg-brand);
   }
 
   .btn[data-variant="outline"][data-intent="danger"],
@@ -109,6 +131,9 @@
      that can still say so in one line; it should be their decision, not a
      side-effect of how this file was factored. `neutral` needs no rule: the
      floor's `border-normal` is already right. */
+  .btn[data-variant="outline"][data-intent="brand"] {
+    --button-border: var(--border-brand);
+  }
   .btn[data-variant="outline"][data-intent="danger"] {
     --button-border: var(--border-danger);
   }
@@ -121,10 +146,14 @@
 
   /* link — no surface in any state; only the text carries colour, so the
      floor's transparent background and its no-shift-on-hover chain both stand.
-     `neutral` resolving to `fg-brand` is the house opinion a consumer was
-     previously unable to escape. It is now a one-line override. */
-  .btn[data-variant="link"][data-intent="neutral"] {
+     A link button reads as brand-coloured by default because `brand` is
+     Button's default intent — not because `neutral` was quietly redefined to
+     mean brand, which is what this cell used to do. */
+  .btn[data-variant="link"][data-intent="brand"] {
     --button-fg: var(--fg-brand);
+  }
+  .btn[data-variant="link"][data-intent="neutral"] {
+    --button-fg: var(--fg-normal);
   }
   .btn[data-variant="link"][data-intent="danger"] {
     --button-fg: var(--fg-danger);

@@ -120,7 +120,7 @@ export const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
             </MessageDescription>
           </MessageBody>
           {onClose && (
-            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 opacity-70 hover:opacity-100" onClick={handleClose} aria-label="Dismiss">
+            <Button variant="ghost" iconOnly className="h-6 w-6 shrink-0 opacity-70 hover:opacity-100" onClick={handleClose} aria-label="Dismiss">
               <X className="h-4 w-4" />
             </Button>
           )}

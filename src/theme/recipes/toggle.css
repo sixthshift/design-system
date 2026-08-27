@@ -14,9 +14,8 @@
  * button.css's header for why: it selects, via the attribute, which existing
  * `--button-bg`/`--button-bg-hovered` values apply.
  *
- * Only solid, outline and ghost get cells, matching the pre-refactor
- * `togglePressedVariants`, which had no compound variant for `link` — a link
- * toggle has no surface to press, so "on" carries no colour change.
+ * Only solid, outline and ghost get cells: a link toggle has no surface to
+ * press, so "on" carries no colour change.
  *
  * Every cell repeats its own resting value into `--button-bg-hovered`: the old
  * classes paired `bg-*` with an identical `hover:bg-*`, i.e. a pressed toggle
@@ -29,9 +28,14 @@
 @layer components {
   /* solid — the main -pressed background carries through as both resting and
      hovered, so pressing never lightens or darkens further on hover. */
-  .btn[data-state="on"][data-variant="solid"][data-intent="neutral"] {
+  .btn[data-state="on"][data-variant="solid"][data-intent="brand"] {
     --button-bg: var(--bg-brand-pressed);
     --button-bg-hovered: var(--bg-brand-pressed);
+  }
+
+  .btn[data-state="on"][data-variant="solid"][data-intent="neutral"] {
+    --button-bg: var(--bg-strong-pressed);
+    --button-bg-hovered: var(--bg-strong-pressed);
   }
 
   .btn[data-state="on"][data-variant="solid"][data-intent="danger"] {
@@ -56,6 +60,13 @@
     --button-bg: var(--bg-subtle-pressed);
     --button-bg-hovered: var(--bg-subtle-pressed);
     --button-fg: var(--fg-normal);
+  }
+
+  .btn[data-state="on"][data-variant="outline"][data-intent="brand"],
+  .btn[data-state="on"][data-variant="ghost"][data-intent="brand"] {
+    --button-bg: var(--bg-brand-subtle-pressed);
+    --button-bg-hovered: var(--bg-brand-subtle-pressed);
+    --button-fg: var(--fg-on-brand-subtle-pressed);
   }
 
   .btn[data-state="on"][data-variant="outline"][data-intent="danger"],

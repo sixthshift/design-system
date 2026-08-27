@@ -430,7 +430,7 @@ export const CalendarView = React.forwardRef<HTMLDivElement, CalendarViewProps>(
                   </Button>
                 )}
                 {onApply && (
-                  <Button type="button" variant="solid" size="sm" onClick={onApply}>
+                  <Button type="button" variant="solid" intent="brand" size="sm" onClick={onApply}>
                     Apply
                   </Button>
                 )}

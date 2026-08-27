@@ -66,9 +66,14 @@ describe("Badge", () => {
   });
 
   describe("intents", () => {
-    it.each(["neutral", "danger", "success", "warning"] as const)("renders %s intent", (intent) => {
+    it.each(["neutral", "brand", "danger", "success", "warning", "muted"] as const)("renders %s intent", (intent) => {
       render(<Badge intent={intent}>Badge</Badge>);
       expect(screen.getByText("Badge")).toBeInTheDocument();
+    });
+
+    it("defaults to brand", () => {
+      render(<Badge>Badge</Badge>);
+      expect(screen.getByText("Badge")).toHaveAttribute("data-intent", "brand");
     });
 
     it("applies neutral intent with solid variant", () => {

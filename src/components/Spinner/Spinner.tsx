@@ -16,13 +16,13 @@ const spinnerVariants = cva("spinner animate-spin text-(--spinner-fg)", {
   variants: {
     size: {
       sm: "h-4 w-4",
-      default: "h-6 w-6",
+      md: "h-6 w-6",
       lg: "h-8 w-8",
       xl: "h-12 w-12",
     },
   },
   defaultVariants: {
-    size: "default",
+    size: "md",
   },
 });
 
@@ -30,7 +30,7 @@ export type SpinnerProps = React.SVGAttributes<SVGElement> & VariantProps<typeof
 
 /**
  * Animated loading indicator — an inline `<svg>`, `size` scales it (`sm` |
- * `default` | `lg` | `xl`). Use it for a fetching-more state at the bottom
+ * `md` | `lg` | `xl`). Use it for a fetching-more state at the bottom
  * of an already-rendered list; use `Skeleton` instead for the initial-load
  * state, so the layout doesn't jump (see docs/states.md).
  *

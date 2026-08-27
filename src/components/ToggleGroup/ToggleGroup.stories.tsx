@@ -21,11 +21,11 @@ const meta: Meta<typeof ToggleGroup> = {
     },
     intent: {
       control: "select",
-      options: ["neutral", "danger", "success", "warning"],
+      options: ["brand", "neutral", "danger", "success", "warning"],
     },
     size: {
       control: "select",
-      options: ["xs", "sm", "default", "lg", "icon"],
+      options: ["xs", "sm", "md", "lg"],
     },
     appearance: {
       control: "select",
@@ -83,7 +83,7 @@ export const Multiple: Story = {
     type: "multiple",
     defaultValue: ["bold"],
     options: formatOptions,
-    size: "icon",
+    iconOnly: true,
   },
 };
 
@@ -92,7 +92,7 @@ export const ControlledMultiple: Story = {
     const [value, setValue] = useState<string[]>(["bold", "italic"]);
     return (
       <div className="flex flex-col items-center gap-4">
-        <ToggleGroup type="multiple" value={value} onValueChange={setValue} options={formatOptions} size="icon" aria-label="Text formatting" />
+        <ToggleGroup type="multiple" value={value} onValueChange={setValue} options={formatOptions} iconOnly aria-label="Text formatting" />
         <p className="text-fg-subtle text-sm">Selected: {value.join(", ") || "none"}</p>
       </div>
     );
@@ -109,7 +109,7 @@ export const WithIcons: Story = {
       { value: "grid", label: <LayoutGrid />, ariaLabel: "Grid view" },
       { value: "list", label: <List />, ariaLabel: "List view" },
     ],
-    size: "icon",
+    iconOnly: true,
   },
 };
 
@@ -162,9 +162,9 @@ export const Sizes: Story = {
     <div className="flex flex-col items-start gap-4">
       <ToggleGroup type="single" defaultValue="week" options={viewOptions} size="xs" aria-label="Extra small" />
       <ToggleGroup type="single" defaultValue="week" options={viewOptions} size="sm" aria-label="Small" />
-      <ToggleGroup type="single" defaultValue="week" options={viewOptions} size="default" aria-label="Default" />
+      <ToggleGroup type="single" defaultValue="week" options={viewOptions} size="md" aria-label="Medium" />
       <ToggleGroup type="single" defaultValue="week" options={viewOptions} size="lg" aria-label="Large" />
-      <ToggleGroup type="single" defaultValue="week" options={formatOptions} size="icon" aria-label="Icon" />
+      <ToggleGroup type="single" defaultValue="week" options={formatOptions} iconOnly aria-label="Icon" />
     </div>
   ),
 };
@@ -197,6 +197,7 @@ export const DisabledOption: Story = {
 export const Intents: Story = {
   render: () => (
     <div className="flex flex-col items-start gap-4">
+      <ToggleGroup type="single" defaultValue="week" options={viewOptions} intent="brand" aria-label="Brand" />
       <ToggleGroup type="single" defaultValue="week" options={viewOptions} intent="neutral" aria-label="Neutral" />
       <ToggleGroup type="single" defaultValue="week" options={viewOptions} intent="danger" aria-label="Danger" />
       <ToggleGroup type="single" defaultValue="week" options={viewOptions} intent="success" aria-label="Success" />
@@ -208,6 +209,7 @@ export const Intents: Story = {
 export const OutlineIntents: Story = {
   render: () => (
     <div className="flex flex-col items-start gap-4">
+      <ToggleGroup type="single" defaultValue="week" options={viewOptions} variant="outline" intent="brand" aria-label="Brand" />
       <ToggleGroup type="single" defaultValue="week" options={viewOptions} variant="outline" intent="neutral" aria-label="Neutral" />
       <ToggleGroup type="single" defaultValue="week" options={viewOptions} variant="outline" intent="danger" aria-label="Danger" />
       <ToggleGroup type="single" defaultValue="week" options={viewOptions} variant="outline" intent="success" aria-label="Success" />
@@ -219,6 +221,7 @@ export const OutlineIntents: Story = {
 export const GhostIntents: Story = {
   render: () => (
     <div className="flex flex-col items-start gap-4">
+      <ToggleGroup type="single" defaultValue="week" options={viewOptions} variant="ghost" intent="brand" aria-label="Brand" />
       <ToggleGroup type="single" defaultValue="week" options={viewOptions} variant="ghost" intent="neutral" aria-label="Neutral" />
       <ToggleGroup type="single" defaultValue="week" options={viewOptions} variant="ghost" intent="danger" aria-label="Danger" />
       <ToggleGroup type="single" defaultValue="week" options={viewOptions} variant="ghost" intent="success" aria-label="Success" />

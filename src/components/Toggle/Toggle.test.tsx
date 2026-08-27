@@ -201,7 +201,7 @@ describe("Toggle", () => {
     });
 
     it("applies icon size", () => {
-      render(<Toggle size="icon">B</Toggle>);
+      render(<Toggle iconOnly>B</Toggle>);
       expect(screen.getByRole("button")).toHaveClass("w-9");
     });
 

@@ -16,7 +16,7 @@ const meta: Meta<typeof Spinner> = {
   argTypes: {
     size: {
       control: "select",
-      options: ["sm", "default", "lg", "xl"],
+      options: ["sm", "md", "lg", "xl"],
     },
   },
 };
@@ -54,7 +54,7 @@ export const AllSizes: Story = {
         <span className="text-fg-subtle text-sm">Small</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Spinner size="default" />
+        <Spinner size="md" />
         <span className="text-fg-subtle text-sm">Default</span>
       </div>
       <div className="flex flex-col items-center gap-2">

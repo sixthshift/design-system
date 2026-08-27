@@ -43,16 +43,21 @@ describe("Button", () => {
   });
 
   describe("intents", () => {
-    it.each(["neutral", "danger", "success", "warning"] as const)("renders %s intent", (intent) => {
+    it.each(["brand", "neutral", "danger", "success", "warning"] as const)("renders %s intent", (intent) => {
       render(<Button intent={intent}>Button</Button>);
       expect(screen.getByRole("button")).toBeInTheDocument();
     });
   });
 
   describe("sizes", () => {
-    it.each(["default", "sm", "lg", "xl", "icon"] as const)("renders %s size", (size) => {
+    it.each(["xs", "sm", "md", "lg", "xl"] as const)("renders %s size", (size) => {
       render(<Button size={size}>Button</Button>);
       expect(screen.getByRole("button")).toBeInTheDocument();
+    });
+
+    it("defaults to md", () => {
+      render(<Button>Button</Button>);
+      expect(screen.getByRole("button")).toHaveClass("h-9");
     });
 
     it("applies correct height class for sm size", () => {
@@ -63,6 +68,49 @@ describe("Button", () => {
     it("applies correct height class for lg size", () => {
       render(<Button size="lg">Button</Button>);
       expect(screen.getByRole("button")).toHaveClass("h-10");
+    });
+  });
+
+  describe("iconOnly", () => {
+    // The point of the prop: shape is off the size union, so a small or large
+    // icon button is expressible — a fixed `icon` size could not be.
+    it.each([
+      ["xs", "h-7", "w-7"],
+      ["sm", "h-8", "w-8"],
+      ["md", "h-9", "w-9"],
+      ["lg", "h-10", "w-10"],
+      ["xl", "h-12", "w-12"],
+    ] as const)("squares the box at %s", (size, height, width) => {
+      render(
+        <Button size={size} iconOnly aria-label="Icon">
+          <svg role="img" aria-label="icon" />
+        </Button>
+      );
+      const button = screen.getByRole("button");
+      expect(button).toHaveClass(height);
+      expect(button).toHaveClass(width);
+    });
+
+    it("drops the horizontal padding the size would otherwise apply", () => {
+      render(
+        <Button iconOnly aria-label="Icon">
+          <svg role="img" aria-label="icon" />
+        </Button>
+      );
+      const button = screen.getByRole("button");
+      expect(button).toHaveClass("px-0");
+      expect(button).not.toHaveClass("px-4");
+    });
+
+    it("lets className still outrank the icon geometry", () => {
+      render(
+        <Button iconOnly className="w-20" aria-label="Icon">
+          x
+        </Button>
+      );
+      const button = screen.getByRole("button");
+      expect(button).toHaveClass("w-20");
+      expect(button).not.toHaveClass("w-9");
     });
   });
 

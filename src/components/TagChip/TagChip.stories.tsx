@@ -17,7 +17,7 @@ const meta: Meta<typeof TagChip> = {
     },
     size: {
       control: "select",
-      options: ["sm", "default"],
+      options: ["sm", "md"],
     },
     onRemove: {
       control: false,
@@ -51,7 +51,7 @@ export const Sizes: Story = {
   render: () => (
     <div className="flex items-center gap-3">
       <TagChip tag="project:website" size="sm" />
-      <TagChip tag="project:website" size="default" />
+      <TagChip tag="project:website" size="md" />
     </div>
   ),
 };

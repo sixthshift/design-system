@@ -22,16 +22,15 @@ const buttonVariants = cva(
   {
     variants: {
       size: {
-        default: "h-9 px-4 py-2",
         xs: "h-7 rounded-md px-2 text-xs",
         sm: "h-8 rounded-md px-3 text-xs",
+        md: "h-9 px-4 py-2",
         lg: "h-10 rounded-md px-8",
         xl: "h-12 rounded-md px-10 text-base",
-        icon: "h-9 w-9",
       },
     },
     defaultVariants: {
-      size: "default",
+      size: "md",
     },
   }
 );
@@ -51,6 +50,23 @@ const variantStructure: Record<string, string> = {
 };
 
 /**
+ * Squares the box at whatever size is set, and drops the horizontal padding.
+ *
+ * Shape, kept off the size union deliberately. A single axis carrying both a
+ * scale and a shape cannot express a *small* icon button, which is what a fixed
+ * `icon: "h-9 w-9"` size amounted to. Keyed by size rather than folded into the
+ * size classes so the two stay orthogonal; `cn` (tailwind-merge) resolves
+ * `px-0` against the size's own `px-*`, last write winning.
+ */
+const iconOnlyGeometry: Record<string, string> = {
+  xs: "w-7 px-0",
+  sm: "w-8 px-0",
+  md: "w-9 px-0",
+  lg: "w-10 px-0",
+  xl: "w-12 px-0",
+};
+
+/**
  * Widened deliberately. Adding a variant or an intent is a CSS change in the
  * consuming app, not a release here — so the type has to admit values this file
  * has never heard of, while still autocompleting the ones it ships.
@@ -63,13 +79,14 @@ const variantStructure: Record<string, string> = {
 type Loose<T extends string> = T | (string & {});
 
 export type ButtonVariantName = "solid" | "outline" | "ghost" | "link";
-export type ButtonIntentName = "neutral" | "danger" | "success" | "warning";
+export type ButtonIntentName = "neutral" | "brand" | "danger" | "success" | "warning";
 export type ButtonVariant = Loose<ButtonVariantName>;
 export type ButtonIntent = Loose<ButtonIntentName>;
 
 export type ButtonRecipeProps = VariantProps<typeof buttonVariants> & {
   variant?: ButtonVariant | undefined;
   intent?: ButtonIntent | undefined;
+  iconOnly?: boolean | undefined;
   className?: string | undefined;
 };
 
@@ -80,9 +97,13 @@ export type ButtonRecipeProps = VariantProps<typeof buttonVariants> & {
  * data attributes are half the contract now, so anything reusing that look has
  * to emit them as well or it lands on the recipe's floor instead of a cell.
  */
-export function buttonRecipe({ variant = "solid", intent = "neutral", size, className }: ButtonRecipeProps) {
+export function buttonRecipe({ variant = "solid", intent = "neutral", size, iconOnly = false, className }: ButtonRecipeProps) {
   return {
-    className: cn(variantStructure[variant], buttonVariants({ size, className })),
+    className: cn(
+      variantStructure[variant],
+      // `className` stays last so a caller still outranks the icon geometry.
+      buttonVariants({ size, className: cn(iconOnly ? iconOnlyGeometry[size ?? "md"] : undefined, className) })
+    ),
     "data-variant": variant,
     "data-intent": intent,
   };
@@ -92,6 +113,8 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
     variant?: ButtonVariant | undefined;
     intent?: ButtonIntent | undefined;
+    /** Square the button at its current size, for an icon with no label. */
+    iconOnly?: boolean;
     asChild?: boolean;
     loading?: boolean;
   };
@@ -101,25 +124,38 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
  *
  * Appearance is three independent axes, so every combination is expressible:
  * `variant` is the fill and shape (`solid`, `outline`, `ghost`, `link`),
- * `intent` is what the action *means* (`neutral`, `danger`, `success`,
- * `warning`), and `size` is the height scale. Reach for `intent="danger"` on a
- * destructive action rather than a red `variant` — that is the distinction that
- * keeps "outline danger" possible.
+ * `intent` is what the action *means* (`brand` — the default — plus `neutral`,
+ * `danger`, `success`, `warning`), and `size` is the height scale. Reach for
+ * `intent="danger"` on a destructive action rather than a red `variant` — that
+ * is the distinction that keeps "outline danger" possible.
+ *
+ * `neutral` means *no colour family*: a grey button, the same thing the word
+ * means on Badge, Message and ColorDot. A brand-coloured button is
+ * `intent="brand"` — an affirmative choice, which is why `neutral` is the
+ * default: omitting the prop means "no particular meaning", so it should not
+ * quietly hand back the brand colour. Button used to spell brand as `neutral`
+ * for `solid` and `link` while `outline` and `ghost` were already grey, so a
+ * primary action now needs `intent="brand"` said out loud.
  *
  * Colour is not decided here. Each pairing resolves through a `--button-*`
  * component token, so a consumer can re-point any cell — or add an intent this
  * library never shipped — from their own stylesheet. See the Component tokens
  * story below.
  *
+ * `iconOnly` squares the box at whatever `size` is set and drops the
+ * horizontal padding, for a button whose whole content is an icon — give it an
+ * `aria-label`, since there is no text to name it. It is a separate prop rather
+ * than a size, so `size="sm" iconOnly` is expressible.
+ *
  * `asChild` renders the child element with Button's styling instead of a
  * `<button>`, for links that should look like buttons. `loading` shows a spinner
  * and disables the control, so it does not need `disabled` as well.
  */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "solid", intent = "neutral", size, asChild = false, loading = false, children, disabled, ...props }, ref) => {
+  ({ className, variant = "solid", intent = "neutral", size, iconOnly = false, asChild = false, loading = false, children, disabled, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
-      <Comp {...buttonRecipe({ variant, intent, size, className })} ref={ref} disabled={disabled || loading} {...props}>
+      <Comp {...buttonRecipe({ variant, intent, size, iconOnly, className })} ref={ref} disabled={disabled || loading} {...props}>
         {loading ? (
           <>
             <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">

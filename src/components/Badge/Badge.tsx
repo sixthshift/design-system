@@ -41,7 +41,14 @@ const variantStructure: Record<string, string> = {
 type Loose<T extends string> = T | (string & {});
 
 export type BadgeVariantName = "solid" | "soft" | "outline";
-export type BadgeIntentName = "neutral" | "primary" | "danger" | "success" | "warning" | "muted";
+/**
+ * `primary` was this component's name for the brand colour, and nothing else in
+ * the system used it — the token is `--bg-brand`, ColorDot shipped `brand`, and
+ * docs/modals.md already told callers to write `intent="brand"`. It is off the
+ * closed union as of this release but still resolves, via an aliased selector in
+ * badge.css; `BadgeIntent` is widened, so it also still type-checks.
+ */
+export type BadgeIntentName = "neutral" | "brand" | "danger" | "success" | "warning" | "muted";
 export type BadgeVariant = Loose<BadgeVariantName>;
 export type BadgeIntent = Loose<BadgeIntentName>;
 
@@ -54,7 +61,7 @@ export type BadgeRecipeProps = VariantProps<typeof badgeVariants> & {
 /**
  * The class string plus the two attributes the recipe selects on.
  */
-export function badgeRecipe({ variant = "solid", intent = "primary", className }: BadgeRecipeProps) {
+export function badgeRecipe({ variant = "solid", intent = "brand", className }: BadgeRecipeProps) {
   return {
     className: cn(variantStructure[variant], badgeVariants({ className })),
     "data-variant": variant,
@@ -72,7 +79,7 @@ export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
  *
  * Two independent axes, same split as Button: `variant` is the fill
  * (`solid`, `soft`, `outline`), `intent` is what it signals (`neutral`,
- * `primary`, `danger`, `success`, `warning`, `muted`) — `muted` has no
+ * `brand`, `danger`, `success`, `warning`, `muted`) — `muted` has no
  * Button equivalent, for de-emphasized metadata rather than a status.
  * Renders a `<span>`; purely presentational, so give it visible text — it
  * does not manage an accessible name of its own.
@@ -82,7 +89,7 @@ export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
  * same seam Button uses, so a consumer can re-point a cell without a
  * release.
  */
-export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(({ className, variant = "solid", intent = "primary", ...props }, ref) => {
+export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(({ className, variant = "solid", intent = "brand", ...props }, ref) => {
   return <span ref={ref} {...badgeRecipe({ variant, intent, className })} {...props} />;
 });
 Badge.displayName = "Badge";

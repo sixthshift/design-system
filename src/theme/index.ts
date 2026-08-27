@@ -6,9 +6,7 @@
  */
 
 export type {
-  BgKey,
   BgToken,
-  BorderKey,
   BorderToken,
   ColorMode,
   ColorModeSchema,
@@ -16,17 +14,14 @@ export type {
   Context,
   CSSVarName,
   Feedback,
-  FgKey,
   FgToken,
   HexValue,
   Hierarchy,
-  HSLValue,
   Intent,
   Semantic,
   StandaloneToken,
   State,
   ThemeSchema,
-  TokenKey,
   TokenName,
   Weight,
 } from "./schema";
@@ -36,7 +31,6 @@ export {
   cssVar,
   feedback,
   hierarchy,
-  hsl,
   intents,
   semantics,
   standaloneTokens,

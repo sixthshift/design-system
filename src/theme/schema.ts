@@ -28,14 +28,6 @@
 /** Hex color value, e.g., "#6366f1" */
 export type HexValue = string;
 
-/**
- * HSL color value without wrapper, e.g., "239 84% 67%"
- *
- * @deprecated Tokens hold hex values and palette references, never bare HSL
- * triples. Kept only so the export surface stays stable.
- */
-export type HSLValue = string;
-
 /** Color mode */
 export type ColorMode = "light" | "dark";
 
@@ -106,15 +98,6 @@ export type ColorToken = TokenName;
 /** CSS variable name format */
 export type CSSVarName = `--${ColorToken}`;
 
-/** @deprecated Use {@link BgToken}. */
-export type BgKey = BgToken;
-/** @deprecated Use {@link FgToken}. */
-export type FgKey = FgToken;
-/** @deprecated Use {@link BorderToken}. */
-export type BorderKey = BorderToken;
-/** @deprecated Use {@link TokenName}. */
-export type TokenKey = TokenName;
-
 // =============================================================================
 // THEME SHAPE
 // =============================================================================
@@ -137,14 +120,4 @@ export type ThemeSchema = {
 /** Type-safe CSS var reference */
 export function cssVar(token: ColorToken): string {
   return `var(--${token})`;
-}
-
-/**
- * Type-safe HSL wrapper for Tailwind
- *
- * @deprecated Token values are hex and palette references, so wrapping one in
- * `hsl()` yields invalid CSS. Use {@link cssVar}.
- */
-export function hsl(token: ColorToken): string {
-  return `hsl(var(--${token}))`;
 }

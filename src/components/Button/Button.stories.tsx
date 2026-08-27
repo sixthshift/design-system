@@ -17,11 +17,11 @@ const meta: Meta<typeof Button> = {
     },
     intent: {
       control: "select",
-      options: ["neutral", "danger", "success", "warning"],
+      options: ["brand", "neutral", "danger", "success", "warning"],
     },
     size: {
       control: "select",
-      options: ["xs", "sm", "default", "lg", "xl", "icon"],
+      options: ["xs", "sm", "md", "lg", "xl"],
     },
   },
 };
@@ -37,9 +37,10 @@ export const Default: Story = {
 
 export const VariantIntentMatrix: Story = {
   render: () => (
-    <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr] items-center gap-3">
+    <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1fr] items-center gap-3">
       {/* Header row */}
       <div />
+      <div className="text-center text-fg-subtle text-sm">brand</div>
       <div className="text-center text-fg-subtle text-sm">neutral</div>
       <div className="text-center text-fg-subtle text-sm">danger</div>
       <div className="text-center text-fg-subtle text-sm">success</div>
@@ -47,6 +48,9 @@ export const VariantIntentMatrix: Story = {
 
       {/* Solid row */}
       <div className="text-fg-subtle text-sm">solid</div>
+      <Button variant="solid" intent="brand">
+        Button
+      </Button>
       <Button variant="solid" intent="neutral">
         Button
       </Button>
@@ -62,6 +66,9 @@ export const VariantIntentMatrix: Story = {
 
       {/* Outline row */}
       <div className="text-fg-subtle text-sm">outline</div>
+      <Button variant="outline" intent="brand">
+        Button
+      </Button>
       <Button variant="outline" intent="neutral">
         Button
       </Button>
@@ -77,6 +84,9 @@ export const VariantIntentMatrix: Story = {
 
       {/* Ghost row */}
       <div className="text-fg-subtle text-sm">ghost</div>
+      <Button variant="ghost" intent="brand">
+        Button
+      </Button>
       <Button variant="ghost" intent="neutral">
         Button
       </Button>
@@ -92,6 +102,9 @@ export const VariantIntentMatrix: Story = {
 
       {/* Link row */}
       <div className="text-fg-subtle text-sm">link</div>
+      <Button variant="link" intent="brand">
+        Button
+      </Button>
       <Button variant="link" intent="neutral">
         Button
       </Button>
@@ -113,10 +126,12 @@ export const AllSizes: Story = {
     <div className="flex items-center gap-4">
       <Button size="xs">Extra Small</Button>
       <Button size="sm">Small</Button>
-      <Button size="default">Default</Button>
+      <Button size="md">Medium</Button>
       <Button size="lg">Large</Button>
       <Button size="xl">Extra Large</Button>
-      <Button size="icon">★</Button>
+      <Button iconOnly aria-label="Star">
+        ★
+      </Button>
     </div>
   ),
 };

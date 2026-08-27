@@ -17,7 +17,8 @@ const ToggleGroupSingle = React.forwardRef<HTMLDivElement, ToggleGroupSingleProp
       orientation = "horizontal",
       variant = "solid",
       intent = "neutral",
-      size = "default",
+      size = "md",
+      iconOnly = false,
       disabled,
       className,
       ...props
@@ -88,6 +89,7 @@ const ToggleGroupSingle = React.forwardRef<HTMLDivElement, ToggleGroupSingleProp
             variant={variant}
             intent={intent}
             size={size}
+            iconOnly={iconOnly}
             index={index}
             total={options.length}
             role="radio"

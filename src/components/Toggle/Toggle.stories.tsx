@@ -18,11 +18,11 @@ const meta: Meta<typeof Toggle> = {
     },
     intent: {
       control: "select",
-      options: ["neutral", "danger", "success", "warning"],
+      options: ["brand", "neutral", "danger", "success", "warning"],
     },
     size: {
       control: "select",
-      options: ["xs", "sm", "default", "lg", "xl", "icon"],
+      options: ["xs", "sm", "md", "lg", "xl"],
     },
   },
   tags: ["autodocs"],
@@ -211,13 +211,13 @@ export const GhostIntents: Story = {
 export const ToolbarExample: Story = {
   render: () => (
     <div className="flex items-center gap-1">
-      <Toggle variant="ghost" size="icon" aria-label="Toggle bold">
+      <Toggle variant="ghost" iconOnly aria-label="Toggle bold">
         <Bold />
       </Toggle>
-      <Toggle variant="ghost" size="icon" aria-label="Toggle italic">
+      <Toggle variant="ghost" iconOnly aria-label="Toggle italic">
         <Italic />
       </Toggle>
-      <Toggle variant="ghost" size="icon" aria-label="Toggle underline">
+      <Toggle variant="ghost" iconOnly aria-label="Toggle underline">
         <Underline />
       </Toggle>
     </div>
@@ -229,10 +229,10 @@ export const ViewSwitcher: Story = {
     const [view, setView] = useState<"grid" | "list">("grid");
     return (
       <div className="flex items-center gap-1">
-        <Toggle variant="outline" size="icon" pressed={view === "grid"} onPressedChange={() => setView("grid")} aria-label="Grid view">
+        <Toggle variant="outline" iconOnly pressed={view === "grid"} onPressedChange={() => setView("grid")} aria-label="Grid view">
           <Grid />
         </Toggle>
-        <Toggle variant="outline" size="icon" pressed={view === "list"} onPressedChange={() => setView("list")} aria-label="List view">
+        <Toggle variant="outline" iconOnly pressed={view === "list"} onPressedChange={() => setView("list")} aria-label="List view">
           <List />
         </Toggle>
       </div>
@@ -245,10 +245,10 @@ export const Sizes: Story = {
     <div className="flex items-center gap-4">
       <Toggle size="xs">XS</Toggle>
       <Toggle size="sm">Small</Toggle>
-      <Toggle size="default">Default</Toggle>
+      <Toggle size="md">Medium</Toggle>
       <Toggle size="lg">Large</Toggle>
       <Toggle size="xl">XL</Toggle>
-      <Toggle size="icon" aria-label="Icon toggle">
+      <Toggle iconOnly aria-label="Icon toggle">
         <Bold />
       </Toggle>
     </div>

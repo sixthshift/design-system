@@ -251,7 +251,7 @@ describe("ToggleGroup", () => {
     });
 
     it("applies icon size class to segmented items", () => {
-      render(<ToggleGroup type="single" options={textOptions} size="icon" aria-label="test" />);
+      render(<ToggleGroup type="single" options={textOptions} iconOnly aria-label="test" />);
       expect(screen.getAllByRole("radio")[0]).toHaveClass("w-9");
     });
 

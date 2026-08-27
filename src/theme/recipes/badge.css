@@ -43,7 +43,7 @@
     --badge-fg: var(--fg-on-strong);
   }
 
-  .badge[data-variant="solid"][data-intent="primary"] {
+  .badge[data-variant="solid"][data-intent="brand"] {
     --badge-bg: var(--bg-brand);
     --badge-fg: var(--fg-on-brand);
   }
@@ -75,7 +75,7 @@
     --badge-fg: var(--fg-normal);
   }
 
-  .badge[data-variant="soft"][data-intent="primary"] {
+  .badge[data-variant="soft"][data-intent="brand"] {
     --badge-bg: var(--bg-brand-subtle);
     --badge-fg: var(--fg-on-brand-subtle);
   }
@@ -113,7 +113,7 @@
     --badge-fg: var(--fg-normal);
   }
 
-  .badge[data-variant="outline"][data-intent="primary"] {
+  .badge[data-variant="outline"][data-intent="brand"] {
     --badge-border: var(--border-brand);
     --badge-fg: var(--fg-brand);
   }

@@ -7,8 +7,8 @@ export type TagChipProps = {
   tag: string;
   /** When set, renders an × affordance. Omit for read-only / navigable chips. */
   onRemove?: () => void;
-  /** `sm` (default) for rows; `default` for detail pages. */
-  size?: "sm" | "default";
+  /** `sm` (default) for rows; `md` for detail pages. */
+  size?: "sm" | "md";
   className?: string;
 };
 

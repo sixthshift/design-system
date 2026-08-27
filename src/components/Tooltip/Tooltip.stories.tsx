@@ -112,7 +112,7 @@ export const OnIconButton: Story = {
     <div className="flex gap-2">
       <Tooltip>
         <Tooltip.Trigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" iconOnly>
             ✏️
           </Button>
         </Tooltip.Trigger>
@@ -121,7 +121,7 @@ export const OnIconButton: Story = {
 
       <Tooltip>
         <Tooltip.Trigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" iconOnly>
             🗑️
           </Button>
         </Tooltip.Trigger>
@@ -130,7 +130,7 @@ export const OnIconButton: Story = {
 
       <Tooltip>
         <Tooltip.Trigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" iconOnly>
             ⚙️
           </Button>
         </Tooltip.Trigger>

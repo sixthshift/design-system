@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Checkbox } from "./Checkbox";
 
@@ -18,6 +19,35 @@ type Story = StoryObj<typeof Checkbox>;
 
 export const Default: Story = {
   render: () => <Checkbox label="Checkbox" />,
+};
+
+/**
+ * The label is part of the control's hit area, and `Space` toggles it.
+ *
+ * Both are things only a real browser settles: clicking a `<label>` depends on
+ * hit-testing and the browser's own label-activation behaviour, neither of which
+ * happy-dom models faithfully.
+ */
+export const ClickAndKeyboard: Story = {
+  render: function ClickAndKeyboardStory() {
+    const [checked, setChecked] = useState(false);
+    return <Checkbox checked={checked} onCheckedChange={setChecked} label="Notify me" />;
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const checkbox = canvas.getByRole("checkbox");
+    await expect(checkbox).toHaveAttribute("aria-checked", "false");
+
+    // Clicking the words, not the box — which also moves focus to the control,
+    // as a real browser does for a label. (happy-dom does not, which is why the
+    // first draft of this test tabbed here and failed.)
+    await userEvent.click(canvas.getByText("Notify me"));
+    await expect(checkbox).toHaveAttribute("aria-checked", "true");
+    await expect(checkbox).toHaveFocus();
+
+    await userEvent.keyboard(" ");
+    await expect(checkbox).toHaveAttribute("aria-checked", "false");
+  },
 };
 
 export const Checked: Story = {

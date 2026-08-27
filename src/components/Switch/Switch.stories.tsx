@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Switch } from "./Switch";
 
@@ -15,6 +16,35 @@ const meta: Meta<typeof Switch> = {
 
 export default meta;
 type Story = StoryObj<typeof Switch>;
+
+/**
+ * Click and `Space` both toggle, and the thumb moves.
+ *
+ * The thumb is a CSS transform, so "did it move" is only answerable where the
+ * real stylesheet is applied.
+ */
+export const TogglePlay: Story = {
+  render: function TogglePlayStory() {
+    const [checked, setChecked] = useState(false);
+    return <Switch checked={checked} onCheckedChange={setChecked} label="Enable feature" />;
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const control = canvas.getByRole("switch");
+    const thumb = control.firstElementChild!;
+    // Tailwind 4 moves the thumb with the `translate` property, not `transform`.
+    const at = () => getComputedStyle(thumb).translate;
+
+    const off = at();
+    await userEvent.click(control);
+    await expect(control).toHaveAttribute("aria-checked", "true");
+    // Polled: the thumb transitions, so an immediate read is still the old value.
+    await waitFor(() => expect(at()).not.toBe(off));
+
+    await userEvent.keyboard(" ");
+    await expect(control).toHaveAttribute("aria-checked", "false");
+  },
+};
 
 export const Default: Story = {
   render: () => <Switch label="Enable feature" />,

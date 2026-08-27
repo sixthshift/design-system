@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { addDaysISO, addMonthsISO, endOfMonthISO, type ISODate, type ISODateRange, startOfMonthISO, todayISO } from "../../date-time";
 import { DatePicker } from "./DatePicker";
 
@@ -62,6 +63,28 @@ export const TypeOrPick: Story = {
  * a different date in `mdy` than in `dmy`, and the segment labels make which
  * one unmistakable to a screen reader either way.
  */
+/**
+ * Typed straight through, in a real browser.
+ *
+ * The unit tests cover this too, but every bug this field has had — the digit
+ * that replaced January with May, the field that ignored clicks outside its
+ * digits — passed happy-dom and failed here.
+ */
+export const TypingPlay: Story = {
+  render: () => <DatePicker />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvas.getByRole("group", { name: "Date" });
+
+    // A click anywhere in the field, not on the digits themselves.
+    await userEvent.click(field);
+    await expect(canvas.getByRole("spinbutton", { name: "Month" })).toHaveFocus();
+
+    await userEvent.keyboard("152026");
+    await expect(field).toHaveTextContent("01/05/2026");
+  },
+};
+
 export const SegmentOrder: Story = {
   render: () => (
     <div className="flex flex-col gap-4">

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Bold, Grid, Italic, List, Underline } from "lucide-react";
 import { useState } from "react";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Toggle } from "./Toggle";
 
@@ -30,6 +31,33 @@ const meta: Meta<typeof Toggle> = {
 
 export default meta;
 type Story = StoryObj<typeof Toggle>;
+
+/**
+ * Pressing toggles `aria-pressed`, and the pressed treatment is real CSS.
+ */
+export const PressPlay: Story = {
+  render: function PressPlayStory() {
+    const [pressed, setPressed] = useState(false);
+    return (
+      <Toggle pressed={pressed} onPressedChange={setPressed} aria-label="Toggle bold">
+        Bold
+      </Toggle>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const toggle = within(canvasElement).getByRole("button", { name: "Toggle bold" });
+    const background = () => getComputedStyle(toggle).backgroundColor;
+
+    const idle = background();
+    await userEvent.click(toggle);
+    await expect(toggle).toHaveAttribute("aria-pressed", "true");
+    // Polled: `transition-colors` means an immediate read is still the old value.
+    await waitFor(() => expect(background()).not.toBe(idle));
+
+    await userEvent.click(toggle);
+    await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  },
+};
 
 export const Default: Story = {
   args: {

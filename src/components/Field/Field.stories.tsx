@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Field } from "./Field";
 
@@ -18,6 +19,36 @@ const meta: Meta<typeof Field> = {
 
 export default meta;
 type Story = StoryObj<typeof Field>;
+
+/**
+ * `layout` is the difference between label-above and label-beside, which is
+ * only observable once the browser has laid it out.
+ */
+export const LayoutPlay: Story = {
+  render: () => (
+    <div className="flex w-80 flex-col gap-4">
+      <Field label="Stacked">stacked-value</Field>
+      <Field label="Row" layout="row">
+        row-value
+      </Field>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const stackedLabel = canvas.getByText("Stacked").getBoundingClientRect();
+    const stackedValue = canvas.getByText("stacked-value").getBoundingClientRect();
+    await expect(stackedValue.top).toBeGreaterThan(stackedLabel.top);
+
+    const rowLabel = canvas.getByText("Row").getBoundingClientRect();
+    const rowValue = canvas.getByText("row-value").getBoundingClientRect();
+    // Overlapping vertically rather than sharing a top edge: the value is
+    // monospaced, so its line box sits a couple of pixels off the label's.
+    await expect(rowValue.top).toBeLessThan(rowLabel.bottom);
+    await expect(rowValue.bottom).toBeGreaterThan(rowLabel.top);
+    await expect(rowValue.left).toBeGreaterThan(rowLabel.right);
+  },
+};
 
 export const Default: Story = {
   args: {

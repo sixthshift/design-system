@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import type { ISODate, ISOTime } from "../../date-time";
 import { DatePicker } from "../DatePicker";
 import { TimePicker } from "./TimePicker";
@@ -37,6 +38,23 @@ export const TypeOrPick: Story = {
         <div className="text-fg-subtle text-sm">Value: {observed ?? "none — a half-typed time is not a value"}</div>
       </div>
     );
+  },
+};
+
+/**
+ * `0230p` fills the whole field, typed in a real browser.
+ */
+export const TypingPlay: Story = {
+  render: () => <TimePicker />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvas.getByRole("group", { name: "Time" });
+
+    await userEvent.click(field);
+    await expect(canvas.getByRole("spinbutton", { name: "Hour" })).toHaveFocus();
+
+    await userEvent.keyboard("0230p");
+    await expect(field).toHaveTextContent("02:30 PM");
   },
 };
 

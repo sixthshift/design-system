@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect } from "storybook/test";
 import { ProgressBar } from "./ProgressBar";
 
 const meta: Meta<typeof ProgressBar> = {
@@ -20,6 +21,30 @@ const meta: Meta<typeof ProgressBar> = {
 
 export default meta;
 type Story = StoryObj<typeof ProgressBar>;
+
+/**
+ * The fill is proportional, and the proportion is only real once laid out: the
+ * bar is a percentage width inside a flexed track.
+ */
+export const GeometryPlay: Story = {
+  render: () => (
+    <div className="flex w-80 flex-col gap-4">
+      <ProgressBar completed={2} total={8} label="Quarter" />
+      <ProgressBar completed={6} total={8} label="Three quarters" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const bars = canvasElement.querySelectorAll<HTMLElement>('[role="progressbar"]');
+    await expect(bars).toHaveLength(2);
+
+    const fill = (bar: HTMLElement) => bar.firstElementChild!.getBoundingClientRect().width;
+    const quarter = fill(bars[0]!);
+    const threeQuarters = fill(bars[1]!);
+
+    await expect(quarter).toBeGreaterThan(0);
+    await expect(threeQuarters).toBeGreaterThan(quarter * 2);
+  },
+};
 
 export const Default: Story = {
   args: {

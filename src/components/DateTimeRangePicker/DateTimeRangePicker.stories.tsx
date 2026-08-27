@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { addDaysISO, addHoursISO, fromISOInstant, type ISOInstantRange, nowISO, Temporal, todayISO, toISOInstant } from "../../date-time";
 import { DateTimeRangePicker } from "./DateTimeRangePicker";
 
@@ -41,6 +42,21 @@ export const TypeOrPick: Story = {
         </div>
       </div>
     );
+  },
+};
+
+/**
+ * Each end carries a whole date and time, typed straight through.
+ */
+export const TypingPlay: Story = {
+  render: () => <DateTimeRangePicker />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const start = canvas.getByRole("group", { name: "Start date and time" });
+
+    await userEvent.click(within(start).getByRole("spinbutton", { name: "Month" }));
+    await userEvent.keyboard("1520260900a");
+    await expect(start).toHaveTextContent("01/05/2026 09:00 AM");
   },
 };
 

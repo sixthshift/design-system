@@ -1,6 +1,8 @@
 import { Badge } from "@sixthshift/design-system/badge";
 import { Button } from "@sixthshift/design-system/button";
 import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Card } from ".";
 
@@ -16,6 +18,32 @@ const meta: Meta<typeof Card> = {
 
 export default meta;
 type Story = StoryObj<typeof Card>;
+
+/**
+ * A card with `onClick` becomes a real button — focusable, and activated by
+ * `Enter` as well as a click.
+ */
+export const ClickablePlay: Story = {
+  render: function ClickablePlayStory() {
+    const [opened, setOpened] = useState(0);
+    return (
+      <Card className="w-87.5" title="Card Title" onClick={() => setOpened((n) => n + 1)}>
+        <p className="text-fg-subtle text-sm">Opened {opened} times</p>
+      </Card>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const card = canvas.getByRole("button");
+
+    await userEvent.click(card);
+    await expect(canvas.getByText("Opened 1 times")).toBeInTheDocument();
+
+    card.focus();
+    await userEvent.keyboard("{Enter}");
+    await expect(canvas.getByText("Opened 2 times")).toBeInTheDocument();
+  },
+};
 
 export const Default: Story = {
   render: () => (

@@ -1,5 +1,6 @@
 import { Heading } from "@sixthshift/design-system/heading";
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, within } from "storybook/test";
 import { Text } from "./Text";
 
 const meta: Meta<typeof Text> = {
@@ -20,6 +21,31 @@ const meta: Meta<typeof Text> = {
 
 export default meta;
 type Story = StoryObj<typeof Text>;
+
+/**
+ * `as` picks the real tag, and the semantic colour classes resolve to actual
+ * paint — an unresolved token would leave both texts the same colour.
+ */
+export const RenderingPlay: Story = {
+  render: () => (
+    <div>
+      <Text as="p" className="text-fg-normal">
+        normal text
+      </Text>
+      <Text as="p" className="text-fg-subtle">
+        subtle text
+      </Text>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const normal = canvas.getByText("normal text");
+    const subtle = canvas.getByText("subtle text");
+
+    await expect(normal.tagName).toBe("P");
+    await expect(getComputedStyle(normal).color).not.toBe(getComputedStyle(subtle).color);
+  },
+};
 
 export const Default: Story = {
   args: {

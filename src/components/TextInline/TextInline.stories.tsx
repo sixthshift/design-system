@@ -1,6 +1,7 @@
 import { Badge } from "@sixthshift/design-system/badge";
 import { Text } from "@sixthshift/design-system/text";
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, within } from "storybook/test";
 import { TextInline } from "./TextInline";
 
 const meta: Meta<typeof TextInline> = {
@@ -25,6 +26,29 @@ const meta: Meta<typeof TextInline> = {
 
 export default meta;
 type Story = StoryObj<typeof TextInline>;
+
+/**
+ * The children sit on one line with a real gap between them, which is a
+ * flex-layout fact rather than a class name.
+ */
+export const LayoutPlay: Story = {
+  render: () => (
+    <TextInline>
+      <Text>Created by</Text>
+      <Text className="font-semibold">John Doe</Text>
+    </TextInline>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const first = canvas.getByText("Created by").getBoundingClientRect();
+    const second = canvas.getByText("John Doe").getBoundingClientRect();
+
+    // Same line (overlapping line boxes, not identical tops) and not touching.
+    await expect(second.top).toBeLessThan(first.bottom);
+    await expect(second.bottom).toBeGreaterThan(first.top);
+    await expect(second.left).toBeGreaterThan(first.right);
+  },
+};
 
 export const Default: Story = {
   render: () => (

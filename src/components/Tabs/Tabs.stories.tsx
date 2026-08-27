@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { type TabItem, Tabs } from "./Tabs";
 
@@ -59,6 +60,32 @@ const tabsWithBadge: TabItem[] = [
   { value: "notifications", label: "Notifications", badge: 3, content: <p>You have 3 notifications</p> },
   { value: "team", label: "Team", badge: "New", content: <p>Team content here</p> },
 ];
+
+/**
+ * Arrow keys move focus *and* selection, wrapping at the ends.
+ *
+ * Asserted here rather than only in the unit tests because a roving `tabIndex`
+ * is about where DOM focus actually lands, and happy-dom will report focus on an
+ * element a real browser refuses to focus.
+ */
+export const KeyboardNavigation: Story = {
+  ...Default,
+  play: async ({ canvasElement }) => {
+    const tabs = within(canvasElement).getAllByRole("tab");
+    await userEvent.click(tabs[0]!);
+    await expect(tabs[0]!).toHaveFocus();
+
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(tabs[1]!).toHaveFocus();
+    await expect(tabs[1]!).toHaveAttribute("aria-selected", "true");
+
+    // Wraps from the last tab back to the first.
+    await userEvent.keyboard("{End}");
+    await expect(tabs[tabs.length - 1]!).toHaveFocus();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(tabs[0]!).toHaveFocus();
+  },
+};
 
 export const WithBadges: Story = {
   render: () => (

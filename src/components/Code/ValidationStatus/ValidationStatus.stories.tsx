@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, within } from "storybook/test";
 import { ValidationStatus } from "./ValidationStatus";
 
 const meta: Meta<typeof ValidationStatus> = {
@@ -12,6 +13,29 @@ const meta: Meta<typeof ValidationStatus> = {
 
 export default meta;
 type Story = StoryObj<typeof ValidationStatus>;
+
+/**
+ * Each error is rendered with its position, and an empty list renders nothing to
+ * read — the distinction a smoke test cannot make.
+ */
+export const RenderingPlay: Story = {
+  render: () => (
+    <ValidationStatus
+      errors={[
+        { line: 5, column: 12, message: "Property 'name' does not exist on type 'User'.", severity: "error" },
+        { line: 9, column: 3, message: "'result' is declared but never read.", severity: "warning" },
+      ]}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Property 'name' does not exist/)).toBeVisible();
+    await expect(canvas.getByText(/never read/)).toBeVisible();
+    // Positions are shown, not just messages.
+    await expect(canvasElement.textContent).toMatch(/5/);
+    await expect(canvasElement.textContent).toMatch(/9/);
+  },
+};
 
 export const NoErrors: Story = {
   args: {

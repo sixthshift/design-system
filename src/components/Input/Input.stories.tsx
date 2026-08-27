@@ -2,6 +2,7 @@ import { Label } from "@sixthshift/design-system/label";
 import type { Meta, StoryObj } from "@storybook/react";
 import { AtSign, Check, Eye, EyeOff, Lock, Mail, Search as SearchIcon } from "lucide-react";
 import * as React from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Input } from "./Input";
 
@@ -17,6 +18,25 @@ const meta: Meta<typeof Input> = {
 
 export default meta;
 type Story = StoryObj<typeof Input>;
+
+/**
+ * Typing, and a click on the field's padding still lands in the input.
+ *
+ * Both are hit-testing questions: the icon slots are absolutely positioned over
+ * the input, so whether they steal the click is a real-browser answer.
+ */
+export const TypingPlay: Story = {
+  render: () => <Input placeholder="Enter text..." iconLeft={<Mail />} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox");
+
+    await userEvent.click(input);
+    await expect(input).toHaveFocus();
+    await userEvent.keyboard("hello@example.com");
+    await expect(input).toHaveValue("hello@example.com");
+  },
+};
 
 export const Default: Story = {
   args: {

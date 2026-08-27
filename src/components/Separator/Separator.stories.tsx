@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, within } from "storybook/test";
 import { Separator } from "./Separator";
 
 const meta: Meta<typeof Separator> = {
@@ -19,6 +20,33 @@ const meta: Meta<typeof Separator> = {
 
 export default meta;
 type Story = StoryObj<typeof Separator>;
+
+/**
+ * A separator is a hairline in one axis, which is a layout fact: only a real
+ * browser resolves `h-px` and `w-full` to actual pixels.
+ */
+export const GeometryPlay: Story = {
+  render: () => (
+    <div className="w-64 space-y-4">
+      {/* Not decorative, so each renders `role="separator"` to query by. */}
+      <Separator decorative={false} />
+      <div className="flex h-10">
+        <Separator decorative={false} orientation="vertical" />
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const [horizontal, vertical] = within(canvasElement).getAllByRole("separator");
+
+    const h = horizontal!.getBoundingClientRect();
+    await expect(h.height).toBeCloseTo(1, 0);
+    await expect(h.width).toBeGreaterThan(100);
+
+    const v = vertical!.getBoundingClientRect();
+    await expect(v.width).toBeCloseTo(1, 0);
+    await expect(v.height).toBeGreaterThan(10);
+  },
+};
 
 export const Horizontal: Story = {
   render: () => (

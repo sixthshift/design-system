@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, within } from "storybook/test";
 import { BarChart } from "./BarChart";
 
 const meta: Meta<typeof BarChart> = {
@@ -13,6 +14,40 @@ const meta: Meta<typeof BarChart> = {
 
 export default meta;
 type Story = StoryObj<typeof BarChart>;
+
+/**
+ * Bar widths are proportional to their values — a percentage inside a flexed
+ * track, so the proportion only becomes real once laid out.
+ */
+export const GeometryPlay: Story = {
+  render: () => (
+    <div className="w-80">
+      <BarChart
+        data={[
+          { label: "Big", value: 20 },
+          { label: "Small", value: 5 },
+        ]}
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const width = (label: string) => {
+      const row = canvas.getByText(label).parentElement!;
+      // The fill, not the track: the tracks are all the same width, which is
+      // what made the first draft of this assertion pass vacuously.
+      const fill = row.querySelector<HTMLElement>('div[style*="width"]')!;
+      return fill.getBoundingClientRect().width;
+    };
+
+    const big = width("Big");
+    const small = width("Small");
+    await expect(big).toBeGreaterThan(0);
+    // 20 against 5, so roughly four times — generous bounds, since padding and
+    // rounding are the browser's business.
+    await expect(big).toBeGreaterThan(small * 2);
+  },
+};
 
 export const Default: Story = {
   args: {

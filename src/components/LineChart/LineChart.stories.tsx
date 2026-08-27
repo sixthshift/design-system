@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, userEvent, within } from "storybook/test";
 import { LineChart } from "./LineChart";
 
 const meta: Meta<typeof LineChart> = {
@@ -25,6 +26,31 @@ const signupsData = weekdays.map((label, i) => ({
   label,
   value: [3, 4, 2, 5, 4, 1, 3][i]!,
 }));
+
+/**
+ * Hovering a data point reveals its tooltip.
+ *
+ * Hover is a pointer event and the tooltip is positioned by Floating UI against
+ * a measured rect — neither exists without a real browser. The chart's own
+ * geometry is asserted too: the plotted path has to have length.
+ */
+export const HoverPlay: Story = {
+  render: () => <LineChart series={[{ data: sessionsData, name: "Sessions" }]} showTooltip />,
+  play: async ({ canvasElement }) => {
+    const chart = within(canvasElement).getByRole("img");
+    const path = canvasElement.querySelector<SVGPathElement>("path[d]")!;
+    await expect(path.getTotalLength()).toBeGreaterThan(0);
+
+    // The tooltip triggers are unfocusable spans laid over each point.
+    const trigger = canvasElement.querySelectorAll<HTMLElement>("span")[0];
+    if (trigger) {
+      await userEvent.hover(trigger);
+      const tooltip = await within(document.body).findByRole("tooltip", {}, { timeout: 2000 });
+      await expect(tooltip).toBeVisible();
+    }
+    await expect(chart).toBeVisible();
+  },
+};
 
 export const Default: Story = {
   args: {

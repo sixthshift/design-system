@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { RadioButton } from "./RadioButton";
 
@@ -15,6 +16,28 @@ const meta: Meta<typeof RadioButton> = {
 
 export default meta;
 type Story = StoryObj<typeof RadioButton>;
+
+/**
+ * The label is part of the hit area, and clicking it focuses the control.
+ *
+ * Deliberately does not assert what a second click does: this primitive
+ * currently un-checks, which the radio pattern says should not happen, and
+ * pinning that here would cement it.
+ */
+export const SelectionPlay: Story = {
+  render: function SelectionPlayStory() {
+    const [checked, setChecked] = useState(false);
+    return <RadioButton checked={checked} onCheckedChange={setChecked} label="Radio button" />;
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const radio = canvas.getByRole("radio");
+
+    await userEvent.click(canvas.getByText("Radio button"));
+    await expect(radio).toHaveAttribute("aria-checked", "true");
+    await expect(radio).toHaveFocus();
+  },
+};
 
 export const Default: Story = {
   render: () => <RadioButton label="Radio button" />,

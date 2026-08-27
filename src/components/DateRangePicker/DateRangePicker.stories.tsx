@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import {
   addDaysISO,
   addMonthsISO,
@@ -50,6 +51,26 @@ export const TypeOrPick: Story = {
         </div>
       </div>
     );
+  },
+};
+
+/**
+ * Two fields, typed independently, sharing one popover.
+ */
+export const TypingPlay: Story = {
+  render: () => <DateRangePicker />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const start = canvas.getByRole("group", { name: "Start date" });
+    const end = canvas.getByRole("group", { name: "End date" });
+
+    await userEvent.click(start);
+    await userEvent.keyboard("152026");
+    await userEvent.click(end);
+    await userEvent.keyboard("1/6/2026");
+
+    await expect(start).toHaveTextContent("01/05/2026");
+    await expect(end).toHaveTextContent("01/06/2026");
   },
 };
 

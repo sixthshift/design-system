@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import * as React from "react";
+import { expect, userEvent, within } from "storybook/test";
 import {
   addDaysISO,
   addMonthsISO,
@@ -30,6 +31,34 @@ type Story = StoryObj<typeof Calendar>;
 // ============================================================================
 // Single Mode - Basic
 // ============================================================================
+
+/**
+ * The day grid is a single tab stop, and arrow keys move real DOM focus.
+ *
+ * Roving `tabIndex` is entirely about where focus lands, which is the thing a
+ * simulated DOM is least reliable about.
+ */
+export const KeyboardPlay: Story = {
+  name: "Keyboard Play",
+  render: function KeyboardPlayStory() {
+    const [value, setValue] = React.useState<ISODate | undefined>(todayISO());
+    const [month, setMonth] = React.useState(todayISO());
+    return <Calendar mode="single" value={value} onSelect={setValue} month={month} onMonthChange={setMonth} />;
+  },
+  play: async ({ canvasElement }) => {
+    const grid = within(canvasElement).getByRole("grid");
+    const tabStop = grid.querySelector<HTMLButtonElement>('[tabindex="0"]')!;
+    await expect(grid.querySelectorAll('[tabindex="0"]')).toHaveLength(1);
+
+    tabStop.focus();
+    const from = tabStop.getAttribute("data-date");
+    await userEvent.keyboard("{ArrowRight}");
+
+    const focused = document.activeElement as HTMLElement;
+    await expect(focused).toHaveAttribute("data-date");
+    await expect(focused.getAttribute("data-date")).not.toBe(from);
+  },
+};
 
 export const SingleMode: Story = {
   name: "Single Mode",

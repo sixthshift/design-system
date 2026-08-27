@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Button } from "./Button";
 
@@ -28,6 +30,47 @@ const meta: Meta<typeof Button> = {
 
 export default meta;
 type Story = StoryObj<typeof Button>;
+
+/**
+ * Clicks fire, a disabled button cannot be clicked at all, and the focus ring is
+ * keyboard-only.
+ *
+ * `:focus-visible` is a browser heuristic and `pointer-events: none` is CSS;
+ * neither is something a simulated DOM can answer.
+ */
+export const ClickPlay: Story = {
+  render: function ClickPlayStory() {
+    const [count, setCount] = useState(0);
+    return (
+      <div className="flex items-center gap-4">
+        <Button onClick={() => setCount((c) => c + 1)}>Clicked {count}</Button>
+        <Button disabled onClick={() => setCount((c) => c + 100)}>
+          Disabled
+        </Button>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole("button", { name: /^Clicked/ });
+
+    await userEvent.click(button);
+    await expect(canvas.getByRole("button", { name: "Clicked 1" })).toBeInTheDocument();
+
+    // A disabled button is unclickable in CSS, not merely ignored in JS:
+    // user-event refuses to click it, exactly as a real user could not.
+    const disabled = canvas.getByRole("button", { name: "Disabled" });
+    await expect(disabled).toBeDisabled();
+    await expect(getComputedStyle(disabled).pointerEvents).toBe("none");
+
+    // Keyboard focus shows the ring. Not asserted for pointer focus: whether a
+    // synthesised click counts as a pointer modality for `:focus-visible` is the
+    // harness's business, not the component's.
+    button.blur();
+    await userEvent.keyboard("{Tab}");
+    await expect(document.activeElement?.matches(":focus-visible")).toBe(true);
+  },
+};
 
 export const Default: Story = {
   args: {

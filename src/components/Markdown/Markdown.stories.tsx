@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, within } from "storybook/test";
 import { Markdown } from "./Markdown";
 
 const meta: Meta<typeof Markdown> = {
@@ -20,6 +21,22 @@ const meta: Meta<typeof Markdown> = {
 
 export default meta;
 type Story = StoryObj<typeof Markdown>;
+
+/**
+ * Markdown becomes real elements, not escaped text — asserted by role, so a
+ * heading has to actually be a heading.
+ */
+export const RenderingPlay: Story = {
+  render: () => <Markdown>{"## A heading\n\nSome **bold** text and a [link](https://example.com).\n\n- one\n- two"}</Markdown>,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByRole("heading", { name: "A heading" })).toBeInTheDocument();
+    await expect(canvas.getByRole("link", { name: "link" })).toHaveAttribute("href", "https://example.com");
+    await expect(canvas.getAllByRole("listitem")).toHaveLength(2);
+    await expect(canvas.getByText("bold").tagName).toBe("STRONG");
+  },
+};
 
 export const Default: Story = {
   args: {

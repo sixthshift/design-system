@@ -2,6 +2,7 @@ import { Button } from "@sixthshift/design-system/button";
 import { Text } from "@sixthshift/design-system/text";
 import { TextInline } from "@sixthshift/design-system/text-inline";
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect } from "storybook/test";
 import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Spinner } from "./Spinner";
 
@@ -23,6 +24,22 @@ const meta: Meta<typeof Spinner> = {
 
 export default meta;
 type Story = StoryObj<typeof Spinner>;
+
+/**
+ * The spinner spins: the animation is a CSS keyframe, so "is it animating"
+ * exists only where the stylesheet does.
+ */
+export const AnimationPlay: Story = {
+  render: () => <Spinner />,
+  play: async ({ canvasElement }) => {
+    const spinner = canvasElement.querySelector("svg")!;
+    const style = getComputedStyle(spinner);
+
+    await expect(style.animationName).not.toBe("none");
+    await expect(Number.parseFloat(style.animationDuration)).toBeGreaterThan(0);
+    await expect(style.animationIterationCount).toBe("infinite");
+  },
+};
 
 export const Default: Story = {
   args: {},

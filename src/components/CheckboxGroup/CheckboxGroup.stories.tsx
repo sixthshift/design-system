@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { CheckboxGroup } from "./CheckboxGroup";
 
 const meta: Meta<typeof CheckboxGroup> = {
@@ -22,6 +23,27 @@ const defaultOptions = [
 ];
 
 // Default variant (checkbox + label)
+/**
+ * Unlike a radio group, every option is independently selectable and separately
+ * tabbable.
+ */
+export const SelectionPlay: Story = {
+  render: function SelectionPlayStory() {
+    const [value, setValue] = useState<string[]>([]);
+    return <CheckboxGroup value={value} onValueChange={setValue} options={defaultOptions} />;
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const boxes = canvas.getAllByRole("checkbox");
+
+    await userEvent.click(boxes[0]!);
+    await userEvent.click(boxes[2]!);
+    await expect(boxes[0]!).toHaveAttribute("aria-checked", "true");
+    await expect(boxes[1]!).toHaveAttribute("aria-checked", "false");
+    await expect(boxes[2]!).toHaveAttribute("aria-checked", "true");
+  },
+};
+
 export const Default: Story = {
   args: {
     value: [],

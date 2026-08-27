@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { addDaysISO, addMinutesISO, addMonthsISO, fromISOInstant, type ISOInstant, nowISO, todayISO, toISOInstant } from "../../date-time";
 import { DateTimePicker } from "./DateTimePicker";
 
@@ -39,6 +40,21 @@ export const TypeOrPick: Story = {
         <div className="text-fg-subtle text-sm">Value: {observed ?? "none — a half-typed instant is not a value"}</div>
       </div>
     );
+  },
+};
+
+/**
+ * The digits roll from the year straight into the hour, with no tabbing.
+ */
+export const TypingPlay: Story = {
+  render: () => <DateTimePicker />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvas.getByRole("group", { name: "Date and time" });
+
+    await userEvent.click(canvas.getByRole("spinbutton", { name: "Month" }));
+    await userEvent.keyboard("1520260330p");
+    await expect(field).toHaveTextContent("01/05/2026 03:30 PM");
   },
 };
 

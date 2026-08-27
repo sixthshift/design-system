@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, within } from "storybook/test";
 import { Sparkline } from "./Sparkline";
 
 const meta: Meta<typeof Sparkline> = {
@@ -13,6 +14,22 @@ const meta: Meta<typeof Sparkline> = {
 
 export default meta;
 type Story = StoryObj<typeof Sparkline>;
+
+/**
+ * The trend is a drawn path with a real length, behind a static accessible name.
+ */
+export const GeometryPlay: Story = {
+  render: () => <Sparkline data={[5, 8, 3, 12, 7, 2, 9]} />,
+  play: async ({ canvasElement }) => {
+    const chart = within(canvasElement).getByRole("img", { name: "Trend line" });
+    const line = chart.querySelector<SVGPathElement | SVGPolylineElement>("path[d], polyline[points]")!;
+
+    await expect(line).toBeTruthy();
+    if ("getTotalLength" in line) {
+      await expect(line.getTotalLength()).toBeGreaterThan(0);
+    }
+  },
+};
 
 export const Default: Story = {
   args: {

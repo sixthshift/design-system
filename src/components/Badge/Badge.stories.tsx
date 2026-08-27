@@ -1,6 +1,7 @@
 import { Text } from "@sixthshift/design-system/text";
 import { TextInline } from "@sixthshift/design-system/text-inline";
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Badge } from "./Badge";
 
@@ -26,6 +27,39 @@ const meta: Meta<typeof Badge> = {
 
 export default meta;
 type Story = StoryObj<typeof Badge>;
+
+/**
+ * The recipe actually paints: `solid` and `soft` of the same intent resolve to
+ * different backgrounds, and a `danger` badge differs from a `success` one.
+ *
+ * Asserted as inequalities rather than literal colours, so the same test holds
+ * in both themes — and it can only pass where the real stylesheet is applied,
+ * which a simulated DOM is not.
+ */
+export const RecipePlay: Story = {
+  render: () => (
+    <div className="flex gap-2">
+      <Badge variant="solid" intent="danger">
+        solid danger
+      </Badge>
+      <Badge variant="soft" intent="danger">
+        soft danger
+      </Badge>
+      <Badge variant="solid" intent="success">
+        solid success
+      </Badge>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const paint = (name: string) => getComputedStyle(canvas.getByText(name)).backgroundColor;
+
+    await expect(paint("solid danger")).not.toBe(paint("soft danger"));
+    await expect(paint("solid danger")).not.toBe(paint("solid success"));
+    // And nothing is left transparent, which is what an unresolved token gives.
+    await expect(paint("solid danger")).not.toBe("rgba(0, 0, 0, 0)");
+  },
+};
 
 export const Default: Story = {
   args: {

@@ -2,6 +2,7 @@ import { Input } from "@sixthshift/design-system/input";
 import { Select } from "@sixthshift/design-system/select";
 import { Textarea } from "@sixthshift/design-system/textarea";
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, userEvent, within } from "storybook/test";
 import { FormField } from "./FormField";
 
 const meta: Meta<typeof FormField> = {
@@ -16,6 +17,23 @@ const meta: Meta<typeof FormField> = {
 
 export default meta;
 type Story = StoryObj<typeof FormField>;
+
+/**
+ * Clicking the label focuses the control it wraps, which is the whole point of
+ * the association — and a browser behaviour, not a DOM attribute.
+ */
+export const LabelAssociationPlay: Story = {
+  render: () => (
+    <FormField label="Email" description="We will not share it.">
+      <Input type="email" placeholder="you@example.com" />
+    </FormField>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText("Email"));
+    await expect(canvas.getByRole("textbox")).toHaveFocus();
+  },
+};
 
 export const Default: Story = {
   args: {

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { RadioButtonGroup } from "./RadioButtonGroup";
 
 const meta: Meta<typeof RadioButtonGroup> = {
@@ -22,6 +23,29 @@ const planOptions = [
 ];
 
 // Default variant (radio button + label)
+/**
+ * A radiogroup is one tab stop: arrows move selection, and only the selected
+ * option is tabbable.
+ */
+export const KeyboardPlay: Story = {
+  render: function KeyboardPlayStory() {
+    const [value, setValue] = useState("pro");
+    return <RadioButtonGroup value={value} onValueChange={setValue} options={planOptions} />;
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const radios = canvas.getAllByRole("radio");
+
+    await userEvent.click(radios[1]!);
+    await expect(radios[1]!).toHaveFocus();
+
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(radios[2]!).toHaveAttribute("aria-checked", "true");
+    await expect(radios[2]!).toHaveFocus();
+    await expect(radios[1]!).toHaveAttribute("tabindex", "-1");
+  },
+};
+
 export const Default: Story = {
   args: {
     value: "free",

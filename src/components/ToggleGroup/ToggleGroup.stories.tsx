@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Bold, Calendar, Italic, LayoutGrid, List, Underline } from "lucide-react";
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { ToggleGroup } from "./ToggleGroup";
 
 const meta: Meta<typeof ToggleGroup> = {
@@ -55,6 +56,27 @@ const formatOptions = [
 ];
 
 // ── Single-select ────────────────────────────────────────────────────
+
+/**
+ * One selection at a time, and the group is a single tab stop.
+ */
+export const SelectionPlay: Story = {
+  render: function SelectionPlayStory() {
+    const [value, setValue] = useState("week");
+    return <ToggleGroup type="single" value={value} onValueChange={(next) => setValue(next as string)} options={viewOptions} />;
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // A single-select ToggleGroup is a radiogroup, so selection is
+    // `aria-checked` — not the `aria-pressed` a lone Toggle uses.
+    const [month, week] = canvas.getAllByRole("radio");
+    await expect(week).toHaveAttribute("aria-checked", "true");
+
+    await userEvent.click(month!);
+    await expect(month!).toHaveAttribute("aria-checked", "true");
+    await expect(week!).toHaveAttribute("aria-checked", "false");
+  },
+};
 
 export const Default: Story = {
   args: {

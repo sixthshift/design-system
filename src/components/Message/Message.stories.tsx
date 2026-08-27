@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Message, MessageBody, MessageDescription, MessageIcon, MessageTitle } from ".";
 
@@ -38,6 +39,27 @@ type Story = StoryObj<typeof Message>;
 // =============================================================================
 // BASIC STORIES
 // =============================================================================
+
+/**
+ * Intent reaches the rendered surface: a danger message is painted differently
+ * from a neutral one, through the recipe rather than a hardcoded colour.
+ */
+export const RecipePlay: Story = {
+  render: () => (
+    <div className="flex flex-col gap-2">
+      <Message intent="neutral">neutral message</Message>
+      <Message intent="danger">danger message</Message>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const surface = (name: string) => {
+      const el = canvas.getByText(name).closest("[data-intent]") ?? canvas.getByText(name);
+      return getComputedStyle(el).backgroundColor;
+    };
+    await expect(surface("neutral message")).not.toBe(surface("danger message"));
+  },
+};
 
 export const Default: Story = {
   args: {

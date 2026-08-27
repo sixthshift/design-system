@@ -4,6 +4,8 @@ Personal design system: design tokens, theme pipeline, and a React component lib
 
 A single package, `@sixthshift/design-system`: ~80 components (primitives, overlays, forms, pickers, charts, typography) + a JSON-driven token/theme pipeline + Tailwind config. Built on [shadcn/ui](https://ui.shadcn.com) patterns.
 
+Browse the components: **[sixthshift.github.io/design-system](https://sixthshift.github.io/design-system/)** — Storybook, rebuilt from `main` by `.github/workflows/pages.yml`.
+
 ## Orientation
 
 **Owns:** The component library — 80+ exports via subpath imports, design tokens, theme system (JSON-driven CSS generation), Tailwind config, and Storybook stories. Components span primitives, composites, typography, charts, and overlays.

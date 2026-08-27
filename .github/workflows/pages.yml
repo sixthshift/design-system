@@ -1,0 +1,70 @@
+# Builds Storybook and publishes it to GitHub Pages:
+# https://sixthshift.github.io/design-system/
+#
+# No `base` is configured anywhere: Storybook emits every asset reference as a
+# relative path (./assets/..., ./sb-manager/...), so the same artifact works at
+# a project-site subpath as it does at a domain root. Nothing here needs to know
+# the repository name.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A superseded deploy is pointless, but do not cancel one mid-upload — Pages
+# would be left serving a half-published artifact.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  # Match the devcontainer's pin, as the other workflows do.
+  BUN_VERSION: "1.3.9"
+
+jobs:
+  build:
+    name: Build Storybook
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build Storybook
+        run: bun run build:storybook
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: storybook-static
+
+  deploy:
+    name: Deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    # Only this job gets the write scopes: `pages` to publish and `id-token` for
+    # the OIDC token deploy-pages exchanges with the Pages API.
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -29,17 +29,6 @@ console.log(message);
  * The workspace mounts its editor and reports edits upward.
  */
 export const MountPlay: Story = {
-  parameters: {
-    a11y: {
-      // Monaco paints its own syntax colours, and its default light theme puts
-      // some tokens at 3.27:1 against the editor background — under the 4.5:1
-      // axe requires. The other stories in this file pass only because axe runs
-      // before Monaco has painted; waiting for it, as this story does, exposes
-      // it. Scoped off here rather than globally, so the finding stays visible
-      // in the report rather than being silently accepted everywhere.
-      config: { rules: [{ id: "color-contrast", enabled: false }] },
-    },
-  },
   render: function MountPlayStory() {
     const [code, setCode] = useState(defaultCode);
     return (

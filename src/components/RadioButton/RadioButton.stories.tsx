@@ -18,11 +18,8 @@ export default meta;
 type Story = StoryObj<typeof RadioButton>;
 
 /**
- * The label is part of the hit area, and clicking it focuses the control.
- *
- * Deliberately does not assert what a second click does: this primitive
- * currently un-checks, which the radio pattern says should not happen, and
- * pinning that here would cement it.
+ * The label is part of the hit area, clicking it focuses the control, and a
+ * second click leaves the radio selected rather than clearing it.
  */
 export const SelectionPlay: Story = {
   render: function SelectionPlayStory() {
@@ -36,6 +33,10 @@ export const SelectionPlay: Story = {
     await userEvent.click(canvas.getByText("Radio button"));
     await expect(radio).toHaveAttribute("aria-checked", "true");
     await expect(radio).toHaveFocus();
+
+    // Clicking it again leaves it selected: a radio is not a toggle.
+    await userEvent.click(radio);
+    await expect(radio).toHaveAttribute("aria-checked", "true");
   },
 };
 

@@ -73,13 +73,26 @@ describe("RadioButton", () => {
       expect(handleChange).toHaveBeenCalledWith(true);
     });
 
-    it("calls onCheckedChange with false when clicking a checked radio", async () => {
+    it("reports nothing when the selected radio is clicked again", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
       render(<RadioButton checked={true} onCheckedChange={handleChange} />);
 
+      // A radio is not a toggle: it used to emit `false` here, which let a
+      // standalone radio deselect itself. Deselection is a sibling's job.
       await user.click(screen.getByRole("radio"));
-      expect(handleChange).toHaveBeenCalledWith(false);
+      expect(handleChange).not.toHaveBeenCalled();
+      expect(screen.getByRole("radio")).toHaveAttribute("aria-checked", "true");
+    });
+
+    it("reports nothing when the selected radio is activated from the keyboard", async () => {
+      const user = userEvent.setup();
+      const handleChange = vi.fn();
+      render(<RadioButton checked={true} onCheckedChange={handleChange} />);
+
+      screen.getByRole("radio").focus();
+      await user.keyboard(" ");
+      expect(handleChange).not.toHaveBeenCalled();
     });
 
     it("does not call onCheckedChange when disabled", async () => {

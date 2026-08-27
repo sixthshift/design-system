@@ -107,6 +107,12 @@ const RadioButtonGroup = React.forwardRef<HTMLDivElement, RadioButtonGroupProps>
     );
 
     const handleOptionSelect = (optionValue: string) => {
+      // Re-selecting the current option reports nothing, as a native radio does
+      // not. The guard lives here as well as in `RadioButton` because the button
+      // variant is a separate rendering path that never goes through it — and
+      // the two variants must not disagree about this. `ToggleGroup` in
+      // `"single"` mode already works this way.
+      if (optionValue === value) return;
       setValue(optionValue);
     };
 

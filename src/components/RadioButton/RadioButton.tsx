@@ -29,10 +29,16 @@ const RadioButtonIcon = () => (
  * native radio rendering.
  *
  * Unlike `Checkbox`, it holds no internal state: `checked` is a plain
- * controlled prop (default `false`, no `defaultChecked`), and clicking only
- * calls `onCheckedChange` — the caller owns tracking which option in a group
- * is selected. In practice that means using `RadioButtonGroup` to manage a
- * group's value, or wiring up the shared selection by hand.
+ * controlled prop (default `false`, no `defaultChecked`), and clicking an
+ * unselected radio calls `onCheckedChange(true)` — the caller owns tracking
+ * which option in a group is selected. In practice that means using
+ * `RadioButtonGroup` to manage a group's value, or wiring up the shared
+ * selection by hand.
+ *
+ * Clicking an already-selected radio does nothing and reports nothing: a radio
+ * is not a toggle, and the way to deselect one is to select a sibling. That
+ * makes `onCheckedChange` a one-way signal — it is only ever called with
+ * `true`.
  *
  * Only participates in native form submission when `name` is set, via a
  * hidden native `<input type="radio">` rendered alongside the button and
@@ -59,7 +65,13 @@ const RadioButton = React.forwardRef<HTMLButtonElement, RadioButtonProps>(
           data-state={checked ? "checked" : "unchecked"}
           disabled={disabled}
           ref={ref}
-          onClick={() => onCheckedChange?.(!checked)}
+          // A radio is not a toggle: activating the selected option leaves it
+          // selected, and reports nothing, so a caller holding the selection
+          // does not see a spurious change. Deselection happens by selecting a
+          // sibling, which is what `RadioButtonGroup` does.
+          onClick={() => {
+            if (!checked) onCheckedChange?.(true);
+          }}
           className={cn(
             "radio-button peer border-(color:--radio-button-border) focus-visible:ring-(color:--radio-button-ring) h-4 w-4 shrink-0 cursor-pointer rounded-full border bg-(--radio-button-bg) text-(--radio-button-fg) shadow focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
             className

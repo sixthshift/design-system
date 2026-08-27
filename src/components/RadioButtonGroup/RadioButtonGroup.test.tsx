@@ -115,13 +115,29 @@ describe("RadioButtonGroup", () => {
       expect(handleChange).toHaveBeenCalledWith("enterprise");
     });
 
-    it("calls onValueChange even when clicking the already-selected option", async () => {
+    it("stays quiet in the button variant too, which has its own click path", async () => {
+      const user = userEvent.setup();
+      const handleChange = vi.fn();
+      render(<RadioButtonGroup variant="button" options={options} value="free" onValueChange={handleChange} />);
+
+      await user.click(screen.getByRole("radio", { name: "Free" }));
+      expect(handleChange).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole("radio", { name: "Pro" }));
+      expect(handleChange).toHaveBeenCalledWith("pro");
+    });
+
+    it("stays quiet when the already-selected option is clicked", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
       render(<RadioButtonGroup options={options} value="free" onValueChange={handleChange} />);
 
+      // Native radios fire no change when the selected option is re-activated,
+      // and this group used to re-emit. A caller closing a menu or refetching on
+      // `onValueChange` should not be triggered by a no-op click.
       await user.click(screen.getByRole("radio", { name: "Free" }));
-      expect(handleChange).toHaveBeenCalledWith("free");
+      expect(handleChange).not.toHaveBeenCalled();
+      expect(screen.getByRole("radio", { name: "Free" })).toHaveAttribute("aria-checked", "true");
     });
   });
 
@@ -224,10 +240,15 @@ describe("RadioButtonGroup", () => {
       const handleChange = vi.fn();
       render(<RadioButtonGroup options={options} value="free" onValueChange={handleChange} />);
 
-      // One Tab enters the group and lands on the checked option.
+      // One Tab enters the group and lands on the checked option, so Space there
+      // is a no-op — as it is for a native radio. Arrow to an unselected option
+      // and Space selects it.
       await user.tab();
       await user.keyboard(" ");
-      expect(handleChange).toHaveBeenCalledWith("free");
+      expect(handleChange).not.toHaveBeenCalled();
+
+      await user.keyboard("{ArrowDown}");
+      expect(handleChange).toHaveBeenLastCalledWith("pro");
     });
 
     it("is a single tab stop: Tab enters the group once and leaves it next", async () => {

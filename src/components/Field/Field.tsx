@@ -34,11 +34,8 @@ export type FieldProps = {
  * canonical case; set it `false` when the value is itself human-readable.
  *
  * Distinct from `FormField`, which is the label + input wrapper for
- * interactive form controls, and from `MetricRow`
- * (`@sixthshift/design-system/metric-list`), which carries short numeric
- * metrics. Both are label/value pairs, but the value semantics differ: a
- * metric is a short readable number, an identifier is a long opaque string.
- * Making one component do both would conflate them and break wrapping.
+ * interactive form controls. Both are label/value pairs, but this one is
+ * read-only: the value is a long opaque identifier, not an editable field.
  */
 export const Field = React.forwardRef<HTMLDivElement, FieldProps>(({ label, children, layout = "stacked", mono = true, className }, ref) => {
   const valueClass = cn("text-(--field-fg) text-xs", mono && "break-all font-mono");

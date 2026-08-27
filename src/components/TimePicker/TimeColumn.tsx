@@ -7,9 +7,25 @@ export type TimeColumnProps = {
   onSelect: (value: number) => void;
   formatValue?: (value: number) => string;
   disabled?: (value: number) => boolean;
+  /**
+   * Move DOM focus to the selected option on mount.
+   *
+   * Off by default: a column that grabs focus when it appears is wrong for a
+   * pointer user who clicked a trigger. `TimePicker` turns it on only when the
+   * popover was opened from the keyboard (`Alt+ArrowDown`), where the whole
+   * point of opening it was to pick an hour.
+   */
+  autoFocusSelected?: boolean;
 };
 
-export const TimeColumn = ({ values, selected, onSelect, formatValue = (v) => String(v).padStart(2, "0"), disabled }: TimeColumnProps) => {
+export const TimeColumn = ({
+  values,
+  selected,
+  onSelect,
+  formatValue = (v) => String(v).padStart(2, "0"),
+  disabled,
+  autoFocusSelected = false,
+}: TimeColumnProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const selectedRef = useRef<HTMLButtonElement>(null);
 
@@ -24,6 +40,13 @@ export const TimeColumn = ({ values, selected, onSelect, formatValue = (v) => St
       container.scrollTo({ top: scrollTop, behavior: "smooth" });
     }
   }, []);
+
+  // Seed focus once, when the caller asked for it. Keyed on the flag alone:
+  // `selected` changes as the user picks, and re-running then would drag focus
+  // back to the option they started from.
+  useEffect(() => {
+    if (autoFocusSelected) selectedRef.current?.focus();
+  }, [autoFocusSelected]);
 
   return (
     <div ref={containerRef} role="listbox" className="h-48 w-14 overflow-y-auto overscroll-contain rounded-lg border border-border-subtle bg-bg-subtle/50">

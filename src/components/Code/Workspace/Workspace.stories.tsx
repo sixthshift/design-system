@@ -7,6 +7,7 @@ const meta: Meta<typeof Workspace> = {
   title: "Components/Code/Workspace",
   component: Workspace,
   parameters: {
+    importPath: "code-editor-workspace",
     layout: "padded",
   },
   tags: ["autodocs"],

@@ -43,7 +43,7 @@ type Loose<T extends string> = T | (string & {});
 export type BadgeVariantName = "solid" | "soft" | "outline";
 /**
  * `primary` was this component's name for the brand colour, and nothing else in
- * the system used it — the token is `--bg-brand`, ColorDot shipped `brand`, and
+ * the system used it — the token is `--bg-brand`, and
  * docs/modals.md already told callers to write `intent="brand"`. It is off the
  * closed union as of this release but still resolves, via an aliased selector in
  * badge.css; `BadgeIntent` is widened, so it also still type-checks.

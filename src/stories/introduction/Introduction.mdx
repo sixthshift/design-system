@@ -1,0 +1,241 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import { ProofStrip } from "./components";
+
+{/*
+  The landing page — the first thing the sidebar opens, pinned first by the
+  storySort order in .storybook/preview.tsx.
+
+  Scope: what this is, how to install it, how to import it, the conventions that
+  make 53 components predictable, and where to go next. Deliberately NOT a
+  catalog — prop tables live on each component's docs page, generated from the
+  props themselves, because a hand-maintained index is exactly what drifted in
+  docs/component-catalog.md.
+*/}
+
+<Meta title="Introduction" />
+
+<div className="sb-unstyled">
+
+# @sixthshift/design-system
+
+</div>
+
+Around 75 React components, semantic design tokens, and a JSON-driven theme —
+one package, one subpath import per component, Tailwind 4 underneath.
+
+<div className="sb-unstyled">
+  <ProofStrip />
+</div>
+
+## Install
+
+```bash
+npm install @sixthshift/design-system
+```
+
+```css
+/* your CSS entry — Tailwind 4 is a required peer */
+@import "tailwindcss";
+@import "@sixthshift/design-system/theme.css";
+@source "../node_modules/@sixthshift/design-system";
+```
+
+```tsx
+import { Button } from "@sixthshift/design-system/button";
+```
+
+That second `@import` is opinionated: it replaces Tailwind's default palette
+with this system's tokens and takes over a few globals. The README's *what the
+theme takes over* section is the full list — read it before adopting.
+
+No prebuilt stylesheet ships. The components are Tailwind classes, so your build
+compiles them from the `@theme` block that `theme.css` brings with it; that is
+what the `@source` line is for.
+
+## One subpath per component
+
+There is no root barrel — `import { Button } from "@sixthshift/design-system"`
+does not resolve, and never will. Every component is its own entry point, named
+as the kebab-case of the component:
+
+```tsx
+import { Button } from "@sixthshift/design-system/button";
+import { TagChip } from "@sixthshift/design-system/tag-chip";
+import { CheckboxGroup } from "@sixthshift/design-system/checkbox-group";
+```
+
+That holds for 50 of the 52 component exports. The two exceptions publish as
+`datetime-picker` and `datetime-range-picker` rather than `date-time-*`. Every
+component's docs page prints its own import line at the top, so you never have
+to guess.
+
+The non-component surfaces follow the same shape: `/theme`, `/hooks`, `/utils`,
+`/format`, `/date-time`.
+
+## Four conventions carry the whole library
+
+Learn these and every component behaves the way you expect.
+
+**`variant` × `intent` are orthogonal.** `variant` is the visual treatment
+(`solid`, `outline`, `ghost`, `soft`, `link`); `intent` is what the thing
+*means* (`neutral`, `brand`, `danger`, `success`, `warning`). A destructive
+primary action is a combination, not a component:
+
+```tsx
+<Button variant="solid" intent="danger">Delete</Button>
+```
+
+There is no `<DangerButton>`, and no `color="red"` — a token name describes
+meaning, never appearance, so a component that grows three special-case props is
+a sign the axes are wrong.
+
+**`asChild` for polymorphism.** Render a component's styling onto a different
+element — a router link, a label — instead of wrapping it:
+
+```tsx
+<Button asChild><a href="/settings">Settings</a></Button>
+```
+
+**Controlled or uncontrolled, your choice.** Pass `value` and `onChange` to
+drive a component; omit them and it keeps its own state.
+
+**Date and time components exchange ISO 8601 strings.** They use Temporal
+internally, via the bundled `/date-time` module — consuming a `DatePicker` does
+not mean adopting Temporal in your app.
+
+The `variant`/`intent`/`size` axes are being consolidated; `docs/component-axes.md`
+describes that target, and is explicitly ahead of the code.
+
+## Where to go next
+
+<div className="sb-unstyled grid gap-3 sm:grid-cols-2">
+
+<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
+
+**[Components](?path=/docs/components-button--docs)**
+
+The catalog — all 44, alphabetical. Every page carries its import line, a live
+example, and a prop table generated from the source.
+
+</div>
+
+<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
+
+**[Theme](?path=/story/design-system-theme--all-tokens)**
+
+The semantic tokens — `bg-*`, `fg-*`, `border-*` — and their interactive
+states. Start here when you are styling something the library does not cover.
+
+</div>
+
+<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
+
+**[Component Tokens](?path=/story/design-system-component-tokens--reference)**
+
+Tier 3: each component's own `--component-*` variables. Open this when a
+component's default is wrong and you want to change it everywhere, without
+forking the source.
+
+</div>
+
+<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
+
+**[Palette](?path=/story/design-system-palette--all-scales)**
+
+The raw colour scales the semantic tokens are built from. Reference material —
+components should never name these directly.
+
+</div>
+
+<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
+
+**[Typography](?path=/story/design-system-typography--type-scale)**
+
+The type scale, weights, families, and the hierarchy they compose into.
+
+</div>
+
+</div>
+
+## Find a component by task
+
+The sidebar lists every component alphabetically, which is the right shape when
+you know the name. This is the other direction — and unlike a sidebar tree, a
+component can appear under two headings, or none, without anyone having to
+defend the taxonomy.
+
+**Actions** — The single primitive for anything the user clicks to do something.
+
+[Button](?path=/docs/components-button--docs)
+
+**Text** — Free-form and inline text. The named typography exports (`Heading`, `Label`, `Lead`, `Caption`, `Mono`, …) are documented under Design System → Typography instead.
+
+[Text](?path=/docs/components-text--docs) · [TextInline](?path=/docs/components-textinline--docs) · [Markdown](?path=/docs/components-markdown--docs)
+
+**Form controls** — Anything that collects a value. All controlled or uncontrolled, your choice.
+
+[Input](?path=/docs/components-input--docs) · [Textarea](?path=/docs/components-textarea--docs) · [SearchInput](?path=/docs/components-searchinput--docs) · [Select](?path=/docs/components-select--docs) · [Checkbox](?path=/docs/components-checkbox--docs) · [CheckboxGroup](?path=/docs/components-checkboxgroup--docs) · [RadioButton](?path=/docs/components-radiobutton--docs) · [RadioButtonGroup](?path=/docs/components-radiobuttongroup--docs) · [Switch](?path=/docs/components-switch--docs) · [Toggle](?path=/docs/components-toggle--docs) · [ToggleGroup](?path=/docs/components-togglegroup--docs) · [TagInput](?path=/docs/components-taginput--docs)
+
+**Form structure** — The label, description and validation shell you wrap a control in.
+
+[FormField](?path=/docs/components-formfield--docs)
+
+**Date and time** — Pickers over ISO 8601 strings — Temporal stays inside the library.
+
+[Calendar](?path=/docs/components-calendar--docs) · [DatePicker](?path=/docs/components-datepicker--docs) · [DateRangePicker](?path=/docs/components-daterangepicker--docs) · [TimePicker](?path=/docs/components-timepicker--docs) · [DateTimePicker](?path=/docs/components-datetimepicker--docs) · [DateTimeRangePicker](?path=/docs/components-datetimerangepicker--docs)
+
+**Status and metadata** — Read-only markers about a thing: what state it is in, who owns it, how it is tagged.
+
+[Badge](?path=/docs/components-badge--docs) · [TagChip](?path=/docs/components-tagchip--docs) · [Field](?path=/docs/components-field--docs)
+
+**Containers and layout** — Grouping and dividing, with no opinion about contents.
+
+[Card](?path=/docs/components-card--docs) · [Separator](?path=/docs/components-separator--docs)
+
+**Overlays** — Content on top of the page, ordered by how much they interrupt: a modal takes the page, a sheet leaves it usable, the rest are info-on-demand.
+
+[Modal](?path=/docs/components-modal--docs) · [Sheet](?path=/docs/components-sheet--docs) · [Popover](?path=/docs/components-popover--docs) · [HoverCard](?path=/docs/components-hovercard--docs) · [Tooltip](?path=/docs/components-tooltip--docs)
+
+**Feedback and pending states** — What to render when something is loading, in progress, or worth announcing.
+
+[Toast](?path=/docs/components-toast--docs) · [Message](?path=/docs/components-message--docs) · [Spinner](?path=/docs/components-spinner--docs) · [ProgressBar](?path=/docs/components-progressbar--docs)
+
+**Navigation** — Switching between views inside a page. App-level navigation (side rails, bottom bars) is the app's own composition.
+
+[Tabs](?path=/docs/components-tabs--docs)
+
+**Code editing** — Monaco-backed surfaces; these are the only components with a heavyweight optional peer (`monaco-editor`), so they cost nothing until you import them.
+
+[Editor](?path=/docs/components-code-editor--docs) · [Workspace](?path=/docs/components-code-workspace--docs) · [ValidationStatus](?path=/docs/components-code-validationstatus--docs)
+
+**Charts** — Numbers, at a glance and in detail.
+
+[LineChart](?path=/docs/components-charts-linechart--docs) · [BarChart](?path=/docs/components-charts-barchart--docs) · [Sparkline](?path=/docs/components-charts-sparkline--docs)
+
+Every link above is checked against the actual story titles by
+`introduction-index.test.ts`, so a renamed or new component fails the test suite
+rather than quietly rotting here.
+
+## Requirements
+
+| | |
+| --- | --- |
+| React | 18 or 19 — both verified in CI on every change |
+| Tailwind | 4, as a required peer |
+| Modules | ESM only. `require()` of any subpath fails with `ERR_PACKAGE_PATH_NOT_EXPORTED` |
+| TypeScript | `"moduleResolution"` must be `bundler`, `node16` or `nodenext`. The legacy `"node"` setting ignores the `exports` map and fails with `TS2307` on every subpath |
+
+Everything beyond `react`, `react-dom` and `tailwindcss` is an **optional** peer
+— install it only if you import the entry point that needs it. `/code-editor`
+needs `monaco-editor` and `@monaco-editor/react`; `/markdown` needs
+`react-markdown`; the default typefaces need
+`@fontsource-variable/inter` and `@fontsource-variable/jetbrains-mono`. Skip the
+fonts and text falls back to `ui-sans-serif` / `ui-monospace` — everything still
+works, it just will not match Storybook.
+
+## The bar this holds itself to
+
+Accessibility violations fail CI rather than filing a backlog ticket. Every
+story is executed in both light and dark, as two separate test projects. The unit suite
+runs against React 18 and 19. That is why the guidance above is safe to take
+literally.

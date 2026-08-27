@@ -79,7 +79,6 @@ These primitives handle their own motion — don't re-implement at the call site
 - `Sheet` — slide-in/slide-out
 - `Toast` — slide-in, fade-out
 - `Spinner` — continuous rotation
-- `Skeleton` — shimmer animation
 - `Tooltip` / `Popover` — open/close
 
 Buttons, inputs, links handle hover/focus via `transition-colors` baked in.

@@ -19,29 +19,36 @@ function getDay(container: HTMLElement, day: number, base?: ISODate): HTMLElemen
   return el as HTMLElement;
 }
 
+/**
+ * Range mode renders two segmented fields — one per end — sharing one popover,
+ * so there is no single combobox that both opens it and carries the value.
+ */
+function startField(): HTMLElement {
+  return screen.getByRole("group", { name: "Start date" });
+}
+
+function endField(): HTMLElement {
+  return screen.getByRole("group", { name: "End date" });
+}
+
+function openPicker(user: ReturnType<typeof userEvent.setup>): Promise<void> {
+  return user.click(screen.getByRole("button", { name: "Open calendar for start date" }));
+}
+
 describe("DateRangePicker", () => {
   describe("Rendering & Interaction", () => {
-    it("renders with placeholder when no value is provided", () => {
-      render(<DateRangePicker placeholder="Select date range..." />);
-
-      const input = screen.getByRole("combobox");
-      expect(input).toHaveValue("");
-      expect(input).toHaveAttribute("placeholder", "Select date range...");
-    });
-
-    it("renders with default placeholder when none is provided", () => {
+    it("shows both fields empty when no value is provided", () => {
       render(<DateRangePicker />);
 
-      const input = screen.getByRole("combobox");
-      expect(input).toHaveAttribute("placeholder", "Select date range...");
+      expect(startField().textContent).toBe("mm/dd/yyyy");
+      expect(endField().textContent).toBe("mm/dd/yyyy");
     });
 
     it("opens picker popup on trigger click", async () => {
       const user = userEvent.setup();
       render(<DateRangePicker />);
 
-      const input = screen.getByRole("combobox");
-      await user.click(input);
+      await openPicker(user);
 
       // Dialog should be visible
       const dialog = screen.getByRole("dialog");
@@ -53,7 +60,7 @@ describe("DateRangePicker", () => {
       render(<DateRangePicker />);
 
       // Open picker
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       expect(screen.getByRole("dialog")).toBeInTheDocument();
 
       // Click cancel
@@ -69,7 +76,7 @@ describe("DateRangePicker", () => {
       render(<DateRangePicker />);
 
       // Open picker
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       expect(screen.getByRole("dialog")).toBeInTheDocument();
 
       // Click apply
@@ -90,7 +97,7 @@ describe("DateRangePicker", () => {
       );
 
       // Open picker
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       expect(screen.getByRole("dialog")).toBeInTheDocument();
 
       // Click outside
@@ -109,7 +116,7 @@ describe("DateRangePicker", () => {
       render(<DateRangePicker onChange={handleChange} />);
 
       // Open picker
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Click day 10 (from)
@@ -136,7 +143,7 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker onChange={handleChange} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Click day 20 first (from)
@@ -160,9 +167,8 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker value={{ from, to }} />);
 
-      const input = screen.getByRole("combobox");
-      // Expected format: "January 15, 2025 – January 22, 2025"
-      expect(input).toHaveValue("January 15, 2025 – January 22, 2025");
+      expect(startField().textContent).toBe("01/15/2025");
+      expect(endField().textContent).toBe("01/22/2025");
     });
 
     it("displays single date range with same formatting", () => {
@@ -170,8 +176,8 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker value={{ from: date, to: date }} />);
 
-      const input = screen.getByRole("combobox");
-      expect(input).toHaveValue("January 15, 2025 – January 15, 2025");
+      expect(startField().textContent).toBe("01/15/2025");
+      expect(endField().textContent).toBe("01/15/2025");
     });
 
     it("displays partial range (only from)", () => {
@@ -179,8 +185,8 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker value={{ from, to: undefined }} />);
 
-      const input = screen.getByRole("combobox");
-      expect(input).toHaveValue("January 15, 2025 – ...");
+      expect(startField().textContent).toBe("01/15/2025");
+      expect(endField().textContent).toBe("mm/dd/yyyy");
     });
 
     it("displays partial range (only to)", () => {
@@ -188,8 +194,8 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker value={{ from: undefined, to }} />);
 
-      const input = screen.getByRole("combobox");
-      expect(input).toHaveValue("... – January 22, 2025");
+      expect(startField().textContent).toBe("mm/dd/yyyy");
+      expect(endField().textContent).toBe("01/22/2025");
     });
 
     it("clears range when clear button is clicked", async () => {
@@ -198,13 +204,16 @@ describe("DateRangePicker", () => {
       const from = "2025-01-15";
       const to = "2025-01-22";
 
-      render(<DateRangePicker value={{ from, to }} onChange={handleChange} />);
+      const { rerender } = render(<DateRangePicker value={{ from, to }} onChange={handleChange} />);
 
-      // Click clear button
-      await user.click(screen.getByRole("button", { name: /clear/i }));
+      // Each end clears on its own now, so clearing one keeps the other.
+      await user.click(screen.getByRole("button", { name: "Clear end date" }));
+      expect(handleChange).toHaveBeenCalledWith({ from, to: undefined });
 
-      // Should call onChange with undefined
-      expect(handleChange).toHaveBeenCalledWith(undefined);
+      // Clearing the last remaining end clears the range itself.
+      rerender(<DateRangePicker value={{ from, to: undefined }} onChange={handleChange} />);
+      await user.click(screen.getByRole("button", { name: "Clear start date" }));
+      expect(handleChange).toHaveBeenLastCalledWith(undefined);
     });
   });
 
@@ -213,7 +222,7 @@ describe("DateRangePicker", () => {
       const user = userEvent.setup();
       render(<DateRangePicker />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Check for default presets
@@ -231,7 +240,7 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker onChange={handleChange} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Click "Today" preset
@@ -254,7 +263,7 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker onChange={handleChange} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Click "Last 7 days" preset
@@ -273,7 +282,7 @@ describe("DateRangePicker", () => {
       const user = userEvent.setup();
       render(<DateRangePicker showPresets={false} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Presets should not be visible
@@ -295,7 +304,7 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker presets={customPresets} onChange={handleChange} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Should show custom preset
@@ -321,7 +330,7 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker minDate={minDate} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Day 5 should be disabled (before minDate)
@@ -339,7 +348,7 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker maxDate={maxDate} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Day 25 should be disabled (after maxDate)
@@ -358,7 +367,7 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker disabled={isWeekend} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
 
       // This test verifies the declarative day-of-week matcher is accepted
       // The actual weekend days depend on the current month
@@ -376,8 +385,8 @@ describe("DateRangePicker", () => {
       const { rerender } = render(<DateRangePicker value={{ from, to }} onChange={handleChange} />);
 
       // Should display controlled value
-      const input = screen.getByRole("combobox");
-      expect(input).toHaveValue("January 10, 2025 – January 20, 2025");
+      expect(startField().textContent).toBe("01/10/2025");
+      expect(endField().textContent).toBe("01/20/2025");
 
       // Change external value
       const newFrom = "2025-02-05";
@@ -385,7 +394,8 @@ describe("DateRangePicker", () => {
       rerender(<DateRangePicker value={{ from: newFrom, to: newTo }} onChange={handleChange} />);
 
       // Should update display
-      expect(input).toHaveValue("February 5, 2025 – February 15, 2025");
+      expect(startField().textContent).toBe("02/05/2025");
+      expect(endField().textContent).toBe("02/15/2025");
     });
 
     it("uncontrolled mode: manages internal state with defaultValue", async () => {
@@ -397,11 +407,11 @@ describe("DateRangePicker", () => {
       render(<DateRangePicker defaultValue={{ from, to }} onChange={handleChange} />);
 
       // Should display default value
-      const input = screen.getByRole("combobox");
-      expect(input).toHaveValue("January 10, 2025 – January 20, 2025");
+      expect(startField().textContent).toBe("01/10/2025");
+      expect(endField().textContent).toBe("01/20/2025");
 
       // Select new range
-      await user.click(input);
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
       const jan2025 = "2025-01-01";
       await user.click(getDay(dialog, 5, jan2025));
@@ -410,9 +420,9 @@ describe("DateRangePicker", () => {
 
       // Should update internal state and display
       expect(handleChange).toHaveBeenCalledTimes(1);
-      // Input should now show new range
-      expect(input.getAttribute("value")).toContain("5");
-      expect(input.getAttribute("value")).toContain("15");
+      // The fields should now show the new range
+      expect(startField().textContent).toBe("01/05/2025");
+      expect(endField().textContent).toBe("01/15/2025");
     });
 
     it("calls onChange with selected range", async () => {
@@ -421,7 +431,7 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker onChange={handleChange} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Select range
@@ -488,7 +498,7 @@ describe("DateRangePicker", () => {
       render(<DateRangePicker onChange={handleChange} />);
 
       // Open picker
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Select dates (draft state)
@@ -513,11 +523,11 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker value={{ from, to }} onChange={handleChange} />);
 
-      const input = screen.getByRole("combobox");
-      expect(input).toHaveValue("January 10, 2025 – January 20, 2025");
+      expect(startField().textContent).toBe("01/10/2025");
+      expect(endField().textContent).toBe("01/20/2025");
 
       // Open picker and make changes
-      await user.click(input);
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
       const jan2025 = "2025-01-01";
       await user.click(getDay(dialog, 5, jan2025));
@@ -529,8 +539,9 @@ describe("DateRangePicker", () => {
       // onChange should NOT be called
       expect(handleChange).not.toHaveBeenCalled();
 
-      // Input should still show original value
-      expect(input).toHaveValue("January 10, 2025 – January 20, 2025");
+      // The fields should still show the committed range
+      expect(startField().textContent).toBe("01/10/2025");
+      expect(endField().textContent).toBe("01/20/2025");
     });
 
     it("commits draft value on apply", async () => {
@@ -539,7 +550,7 @@ describe("DateRangePicker", () => {
 
       render(<DateRangePicker onChange={handleChange} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Make draft changes
@@ -558,31 +569,35 @@ describe("DateRangePicker", () => {
   });
 
   describe("Accessibility", () => {
-    it("uses combobox role for trigger input", () => {
+    it("exposes each end as a labelled group of spinbuttons", () => {
       render(<DateRangePicker />);
-      expect(screen.getByRole("combobox")).toBeInTheDocument();
+
+      expect(startField()).toBeInTheDocument();
+      expect(endField()).toBeInTheDocument();
+      expect(screen.getAllByRole("spinbutton", { name: "Month" })).toHaveLength(2);
     });
 
     it("uses dialog role for popup", async () => {
       const user = userEvent.setup();
       render(<DateRangePicker />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
 
-    it("marks trigger as disabled when isDisabled is true", () => {
+    it("marks both triggers as disabled when isDisabled is true", () => {
       render(<DateRangePicker isDisabled />);
 
-      const input = screen.getByRole("combobox");
-      expect(input).toBeDisabled();
+      expect(screen.getByRole("button", { name: "Open calendar for start date" })).toBeDisabled();
+      expect(screen.getByRole("button", { name: "Open calendar for end date" })).toBeDisabled();
+      expect(startField()).toHaveAttribute("aria-disabled", "true");
     });
 
-    it("marks trigger as invalid when isInvalid is true", () => {
+    it("marks both fields as invalid when isInvalid is true", () => {
       render(<DateRangePicker isInvalid />);
 
-      const input = screen.getByRole("combobox");
-      expect(input).toHaveAttribute("aria-invalid", "true");
+      expect(startField()).toHaveAttribute("aria-invalid", "true");
+      expect(endField()).toHaveAttribute("aria-invalid", "true");
     });
   });
 });

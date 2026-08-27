@@ -4,7 +4,7 @@ import { expect, screen, userEvent, within } from "storybook/test";
 import { Tooltip } from "./Tooltip";
 
 const meta: Meta<typeof Tooltip> = {
-  title: "Components/Feedback/Tooltip",
+  title: "Components/Tooltip",
   component: Tooltip,
   parameters: {
     layout: "centered",

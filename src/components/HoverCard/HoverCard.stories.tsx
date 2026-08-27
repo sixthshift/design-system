@@ -5,7 +5,7 @@ import { expect, screen, userEvent, within } from "storybook/test";
 import { HoverCard } from "./HoverCard";
 
 const meta: Meta<typeof HoverCard> = {
-  title: "Components/Feedback/HoverCard",
+  title: "Components/HoverCard",
   component: HoverCard,
   parameters: {
     docs: {

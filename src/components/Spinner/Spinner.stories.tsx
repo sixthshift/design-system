@@ -6,7 +6,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Spinner } from "./Spinner";
 
 const meta: Meta<typeof Spinner> = {
-  title: "Components/Feedback/Spinner",
+  title: "Components/Spinner",
   component: Spinner,
   parameters: {
     layout: "centered",

@@ -49,7 +49,7 @@
 
   /* `neutral` means *no colour family* — the grey tiers. It used to resolve to
      the brand fill, which made `intent="neutral"` mean one thing on Button and
-     another on Badge, Message and ColorDot, where it was already grey. Button
+     another on Badge and Message, where it was already grey. Button
      was the outlier; this is the cell that ends that. A brand-coloured button
      is now `intent="brand"`, which is also Button's default, so a bare
      `<Button>` is unchanged. */

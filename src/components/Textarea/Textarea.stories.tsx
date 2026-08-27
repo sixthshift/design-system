@@ -4,7 +4,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Textarea } from "./Textarea";
 
 const meta: Meta<typeof Textarea> = {
-  title: "Components/Inputs/Textarea",
+  title: "Components/Textarea",
   component: Textarea,
   parameters: {
     layout: "centered",

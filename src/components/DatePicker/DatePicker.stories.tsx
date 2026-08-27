@@ -4,12 +4,18 @@ import { addDaysISO, addMonthsISO, endOfMonthISO, type ISODate, type ISODateRang
 import { DatePicker } from "./DatePicker";
 
 const meta: Meta<typeof DatePicker> = {
-  title: "Components/Inputs/DatePicker",
+  title: "Components/DatePicker",
   component: DatePicker,
   tags: ["autodocs"],
   parameters: {
     layout: "centered",
-    docs: { subtitle: "Input trigger and calendar popover for picking a date, range, or multiple dates" },
+    docs: { subtitle: "A typeable date field and a calendar popover, as one control" },
+  },
+  argTypes: {
+    segmentOrder: {
+      control: "select",
+      options: ["mdy", "dmy", "ymd"],
+    },
   },
 };
 
@@ -21,7 +27,52 @@ type Story = StoryObj<typeof DatePicker>;
 // =============================================================================
 
 export const Default: Story = {
-  render: () => <DatePicker placeholder="Select a date" />,
+  render: () => <DatePicker />,
+};
+
+/**
+ * Type or pick — the same value, two ways in.
+ *
+ * The segments are three spinbuttons, so a date can be entered from the
+ * keyboard with no parsing and no ambiguity: digits fill the focused segment
+ * and advance when it cannot take another, arrows step it, `Backspace` clears
+ * it, and `Alt+ArrowDown` opens the grid at the month being typed. Whichever
+ * you use, the other follows.
+ */
+export const TypeOrPick: Story = {
+  render: function TypeOrPickStory() {
+    // Uncontrolled, with the value merely observed. A controlled picker whose
+    // state starts `undefined` mounts uncontrolled and flips on the first
+    // change — see the warning in `useControllableState` — and clearing it then
+    // flips it back, stranding the last value on screen. `Controlled` below
+    // starts from a real date, which is the shape that works.
+    const [observed, setObserved] = useState<ISODate | undefined>();
+
+    return (
+      <div className="flex flex-col gap-4">
+        <DatePicker onChange={setObserved} />
+        <div className="text-fg-subtle text-sm">Value: {observed ?? "none — a half-typed date is not a value"}</div>
+      </div>
+    );
+  },
+};
+
+/**
+ * `segmentOrder` is explicit, never sniffed from the runtime locale: `08/09` is
+ * a different date in `mdy` than in `dmy`, and the segment labels make which
+ * one unmistakable to a screen reader either way.
+ */
+export const SegmentOrder: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      {(["mdy", "dmy", "ymd"] as const).map((order) => (
+        <div key={order} className="flex items-center gap-3">
+          <span className="w-10 font-mono text-fg-subtle text-xs">{order}</span>
+          <DatePicker segmentOrder={order} defaultValue="2026-08-27" />
+        </div>
+      ))}
+    </div>
+  ),
 };
 
 export const WithDefaultValue: Story = {
@@ -42,7 +93,7 @@ export const Controlled: Story = {
 };
 
 export const Disabled: Story = {
-  render: () => <DatePicker isDisabled placeholder="Disabled" />,
+  render: () => <DatePicker isDisabled />,
 };
 
 export const WithMinMaxDates: Story = {
@@ -51,16 +102,16 @@ export const WithMinMaxDates: Story = {
     const minDate = addDaysISO(today, -7);
     const maxDate = addDaysISO(today, 30);
 
-    return <DatePicker minDate={minDate} maxDate={maxDate} placeholder="Pick a date (limited range)" />;
+    return <DatePicker minDate={minDate} maxDate={maxDate} />;
   },
 };
 
 export const WithDisabledWeekends: Story = {
-  render: () => <DatePicker disabled={{ dayOfWeek: ["sat", "sun"] }} placeholder="No weekends" />,
+  render: () => <DatePicker disabled={{ dayOfWeek: ["sat", "sun"] }} />,
 };
 
 export const Invalid: Story = {
-  render: () => <DatePicker isInvalid placeholder="Invalid state" />,
+  render: () => <DatePicker isInvalid />,
 };
 
 export const NotClearable: Story = {
@@ -216,9 +267,9 @@ export const InForm: Story = {
 // =============================================================================
 
 export const MondayStart: Story = {
-  render: () => <DatePicker weekStartsOn={1} placeholder="Week starts Monday" />,
+  render: () => <DatePicker weekStartsOn={1} />,
 };
 
 export const CustomPlaceholder: Story = {
-  render: () => <DatePicker placeholder="When should we meet?" />,
+  render: () => <DatePicker />,
 };

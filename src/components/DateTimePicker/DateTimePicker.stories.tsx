@@ -4,7 +4,7 @@ import { addDaysISO, addMinutesISO, addMonthsISO, fromISOInstant, type ISOInstan
 import { DateTimePicker } from "./DateTimePicker";
 
 const meta: Meta<typeof DateTimePicker> = {
-  title: "Components/Inputs/DateTimePicker",
+  title: "Components/DateTimePicker",
   component: DateTimePicker,
   tags: ["autodocs"],
   parameters: {
@@ -22,8 +22,28 @@ type Story = StoryObj<typeof DateTimePicker>;
 // Basic Stories
 // =============================================================================
 
+/**
+ * Type or pick — the same instant, two ways in.
+ *
+ * One field for both halves, so `1520260330p` fills the whole thing: January
+ * 5th 2026 at 3:30pm. The grid and the columns follow what is typed, and what
+ * is picked shows up in the segments.
+ */
+export const TypeOrPick: Story = {
+  render: function TypeOrPickStory() {
+    const [observed, setObserved] = useState<ISOInstant | undefined>();
+
+    return (
+      <div className="flex flex-col gap-4">
+        <DateTimePicker onChange={setObserved} />
+        <div className="text-fg-subtle text-sm">Value: {observed ?? "none — a half-typed instant is not a value"}</div>
+      </div>
+    );
+  },
+};
+
 export const Default: Story = {
-  render: () => <DateTimePicker placeholder="Select date and time..." />,
+  render: () => <DateTimePicker />,
 };
 
 export const WithDefaultValue: Story = {
@@ -47,11 +67,11 @@ export const Controlled: Story = {
 };
 
 export const Disabled: Story = {
-  render: () => <DateTimePicker isDisabled placeholder="Disabled" />,
+  render: () => <DateTimePicker isDisabled />,
 };
 
 export const Invalid: Story = {
-  render: () => <DateTimePicker isInvalid placeholder="Invalid state" />,
+  render: () => <DateTimePicker isInvalid />,
 };
 
 export const NotClearable: Story = {
@@ -68,37 +88,37 @@ export const NotClearable: Story = {
 export const Format12Hour: Story = {
   render: () => {
     const dateTime = "2025-01-15T14:30:00Z";
-    return <DateTimePicker defaultValue={dateTime} clockFormat="12h" placeholder="12-hour format (with AM/PM)" />;
+    return <DateTimePicker defaultValue={dateTime} clockFormat="12h" />;
   },
 };
 
 export const Format24Hour: Story = {
   render: () => {
     const dateTime = "2025-01-15T14:30:00Z";
-    return <DateTimePicker defaultValue={dateTime} clockFormat="24h" placeholder="24-hour format" />;
+    return <DateTimePicker defaultValue={dateTime} clockFormat="24h" />;
   },
 };
 
 export const WithSeconds: Story = {
   render: () => {
     const dateTime = "2025-01-15T14:30:45Z";
-    return <DateTimePicker defaultValue={dateTime} showSeconds placeholder="With seconds column" />;
+    return <DateTimePicker defaultValue={dateTime} showSeconds />;
   },
 };
 
 export const WithSeconds24Hour: Story = {
   render: () => {
     const dateTime = "2025-01-15T14:30:45Z";
-    return <DateTimePicker defaultValue={dateTime} clockFormat="24h" showSeconds placeholder="24h with seconds" />;
+    return <DateTimePicker defaultValue={dateTime} clockFormat="24h" showSeconds />;
   },
 };
 
 export const MinuteStep15: Story = {
-  render: () => <DateTimePicker minuteStep={15} placeholder="15-minute intervals (00, 15, 30, 45)" />,
+  render: () => <DateTimePicker minuteStep={15} />,
 };
 
 export const MinuteStep30: Story = {
-  render: () => <DateTimePicker minuteStep={30} placeholder="30-minute intervals (00, 30)" />,
+  render: () => <DateTimePicker minuteStep={30} />,
 };
 
 // =============================================================================
@@ -111,7 +131,7 @@ export const WithMinMaxDate: Story = {
     const minDate = addDaysISO(today, -7);
     const maxDate = addDaysISO(today, 30);
 
-    return <DateTimePicker minDate={minDate} maxDate={maxDate} placeholder="Limited to past 7 days and next 30 days" />;
+    return <DateTimePicker minDate={minDate} maxDate={maxDate} />;
   },
 };
 
@@ -120,18 +140,18 @@ export const WithMinMaxTime: Story = {
     const minTime = "09:00:00";
     const maxTime = "17:00:00";
 
-    return <DateTimePicker minTime={minTime} maxTime={maxTime} placeholder="Business hours only (9 AM - 5 PM)" />;
+    return <DateTimePicker minTime={minTime} maxTime={maxTime} />;
   },
 };
 
 export const WithDisabledWeekends: Story = {
-  render: () => <DateTimePicker disabledDates={{ dayOfWeek: ["sat", "sun"] }} placeholder="Weekdays only" />,
+  render: () => <DateTimePicker disabledDates={{ dayOfWeek: ["sat", "sun"] }} />,
 };
 
 export const FutureDatesOnly: Story = {
   render: () => {
     const today = todayISO();
-    return <DateTimePicker minDate={today} placeholder="Future dates only" />;
+    return <DateTimePicker minDate={today} />;
   },
 };
 
@@ -141,7 +161,7 @@ export const BusinessHoursWeekdaysOnly: Story = {
     const maxTime = "17:00:00";
     const isWeekend = { dayOfWeek: ["sat", "sun"] } as const;
 
-    return <DateTimePicker minTime={minTime} maxTime={maxTime} disabledDates={isWeekend} minuteStep={30} placeholder="Business hours, weekdays only" />;
+    return <DateTimePicker minTime={minTime} maxTime={maxTime} disabledDates={isWeekend} minuteStep={30} />;
   },
 };
 
@@ -181,15 +201,15 @@ export const InForm: Story = {
 // =============================================================================
 
 export const MondayStart: Story = {
-  render: () => <DateTimePicker weekStartsOn={1} placeholder="Week starts Monday" />,
+  render: () => <DateTimePicker weekStartsOn={1} />,
 };
 
 export const AlignStart: Story = {
-  render: () => <DateTimePicker align="start" placeholder="Popup aligns to start" />,
+  render: () => <DateTimePicker align="start" />,
 };
 
 export const CustomPlaceholder: Story = {
-  render: () => <DateTimePicker placeholder="When should the meeting start?" />,
+  render: () => <DateTimePicker />,
 };
 
 // =============================================================================
@@ -212,16 +232,7 @@ export const AppointmentScheduler: Story = {
           <div className="font-medium text-sm">Schedule Appointment</div>
           <div className="text-fg-subtle text-xs">Available Monday-Friday, 9 AM - 5 PM</div>
         </div>
-        <DateTimePicker
-          value={value}
-          onChange={setValue}
-          minDate={today}
-          minTime={minTime}
-          maxTime={maxTime}
-          disabledDates={isWeekend}
-          minuteStep={30}
-          placeholder="Select appointment time..."
-        />
+        <DateTimePicker value={value} onChange={setValue} minDate={today} minTime={minTime} maxTime={maxTime} disabledDates={isWeekend} minuteStep={30} />
         {value && (
           <div className="rounded-md bg-bg-subtle p-3 text-sm">
             <div className="font-medium">Appointment scheduled for:</div>
@@ -254,7 +265,7 @@ export const EventReminder: Story = {
           <div className="font-medium text-sm">Set Reminder</div>
           <div className="text-fg-subtle text-xs">Choose when you want to be notified</div>
         </div>
-        <DateTimePicker value={value} onChange={setValue} minDate={todayISO()} minuteStep={5} placeholder="Reminder time..." />
+        <DateTimePicker value={value} onChange={setValue} minDate={todayISO()} minuteStep={5} />
         {value && (
           <div className="text-fg-subtle text-xs">
             Reminder will be sent at {fromISOInstant(value).toLocaleString("en-US", { hour: "numeric", minute: "2-digit" })} on{" "}
@@ -279,7 +290,7 @@ export const DeadlineTracker: Story = {
           <div className="font-medium text-sm">Project Deadline</div>
           <div className="text-fg-subtle text-xs">Set the due date and time for this task</div>
         </div>
-        <DateTimePicker value={value} onChange={setValue} minDate={today} maxDate={maxDate} clockFormat="24h" placeholder="Set deadline..." />
+        <DateTimePicker value={value} onChange={setValue} minDate={today} maxDate={maxDate} clockFormat="24h" />
         {value && (
           <div className="rounded-md border border-border-normal p-3">
             <div className="font-medium text-fg-subtle text-xs">Due in:</div>
@@ -313,14 +324,7 @@ export const FlightBooking: Story = {
           <div className="font-medium text-sm">Flight Departure</div>
           <div className="text-fg-subtle text-xs">Select your departure date and time</div>
         </div>
-        <DateTimePicker
-          value={departureTime}
-          onChange={setDepartureTime}
-          minDate={today}
-          maxDate={maxDate}
-          clockFormat="24h"
-          placeholder="Departure date & time..."
-        />
+        <DateTimePicker value={departureTime} onChange={setDepartureTime} minDate={today} maxDate={maxDate} clockFormat="24h" />
         {departureTime && (
           <div className="rounded-md bg-bg-brand-subtle p-3">
             <div className="text-fg-subtle text-xs">Departure</div>
@@ -366,7 +370,6 @@ export const MeetingScheduler: Story = {
             maxTime={maxTime}
             disabledDates={isWeekend}
             minuteStep={15}
-            placeholder="Meeting start time..."
           />
         </div>
 
@@ -419,7 +422,7 @@ export const TimeLogEntry: Story = {
           <div className="font-medium text-sm">Log Work Time</div>
           <div className="text-fg-subtle text-xs">Record when you completed this task</div>
         </div>
-        <DateTimePicker value={value} onChange={setValue} maxDate={todayISO()} clockFormat="24h" showSeconds placeholder="Completion time..." />
+        <DateTimePicker value={value} onChange={setValue} maxDate={todayISO()} clockFormat="24h" showSeconds />
         {value && (
           <div className="text-fg-subtle text-xs">
             Logged:{" "}

@@ -7,7 +7,7 @@ import { expect, screen, userEvent, within } from "storybook/test";
 import { Popover } from "./Popover";
 
 const meta: Meta<typeof Popover> = {
-  title: "Components/Feedback/Popover",
+  title: "Components/Popover",
   component: Popover,
   parameters: {
     layout: "centered",

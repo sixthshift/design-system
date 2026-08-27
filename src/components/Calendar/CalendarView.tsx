@@ -72,6 +72,7 @@ export const CalendarView = React.forwardRef<HTMLDivElement, CalendarViewProps>(
     maxDate,
     disabled,
     weekStartsOn = 0,
+    autoFocusDay = false,
     showFooter = false,
     showToday = true,
     onApply,
@@ -273,6 +274,14 @@ export const CalendarView = React.forwardRef<HTMLDivElement, CalendarViewProps>(
     if (!focusedDate) return;
     gridRef.current?.querySelector<HTMLButtonElement>(`[data-date="${temporalToISO(focusedDate)}"]`)?.focus();
   }, [focusedDate]);
+
+  // Seed that focus once when the caller asked for it. Deliberately keyed on
+  // `autoFocusDay` alone: `activeDate` changes as the user navigates, and
+  // re-running then would drag focus back to where it started.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: see above
+  useEffect(() => {
+    if (autoFocusDay) setFocusedDate((current) => current ?? activeDate);
+  }, [autoFocusDay]);
 
   // useCalendarDays always returns 42 days, so this is always 6 rows of 7.
   const weeks = useMemo(() => {

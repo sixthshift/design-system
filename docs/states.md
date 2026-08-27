@@ -8,7 +8,7 @@ Every data view is in one of a few states at any moment. Loaded is the happy pat
 |---|---|---|
 | **Loaded** | Data fetched, non-empty | The normal page content |
 | **Empty** | Data fetched but no items | Friendly hint + a primary action to get unstuck |
-| **Loading (initial)** | Data has never been fetched | Skeleton matching the eventual layout |
+| **Loading (initial)** | Data has never been fetched | Placeholder blocks matching the eventual layout |
 | **Loading (fetching more)** | Already-rendered list is fetching the next page | Inline spinner at the bottom |
 | **Error** | Fetch failed | In-card message with retry, or toast for action errors |
 | **Stale** | Data is rendered while cache is being refreshed | Muted indicator (rarely needed) |
@@ -35,7 +35,7 @@ States are composed *around* a component as HOC wrappers, never threaded through
 - `withSuspenseAndErrorBoundary(Component, { fallback, errorFallback })` — `lib/withSuspenseAndErrorBoundary.tsx`, the shell's combinator
 - `EmptyBoundary` / `ErrorBoundary` — `lib/EmptyBoundary.tsx`, `lib/ErrorBoundary.tsx`, the underlying boundary elements when you need them inline rather than as a wrapper
 
-`EmptyState` / `Skeleton` / `Spinner` are the *presentational leaves* these wrappers render. The primitives themselves stay state-ignorant: a `Button` or `Input` carries only a *localized* `disabled` / `loading` for its own affordance (e.g. a button disabled while its mutation is pending) — never a page-level loading flag.
+`Spinner` and `Toast` are the *presentational leaves* this library ships for these wrappers; the empty and skeleton fallbacks are the consuming app's own composition (see [Primitives](#primitives)). The primitives themselves stay state-ignorant: a `Button` or `Input` carries only a *localized* `disabled` / `loading` for its own affordance (e.g. a button disabled while its mutation is pending) — never a page-level loading flag.
 
 Why externalize: an `isEmpty`/`isLoading`/`error` triplet on every component metastasizes — each one re-implements the same three branches, and the happy-path render gets deformed by edge handling it shouldn't carry (see *Edges are part of the problem*). Lifting state into a wrapper keeps the component a pure function of *loaded* data; the wrapper owns the off-states. It also lets the same component sit behind different policies (Suspense in one place, an explicit fallback in another) without touching it.
 
@@ -43,7 +43,7 @@ Why externalize: an `isEmpty`/`isLoading`/`error` triplet on every component met
 
 The default route `errorComponent` branches on the error kind:
 
-- **Not found** — when `isNotFoundError(error)` (a loader threw `NotFoundError` for a missing resource), it renders an `EmptyState`: "Not found" with a *Go Home* link. A missing resource is an empty, not a crash.
+- **Not found** — when `isNotFoundError(error)` (a loader threw `NotFoundError` for a missing resource), it renders an empty view: "Not found" with a *Go Home* link. A missing resource is an empty, not a crash.
 - **Generic** — anything else renders "Something went wrong" with two recovery actions: **Go Back** (`router.history.back()`, leave the broken route) and **Try Again** (`reset`, re-mount and re-run the loader). The raw `error.message` shows in a muted monospace `Caption` — acceptable at the route boundary, but never leaked into normal content (see *Tone* below).
 
 ## Empty states
@@ -76,7 +76,13 @@ For the first paint of a data view, render skeletons that match the eventual lay
 
 Convention: each component that has a meaningful loading state ships a sibling skeleton file next to it — `ItemStream.tsx` and `ItemStream.skeleton.tsx`, `ThingsPage.tsx` and `ThingsPage.skeleton.tsx`.
 
-Use the `Skeleton` primitive for the shimmer blocks. Match the row count to a believable default (5–10 rows for streams).
+The library ships no skeleton primitive — a shimmer block is one div, and owning it in the app keeps the shape matched to the row it stands in for:
+
+```tsx
+<div className="h-4 w-32 animate-pulse rounded-md bg-bg-strong/10" />
+```
+
+Match the row count to a believable default (5–10 rows for streams).
 
 ### Fetching more — inline spinner
 
@@ -131,10 +137,15 @@ Most pages don't need a stale indicator. Add one only when staleness is conseque
 
 Presentational leaves:
 
-- `EmptyState` — empty-state component (icon, message, description, action slot)
-- `Skeleton` — rectangular shimmer block for skeleton rows
 - `Spinner` — inline spinner for fetching-more / async actions
 - `Toast` (via Toast primitive) — action errors, success confirmations
+
+The library ships no empty-state or skeleton leaf. Both were removed as
+too app-shaped to standardise: an empty state is domain copy plus a domain
+action, and a skeleton is a div sized to the row it replaces. Compose them in
+the app from `Card`, `Heading`, `Text` and `Button`, and pass the result as the
+`fallback` — `withEmpty` and `EmptyBoundary` take any node, so the boundaries
+below are unaffected.
 
 State wrappers (the boundaries that render the leaves — see [Where states live](#where-states-live-the-boundary-tiers)):
 

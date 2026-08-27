@@ -4,7 +4,7 @@ import { expect, userEvent, within } from "storybook/test";
 import { TagInput } from "./TagInput";
 
 const meta: Meta<typeof TagInput> = {
-  title: "Components/Inputs/TagInput",
+  title: "Components/TagInput",
   component: TagInput,
   parameters: {
     layout: "centered",

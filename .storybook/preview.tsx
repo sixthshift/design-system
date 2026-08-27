@@ -10,7 +10,7 @@ const preview: Preview = {
   parameters: {
     options: {
       storySort: {
-        order: ["Design System", "Components", "*"],
+        order: ["Introduction", "Design System", "Components", "*"],
       },
     },
 

@@ -31,8 +31,9 @@ export type SpinnerProps = React.SVGAttributes<SVGElement> & VariantProps<typeof
 /**
  * Animated loading indicator — an inline `<svg>`, `size` scales it (`sm` |
  * `md` | `lg` | `xl`). Use it for a fetching-more state at the bottom
- * of an already-rendered list; use `Skeleton` instead for the initial-load
- * state, so the layout doesn't jump (see docs/states.md).
+ * of an already-rendered list, and for an initial load inside a container that
+ * already reserves its final height, so resolving the load does not jump the
+ * layout (see docs/states.md).
  *
  * It is `aria-hidden="true"` unconditionally — it announces nothing to
  * assistive tech on its own, so pair it with visible or `sr-only` text (or a

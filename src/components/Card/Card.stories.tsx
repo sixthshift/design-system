@@ -5,7 +5,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Card } from ".";
 
 const meta: Meta<typeof Card> = {
-  title: "Components/Display/Card",
+  title: "Components/Card",
   component: Card,
   parameters: {
     layout: "centered",

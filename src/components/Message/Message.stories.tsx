@@ -3,7 +3,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Message, MessageBody, MessageDescription, MessageIcon, MessageTitle } from ".";
 
 const meta: Meta<typeof Message> = {
-  title: "Components/Feedback/Message",
+  title: "Components/Message",
   component: Message,
   parameters: {
     layout: "centered",

@@ -4,7 +4,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Checkbox } from "./Checkbox";
 
 const meta: Meta<typeof Checkbox> = {
-  title: "Components/Inputs/Checkbox",
+  title: "Components/Checkbox",
   component: Checkbox,
   parameters: {
     layout: "centered",

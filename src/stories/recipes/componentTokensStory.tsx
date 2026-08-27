@@ -13,8 +13,8 @@ import { RecipeTables } from "./components/RecipeTables";
  *
  * Hooks are named explicitly rather than inferred. Inference looked tempting —
  * derive the hook from the component name — but `Button` uses `.btn`, and
- * scanning source for the bare word matches the `switch` keyword, `input`
- * variables and `card` inside `StatsCard`. An explicit list is greppable, and
+ * scanning source for the bare word matches the `switch` keyword and `input`
+ * variables. An explicit list is greppable, and
  * `bun run check:recipes` fails if a recipe has no component claiming it.
  *
  * The story shows up in the component's sidebar as well as its Docs tab. Hiding

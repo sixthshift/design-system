@@ -7,7 +7,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Sheet, SheetBody, SheetFooter, SheetHeader } from ".";
 
 const meta: Meta<typeof Sheet> = {
-  title: "Components/Feedback/Sheet",
+  title: "Components/Sheet",
   component: Sheet,
   parameters: {
     layout: "fullscreen",

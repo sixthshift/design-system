@@ -10,4 +10,11 @@
 export type { DisabledDates, ISODate, ISODateRange } from "../../date-time";
 export type { PresetOption } from "../Calendar/calendar.types";
 export { DatePicker } from "./DatePicker";
-export type { DatePickerMode, DatePickerMultipleProps, DatePickerProps, DatePickerRangeProps, DatePickerSingleProps } from "./datepicker.types";
+export type {
+  DatePickerMode,
+  DatePickerMultipleProps,
+  DatePickerProps,
+  DatePickerRangeProps,
+  DatePickerSingleProps,
+  DateSegmentOrder,
+} from "./datepicker.types";

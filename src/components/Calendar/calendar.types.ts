@@ -124,6 +124,16 @@ type CalendarViewBaseProps = {
   /** First day of week (0 = Sunday, 1 = Monday) */
   weekStartsOn?: WeekStartsOn | undefined;
 
+  /**
+   * Move DOM focus into the day grid on mount.
+   *
+   * Off by default: a grid that grabs focus when it appears is wrong for a
+   * pointer user who clicked a trigger. `DatePicker` turns it on only when the
+   * popover was opened from the keyboard (`Alt+ArrowDown`), where the whole
+   * point of opening it was to navigate days.
+   */
+  autoFocusDay?: boolean | undefined;
+
   /** Show footer with Today/Cancel/Apply buttons */
   showFooter?: boolean | undefined;
   /** Show Today button (only if showFooter=true) */

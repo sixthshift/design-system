@@ -9,7 +9,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Modal, ModalBody, ModalFooter, ModalHeader } from ".";
 
 const meta: Meta<typeof Modal> = {
-  title: "Components/Feedback/Modal",
+  title: "Components/Modal",
   component: Modal,
   parameters: {
     layout: "centered",

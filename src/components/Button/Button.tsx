@@ -130,7 +130,7 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
  * is the distinction that keeps "outline danger" possible.
  *
  * `neutral` means *no colour family*: a grey button, the same thing the word
- * means on Badge, Message and ColorDot. A brand-coloured button is
+ * means on Badge and Message. A brand-coloured button is
  * `intent="brand"` — an affirmative choice, which is why `neutral` is the
  * default: omitting the prop means "no particular meaning", so it should not
  * quietly hand back the brand colour. Button used to spell brand as `neutral`

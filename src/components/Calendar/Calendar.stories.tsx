@@ -15,7 +15,7 @@ import { Calendar } from "./Calendar";
 import type { PresetOption } from "./calendar.types";
 
 const meta: Meta<typeof Calendar> = {
-  title: "Components/Inputs/Calendar",
+  title: "Components/Calendar",
   component: Calendar,
   parameters: {
     layout: "padded",

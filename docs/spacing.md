@@ -49,7 +49,7 @@ Rows are *inside* a card, which already has padding. Avoid doubling — if the c
 
 ### Within a row
 - Icon to text: `gap-1.5` or `gap-2`
-- Avatar to content: `gap-3`
+- Leading media (image or icon block) to content: `gap-3`
 - Between row sections (name area | metadata area): `gap-3` or `gap-4`
 
 ### Between rows in a list

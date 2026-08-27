@@ -8,6 +8,7 @@
  */
 
 import type { DisabledDates, ISODate, ISOInstantRange, ISOTime, WeekStartsOn } from "../../date-time";
+import type { DateSegmentOrder } from "../DatePicker/datepicker.types";
 
 /**
  * A datetime range.
@@ -45,10 +46,15 @@ export type DateTimeRangePickerProps = {
 
   // Time format
   clockFormat?: "12h" | "24h"; // Default: "12h"
+
+  /**
+   * Segment order for the date half of each typeable field (default `mdy`).
+   * Never inferred from the locale — `08/09` is a different date under each.
+   */
+  segmentOrder?: DateSegmentOrder;
   showSeconds?: boolean; // Default: false
 
   // Display
-  placeholder?: string;
   weekStartsOn?: WeekStartsOn;
 
   // Form

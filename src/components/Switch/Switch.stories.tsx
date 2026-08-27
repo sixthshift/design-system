@@ -4,7 +4,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Switch } from "./Switch";
 
 const meta: Meta<typeof Switch> = {
-  title: "Components/Inputs/Switch",
+  title: "Components/Switch",
   component: Switch,
   parameters: {
     layout: "centered",

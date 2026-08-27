@@ -19,6 +19,16 @@ import type { PresetOption as CalendarPresetOption } from "../Calendar/calendar.
  */
 export type DatePickerMode = "single" | "range" | "multiple";
 
+/**
+ * Which order the typeable segments read in.
+ *
+ * Explicit rather than inferred from the runtime locale: `08/09` is a different
+ * date under `mdy` than under `dmy`, and a component that guesses is wrong for
+ * half its users. Defaults to `mdy`, matching the `en-US` formatting the rest
+ * of the library's display helpers use.
+ */
+export type DateSegmentOrder = "mdy" | "dmy" | "ymd";
+
 // =============================================================================
 // Internal (Temporal) types
 // =============================================================================
@@ -56,7 +66,11 @@ type DatePickerBaseProps = {
   /** Which dates to refuse. See `DisabledDates`. */
   disabled?: DisabledDates | DisabledDates[];
 
-  /** Placeholder text */
+  /**
+   * Placeholder for the read-only text trigger, which only `multiple` mode
+   * still uses. `single` and `range` are typeable fields whose segments show
+   * their own placeholders (`mm/dd/yyyy`).
+   */
   placeholder?: string;
 
   /** Input name for form submission */
@@ -76,6 +90,12 @@ type DatePickerBaseProps = {
 
   /** Whether the clear button is shown when a value is present (default: true) */
   clearable?: boolean;
+
+  /**
+   * Segment order for the typeable field (`single` mode only; default `mdy`).
+   * See {@link DateSegmentOrder}.
+   */
+  segmentOrder?: DateSegmentOrder;
 };
 
 export type DatePickerSingleProps = DatePickerBaseProps & {

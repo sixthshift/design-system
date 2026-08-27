@@ -77,14 +77,14 @@ Skip this and text falls back to the next family in the stack (`ui-sans-serif` /
 ## Available exports
 
 ```tsx
-// Primitives (Button, Badge, Card, Input, Textarea, Checkbox, Switch, Avatar, ...)
+// Primitives (Button, Badge, Card, Input, Textarea, Checkbox, Switch, ...)
 import { Button } from "@sixthshift/design-system/button";
 import { Input } from "@sixthshift/design-system/input";
 
-// Composites (FormField, NavSide, Tabs, Pagination, ...)
+// Composites (FormField, Tabs, ...)
 import { FormField } from "@sixthshift/design-system/form-field";
 
-// Charts (LineChart, BarChart, Sparkline, HeatMap)
+// Charts (LineChart, BarChart, Sparkline)
 import { LineChart } from "@sixthshift/design-system/line-chart";
 
 // Pickers (Calendar, DatePicker, TimePicker, DateTimePicker, DateRangePicker, DateTimeRangePicker)

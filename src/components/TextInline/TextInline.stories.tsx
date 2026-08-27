@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { TextInline } from "./TextInline";
 
 const meta: Meta<typeof TextInline> = {
-  title: "Components/Display/TextInline",
+  title: "Components/TextInline",
   component: TextInline,
   parameters: {
     layout: "centered",

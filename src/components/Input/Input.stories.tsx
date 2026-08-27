@@ -6,7 +6,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Input } from "./Input";
 
 const meta: Meta<typeof Input> = {
-  title: "Components/Inputs/Input",
+  title: "Components/Input",
   component: Input,
   parameters: {
     layout: "centered",

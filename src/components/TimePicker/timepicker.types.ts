@@ -67,9 +67,6 @@ export type TimePickerProps = {
   /** Preset options (shown in sidebar) */
   presets?: TimePresetOption[];
 
-  /** Placeholder text */
-  placeholder?: string;
-
   /** Input name for form submission */
   name?: string;
 

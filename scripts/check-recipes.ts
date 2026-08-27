@@ -183,7 +183,7 @@ for (const [name, file] of componentTokens) {
 // The per-component token tables are wired up by hand — `componentTokensStory`
 // takes its hooks as arguments because inferring them does not work (`Button`
 // uses `.btn`, and scanning source for a bare hook name matches the `switch`
-// keyword and `card` inside `StatsCard`). Hand-wiring is fine as long as
+// keyword and `input` variables). Hand-wiring is fine as long as
 // forgetting it is loud, which is what this check is for.
 const claimed = new Set<string>();
 for (const file of readdirSync(COMPONENTS, { withFileTypes: true }).flatMap((e) => walkStories(join(COMPONENTS, e.name)))) {

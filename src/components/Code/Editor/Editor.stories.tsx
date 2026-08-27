@@ -19,6 +19,9 @@ const meta: Meta<typeof Editor> = {
   title: "Components/Code/Editor",
   component: Editor,
   parameters: {
+    // Published as `./code-editor`; the exported symbol is `Editor`, so neither
+    // half of the import line can be derived from the title alone.
+    importPath: "code-editor",
     layout: "padded",
   },
   tags: ["autodocs"],

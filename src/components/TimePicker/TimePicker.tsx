@@ -1,16 +1,17 @@
 import { autoUpdate, FloatingPortal, flip, offset, shift, useClick, useDismiss, useFloating, useInteractions } from "@floating-ui/react";
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
-import { Clock, X } from "lucide-react";
+import { Clock } from "lucide-react";
 import * as React from "react";
 import { useCallback, useId, useMemo, useState } from "react";
 import { fromISOTime, fromISOTimeOrUndefined, type Temporal, toISOTimeOrUndefined } from "../../date-time";
+import { PickerField } from "../../internal";
 import { Button } from "../Button";
 import { Separator } from "../Separator";
 import { PeriodSelector } from "./PeriodSelector";
 import { TimeColumn } from "./TimeColumn";
+import { TimeSegments } from "./TimeSegments";
 import {
-  formatTimeDisplay,
   generateHours,
   generateMinutes,
   generateSeconds,
@@ -27,11 +28,23 @@ import type { ParsedTime, TimePeriod, TimePickerProps, TimePresetOption } from "
 export type { TimePickerProps };
 
 /**
- * Text input trigger plus a popover of scrollable hour/minute(/second) columns
- * for picking a wall-clock time. The value is an `ISOTime` string — `"09:30"`
- * and `"09:30:00"` are both accepted as input, and `onChange` always emits the
+ * A typeable time field and a popover of scrollable hour/minute(/second)
+ * columns, as one control. The value is an `ISOTime` string — `"09:30"` and
+ * `"09:30:00"` are both accepted as input, and `onChange` always emits the
  * canonical `HH:MM:SS` form regardless of `format`. There is no timezone
  * conversion: the value is a plain time, not an instant.
+ *
+ * The field is spinbutton segments rather than a text box, and is built to be
+ * typed straight through: `0230p` is half past two in the afternoon, `345` in a
+ * 24-hour field is 03:45 (there is no 30th hour, so the digit rolls into the
+ * minute). `a`/`p` set the meridiem, arrows step any segment, `Alt+ArrowDown`
+ * opens the columns and moves focus to the hour, and `Enter` is Apply. See
+ * `SegmentedField` for the full keyboard model. `minuteStep` sets the column's
+ * increment and deliberately does not constrain typing.
+ *
+ * Typing and picking move one value: the segments show the draft while the
+ * popover is open and the committed value while it is closed. A partial time is
+ * never reported — clearing a segment reports `undefined`.
  *
  * Supports both controlled (`value`/`onChange`) and uncontrolled
  * (`defaultValue`) use. Opening the popover seeds the draft columns from the
@@ -57,7 +70,6 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>((pro
     minTime,
     maxTime,
     presets,
-    placeholder = "Select time",
     name,
     isDisabled = false,
     isInvalid = false,
@@ -104,10 +116,20 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>((pro
     return "AM";
   });
 
+  // Whether the hour column should take focus when the popover mounts — true
+  // only when it was opened from the keyboard. See `openWithColumnFocus`.
+  const [autoFocusHour, setAutoFocusHour] = useState(false);
+  // The draft is three numbers, so it cannot represent "no time". This does:
+  // clearing a segment while the popover is open has to stick rather than being
+  // instantly resynced back from the draft.
+  const [draftCleared, setDraftCleared] = useState(false);
+
   // Sync draft when popup opens
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
+      if (!newOpen) setAutoFocusHour(false);
       if (newOpen) {
+        setDraftCleared(false);
         if (committedValue) {
           const parsed = temporalToParsed(committedValue);
           setDraftHour(clockFormat === "12h" ? to12Hour(parsed.hour).hour12 : parsed.hour);
@@ -141,6 +163,11 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>((pro
 
   // Apply changes
   const handleApply = useCallback(() => {
+    if (draftCleared) {
+      setCommittedValue(undefined);
+      setOpen(false);
+      return;
+    }
     const parsed = getDraftTime();
     const temporalTime = parsedToTemporal(parsed);
 
@@ -151,7 +178,7 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>((pro
 
     setCommittedValue(temporalTime);
     setOpen(false);
-  }, [getDraftTime, temporalMinTime, temporalMaxTime, setCommittedValue]);
+  }, [draftCleared, getDraftTime, temporalMinTime, temporalMaxTime, setCommittedValue]);
 
   // Cancel changes
   const handleCancel = useCallback(() => {
@@ -222,8 +249,54 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>((pro
   const inputId = `timepicker-input-${id}`;
 
   // Display value
-  const displayValue = committedValue ? formatTimeDisplay(committedValue, clockFormat, format) : "";
   const hasValue = Boolean(committedValue);
+
+  // ---------------------------------------------------------------------------
+  // The typeable field.
+  //
+  // One value, two ways to move it: the segments show the draft while the
+  // popover is open and the committed value while it is closed, so typing a time
+  // moves the columns and scrolling a column shows up in the segments. The
+  // commit contract stays single — open means Apply/Cancel owns it, closed means
+  // a complete time commits as soon as it is complete.
+  // ---------------------------------------------------------------------------
+
+  const draftTime = parsedToTemporal(getDraftTime());
+  const segmentValue = open ? (draftCleared ? undefined : draftTime) : committedValue;
+
+  // A typed time can fall outside `minTime`/`maxTime`, which the columns would
+  // refuse. The field says so rather than silently clamping. See DatePicker.
+  const outOfBounds = segmentValue !== undefined && isTimeDisabled(segmentValue, temporalMinTime, temporalMaxTime);
+
+  const handleSegmentsChange = useCallback(
+    (time: Temporal.PlainTime | undefined) => {
+      if (!open) {
+        setCommittedValue(time);
+        return;
+      }
+      if (!time) {
+        setDraftCleared(true);
+        return;
+      }
+      setDraftCleared(false);
+      setDraftHour(clockFormat === "12h" ? to12Hour(time.hour).hour12 : time.hour);
+      setDraftMinute(time.minute);
+      setDraftSecond(time.second);
+      setDraftPeriod(to12Hour(time.hour).period);
+    },
+    [clockFormat, open, setCommittedValue]
+  );
+
+  /** `Alt+ArrowDown` from a segment: open the columns *and* go there. */
+  const openWithColumnFocus = useCallback(() => {
+    setAutoFocusHour(true);
+    handleOpenChange(true);
+  }, [handleOpenChange]);
+
+  /** `Enter` in a segment commits the draft, matching the popover's Apply. */
+  const handleFieldSubmit = useCallback(() => {
+    if (open) handleApply();
+  }, [handleApply, open]);
 
   // Generate column values
   const hours = generateHours(clockFormat);
@@ -234,38 +307,32 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>((pro
     <>
       {/* Trigger Input */}
       <div ref={ref} className="relative flex items-center">
-        <Clock className="pointer-events-none absolute left-3 h-4 w-4 text-fg-subtle" />
-        <input
-          ref={refs.setReference as React.Ref<HTMLInputElement>}
-          id={inputId}
-          type="text"
-          readOnly
-          value={displayValue}
-          placeholder={placeholder}
-          disabled={isDisabled}
-          role="combobox"
-          aria-invalid={isInvalid}
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          aria-controls={open ? contentId : undefined}
-          className={cn(
-            `flex h-9 w-full cursor-pointer rounded-md border border-border-normal bg-transparent py-1 pl-9 text-sm shadow-xs transition-colors placeholder:text-fg-subtle focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus-ring disabled:cursor-not-allowed disabled:opacity-50`,
-            hasValue ? "pr-9" : "pr-3",
-            isInvalid && "border-border-danger",
-            className
-          )}
-          {...getReferenceProps()}
-        />
-        {hasValue && !isDisabled && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute right-3 rounded-sm p-0.5 text-fg-subtle hover:bg-bg-subtle hover:text-fg-normal focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus-ring"
-            aria-label="Clear time"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        )}
+        <PickerField
+          ref={refs.setReference as React.Ref<HTMLDivElement>}
+          className={cn("w-full min-w-45", className)}
+          icon={<Clock className="h-4 w-4" />}
+          toggleLabel="Open time picker"
+          toggleProps={getReferenceProps()}
+          isOpen={open}
+          contentId={contentId}
+          isDisabled={isDisabled}
+          isInvalid={isInvalid || outOfBounds}
+          onClear={hasValue && !isDisabled ? handleClear : undefined}
+          clearLabel="Clear time"
+        >
+          <TimeSegments
+            className="h-full flex-1"
+            id={inputId}
+            value={segmentValue}
+            onChange={handleSegmentsChange}
+            format={format}
+            clockFormat={clockFormat}
+            isDisabled={isDisabled}
+            isInvalid={isInvalid || outOfBounds}
+            onOpenRequest={openWithColumnFocus}
+            onSubmit={handleFieldSubmit}
+          />
+        </PickerField>
 
         {/* Hidden input for form submission */}
         {name && committedValue && <input type="hidden" name={name} value={temporalTimeToISO(committedValue, format)} />}
@@ -278,7 +345,7 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>((pro
             ref={refs.setFloating}
             id={contentId}
             role="dialog"
-            aria-modal="true"
+            aria-label="Choose time"
             style={floatingStyles}
             className="z-popover rounded-xl border border-border-normal bg-bg-normal p-4 shadow-lg"
             {...getFloatingProps()}
@@ -322,6 +389,7 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>((pro
                     selected={draftHour}
                     onSelect={setDraftHour}
                     formatValue={clockFormat === "12h" ? (v) => String(v) : (v) => String(v).padStart(2, "0")}
+                    autoFocusSelected={autoFocusHour}
                   />
 
                   {/* Minutes */}

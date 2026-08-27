@@ -103,10 +103,6 @@
       "types": "./dist/components/Badge/index.d.ts",
       "import": "./dist/components/Badge/index.js"
     },
-    "./color-dot": {
-      "types": "./dist/components/ColorDot/index.d.ts",
-      "import": "./dist/components/ColorDot/index.js"
-    },
     "./tag-chip": {
       "types": "./dist/components/TagChip/index.d.ts",
       "import": "./dist/components/TagChip/index.js"
@@ -119,41 +115,17 @@
       "types": "./dist/components/Field/index.d.ts",
       "import": "./dist/components/Field/index.js"
     },
-    "./breadcrumb": {
-      "types": "./dist/components/Breadcrumb/index.d.ts",
-      "import": "./dist/components/Breadcrumb/index.js"
-    },
     "./card": {
       "types": "./dist/components/Card/index.d.ts",
       "import": "./dist/components/Card/index.js"
-    },
-    "./avatar": {
-      "types": "./dist/components/Avatar/index.d.ts",
-      "import": "./dist/components/Avatar/index.js"
     },
     "./separator": {
       "types": "./dist/components/Separator/index.d.ts",
       "import": "./dist/components/Separator/index.js"
     },
-    "./skeleton": {
-      "types": "./dist/components/Skeleton/index.d.ts",
-      "import": "./dist/components/Skeleton/index.js"
-    },
     "./spinner": {
       "types": "./dist/components/Spinner/index.d.ts",
       "import": "./dist/components/Spinner/index.js"
-    },
-    "./stats-card": {
-      "types": "./dist/components/StatsCard/index.d.ts",
-      "import": "./dist/components/StatsCard/index.js"
-    },
-    "./metric-list": {
-      "types": "./dist/components/MetricList/index.d.ts",
-      "import": "./dist/components/MetricList/index.js"
-    },
-    "./empty-state": {
-      "types": "./dist/components/EmptyState/index.d.ts",
-      "import": "./dist/components/EmptyState/index.js"
     },
     "./text": {
       "types": "./dist/components/Text/index.d.ts",
@@ -231,10 +203,6 @@
       "types": "./dist/components/SearchInput/index.d.ts",
       "import": "./dist/components/SearchInput/index.js"
     },
-    "./pagination": {
-      "types": "./dist/components/Pagination/index.d.ts",
-      "import": "./dist/components/Pagination/index.js"
-    },
     "./code-editor": {
       "types": "./dist/components/Code/Editor/index.d.ts",
       "import": "./dist/components/Code/Editor/index.js"
@@ -242,14 +210,6 @@
     "./code-editor-workspace": {
       "types": "./dist/components/Code/Workspace/index.d.ts",
       "import": "./dist/components/Code/Workspace/index.js"
-    },
-    "./nav-side": {
-      "types": "./dist/components/NavSide/index.d.ts",
-      "import": "./dist/components/NavSide/index.js"
-    },
-    "./nav-bottom": {
-      "types": "./dist/components/NavBottom/index.d.ts",
-      "import": "./dist/components/NavBottom/index.js"
     },
     "./heading": {
       "types": "./dist/typography/Heading.d.ts",
@@ -354,10 +314,6 @@
     "./bar-chart": {
       "types": "./dist/components/BarChart/index.d.ts",
       "import": "./dist/components/BarChart/index.js"
-    },
-    "./heat-map": {
-      "types": "./dist/components/HeatMap/index.d.ts",
-      "import": "./dist/components/HeatMap/index.js"
     }
   },
   "scripts": {

@@ -28,7 +28,7 @@ A layer consumes the layer below; it does *not* consume the layer above. Tokens 
 Named values for color, spacing, type. The atom layer. See [Design Tokens](design-tokens.md).
 
 ### Primitives
-Single-purpose components from `@sixthshift/design-system` (`Button`, `Card`, `Input`, `Heading`, `Subtitle`, `Badge`, `Spinner`, `EmptyState`). They:
+Single-purpose components from `@sixthshift/design-system` (`Button`, `Card`, `Input`, `Heading`, `Subtitle`, `Badge`, `Spinner`). They:
 - Consume tokens directly.
 - Have orthogonal APIs (`variant` × `intent`), per [Component API Design](component-api-design.md).
 - Don't import other primitives at composition time (a `Card` doesn't ship with a `Button` inside).

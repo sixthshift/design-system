@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Markdown } from "./Markdown";
 
 const meta: Meta<typeof Markdown> = {
-  title: "Components/Display/Markdown",
+  title: "Components/Markdown",
   component: Markdown,
   parameters: {
     layout: "centered",

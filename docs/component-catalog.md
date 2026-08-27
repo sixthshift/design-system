@@ -261,24 +261,49 @@ Temporal with `fromISODate` / `fromISOInstant`, compute, and narrow back with
 #### DatePicker
 
 **Import:** `@sixthshift/design-system/date-picker`
-**Purpose:** Input trigger + Calendar popover for picking dates.
+**Purpose:** A typeable date field + Calendar popover, as one control.
 
 | Prop | Type | Notes |
 |------|------|-------|
 | `mode` | `"single" \| "range" \| "multiple"` | Selection mode |
 | `value` / `defaultValue` | `ISODate \| ISODateRange \| ISODate[]` | Depends on mode |
-| `onChange` | `(value) => void` | Depends on mode |
+| `onChange` | `(value) => void` | Depends on mode. Never fires a partial date; fires `undefined` when a segment is cleared |
+| `segmentOrder` | `"mdy" \| "dmy" \| "ymd"` | `single` mode only. Default `mdy`. Never inferred from the locale |
 | `minDate` / `maxDate` | `ISODate` | Date bounds, inclusive |
 | `disabled` | `DisabledDates \| DisabledDates[]` | See [Disabling dates](#disabling-dates) |
 | `presets` | `PresetOption[]` | Quick-pick sidebar |
 | `clearable` | `boolean` | Default: `true` |
-| `placeholder` | `string` | Default: `"Select date"` |
+| `placeholder` | `string` | `range` / `multiple` only — the segmented field shows `mm/dd/yyyy` instead |
 | `align` | `"start" \| "end"` | Popover alignment |
+
+In `single` mode the trigger is three `role="spinbutton"` segments, not a text
+box, and it is built to be typed straight through: `152026` is January the 5th
+2026, because a digit that cannot extend the segment being typed rolls into the
+next one rather than restarting it. Separators (`/`, `-`, `.`) advance a segment,
+arrows step it, `Backspace` takes back one digit (then clears it, then steps
+back), `Alt+ArrowDown` opens the grid and moves focus there, and a paste fills
+all three (ISO always, otherwise the configured order). `range` and `multiple`
+keep their own triggers: `range` renders the two ends as two separate segmented
+fields (see below), and `multiple` keeps a read-only text trigger, since a list
+of dates has no sensible typed form.
+
+**Range mode** renders `Start date` and `End date` as two independent fields,
+each typed and cleared on its own, sharing one popover that anchors to whichever
+half is being edited. Clearing the last remaining end reports `undefined` rather
+than a range with two empty ends.
+
+`onChange` is held while a number is still being typed — a year arrives one digit
+at a time, and `2` is the start of 2026, not the year 2 — and flushed when the
+field loses focus.
+
+Typing and picking move one value: the segments show the popover's draft while
+it is open and the committed value while it is closed, so typing moves the grid
+and picking a day shows in the segments. `Enter` in a segment is Apply.
 
 #### TimePicker
 
 **Import:** `@sixthshift/design-system/time-picker`
-**Purpose:** Input trigger + scrollable hour/minute/second columns for picking time.
+**Purpose:** A typeable time field + scrollable hour/minute/second columns.
 
 | Prop | Type | Notes |
 |------|------|-------|
@@ -289,6 +314,13 @@ Temporal with `fromISODate` / `fromISOInstant`, compute, and narrow back with
 | `minuteStep` | `number` | Minute increment (default: 1) |
 | `minTime` / `maxTime` | `ISOTime` | Time bounds, inclusive |
 | `presets` | `TimePresetOption[]` | Quick-pick sidebar |
+
+The trigger is spinbutton segments: `0230p` is half past two in the afternoon,
+`345` in a 24-hour field is 03:45 (there is no 30th hour, so the digit rolls
+into the minute), `a`/`p` set the meridiem, and `Alt+ArrowDown` opens the columns
+on the hour. `minuteStep` sets the column increment and does **not** constrain
+typing. A typed time outside `minTime`/`maxTime` is flagged (`aria-invalid` and
+the danger border) and still reported, so the caller's own validation sees it.
 
 #### DateTimePicker
 
@@ -305,7 +337,11 @@ in the viewer's local timezone and exchanged in UTC.
 | `minDate` / `maxDate` | `ISODate` | Date bounds, inclusive |
 | `minTime` / `maxTime` | `ISOTime` | Time bounds, inclusive |
 | `disabledDates` | `DisabledDates \| DisabledDates[]` | See [Disabling dates](#disabling-dates) |
+| `segmentOrder` | `"mdy" \| "dmy" \| "ymd"` | Order of the date half. Default `mdy` |
 | `clearable` | `boolean` | Default: `true` |
+
+One field carries both halves, so the digits roll straight from the year into the
+hour: `1520260330p` is January 5th 2026 at 3:30pm, typed without a tab.
 
 #### DateTimeRangePicker
 
@@ -323,6 +359,11 @@ in UTC.
 | `clockFormat` | `"12h" \| "24h"` | Clock display |
 | `showSeconds` | `boolean` | Include seconds |
 | `presets` | `DateTimeRangePresetOption[]` | Quick-pick sidebar |
+| `segmentOrder` | `"mdy" \| "dmy" \| "ymd"` | Order of each date half. Default `mdy` |
+
+Two typeable fields, one per end — each a full date-and-time, each with its own
+clear button, sharing one popover that anchors to whichever half is being edited.
+Clearing the last remaining end reports `undefined`.
 
 ---
 
@@ -430,18 +471,6 @@ Built on top of `Message`. Enter/exit animations included.
 | `onRemove` | `() => void` | When set, renders an × (removable mode); omit for navigable chips |
 | `size` | `"sm" \| "default"` | Row vs detail sizing |
 
-#### Avatar
-
-**Import:** `@sixthshift/design-system/avatar`
-**Purpose:** Circular container for user images with fallback initials.
-
-**Sub-components:**
-- `Avatar` -- container (default 40x40)
-- `AvatarImage` -- `<img>` that fills the avatar
-- `AvatarFallback` -- centered text/initials shown when no image
-
-No variant props. Style via `className`.
-
 #### Card
 
 **Import:** `@sixthshift/design-system/card`
@@ -453,61 +482,6 @@ No variant props. Style via `className`.
 | `headerAction` | `ReactNode` | Element in header right side |
 | `onClick` | `(event) => void` | Makes card clickable with hover/focus states |
 
-#### Breadcrumb
-
-**Import:** `@sixthshift/design-system/breadcrumb`
-**Purpose:** Navigation trail showing hierarchy path.
-
-| Prop | Type | Notes |
-|------|------|-------|
-| `items` | `BreadcrumbItem[]` | `{ label: ReactNode, href?: string }` |
-
-Uses `ComponentsContext` for link rendering (router integration).
-
-#### ColorDot
-
-**Import:** `@sixthshift/design-system/color-dot`
-**Purpose:** Small colored circle for status or category indicators.
-
-| Prop | Type | Notes |
-|------|------|-------|
-| `color` | `string` | Intent name (`"brand"`, `"success"`, etc.) or CSS color |
-| `size` | `"sm" \| "md" \| "lg"` | Dot diameter (CVA) |
-| `pulse` | `boolean` | Animated pulse effect (CVA) |
-
-#### StatsCard
-
-**Import:** `@sixthshift/design-system/stats-card`
-**Purpose:** Card with title, description, status border, and metric content area.
-
-| Prop | Type | Notes |
-|------|------|-------|
-| `title` | `string` | Card heading |
-| `description` | `string` | Subtitle text |
-| `icon` | `ReactNode` | Header icon |
-| `status` | `"healthy" \| "warning" \| "error" \| "neutral"` | Left border color |
-
-#### MetricList
-
-**Import:** `@sixthshift/design-system/metric-list`
-**Purpose:** Vertical stack container for metric rows.
-
-Children-only API. Wrap metric items as children.
-
-#### Pagination
-
-**Import:** `@sixthshift/design-system/pagination`
-**Purpose:** Page navigation with rows-per-page selector and prev/next buttons.
-
-| Prop | Type | Notes |
-|------|------|-------|
-| `page` | `number` | Current page (0-based) |
-| `pageSize` | `number` | Items per page |
-| `total` | `number` | Total item count |
-| `onPageChange` | `(page: number) => void` | Page navigation |
-| `onPageSizeChange` | `(size: number) => void` | Page size change |
-| `pageSizeOptions` | `number[]` | Default: `[10, 25, 50, 100]` |
-
 #### Separator
 
 **Import:** `@sixthshift/design-system/separator`
@@ -517,13 +491,6 @@ Children-only API. Wrap metric items as children.
 |------|------|-------|
 | `orientation` | `"horizontal" \| "vertical"` | Default: `"horizontal"` |
 | `decorative` | `boolean` | When `false`, adds `role="separator"` |
-
-#### Skeleton
-
-**Import:** `@sixthshift/design-system/skeleton`
-**Purpose:** Pulsing placeholder for loading states.
-
-No custom props. Apply dimensions via `className` (e.g., `className="h-4 w-32"`).
 
 #### Spinner
 
@@ -629,45 +596,7 @@ All chart components are SVG-based with no external charting library.
 | `fillArea` | `boolean` | Fill under curve |
 | `interpolation` | `Interpolation` | Curve type (default: `"monotone"`) |
 
-#### HeatMapCalendar
-
-**Import:** `@sixthshift/design-system/heat-map`
-**Purpose:** GitHub-style contribution calendar heatmap.
-
-| Prop | Type | Notes |
-|------|------|-------|
-| `data` | `HeatMapCell[]` | `{ date: string, value: number }` (ISO dates) |
-| `colorScale` | `string[]` | Color stops from low to high |
-| `cellSize` / `cellGap` | `number` | Grid dimensions |
-| `formatTooltip` | `(cell: HeatMapCell) => string` | Tooltip formatter |
-
-#### HeatMapMatrix
-
-**Import:** `@sixthshift/design-system/heat-map`
-**Purpose:** Simple matrix heatmap with day-of-week rows and week columns.
-
-| Prop | Type | Notes |
-|------|------|-------|
-| `data` | `HeatMapCell[]` | Same as HeatMapCalendar |
-| `colorScale` | `string[]` | Color stops |
-| `showDayLabels` | `boolean` | Show Mon/Tue/etc labels |
-| `cellSize` / `cellGap` | `number` | Grid dimensions |
-
----
-
 ### Layout & Feedback
-
-#### EmptyState
-
-**Import:** `@sixthshift/design-system/empty-state`
-**Purpose:** Centered placeholder for lists/pages with no data.
-
-| Prop | Type | Notes |
-|------|------|-------|
-| `icon` | `ReactNode` | Optional icon |
-| `message` | `string` | Main message text |
-| `description` | `string` | Supporting detail |
-| `action` | `ReactNode` | CTA button or link |
 
 #### Message
 
@@ -713,30 +642,6 @@ Also supports compound children: `Message.Icon`, `Message.Body`, `Message.Title`
 | `required` | `boolean` | Shows red asterisk |
 
 Auto-generates `id` and wires `aria-describedby`/`aria-invalid` onto the child input.
-
-### NavSide
-
-**Import:** `@sixthshift/design-system/nav-side`
-**Purpose:** Vertical sidebar navigation with sections, icons, and expand/collapse.
-
-| Prop | Type | Notes |
-|------|------|-------|
-| `sections` | `NavSection[]` | `{ id, items: NavItem[] }` |
-| `expanded` | `boolean` | Show labels or icon-only (default: `true`) |
-| `isActive` | `(item: NavItem) => boolean` | Active state callback |
-| `renderLink` | `RenderLinkFn` | Router integration |
-
-### NavBottom
-
-**Import:** `@sixthshift/design-system/nav-bottom`
-**Purpose:** Mobile bottom tab bar navigation.
-
-| Prop | Type | Notes |
-|------|------|-------|
-| `sections` | `NavSection[]` | Same sections as NavSide |
-| `isActive` | `(item: NavItem) => boolean` | Active state callback |
-| `maxItems` | `number` | Max visible items (default: 5) |
-| `renderLink` | `RenderLinkFn` | Router integration |
 
 ### ProgressBar
 

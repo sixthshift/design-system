@@ -6,6 +6,7 @@
  */
 
 import type { DisabledDates, ISODate, ISODateRange, WeekStartsOn } from "../../date-time";
+import type { DateSegmentOrder } from "../DatePicker/datepicker.types";
 
 /**
  * A preset range.
@@ -34,8 +35,13 @@ export type DateRangePickerProps = {
   showPresets?: boolean; // Default: true
 
   // Display
-  placeholder?: string;
   weekStartsOn?: WeekStartsOn;
+
+  /**
+   * Segment order for both typeable fields (default `mdy`). Never inferred from
+   * the locale — `08/09` is a different date under each.
+   */
+  segmentOrder?: DateSegmentOrder;
 
   // Form
   name?: string;

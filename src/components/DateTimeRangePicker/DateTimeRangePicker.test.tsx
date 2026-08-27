@@ -42,22 +42,26 @@ describe("DateTimeRangePicker", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
+  const startField = () => screen.getByRole("group", { name: "Start date and time" });
+  const endField = () => screen.getByRole("group", { name: "End date and time" });
+  const openPicker = (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole("button", { name: "Open picker for start date and time" }));
+
   // =============================================================================
   // Rendering & Basic Interaction (8 tests)
   // =============================================================================
 
-  it("renders with placeholder", () => {
-    render(<DateTimeRangePicker placeholder="Select datetime range..." />);
-    const input = screen.getByPlaceholderText("Select datetime range...");
-    expect(input).toBeInTheDocument();
+  it("renders both ends as empty segmented fields", () => {
+    render(<DateTimeRangePicker />);
+
+    expect(startField().textContent).toBe("mm/dd/yyyy hh:mm --");
+    expect(endField().textContent).toBe("mm/dd/yyyy hh:mm --");
   });
 
   it("opens popup on click", async () => {
     const user = userEvent.setup();
-    render(<DateTimeRangePicker placeholder="Select range" />);
+    render(<DateTimeRangePicker />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     // Should open a dialog/popup
     const dialog = screen.getByRole("dialog");
@@ -66,10 +70,9 @@ describe("DateTimeRangePicker", () => {
 
   it("shows calendar in popup", async () => {
     const user = userEvent.setup();
-    render(<DateTimeRangePicker placeholder="Select range" />);
+    render(<DateTimeRangePicker />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
     // Should have calendar with month/year navigation
@@ -78,10 +81,9 @@ describe("DateTimeRangePicker", () => {
 
   it("shows two time pickers in popup (start and end)", async () => {
     const user = userEvent.setup();
-    render(<DateTimeRangePicker placeholder="Select range" />);
+    render(<DateTimeRangePicker />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
     // Should have start and end time sections
@@ -94,10 +96,9 @@ describe("DateTimeRangePicker", () => {
 
   it("closes on escape key", async () => {
     const user = userEvent.setup();
-    render(<DateTimeRangePicker placeholder="Select range" />);
+    render(<DateTimeRangePicker />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
 
@@ -111,12 +112,11 @@ describe("DateTimeRangePicker", () => {
     render(
       <div>
         <div data-testid="outside">Outside</div>
-        <DateTimeRangePicker placeholder="Select range" />
+        <DateTimeRangePicker />
       </div>
     );
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
 
@@ -131,11 +131,9 @@ describe("DateTimeRangePicker", () => {
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} />);
 
-    const input = screen.getByRole("combobox") as HTMLInputElement;
-    // Should show formatted range (dates/times may vary by timezone)
-    expect(input.value).toMatch(/Jan(uary)?\s+\d{1,2},\s+2025/);
-    expect(input.value).toMatch(/\d{1,2}:\d{2}\s*(AM|PM)/);
-    expect(input.value).toContain("–");
+    // Dates/times may vary by timezone, so match the shape.
+    expect(startField().textContent).toMatch(/^\d{2}\/\d{2}\/2025 \d{2}:\d{2} (AM|PM)$/);
+    expect(endField().textContent).toMatch(/^\d{2}\/\d{2}\/2025 \d{2}:\d{2} (AM|PM)$/);
   });
 
   it("clears value when clear button clicked", async () => {
@@ -146,15 +144,14 @@ describe("DateTimeRangePicker", () => {
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} onChange={onChange} />);
 
-    const input = screen.getByRole("combobox") as HTMLInputElement;
-    expect(input.value).not.toBe("");
+    expect(startField().textContent).not.toContain("mm/dd/yyyy");
 
-    // Find and click clear button (X icon)
-    const clearButton = screen.getByRole("button", { name: /clear/i });
-    await user.click(clearButton);
+    // Each end clears on its own; clearing the last one clears the range.
+    await user.click(screen.getByRole("button", { name: "Clear end date and time" }));
+    await user.click(screen.getByRole("button", { name: "Clear start date and time" }));
 
-    expect(input.value).toBe("");
-    expect(onChange).toHaveBeenCalledWith(undefined);
+    expect(startField().textContent).toBe("mm/dd/yyyy hh:mm --");
+    expect(onChange).toHaveBeenLastCalledWith(undefined);
   });
 
   // =============================================================================
@@ -165,10 +162,9 @@ describe("DateTimeRangePicker", () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
 
-    render(<DateTimeRangePicker onChange={onChange} placeholder="Select range" />);
+    render(<DateTimeRangePicker onChange={onChange} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
     const grid = within(dialog).getByRole("grid");
@@ -211,10 +207,9 @@ describe("DateTimeRangePicker", () => {
     const to = "2025-01-20T00:00:00Z";
     const onChange = vi.fn();
 
-    render(<DateTimeRangePicker defaultValue={{ from, to }} onChange={onChange} placeholder="Select range" />);
+    render(<DateTimeRangePicker defaultValue={{ from, to }} onChange={onChange} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
 
@@ -279,10 +274,9 @@ describe("DateTimeRangePicker", () => {
 
   it("updates display with complete datetime range", async () => {
     const user = userEvent.setup();
-    render(<DateTimeRangePicker placeholder="Select range" />);
+    render(<DateTimeRangePicker />);
 
-    const input = screen.getByPlaceholderText("Select range") as HTMLInputElement;
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
     const grid = within(dialog).getByRole("grid");
@@ -297,17 +291,16 @@ describe("DateTimeRangePicker", () => {
     const applyButton = within(dialog).getByRole("button", { name: /apply/i });
     await user.click(applyButton);
 
-    // Input should display the range (dates may vary by timezone)
-    expect(input.value).toMatch(/\w+\s+\d{1,2},\s+2025/);
-    expect(input.value).toContain("–");
+    // Both fields should display their end (dates may vary by timezone)
+    expect(startField().textContent).toMatch(/^\d{2}\/15\/\d{4}/);
+    expect(endField().textContent).toMatch(/^\d{2}\/20\/\d{4}/);
   });
 
   it("handles partial range (only start datetime selected)", async () => {
     const user = userEvent.setup();
-    render(<DateTimeRangePicker placeholder="Select range" />);
+    render(<DateTimeRangePicker />);
 
-    const input = screen.getByPlaceholderText("Select range") as HTMLInputElement;
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
     const grid = within(dialog).getByRole("grid");
@@ -320,9 +313,9 @@ describe("DateTimeRangePicker", () => {
     const applyButton = within(dialog).getByRole("button", { name: /apply/i });
     await user.click(applyButton);
 
-    // Should show partial range with "..." (date may vary by timezone)
-    expect(input.value).toMatch(/\w+\s+\d{1,2},\s+2025/);
-    expect(input.value).toContain("...");
+    // A partial range is now self-evident: one field filled, the other empty.
+    expect(startField().textContent).toMatch(/^\d{2}\/15\/\d{4}/);
+    expect(endField().textContent).toBe("mm/dd/yyyy hh:mm --");
   });
 
   it("allows clearing and re-selecting range", async () => {
@@ -332,16 +325,15 @@ describe("DateTimeRangePicker", () => {
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} />);
 
-    const input = screen.getByRole("combobox") as HTMLInputElement;
-    expect(input.value).not.toBe("");
+    expect(startField().textContent).not.toContain("mm/dd/yyyy");
 
-    // Clear the value
-    const clearButton = screen.getByRole("button", { name: /clear/i });
-    await user.click(clearButton);
-    expect(input.value).toBe("");
+    // Clear both ends
+    await user.click(screen.getByRole("button", { name: "Clear end date and time" }));
+    await user.click(screen.getByRole("button", { name: "Clear start date and time" }));
+    expect(startField().textContent).toBe("mm/dd/yyyy hh:mm --");
 
     // Re-select a new range
-    await user.click(input);
+    await openPicker(user);
     const dialog = screen.getByRole("dialog");
     const grid = within(dialog).getByRole("grid");
 
@@ -354,18 +346,17 @@ describe("DateTimeRangePicker", () => {
     const applyButton = within(dialog).getByRole("button", { name: /apply/i });
     await user.click(applyButton);
 
-    expect(input.value).toContain("10");
-    expect(input.value).toContain("12");
+    expect(startField().textContent).toMatch(/^\d{2}\/10\/\d{4}/);
+    expect(endField().textContent).toMatch(/^\d{2}\/12\/\d{4}/);
   });
 
   it("validates that end datetime is after start datetime", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
 
-    render(<DateTimeRangePicker onChange={onChange} placeholder="Select range" />);
+    render(<DateTimeRangePicker onChange={onChange} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
     const grid = within(dialog).getByRole("grid");
@@ -397,10 +388,9 @@ describe("DateTimeRangePicker", () => {
 
   it("shows default presets", async () => {
     const user = userEvent.setup();
-    render(<DateTimeRangePicker placeholder="Select range" />);
+    render(<DateTimeRangePicker />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
 
@@ -414,10 +404,9 @@ describe("DateTimeRangePicker", () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
 
-    render(<DateTimeRangePicker onChange={onChange} placeholder="Select range" />);
+    render(<DateTimeRangePicker onChange={onChange} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
     const presetButton = within(dialog).getByText("Last 24 hours");
@@ -450,10 +439,9 @@ describe("DateTimeRangePicker", () => {
       },
     ];
 
-    render(<DateTimeRangePicker presets={customPresets} placeholder="Select range" />);
+    render(<DateTimeRangePicker presets={customPresets} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
     expect(within(dialog).getByText("Next Week")).toBeInTheDocument();
@@ -461,10 +449,9 @@ describe("DateTimeRangePicker", () => {
 
   it("hides presets when showPresets is false", async () => {
     const user = userEvent.setup();
-    render(<DateTimeRangePicker showPresets={false} placeholder="Select range" />);
+    render(<DateTimeRangePicker showPresets={false} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
 
@@ -481,10 +468,9 @@ describe("DateTimeRangePicker", () => {
     const user = userEvent.setup();
     const minDate = "2025-01-15";
 
-    render(<DateTimeRangePicker minDate={minDate} placeholder="Select range" />);
+    render(<DateTimeRangePicker minDate={minDate} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
     const grid = within(dialog).getByRole("grid");
@@ -502,10 +488,9 @@ describe("DateTimeRangePicker", () => {
     const user = userEvent.setup();
     const maxDate = "2025-01-20";
 
-    render(<DateTimeRangePicker maxDate={maxDate} placeholder="Select range" />);
+    render(<DateTimeRangePicker maxDate={maxDate} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
     const grid = within(dialog).getByRole("grid");
@@ -523,10 +508,9 @@ describe("DateTimeRangePicker", () => {
     const user = userEvent.setup();
     const isWeekend = { dayOfWeek: ["sat", "sun"] } as const;
 
-    render(<DateTimeRangePicker disabledDates={isWeekend} placeholder="Select range" />);
+    render(<DateTimeRangePicker disabledDates={isWeekend} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
     const grid = within(dialog).getByRole("grid");
@@ -547,10 +531,9 @@ describe("DateTimeRangePicker", () => {
     const to = "2025-01-20T00:00:00Z";
     const minTime = "09:00:00";
 
-    render(<DateTimeRangePicker defaultValue={{ from, to }} minTime={minTime} placeholder="Select range" />);
+    render(<DateTimeRangePicker defaultValue={{ from, to }} minTime={minTime} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
 
@@ -578,10 +561,9 @@ describe("DateTimeRangePicker", () => {
     const to = "2025-01-20T00:00:00Z";
     const maxTime = "17:00:00";
 
-    render(<DateTimeRangePicker defaultValue={{ from, to }} maxTime={maxTime} placeholder="Select range" />);
+    render(<DateTimeRangePicker defaultValue={{ from, to }} maxTime={maxTime} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
 
@@ -613,10 +595,9 @@ describe("DateTimeRangePicker", () => {
     const from = "2025-01-15T14:00:00Z";
     const to = "2025-01-20T16:00:00Z";
 
-    render(<DateTimeRangePicker defaultValue={{ from, to }} minuteStep={15} placeholder="Select range" />);
+    render(<DateTimeRangePicker defaultValue={{ from, to }} minuteStep={15} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
 
@@ -652,9 +633,7 @@ describe("DateTimeRangePicker", () => {
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} clockFormat="12h" />);
 
-    const input = screen.getByRole("combobox") as HTMLInputElement;
-    // Should show times in 12h format (specific times may vary by timezone)
-    expect(input.value).toMatch(/\d{1,2}:\d{2}\s*(AM|PM)/);
+    expect(startField().textContent).toMatch(/\d{2}:\d{2} (AM|PM)$/);
   });
 
   it("displays in 24-hour format", () => {
@@ -663,9 +642,7 @@ describe("DateTimeRangePicker", () => {
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} clockFormat="24h" />);
 
-    const input = screen.getByRole("combobox") as HTMLInputElement;
-    // Should show times in 24h format (specific times may vary by timezone)
-    expect(input.value).toMatch(/\d{2}:\d{2}/);
+    expect(startField().textContent).toMatch(/\d{2}:\d{2}$/);
   });
 
   it("shows seconds when showSeconds is true", () => {
@@ -674,9 +651,7 @@ describe("DateTimeRangePicker", () => {
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} showSeconds />);
 
-    const input = screen.getByRole("combobox") as HTMLInputElement;
-    // Should show seconds in format like "2:30:45 PM" or "14:30:45"
-    expect(input.value).toMatch(/:\d{2}:\d{2}/); // Should have two colons (HH:MM:SS)
+    expect(startField().textContent).toMatch(/\d{2}:\d{2}:\d{2} (AM|PM)$/);
   });
 
   // =============================================================================
@@ -690,15 +665,14 @@ describe("DateTimeRangePicker", () => {
 
     const { rerender } = render(<DateTimeRangePicker value={{ from, to }} onChange={onChange} />);
 
-    const input = screen.getByRole("combobox") as HTMLInputElement;
-    expect(input.value).toMatch(/Jan(uary)?\s+\d{1,2},\s+2025/);
+    expect(startField().textContent).toMatch(/^01\/\d{2}\/2025/);
 
     // Update controlled value
     const newFrom = "2025-02-01T10:00:00Z";
     const newTo = "2025-02-05T12:00:00Z";
     rerender(<DateTimeRangePicker value={{ from: newFrom, to: newTo }} onChange={onChange} />);
 
-    expect(input.value).toMatch(/Feb(ruary)?\s+\d{1,2},\s+2025/);
+    expect(startField().textContent).toMatch(/^02\/\d{2}\/2025/);
   });
 
   it("works as uncontrolled component with defaultValue", () => {
@@ -707,18 +681,16 @@ describe("DateTimeRangePicker", () => {
 
     render(<DateTimeRangePicker defaultValue={{ from, to }} />);
 
-    const input = screen.getByRole("combobox") as HTMLInputElement;
-    expect(input.value).toMatch(/Jan(uary)?\s+\d{1,2},\s+2025/);
+    expect(startField().textContent).toMatch(/^01\/\d{2}\/2025/);
   });
 
   it("calls onChange when range changes", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
 
-    render(<DateTimeRangePicker onChange={onChange} placeholder="Select range" />);
+    render(<DateTimeRangePicker onChange={onChange} />);
 
-    const input = screen.getByPlaceholderText("Select range");
-    await user.click(input);
+    await openPicker(user);
 
     const dialog = screen.getByRole("dialog");
     const grid = within(dialog).getByRole("grid");
@@ -795,18 +767,48 @@ describe("DateTimeRangePicker", () => {
   // =============================================================================
 
   it("respects isDisabled prop", () => {
-    render(<DateTimeRangePicker isDisabled placeholder="Disabled" />);
+    render(<DateTimeRangePicker isDisabled />);
 
-    const input = screen.getByPlaceholderText("Disabled") as HTMLInputElement;
-    expect(input).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Open picker for start date and time" })).toBeDisabled();
+    expect(startField()).toHaveAttribute("aria-disabled", "true");
   });
 
   it("applies invalid styling when isInvalid is true", () => {
-    render(<DateTimeRangePicker isInvalid placeholder="Invalid" />);
+    render(<DateTimeRangePicker isInvalid />);
 
-    const input = screen.getByPlaceholderText("Invalid");
-    // Should have error/invalid styling class
-    expect(input.className).toContain("border-border-danger");
+    // Both fields carry the invalid state, in styling and to assistive tech.
+    expect(startField()).toHaveAttribute("aria-invalid", "true");
+    expect(endField()).toHaveAttribute("aria-invalid", "true");
+    expect(startField().parentElement?.className).toContain("border-border-danger");
+  });
+
+  describe("typeable segments", () => {
+    it("types each end independently", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+
+      render(<DateTimeRangePicker onChange={onChange} />);
+
+      await user.click(startField());
+      await user.keyboard("1520260900a");
+      await user.click(endField());
+      await user.keyboard("1/6/20260530p");
+
+      expect(startField().textContent).toBe("01/05/2026 09:00 AM");
+      expect(endField().textContent).toBe("01/06/2026 05:30 PM");
+
+      const range = onChange.mock.calls.at(-1)![0] as { from?: string; to?: string };
+      expect(range.from).toBeDefined();
+      expect(range.to).toBeDefined();
+    });
+
+    it("focuses a segment when either field is clicked anywhere", async () => {
+      const user = userEvent.setup();
+      render(<DateTimeRangePicker />);
+
+      await user.click(endField());
+      expect(document.activeElement).toBe(within(endField()).getByRole("spinbutton", { name: "Month" }));
+    });
   });
 
   describe("Instant Range Value Handling", () => {
@@ -817,11 +819,9 @@ describe("DateTimeRangePicker", () => {
       };
       render(<DateTimeRangePicker value={range} />);
 
-      const input = screen.getByRole("combobox") as HTMLInputElement;
-      // Should display range in local timezone
-      expect(input.value).toContain("Jan");
-      expect(input.value).toContain("2025");
-      expect(input.value).toContain("–"); // Range separator
+      // Should display both ends in the local timezone
+      expect(startField().textContent).toMatch(/^01\/\d{2}\/2025/);
+      expect(endField().textContent).toMatch(/^01\/\d{2}\/2025/);
     });
 
     it("calls onChange with a canonical UTC instant range when user selects dates", async () => {
@@ -830,7 +830,7 @@ describe("DateTimeRangePicker", () => {
       render(<DateTimeRangePicker onChange={onChange} />);
 
       // Open picker
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Select start date (10th)
@@ -859,7 +859,7 @@ describe("DateTimeRangePicker", () => {
       const onChange = vi.fn();
       render(<DateTimeRangePicker onChange={onChange} showPresets />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Click "Last 24 hours" preset

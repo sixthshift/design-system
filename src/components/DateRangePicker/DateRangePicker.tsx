@@ -62,8 +62,13 @@ function getDefaultPresets(): PresetOption[] {
  *
  * Wraps `DatePicker` with `mode="range"` and adds common range presets
  * ("Today", "Last 7 days", "This month", …). Anything `DatePicker` does in
- * range mode — draft/commit via Apply/Cancel, keyboard navigation, form
- * submission via hidden `name.from`/`name.to` inputs — carries over unchanged.
+ * range mode — two typeable fields, draft/commit via Apply/Cancel, keyboard
+ * navigation, form submission via hidden `name.from`/`name.to` inputs — carries
+ * over unchanged.
+ *
+ * Range mode renders the two ends as separate segmented fields rather than one
+ * field holding both: each end is typed and cleared on its own, and the shared
+ * popover anchors to whichever half you are editing.
  *
  * The value is an `ISODateRange` (`{ from?: ISODate, to?: ISODate }`), both
  * ends canonical ISO 8601 date strings ("2026-08-26"). Supports controlled
@@ -86,8 +91,8 @@ export const DateRangePicker = React.forwardRef<HTMLDivElement, DateRangePickerP
     disabled,
     presets: customPresets,
     showPresets = true,
-    placeholder = "Select date range...",
     weekStartsOn,
+    segmentOrder,
     name,
     isDisabled,
     isInvalid,
@@ -114,7 +119,6 @@ export const DateRangePicker = React.forwardRef<HTMLDivElement, DateRangePickerP
   // Build props for DatePicker (only include defined values)
   const datePickerProps: Record<string, unknown> = {
     mode: "range",
-    placeholder,
     ...(value !== undefined && { value }),
     ...(defaultValue !== undefined && { defaultValue }),
     ...(onChange !== undefined && { onChange }),
@@ -123,6 +127,7 @@ export const DateRangePicker = React.forwardRef<HTMLDivElement, DateRangePickerP
     ...(disabled && { disabled }),
     ...(datePickerPresets && { presets: datePickerPresets }),
     ...(weekStartsOn !== undefined && { weekStartsOn }),
+    ...(segmentOrder !== undefined && { segmentOrder }),
     ...(name && { name }),
     ...(isDisabled && { isDisabled }),
     ...(isInvalid && { isInvalid }),

@@ -18,29 +18,38 @@ function getDay(container: HTMLElement, day: number, base?: ISODate): HTMLElemen
   return el as HTMLElement;
 }
 
+/**
+ * The trigger is a segmented field: the clock button opens the popover and the
+ * segments hold the value, so no single element does both.
+ */
+function openPicker(user: ReturnType<typeof userEvent.setup>): Promise<void> {
+  return user.click(screen.getByRole("button", { name: "Open date and time picker" }));
+}
+
+/** What the segments read, e.g. `"01/15/2025 02:30 PM"`. */
+function fieldValue(): string {
+  return screen.getByRole("group", { name: "Date and time" }).textContent ?? "";
+}
+
+function segment(name: string): HTMLElement {
+  return screen.getByRole("spinbutton", { name });
+}
+
 describe("DateTimePicker", () => {
   describe("Rendering & Interaction", () => {
-    it("renders with placeholder when no value is provided", () => {
-      render(<DateTimePicker placeholder="Select date and time..." />);
-
-      const input = screen.getByRole("combobox");
-      expect(input).toHaveValue("");
-      expect(input).toHaveAttribute("placeholder", "Select date and time...");
-    });
-
-    it("renders with default placeholder when none is provided", () => {
+    it("shows the segment placeholders when no value is provided", () => {
       render(<DateTimePicker />);
 
-      const input = screen.getByRole("combobox");
-      expect(input).toHaveAttribute("placeholder", "Select date and time...");
+      // The segments are the placeholder: there is no text to put a `placeholder`
+      // attribute on any more.
+      expect(fieldValue()).toBe("mm/dd/yyyy hh:mm --");
     });
 
     it("opens picker popup on trigger click", async () => {
       const user = userEvent.setup();
       render(<DateTimePicker />);
 
-      const input = screen.getByRole("combobox");
-      await user.click(input);
+      await openPicker(user);
 
       // Dialog should be visible
       const dialog = screen.getByRole("dialog");
@@ -51,7 +60,7 @@ describe("DateTimePicker", () => {
       const user = userEvent.setup();
       render(<DateTimePicker />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Should have day buttons (checking for a few days)
@@ -63,7 +72,7 @@ describe("DateTimePicker", () => {
       const user = userEvent.setup();
       render(<DateTimePicker />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Should have time selection UI (check for hour/minute columns)
@@ -77,7 +86,7 @@ describe("DateTimePicker", () => {
       render(<DateTimePicker />);
 
       // Open picker
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       expect(screen.getByRole("dialog")).toBeInTheDocument();
 
       // Click cancel
@@ -93,7 +102,7 @@ describe("DateTimePicker", () => {
       render(<DateTimePicker />);
 
       // Open picker
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       expect(screen.getByRole("dialog")).toBeInTheDocument();
 
       // Click apply
@@ -114,7 +123,7 @@ describe("DateTimePicker", () => {
       );
 
       // Open picker
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       expect(screen.getByRole("dialog")).toBeInTheDocument();
 
       // Click outside
@@ -133,7 +142,7 @@ describe("DateTimePicker", () => {
       render(<DateTimePicker onChange={handleChange} />);
 
       // Open picker
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Select date (day 15)
@@ -155,10 +164,8 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker value={dateTime} />);
 
-      const input = screen.getByRole("combobox") as HTMLInputElement;
-      // Should display in format like "January 15, 2025, 2:30 PM" (date may vary by timezone)
-      expect(input.value).toMatch(/Jan(uary)?\s+\d{1,2},\s+2025/);
-      expect(input.value).toMatch(/\d{1,2}:\d{2}\s*(AM|PM)/);
+      // Date may vary by timezone, so match the shape rather than the day.
+      expect(fieldValue()).toMatch(/^\d{2}\/\d{2}\/2025 \d{2}:\d{2} (AM|PM)$/);
     });
 
     it("displays datetime with 24h format", () => {
@@ -166,10 +173,7 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker value={dateTime} clockFormat="24h" />);
 
-      const input = screen.getByRole("combobox") as HTMLInputElement;
-      // Date may vary by timezone, time format should be 24h
-      expect(input.value).toMatch(/Jan(uary)?\s+\d{1,2},\s+2025/);
-      expect(input.value).toMatch(/\d{2}:\d{2}/);
+      expect(fieldValue()).toMatch(/^\d{2}\/\d{2}\/2025 \d{2}:\d{2}$/);
     });
 
     it("displays datetime with seconds when showSeconds is true", () => {
@@ -177,11 +181,7 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker value={dateTime} showSeconds />);
 
-      const input = screen.getByRole("combobox") as HTMLInputElement;
-      // Date may vary by timezone
-      expect(input.value).toMatch(/Jan(uary)?\s+\d{1,2},\s+2025/);
-      // Should show seconds in format like "2:30:45 PM" or "14:30:45"
-      expect(input.value).toMatch(/:\d{2}:\d{2}/); // Should have two colons (HH:MM:SS)
+      expect(fieldValue()).toMatch(/^\d{2}\/\d{2}\/2025 \d{2}:\d{2}:45 (AM|PM)$/);
     });
 
     it("clears datetime when clear button is clicked", async () => {
@@ -207,7 +207,7 @@ describe("DateTimePicker", () => {
       const startValue = "2025-06-10T12:00:00Z";
       render(<DateTimePicker value={startValue} onChange={handleChange} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Select a different date in the same month
@@ -236,7 +236,7 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker minDate={minDate} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Day 5 should be disabled (before minDate)
@@ -254,7 +254,7 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker maxDate={maxDate} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Day 25 should be disabled (after maxDate)
@@ -273,7 +273,7 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker disabledDates={isWeekend} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
 
       // Verify picker opens and accepts the function
       expect(screen.getByRole("dialog")).toBeInTheDocument();
@@ -284,7 +284,7 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker minuteStep={15} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Should only show minutes in 15-minute intervals (00, 15, 30, 45)
@@ -299,7 +299,7 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker clockFormat="12h" />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Should show AM/PM selector
@@ -311,7 +311,7 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker clockFormat="24h" />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Should NOT show AM/PM selector
@@ -323,7 +323,7 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker showSeconds />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
 
       // Should have seconds in the time picker
       // Exact test depends on implementation
@@ -335,7 +335,7 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker showSeconds={false} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
 
       // Should NOT have seconds column
       // Exact test depends on implementation
@@ -351,15 +351,14 @@ describe("DateTimePicker", () => {
       const { rerender } = render(<DateTimePicker value={dateTime} onChange={handleChange} />);
 
       // Should display controlled value (date may vary by timezone)
-      const input = screen.getByRole("combobox") as HTMLInputElement;
-      expect(input.value).toMatch(/Jan(uary)?\s+\d{1,2},\s+2025/);
+      expect(fieldValue()).toMatch(/^01\/\d{2}\/2025/);
 
       // Change external value
       const newDateTime = "2025-02-20T10:15:00Z";
       rerender(<DateTimePicker value={newDateTime} onChange={handleChange} />);
 
       // Should update display
-      expect(input.value).toMatch(/Feb(ruary)?\s+\d{1,2},\s+2025/);
+      expect(fieldValue()).toMatch(/^02\/\d{2}\/2025/);
     });
 
     it("uncontrolled mode: manages internal state with defaultValue", async () => {
@@ -370,11 +369,10 @@ describe("DateTimePicker", () => {
       render(<DateTimePicker defaultValue={dateTime} onChange={handleChange} />);
 
       // Should display default value (date may vary by timezone)
-      const input = screen.getByRole("combobox") as HTMLInputElement;
-      expect(input.value).toMatch(/Jan(uary)?\s+\d{1,2},\s+2025/);
+      expect(fieldValue()).toMatch(/^01\/\d{2}\/2025/);
 
       // Select new datetime
-      await user.click(input);
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
       const jan2025 = "2025-01-01";
       await user.click(getDay(dialog, 20, jan2025));
@@ -390,7 +388,7 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker onChange={handleChange} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Select date
@@ -433,7 +431,7 @@ describe("DateTimePicker", () => {
       render(<DateTimePicker onChange={handleChange} />);
 
       // Open picker
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Select date (draft state)
@@ -456,11 +454,10 @@ describe("DateTimePicker", () => {
 
       render(<DateTimePicker value={dateTime} onChange={handleChange} />);
 
-      const input = screen.getByRole("combobox") as HTMLInputElement;
-      const originalValue = input.value;
+      const originalValue = fieldValue();
 
       // Open picker and make changes
-      await user.click(input);
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
       const jan2025 = "2025-01-01";
       await user.click(getDay(dialog, 20, jan2025));
@@ -472,7 +469,7 @@ describe("DateTimePicker", () => {
       expect(handleChange).not.toHaveBeenCalled();
 
       // Input should still show original value
-      expect(input.value).toBe(originalValue);
+      expect(fieldValue()).toBe(originalValue);
     });
 
     it("commits draft value on apply", async () => {
@@ -484,7 +481,7 @@ describe("DateTimePicker", () => {
       const startValue = "2025-06-10T12:00:00Z";
       render(<DateTimePicker value={startValue} onChange={handleChange} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Make draft changes — click a different day in the same month
@@ -503,32 +500,105 @@ describe("DateTimePicker", () => {
     });
   });
 
-  describe("Accessibility", () => {
-    it("uses combobox role for trigger input", () => {
+  describe("typeable segments", () => {
+    it("types a whole date and time straight through", async () => {
+      const user = userEvent.setup();
+      const handleChange = vi.fn();
+
+      render(<DateTimePicker onChange={handleChange} />);
+
+      // No tabbing: the digits roll from the year into the hour on their own,
+      // and `p` sets the meridiem.
+      await user.click(segment("Month"));
+      await user.keyboard("1520260330p");
+
+      expect(fieldValue()).toBe("01/05/2026 03:30 PM");
+      expect(handleChange).toHaveBeenCalledTimes(1);
+
+      // The value is an instant, so check the wall clock it lands on locally.
+      const emitted = handleChange.mock.calls[0]![0] as string;
+      expect(isInstantString(emitted)).toBe(true);
+      const local = fromISOInstant(emitted).toZonedDateTimeISO(Temporal.Now.timeZoneId());
+      expect([local.year, local.month, local.day, local.hour, local.minute]).toEqual([2026, 1, 5, 15, 30]);
+    });
+
+    it("holds onChange until the whole value is there", async () => {
+      const user = userEvent.setup();
+      const handleChange = vi.fn();
+
+      render(<DateTimePicker onChange={handleChange} />);
+
+      await user.click(segment("Month"));
+      await user.keyboard("15202603");
+
+      // A date with an hour but no minute is not an instant.
+      expect(handleChange).not.toHaveBeenCalled();
+    });
+
+    it("opens the popover on Alt+ArrowDown and moves focus into the grid", async () => {
+      const user = userEvent.setup();
+      render(<DateTimePicker value="2026-01-24T12:30:00Z" onChange={() => {}} />);
+
+      await user.click(segment("Month"));
+      await user.keyboard("{Alt>}{ArrowDown}{/Alt}");
+
+      const dialog = screen.getByRole("dialog");
+      expect(dialog.contains(document.activeElement)).toBe(true);
+      expect(document.activeElement).toHaveAttribute("data-date");
+    });
+
+    it("clears the value when a segment is emptied", async () => {
+      const user = userEvent.setup();
+      const handleChange = vi.fn();
+
+      render(<DateTimePicker defaultValue="2026-01-24T12:30:00Z" onChange={handleChange} />);
+
+      await user.click(segment("Year"));
+      await user.keyboard("{Backspace}");
+
+      expect(fieldValue()).toContain("yyyy");
+      expect(handleChange).toHaveBeenCalledWith(undefined);
+    });
+
+    it("focuses a segment when the field is clicked anywhere", async () => {
+      const user = userEvent.setup();
       render(<DateTimePicker />);
-      expect(screen.getByRole("combobox")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("group", { name: "Date and time" }));
+      expect(document.activeElement).toBe(segment("Month"));
+    });
+  });
+
+  describe("Accessibility", () => {
+    it("exposes the field as a group of labelled spinbuttons", () => {
+      render(<DateTimePicker />);
+
+      expect(screen.getByRole("group", { name: "Date and time" })).toBeInTheDocument();
+      for (const name of ["Month", "Day", "Year", "Hour", "Minute", "AM/PM"]) {
+        expect(segment(name)).toBeInTheDocument();
+      }
     });
 
     it("uses dialog role for popup", async () => {
       const user = userEvent.setup();
       render(<DateTimePicker />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
 
-    it("marks trigger as disabled when isDisabled is true", () => {
+    it("marks the trigger as disabled when isDisabled is true", () => {
       render(<DateTimePicker isDisabled />);
 
-      const input = screen.getByRole("combobox");
-      expect(input).toBeDisabled();
+      expect(screen.getByRole("button", { name: "Open date and time picker" })).toBeDisabled();
+      expect(screen.getByRole("group", { name: "Date and time" })).toHaveAttribute("aria-disabled", "true");
+      expect(segment("Month")).toHaveAttribute("tabindex", "-1");
     });
 
-    it("marks trigger as invalid when isInvalid is true", () => {
+    it("marks the field as invalid when isInvalid is true", () => {
       render(<DateTimePicker isInvalid />);
 
-      const input = screen.getByRole("combobox");
-      expect(input).toHaveAttribute("aria-invalid", "true");
+      expect(screen.getByRole("group", { name: "Date and time" })).toHaveAttribute("aria-invalid", "true");
     });
   });
 
@@ -537,10 +607,8 @@ describe("DateTimePicker", () => {
       const instant = "2026-01-24T23:30:00Z";
       render(<DateTimePicker value={instant} />);
 
-      const input = screen.getByRole("combobox") as HTMLInputElement;
-      // Should display in local timezone (exact format varies by timezone)
-      expect(input.value).toContain("Jan");
-      expect(input.value).toContain("2026");
+      // Should display in local timezone (the exact day varies by timezone)
+      expect(fieldValue()).toMatch(/^01\/\d{2}\/2026/);
     });
 
     it("calls onChange with a canonical UTC instant string when user selects date and time", async () => {
@@ -549,7 +617,7 @@ describe("DateTimePicker", () => {
       render(<DateTimePicker onChange={onChange} />);
 
       // Open picker
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Select a date (15th)
@@ -571,7 +639,7 @@ describe("DateTimePicker", () => {
       const instant = "2026-01-24T23:30:00Z";
       render(<DateTimePicker value={instant} />);
 
-      await user.click(screen.getByRole("combobox"));
+      await openPicker(user);
       const dialog = screen.getByRole("dialog");
 
       // Time picker should show time in local timezone

@@ -10,6 +10,7 @@
  */
 
 import type { DisabledDates, ISODate, ISOInstant, ISOTime, WeekStartsOn } from "../../date-time";
+import type { DateSegmentOrder } from "../DatePicker/datepicker.types";
 
 export type DateTimePickerProps = {
   // Value (controlled/uncontrolled) — an absolute instant, in UTC
@@ -33,8 +34,13 @@ export type DateTimePickerProps = {
   showSeconds?: boolean; // Default: false
 
   // Display
-  placeholder?: string;
   weekStartsOn?: WeekStartsOn;
+
+  /**
+   * Segment order for the date half of the typeable field (default `mdy`).
+   * Never inferred from the locale — `08/09` is a different date under each.
+   */
+  segmentOrder?: DateSegmentOrder;
 
   // Form
   name?: string;

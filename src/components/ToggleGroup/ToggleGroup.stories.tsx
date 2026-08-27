@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ToggleGroup } from "./ToggleGroup";
 
 const meta: Meta<typeof ToggleGroup> = {
-  title: "Components/Inputs/ToggleGroup",
+  title: "Components/ToggleGroup",
   component: ToggleGroup,
   parameters: {
     layout: "centered",

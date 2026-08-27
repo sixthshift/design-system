@@ -5,7 +5,7 @@ import { DatePicker } from "../DatePicker";
 import { TimePicker } from "./TimePicker";
 
 const meta: Meta<typeof TimePicker> = {
-  title: "Components/Inputs/TimePicker",
+  title: "Components/TimePicker",
   component: TimePicker,
   tags: ["autodocs"],
   parameters: {
@@ -21,8 +21,27 @@ type Story = StoryObj<typeof TimePicker>;
 // Basic Stories
 // =============================================================================
 
+/**
+ * Type or pick — the same value, two ways in.
+ *
+ * `0230p` fills the whole field: two digits for the hour, two for the minute,
+ * `p` for PM. Nothing needs tabbing, and no format has to be guessed.
+ */
+export const TypeOrPick: Story = {
+  render: function TypeOrPickStory() {
+    const [observed, setObserved] = useState<ISOTime | undefined>();
+
+    return (
+      <div className="flex flex-col gap-4">
+        <TimePicker onChange={setObserved} />
+        <div className="text-fg-subtle text-sm">Value: {observed ?? "none — a half-typed time is not a value"}</div>
+      </div>
+    );
+  },
+};
+
 export const Default: Story = {
-  render: () => <TimePicker placeholder="Select a time" />,
+  render: () => <TimePicker />,
 };
 
 export const WithDefaultValue: Story = {
@@ -43,11 +62,11 @@ export const Controlled: Story = {
 };
 
 export const Disabled: Story = {
-  render: () => <TimePicker isDisabled placeholder="Disabled" />,
+  render: () => <TimePicker isDisabled />,
 };
 
 export const Invalid: Story = {
-  render: () => <TimePicker isInvalid placeholder="Invalid state" />,
+  render: () => <TimePicker isInvalid />,
 };
 
 // =============================================================================
@@ -55,11 +74,11 @@ export const Invalid: Story = {
 // =============================================================================
 
 export const TwelveHourFormat: Story = {
-  render: () => <TimePicker clockFormat="12h" defaultValue={"14:30"} placeholder="12-hour format" />,
+  render: () => <TimePicker clockFormat="12h" defaultValue={"14:30"} />,
 };
 
 export const TwentyFourHourFormat: Story = {
-  render: () => <TimePicker clockFormat="24h" defaultValue={"14:30"} placeholder="24-hour format" />,
+  render: () => <TimePicker clockFormat="24h" defaultValue={"14:30"} />,
 };
 
 // =============================================================================
@@ -67,15 +86,15 @@ export const TwentyFourHourFormat: Story = {
 // =============================================================================
 
 export const FiveMinuteSteps: Story = {
-  render: () => <TimePicker minuteStep={5} defaultValue={"14:30"} placeholder="5-minute steps" />,
+  render: () => <TimePicker minuteStep={5} defaultValue={"14:30"} />,
 };
 
 export const FifteenMinuteSteps: Story = {
-  render: () => <TimePicker minuteStep={15} defaultValue={"14:30"} placeholder="15-minute steps" />,
+  render: () => <TimePicker minuteStep={15} defaultValue={"14:30"} />,
 };
 
 export const ThirtyMinuteSteps: Story = {
-  render: () => <TimePicker minuteStep={30} defaultValue={"14:00"} placeholder="30-minute steps" />,
+  render: () => <TimePicker minuteStep={30} defaultValue={"14:00"} />,
 };
 
 // =============================================================================
@@ -83,11 +102,11 @@ export const ThirtyMinuteSteps: Story = {
 // =============================================================================
 
 export const WithSeconds: Story = {
-  render: () => <TimePicker format="HH:mm:ss" defaultValue={"14:30:45"} placeholder="With seconds" />,
+  render: () => <TimePicker format="HH:mm:ss" defaultValue={"14:30:45"} />,
 };
 
 export const WithSecondsTwentyFourHour: Story = {
-  render: () => <TimePicker format="HH:mm:ss" clockFormat="24h" defaultValue={"14:30:45"} placeholder="24h with seconds" />,
+  render: () => <TimePicker format="HH:mm:ss" clockFormat="24h" defaultValue={"14:30:45"} />,
 };
 
 // =============================================================================
@@ -95,15 +114,15 @@ export const WithSecondsTwentyFourHour: Story = {
 // =============================================================================
 
 export const WithMinTime: Story = {
-  render: () => <TimePicker minTime={"09:00"} placeholder="Min: 9:00 AM" />,
+  render: () => <TimePicker minTime={"09:00"} />,
 };
 
 export const WithMaxTime: Story = {
-  render: () => <TimePicker maxTime={"17:00"} placeholder="Max: 5:00 PM" />,
+  render: () => <TimePicker maxTime={"17:00"} />,
 };
 
 export const BusinessHours: Story = {
-  render: () => <TimePicker minTime={"09:00"} maxTime={"17:00"} minuteStep={15} placeholder="Business hours only" />,
+  render: () => <TimePicker minTime={"09:00"} maxTime={"17:00"} minuteStep={15} />,
 };
 
 // =============================================================================
@@ -113,7 +132,6 @@ export const BusinessHours: Story = {
 export const WithPresets: Story = {
   render: () => (
     <TimePicker
-      placeholder="Select a time"
       presets={[
         { label: "Morning", value: "09:00" },
         { label: "Noon", value: "12:00" },
@@ -136,7 +154,6 @@ export const MeetingScheduler: Story = {
           minuteStep={30}
           minTime={"08:00"}
           maxTime={"18:00"}
-          placeholder="Schedule a meeting"
           presets={[
             { label: "Start of day", value: "08:00" },
             { label: "Morning", value: "10:00" },
@@ -218,13 +235,13 @@ export const DateTimeExample: Story = {
 // =============================================================================
 
 export const CustomWidth: Story = {
-  render: () => <TimePicker className="w-40" placeholder="Narrow" />,
+  render: () => <TimePicker className="w-40" />,
 };
 
 export const FullWidth: Story = {
   render: () => (
     <div className="w-80">
-      <TimePicker className="w-full" placeholder="Full width" />
+      <TimePicker className="w-full" />
     </div>
   ),
 };

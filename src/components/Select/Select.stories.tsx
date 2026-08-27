@@ -5,7 +5,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Select } from "./Select";
 
 const meta: Meta<typeof Select> = {
-  title: "Components/Inputs/Select",
+  title: "Components/Select",
   component: Select,
   parameters: {
     docs: {

@@ -4,7 +4,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { type TabItem, Tabs } from "./Tabs";
 
 const meta: Meta<typeof Tabs> = {
-  title: "Components/Navigation/Tabs",
+  title: "Components/Tabs",
   component: Tabs,
   parameters: {
     layout: "centered",

@@ -89,8 +89,8 @@ Every primitive accepts `className` and merges it **last** so a consumer can alw
 - **plain components** — `className` is the last argument to `cn()`:
 
   ```tsx
-  // Avatar.tsx:5
-  className={cn("relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full", className)}
+  // Separator.tsx:24
+  className={cn("shrink-0 bg-border-normal", orientation === "horizontal" ? "h-px w-full" : "h-full w-px", className)}
   ```
 
 Both put consumer classes last in the merge order. Don't prepend `className` or concatenate with a template string — that defeats `twMerge` and a consumer override silently loses to the base classes.
@@ -156,12 +156,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => ...
 Input.displayName = "Input";
 ```
 
-The ref element type matches the tag: `HTMLButtonElement` for Button, `HTMLSpanElement` for Avatar, `HTMLInputElement` for Input. For polymorphic text the ref is `HTMLElement` and cast at the spread (`Text.tsx:25-28`).
+The ref element type matches the tag: `HTMLButtonElement` for Button, `HTMLSpanElement` for TextInline, `HTMLInputElement` for Input. For polymorphic text the ref is `HTMLElement` and cast at the spread (`Text.tsx:25-28`).
 
 **Carve-out — plain function components (no `forwardRef`):**
 
-- **Context roots** — `Tabs`, `Modal`, `HoverCard`. They render a `Context.Provider`, not a DOM node, so there's nothing to forward a ref to (`Tabs.tsx:21`, `HoverCard.tsx:27`).
-- **Config-leaves** — `Badge`, `EmptyState`. They render a fixed element from props and no consumer needs the node ref (`Badge.tsx:70`, `EmptyState.tsx:18`).
+- **Context roots** — `Tabs`, `Popover`, `HoverCard`, `Tooltip`. They render a `Context.Provider`, not a DOM node, so there's nothing to forward a ref to (`Tabs.tsx:21`, `HoverCard.tsx:27`). `Modal` is the exception among the roots: its root *is* a DOM node, so it forwards (`Modal.tsx:50`).
 
 If a primitive is neither a context root nor a pure config-leaf, it forwards a ref.
 

@@ -1,4 +1,4 @@
-import { formatTimePadded, Temporal } from "../../date-time";
+import { Temporal } from "../../date-time";
 import type { ClockFormat, ParsedTime, TimeFormat, TimePeriod } from "./timepicker.types";
 
 // =============================================================================
@@ -40,29 +40,6 @@ export function temporalTimeToISO(time: Temporal.PlainTime, format: TimeFormat =
 // =============================================================================
 // Time Formatting
 // =============================================================================
-
-/**
- * Format Temporal.PlainTime for display
- */
-export function formatTimeDisplay(time: Temporal.PlainTime, clockFormat: ClockFormat = "12h", format: TimeFormat = "HH:mm"): string {
-  if (clockFormat === "12h") {
-    return formatTimePadded(time);
-  }
-  // 24h format
-  if (format === "HH:mm:ss") {
-    return time.toLocaleString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    });
-  }
-  return time.toLocaleString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-}
 
 // =============================================================================
 // Time Comparison

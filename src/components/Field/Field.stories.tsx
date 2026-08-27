@@ -3,7 +3,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Field } from "./Field";
 
 const meta: Meta<typeof Field> = {
-  title: "Components/Display/Field",
+  title: "Components/Field",
   component: Field,
   parameters: {
     layout: "centered",

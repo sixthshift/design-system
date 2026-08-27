@@ -4,7 +4,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { RadioButton } from "./RadioButton";
 
 const meta: Meta<typeof RadioButton> = {
-  title: "Components/Inputs/RadioButton",
+  title: "Components/RadioButton",
   component: RadioButton,
   parameters: {
     layout: "centered",

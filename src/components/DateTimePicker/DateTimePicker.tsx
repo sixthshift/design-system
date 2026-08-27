@@ -1,7 +1,7 @@
 import { autoUpdate, FloatingPortal, flip, offset, shift, useClick, useDismiss, useFloating, useInteractions } from "@floating-ui/react";
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
-import { Clock, X } from "lucide-react";
+import { Clock } from "lucide-react";
 import * as React from "react";
 import { useCallback, useId, useMemo, useState } from "react";
 import {
@@ -14,8 +14,10 @@ import {
   toISOInstantOrUndefined,
 } from "../../date-time";
 
+import { PickerField } from "../../internal";
 import { Button } from "../Button";
 import { CalendarView } from "../Calendar/CalendarView";
+import { isDateDisabled } from "../Calendar/calendar.hooks";
 import { Separator } from "../Separator";
 import { PeriodSelector } from "../TimePicker/PeriodSelector";
 import { TimeColumn } from "../TimePicker/TimeColumn";
@@ -30,44 +32,21 @@ import {
   to24Hour,
 } from "../TimePicker/timepicker.hooks";
 import type { ParsedTime, TimePeriod } from "../TimePicker/timepicker.types";
+import { DateTimeSegments } from "./DateTimeSegments";
 import type { DateTimePickerProps } from "./datetimepicker.types";
-
-/**
- * Format an Instant for display
- */
-function formatInstantDisplay(instant: Temporal.Instant, clockFormat: "12h" | "24h", showSeconds: boolean, timeZone?: string): string {
-  const tz = timeZone ?? Temporal.Now.timeZoneId();
-  const zoned = instant.toZonedDateTimeISO(tz);
-  const plainDateTime = zoned.toPlainDateTime();
-
-  // Format date part
-  const datePart = plainDateTime.toLocaleString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-
-  // Format time part based on props
-  const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: clockFormat === "12h",
-  };
-
-  if (showSeconds) {
-    timeOptions.second = "2-digit";
-  }
-
-  const timePart = plainDateTime.toLocaleString("en-US", timeOptions);
-
-  return `${datePart}, ${timePart}`;
-}
 
 /**
  * DateTimePicker - A component for selecting both date and time
  *
  * Combines date and time selection in a single popup with side-by-side layout:
  * a `Calendar` grid on the left, hour/minute(/second) columns on the right.
+ *
+ * The trigger is one typeable field of date *and* time segments — one value, so
+ * the digits roll straight from the year into the hour: `1520260330p` is January
+ * 5th 2026 at 3:30pm, typed without a tab. `segmentOrder` sets the date half's
+ * order (never inferred from the locale), `clockFormat` decides the hour's range
+ * and whether there is an AM/PM segment, and `Alt+ArrowDown` opens the popover
+ * on the month being typed. See `SegmentedField` for the whole keyboard model.
  * It is not a composition of `DatePicker` and `TimePicker` — it builds
  * directly on the same internal calendar grid and time-column primitives
  * those two use, so the two stay visually consistent without either being
@@ -103,7 +82,6 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
     minuteStep = 1,
     clockFormat = "12h",
     showSeconds = false,
-    placeholder = "Select date and time...",
     weekStartsOn = 0,
     name,
     isDisabled = false,
@@ -111,10 +89,13 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
     className,
     align = "end",
     clearable = true,
+    segmentOrder = "mdy",
   } = props;
 
   // Open state
   const [open, setOpen] = useState(false);
+  // The day grid takes focus only when the popover was opened from the keyboard.
+  const [autoFocusDay, setAutoFocusDay] = useState(false);
 
   // ---------------------------------------------------------------------------
   // The ISO boundary.
@@ -165,6 +146,7 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
   // Sync draft when popup opens
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
+      if (!newOpen) setAutoFocusDay(false);
       if (newOpen) {
         const tz = Temporal.Now.timeZoneId();
         if (committedValue) {
@@ -277,8 +259,81 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
   const inputId = `datetimepicker-input-${id}`;
 
   // Display value (from committed value)
-  const displayValue = committedValue ? formatInstantDisplay(committedValue, clockFormat, showSeconds) : "";
   const hasValue = Boolean(committedValue);
+
+  // ---------------------------------------------------------------------------
+  // The typeable field.
+  //
+  // The segments show the draft while the popover is open and the committed
+  // value while it is closed, so typing moves the grid and columns, and picking
+  // in either shows up in the segments. Open means the popover's Apply/Cancel
+  // owns the value; closed means a complete date-time commits as soon as it is
+  // complete.
+  //
+  // The draft is a date plus loose time parts, so it only composes into an
+  // instant once the date exists. Until then the field has nothing to show,
+  // which is exactly `undefined`.
+  // ---------------------------------------------------------------------------
+
+  const userZone = Temporal.Now.timeZoneId();
+
+  const draftInstant = useMemo(() => {
+    if (!draftDate) return undefined;
+    const parsed = getDraftTime();
+    return draftDate
+      .toPlainDateTime({ hour: parsed.hour, minute: parsed.minute, second: showSeconds ? parsed.second : 0 })
+      .toZonedDateTime(userZone)
+      .toInstant();
+  }, [draftDate, getDraftTime, showSeconds, userZone]);
+
+  const segmentValue = open ? draftInstant : committedValue;
+
+  /**
+   * A typed instant can fall outside what the grid and columns allow — the date
+   * past `maxDate`, or the time outside `minTime`/`maxTime`. The field flags it
+   * rather than clamping; see `DatePicker` for why.
+   */
+  const outOfBounds = useMemo(() => {
+    if (!segmentValue) return false;
+    const zoned = segmentValue.toZonedDateTimeISO(userZone);
+    return (
+      isDateDisabled(zoned.toPlainDate(), temporalDisabledDates, temporalMinDate, temporalMaxDate) ||
+      isTimeDisabled(zoned.toPlainTime(), temporalMinTime, temporalMaxTime)
+    );
+  }, [segmentValue, temporalDisabledDates, temporalMaxDate, temporalMaxTime, temporalMinDate, temporalMinTime, userZone]);
+
+  const handleSegmentsChange = useCallback(
+    (instant: Temporal.Instant | undefined) => {
+      if (!open) {
+        setCommittedValue(instant);
+        return;
+      }
+      if (!instant) {
+        setDraftDate(undefined);
+        return;
+      }
+      const zoned = instant.toZonedDateTimeISO(userZone);
+      const parsed = temporalToParsed(zoned.toPlainTime());
+      setDraftDate(zoned.toPlainDate());
+      setMonth(zoned.toPlainDate());
+      setDraftHour(clockFormat === "12h" ? to12Hour(parsed.hour).hour12 : parsed.hour);
+      setDraftMinute(parsed.minute);
+      setDraftSecond(parsed.second);
+      setDraftPeriod(to12Hour(parsed.hour).period);
+    },
+    [clockFormat, open, setCommittedValue, userZone]
+  );
+
+  /** `Alt+ArrowDown` from a segment: open the popover *and* go to the grid. */
+  const openWithGridFocus = useCallback(() => {
+    setAutoFocusDay(true);
+    handleOpenChange(true);
+  }, [handleOpenChange]);
+
+  /** `Enter` in a segment commits the draft, matching the popover's Apply. */
+  const handleFieldSubmit = useCallback(() => {
+    if (open) handleApply();
+  }, [handleApply, open]);
 
   // Time selection handlers
   const handleHourChange = (hour: number) => setDraftHour(hour);
@@ -307,38 +362,34 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
     <>
       {/* Trigger Input */}
       <div ref={ref} className="relative flex items-center">
-        <Clock className="pointer-events-none absolute left-3 h-4 w-4 text-fg-subtle" />
-        <input
-          ref={refs.setReference as React.Ref<HTMLInputElement>}
-          id={inputId}
-          type="text"
-          readOnly
-          value={displayValue}
-          placeholder={placeholder}
-          disabled={isDisabled}
-          role="combobox"
-          aria-invalid={isInvalid}
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          aria-controls={open ? contentId : undefined}
-          className={cn(
-            `flex h-9 w-full cursor-pointer rounded-md border border-border-normal bg-transparent py-1 pl-9 text-sm shadow-xs transition-colors placeholder:text-fg-subtle focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus-ring disabled:cursor-not-allowed disabled:opacity-50`,
-            clearable && hasValue ? "pr-9" : "pr-3",
-            isInvalid && "border-border-danger",
-            className
-          )}
-          {...getReferenceProps()}
-        />
-        {clearable && hasValue && !isDisabled && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute right-3 rounded-sm p-0.5 text-fg-subtle hover:bg-bg-subtle hover:text-fg-normal focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus-ring"
-            aria-label="Clear date and time"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        )}
+        <PickerField
+          ref={refs.setReference as React.Ref<HTMLDivElement>}
+          className={cn("w-full min-w-80", className)}
+          icon={<Clock className="h-4 w-4" />}
+          toggleLabel="Open date and time picker"
+          toggleProps={getReferenceProps()}
+          isOpen={open}
+          contentId={contentId}
+          isDisabled={isDisabled}
+          isInvalid={isInvalid || outOfBounds}
+          onClear={clearable && hasValue && !isDisabled ? handleClear : undefined}
+          clearLabel="Clear date and time"
+        >
+          <DateTimeSegments
+            className="h-full flex-1"
+            id={inputId}
+            value={segmentValue}
+            onChange={handleSegmentsChange}
+            timeZone={userZone}
+            order={segmentOrder}
+            clockFormat={clockFormat}
+            showSeconds={showSeconds}
+            isDisabled={isDisabled}
+            isInvalid={isInvalid || outOfBounds}
+            onOpenRequest={openWithGridFocus}
+            onSubmit={handleFieldSubmit}
+          />
+        </PickerField>
 
         {/* Hidden input for form submission */}
         {name && committedValue && <input type="hidden" name={name} value={committedValue.toString()} />}
@@ -351,7 +402,7 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
             ref={refs.setFloating}
             id={contentId}
             role="dialog"
-            aria-modal="true"
+            aria-label="Choose date and time"
             style={floatingStyles}
             className="z-popover rounded-xl border border-border-normal bg-bg-normal p-4 shadow-lg"
             {...getFloatingProps()}
@@ -369,6 +420,7 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
                 disabled={temporalDisabledDates}
                 weekStartsOn={weekStartsOn}
                 showFooter={false}
+                autoFocusDay={autoFocusDay}
               />
 
               <Separator orientation="vertical" />

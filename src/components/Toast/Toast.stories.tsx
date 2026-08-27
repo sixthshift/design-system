@@ -7,7 +7,7 @@ import { expect, screen, userEvent, within } from "storybook/test";
 import { Toast } from "./Toast";
 
 const meta: Meta<typeof Toast> = {
-  title: "Components/Feedback/Toast",
+  title: "Components/Toast",
   component: Toast,
   parameters: {
     layout: "centered",

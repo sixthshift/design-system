@@ -4,7 +4,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { TagChip } from "./TagChip";
 
 const meta: Meta<typeof TagChip> = {
-  title: "Components/Display/TagChip",
+  title: "Components/TagChip",
   component: TagChip,
   parameters: {
     layout: "centered",

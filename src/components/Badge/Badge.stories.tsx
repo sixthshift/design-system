@@ -5,7 +5,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Badge } from "./Badge";
 
 const meta: Meta<typeof Badge> = {
-  title: "Components/Display/Badge",
+  title: "Components/Badge",
   component: Badge,
   parameters: {
     layout: "centered",

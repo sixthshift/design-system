@@ -4,7 +4,7 @@ import { addDaysISO, addHoursISO, fromISOInstant, type ISOInstantRange, nowISO, 
 import { DateTimeRangePicker } from "./DateTimeRangePicker";
 
 const meta: Meta<typeof DateTimeRangePicker> = {
-  title: "Components/Inputs/DateTimeRangePicker",
+  title: "Components/DateTimeRangePicker",
   component: DateTimeRangePicker,
   tags: ["autodocs"],
   parameters: {
@@ -22,8 +22,30 @@ type Story = StoryObj<typeof DateTimeRangePicker>;
 // Basic Stories
 // =============================================================================
 
+/**
+ * Type either end — two independent fields, one popover.
+ *
+ * Each field carries the whole date-and-time: `1520260900a` is January 5th 2026
+ * at 9am. Each end clears on its own, and the popover anchors to whichever half
+ * you are editing.
+ */
+export const TypeOrPick: Story = {
+  render: function TypeOrPickStory() {
+    const [observed, setObserved] = useState<ISOInstantRange | undefined>();
+
+    return (
+      <div className="flex flex-col gap-4">
+        <DateTimeRangePicker onChange={setObserved} />
+        <div className="text-fg-subtle text-sm">
+          Value: {observed?.from ?? "—"} → {observed?.to ?? "—"}
+        </div>
+      </div>
+    );
+  },
+};
+
 export const Default: Story = {
-  render: () => <DateTimeRangePicker placeholder="Select datetime range..." />,
+  render: () => <DateTimeRangePicker />,
 };
 
 export const WithDefaultValue: Story = {
@@ -55,11 +77,11 @@ export const Controlled: Story = {
 };
 
 export const Disabled: Story = {
-  render: () => <DateTimeRangePicker isDisabled placeholder="Disabled" />,
+  render: () => <DateTimeRangePicker isDisabled />,
 };
 
 export const Invalid: Story = {
-  render: () => <DateTimeRangePicker isInvalid placeholder="Invalid state" />,
+  render: () => <DateTimeRangePicker isInvalid />,
 };
 
 export const NotClearable: Story = {
@@ -78,7 +100,7 @@ export const Format12Hour: Story = {
   render: () => {
     const from = "2025-01-15T14:30:00Z";
     const to = "2025-01-20T16:45:00Z";
-    return <DateTimeRangePicker defaultValue={{ from, to }} clockFormat="12h" placeholder="12-hour format (with AM/PM)" />;
+    return <DateTimeRangePicker defaultValue={{ from, to }} clockFormat="12h" />;
   },
 };
 
@@ -86,7 +108,7 @@ export const Format24Hour: Story = {
   render: () => {
     const from = "2025-01-15T14:30:00Z";
     const to = "2025-01-20T16:45:00Z";
-    return <DateTimeRangePicker defaultValue={{ from, to }} clockFormat="24h" placeholder="24-hour format" />;
+    return <DateTimeRangePicker defaultValue={{ from, to }} clockFormat="24h" />;
   },
 };
 
@@ -94,7 +116,7 @@ export const WithSeconds: Story = {
   render: () => {
     const from = "2025-01-15T14:30:45Z";
     const to = "2025-01-20T16:45:30Z";
-    return <DateTimeRangePicker defaultValue={{ from, to }} showSeconds placeholder="With seconds column" />;
+    return <DateTimeRangePicker defaultValue={{ from, to }} showSeconds />;
   },
 };
 
@@ -102,16 +124,16 @@ export const WithSeconds24Hour: Story = {
   render: () => {
     const from = "2025-01-15T14:30:45Z";
     const to = "2025-01-20T16:45:30Z";
-    return <DateTimeRangePicker defaultValue={{ from, to }} clockFormat="24h" showSeconds placeholder="24h with seconds" />;
+    return <DateTimeRangePicker defaultValue={{ from, to }} clockFormat="24h" showSeconds />;
   },
 };
 
 export const MinuteStep15: Story = {
-  render: () => <DateTimeRangePicker minuteStep={15} placeholder="15-minute intervals (00, 15, 30, 45)" />,
+  render: () => <DateTimeRangePicker minuteStep={15} />,
 };
 
 export const MinuteStep30: Story = {
-  render: () => <DateTimeRangePicker minuteStep={30} placeholder="30-minute intervals (00, 30)" />,
+  render: () => <DateTimeRangePicker minuteStep={30} />,
 };
 
 // =============================================================================
@@ -124,7 +146,7 @@ export const WithMinMaxDate: Story = {
     const minDate = addDaysISO(today, -7);
     const maxDate = addDaysISO(today, 30);
 
-    return <DateTimeRangePicker minDate={minDate} maxDate={maxDate} placeholder="Limited to past 7 days and next 30 days" />;
+    return <DateTimeRangePicker minDate={minDate} maxDate={maxDate} />;
   },
 };
 
@@ -133,18 +155,18 @@ export const WithMinMaxTime: Story = {
     const minTime = "09:00:00";
     const maxTime = "17:00:00";
 
-    return <DateTimeRangePicker minTime={minTime} maxTime={maxTime} placeholder="Business hours only (9 AM - 5 PM)" />;
+    return <DateTimeRangePicker minTime={minTime} maxTime={maxTime} />;
   },
 };
 
 export const WithDisabledWeekends: Story = {
-  render: () => <DateTimeRangePicker disabledDates={{ dayOfWeek: ["sat", "sun"] }} placeholder="Weekdays only" />,
+  render: () => <DateTimeRangePicker disabledDates={{ dayOfWeek: ["sat", "sun"] }} />,
 };
 
 export const FutureDatesOnly: Story = {
   render: () => {
     const today = todayISO();
-    return <DateTimeRangePicker minDate={today} placeholder="Future dates only" />;
+    return <DateTimeRangePicker minDate={today} />;
   },
 };
 
@@ -154,7 +176,7 @@ export const BusinessHoursWeekdaysOnly: Story = {
     const maxTime = "17:00:00";
     const isWeekend = { dayOfWeek: ["sat", "sun"] } as const;
 
-    return <DateTimeRangePicker minTime={minTime} maxTime={maxTime} disabledDates={isWeekend} minuteStep={30} placeholder="Business hours, weekdays only" />;
+    return <DateTimeRangePicker minTime={minTime} maxTime={maxTime} disabledDates={isWeekend} minuteStep={30} />;
   },
 };
 
@@ -163,7 +185,7 @@ export const BusinessHoursWeekdaysOnly: Story = {
 // =============================================================================
 
 export const WithDefaultPresets: Story = {
-  render: () => <DateTimeRangePicker placeholder="Click to see default presets" />,
+  render: () => <DateTimeRangePicker />,
 };
 
 export const WithCustomPresets: Story = {
@@ -203,12 +225,12 @@ export const WithCustomPresets: Story = {
       },
     ];
 
-    return <DateTimeRangePicker presets={customPresets} placeholder="Custom presets" />;
+    return <DateTimeRangePicker presets={customPresets} />;
   },
 };
 
 export const WithoutPresets: Story = {
-  render: () => <DateTimeRangePicker showPresets={false} placeholder="No presets sidebar" />,
+  render: () => <DateTimeRangePicker showPresets={false} />,
 };
 
 // =============================================================================
@@ -262,15 +284,15 @@ export const InForm: Story = {
 // =============================================================================
 
 export const MondayStart: Story = {
-  render: () => <DateTimeRangePicker weekStartsOn={1} placeholder="Week starts Monday" />,
+  render: () => <DateTimeRangePicker weekStartsOn={1} />,
 };
 
 export const AlignStart: Story = {
-  render: () => <DateTimeRangePicker align="start" placeholder="Popup aligns to start" />,
+  render: () => <DateTimeRangePicker align="start" />,
 };
 
 export const CustomPlaceholder: Story = {
-  render: () => <DateTimeRangePicker placeholder="When should the event run?" />,
+  render: () => <DateTimeRangePicker />,
 };
 
 // =============================================================================
@@ -323,7 +345,7 @@ export const ActivityLogFilter: Story = {
           <div className="font-medium text-sm">Filter Activity Log</div>
           <div className="text-fg-subtle text-xs">Select a time range to filter events</div>
         </div>
-        <DateTimeRangePicker value={value} onChange={setValue} presets={activityPresets} placeholder="Select time range..." />
+        <DateTimeRangePicker value={value} onChange={setValue} presets={activityPresets} />
         {value?.from && value?.to && (
           <div className="rounded-md bg-bg-subtle p-3 text-sm">
             <div className="font-medium">Filtering events:</div>
@@ -351,7 +373,7 @@ export const ReportDateRange: Story = {
           <div className="font-medium text-sm">Generate Report</div>
           <div className="text-fg-subtle text-xs">Select the date and time range for your report</div>
         </div>
-        <DateTimeRangePicker value={value} onChange={setValue} maxDate={maxDate} clockFormat="24h" placeholder="Report period..." />
+        <DateTimeRangePicker value={value} onChange={setValue} maxDate={maxDate} clockFormat="24h" />
         {value?.from && value?.to && (
           <div className="rounded-md border border-border-brand bg-bg-brand-subtle p-3">
             <div className="font-medium text-fg-brand text-xs">Report Period</div>
@@ -382,15 +404,7 @@ export const TimeTracking: Story = {
           <div className="font-medium text-sm">Log Work Session</div>
           <div className="text-fg-subtle text-xs">Record when you started and finished working</div>
         </div>
-        <DateTimeRangePicker
-          value={value}
-          onChange={setValue}
-          maxDate={today}
-          clockFormat="24h"
-          showSeconds
-          minuteStep={1}
-          placeholder="Work session time..."
-        />
+        <DateTimeRangePicker value={value} onChange={setValue} maxDate={today} clockFormat="24h" showSeconds minuteStep={1} />
         {value?.from && value?.to && (
           <div className="rounded-md bg-bg-subtle p-3">
             <div className="text-fg-subtle text-xs">Total time worked</div>
@@ -424,16 +438,7 @@ export const EventScheduler: Story = {
           <div className="font-medium text-sm">Schedule Event</div>
           <div className="text-fg-subtle text-xs">Events can only be scheduled during venue hours (8 AM - 10 PM, weekdays)</div>
         </div>
-        <DateTimeRangePicker
-          value={value}
-          onChange={setValue}
-          minDate={today}
-          minTime={minTime}
-          maxTime={maxTime}
-          disabledDates={isWeekend}
-          minuteStep={30}
-          placeholder="Event start & end time..."
-        />
+        <DateTimeRangePicker value={value} onChange={setValue} minDate={today} minTime={minTime} maxTime={maxTime} disabledDates={isWeekend} minuteStep={30} />
         {value?.from && value?.to && (
           <div className="rounded-md border border-border-normal p-3">
             <div className="font-medium text-fg-subtle text-xs">Event Duration</div>
@@ -475,7 +480,7 @@ export const MaintenanceWindow: Story = {
           <div className="font-medium text-sm">Schedule Maintenance Window</div>
           <div className="text-fg-subtle text-xs">Plan system downtime for updates and maintenance</div>
         </div>
-        <DateTimeRangePicker value={value} onChange={setValue} minDate={today} maxDate={maxDate} clockFormat="24h" placeholder="Maintenance window..." />
+        <DateTimeRangePicker value={value} onChange={setValue} minDate={today} maxDate={maxDate} clockFormat="24h" />
         {value?.from && value?.to && (
           <div className="rounded-md border border-border-danger bg-bg-danger-subtle p-3">
             <div className="font-medium text-fg-danger text-xs">⚠️ Scheduled Downtime</div>
@@ -526,15 +531,7 @@ export const AvailabilitySelector: Story = {
           <div className="font-medium text-sm">Set Your Availability</div>
           <div className="text-fg-subtle text-xs">Let others know when you're available for meetings</div>
         </div>
-        <DateTimeRangePicker
-          value={value}
-          onChange={setValue}
-          minDate={today}
-          minTime={minTime}
-          maxTime={maxTime}
-          minuteStep={30}
-          placeholder="Available from..."
-        />
+        <DateTimeRangePicker value={value} onChange={setValue} minDate={today} minTime={minTime} maxTime={maxTime} minuteStep={30} />
         {value?.from && value?.to && (
           <div className="rounded-md bg-bg-success-subtle p-3">
             <div className="font-medium text-fg-success text-xs">✓ Available</div>

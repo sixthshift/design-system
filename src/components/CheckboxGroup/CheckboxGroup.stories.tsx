@@ -3,7 +3,7 @@ import { useState } from "react";
 import { CheckboxGroup } from "./CheckboxGroup";
 
 const meta: Meta<typeof CheckboxGroup> = {
-  title: "Components/Inputs/CheckboxGroup",
+  title: "Components/CheckboxGroup",
   component: CheckboxGroup,
   parameters: {
     layout: "centered",

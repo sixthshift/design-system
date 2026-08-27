@@ -4,7 +4,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { SearchInput } from "./SearchInput";
 
 const meta: Meta<typeof SearchInput> = {
-  title: "Components/Inputs/SearchInput",
+  title: "Components/SearchInput",
   component: SearchInput,
   parameters: {
     layout: "centered",

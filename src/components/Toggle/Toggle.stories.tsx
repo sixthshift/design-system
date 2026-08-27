@@ -5,7 +5,7 @@ import { componentTokensStory } from "../../stories/recipes/componentTokensStory
 import { Toggle } from "./Toggle";
 
 const meta: Meta<typeof Toggle> = {
-  title: "Components/Inputs/Toggle",
+  title: "Components/Toggle",
   component: Toggle,
   parameters: {
     layout: "centered",

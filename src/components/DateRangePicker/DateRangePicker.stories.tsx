@@ -15,7 +15,7 @@ import {
 import { DateRangePicker } from "./DateRangePicker";
 
 const meta: Meta<typeof DateRangePicker> = {
-  title: "Components/Inputs/DateRangePicker",
+  title: "Components/DateRangePicker",
   component: DateRangePicker,
   tags: ["autodocs"],
   parameters: {
@@ -31,8 +31,30 @@ type Story = StoryObj<typeof DateRangePicker>;
 // Basic Stories
 // =============================================================================
 
+/**
+ * Type either end — they are two independent fields sharing one calendar.
+ *
+ * `152026` in the start field is January 5th 2026; the end field is typed the
+ * same way, and each has its own clear button. The popover opens under whichever
+ * half you are in.
+ */
+export const TypeOrPick: Story = {
+  render: function TypeOrPickStory() {
+    const [observed, setObserved] = useState<ISODateRange | undefined>();
+
+    return (
+      <div className="flex flex-col gap-4">
+        <DateRangePicker onChange={setObserved} />
+        <div className="text-fg-subtle text-sm">
+          Value: {observed?.from ?? "—"} → {observed?.to ?? "—"}
+        </div>
+      </div>
+    );
+  },
+};
+
 export const Default: Story = {
-  render: () => <DateRangePicker placeholder="Select date range..." />,
+  render: () => <DateRangePicker />,
 };
 
 export const WithDefaultValue: Story = {
@@ -62,11 +84,11 @@ export const Controlled: Story = {
 };
 
 export const Disabled: Story = {
-  render: () => <DateRangePicker isDisabled placeholder="Disabled" />,
+  render: () => <DateRangePicker isDisabled />,
 };
 
 export const Invalid: Story = {
-  render: () => <DateRangePicker isInvalid placeholder="Invalid state" />,
+  render: () => <DateRangePicker isInvalid />,
 };
 
 export const NotClearable: Story = {
@@ -82,7 +104,7 @@ export const NotClearable: Story = {
 // =============================================================================
 
 export const WithDefaultPresets: Story = {
-  render: () => <DateRangePicker placeholder="Select date range (with default presets)" />,
+  render: () => <DateRangePicker />,
 };
 
 export const WithCustomPresets: Story = {
@@ -128,12 +150,12 @@ export const WithCustomPresets: Story = {
       },
     ];
 
-    return <DateRangePicker presets={customPresets} placeholder="Select date range (custom presets)" />;
+    return <DateRangePicker presets={customPresets} />;
   },
 };
 
 export const WithoutPresets: Story = {
-  render: () => <DateRangePicker showPresets={false} placeholder="No preset sidebar" />,
+  render: () => <DateRangePicker showPresets={false} />,
 };
 
 // =============================================================================
@@ -146,25 +168,25 @@ export const WithMinMaxDates: Story = {
     const minDate = addDaysISO(today, -7);
     const maxDate = addDaysISO(today, 30);
 
-    return <DateRangePicker minDate={minDate} maxDate={maxDate} placeholder="Limited to past 7 days and next 30 days" />;
+    return <DateRangePicker minDate={minDate} maxDate={maxDate} />;
   },
 };
 
 export const WithDisabledWeekends: Story = {
-  render: () => <DateRangePicker disabled={{ dayOfWeek: ["sat", "sun"] }} placeholder="Weekdays only" />,
+  render: () => <DateRangePicker disabled={{ dayOfWeek: ["sat", "sun"] }} />,
 };
 
 export const PastDatesOnly: Story = {
   render: () => {
     const today = todayISO();
-    return <DateRangePicker maxDate={today} placeholder="Past dates only" />;
+    return <DateRangePicker maxDate={today} />;
   },
 };
 
 export const FutureDatesOnly: Story = {
   render: () => {
     const today = todayISO();
-    return <DateRangePicker minDate={today} placeholder="Future dates only" />;
+    return <DateRangePicker minDate={today} />;
   },
 };
 
@@ -221,15 +243,15 @@ export const InForm: Story = {
 // =============================================================================
 
 export const MondayStart: Story = {
-  render: () => <DateRangePicker weekStartsOn={1} placeholder="Week starts Monday" />,
+  render: () => <DateRangePicker weekStartsOn={1} />,
 };
 
 export const AlignStart: Story = {
-  render: () => <DateRangePicker align="start" placeholder="Popup aligns to start" />,
+  render: () => <DateRangePicker align="start" />,
 };
 
 export const CustomPlaceholder: Story = {
-  render: () => <DateRangePicker placeholder="When should the event run?" />,
+  render: () => <DateRangePicker />,
 };
 
 // =============================================================================
@@ -246,7 +268,7 @@ export const ActivityLogFilter: Story = {
     return (
       <div className="flex flex-col gap-4">
         <div className="font-medium text-sm">Filter Activity Log</div>
-        <DateRangePicker value={value} onChange={(v) => setValue(v ?? { from: undefined, to: undefined })} placeholder="Filter by date..." />
+        <DateRangePicker value={value} onChange={(v) => setValue(v ?? { from: undefined, to: undefined })} />
         <div className="text-fg-subtle text-sm">
           Showing activity from {value?.from ?? "..."} to {value?.to ?? "..."}
         </div>
@@ -301,12 +323,7 @@ export const ReportDateRange: Story = {
     return (
       <div className="flex flex-col gap-4">
         <div className="font-medium text-sm">Generate Report</div>
-        <DateRangePicker
-          value={value}
-          onChange={(v) => setValue(v ?? { from: undefined, to: undefined })}
-          presets={customPresets}
-          placeholder="Select report period..."
-        />
+        <DateRangePicker value={value} onChange={(v) => setValue(v ?? { from: undefined, to: undefined })} presets={customPresets} />
         <button type="button" className="rounded-md bg-bg-brand px-4 py-2 font-medium text-fg-on-brand text-sm">
           Generate Report
         </button>
@@ -326,7 +343,7 @@ export const BookingDateRange: Story = {
           <div className="font-medium text-sm">Accommodation Booking</div>
           <div className="text-fg-subtle text-xs">Select check-in and check-out dates</div>
         </div>
-        <DateRangePicker minDate={today} maxDate={maxDate} showPresets={false} placeholder="Check-in → Check-out" />
+        <DateRangePicker minDate={today} maxDate={maxDate} showPresets={false} />
         <div className="text-fg-subtle text-xs">Bookings available up to 6 months in advance</div>
       </div>
     );

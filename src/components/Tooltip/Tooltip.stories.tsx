@@ -8,6 +8,31 @@ const meta: Meta<typeof Tooltip> = {
   component: Tooltip,
   parameters: {
     layout: "centered",
+    docs: {
+      description: {
+        component: `A hover/focus-triggered short text label anchored to a trigger. Reach for
+\`Tooltip\` over \`HoverCard\` when the content is a plain-text explanation —
+a label, a truncated value, what an icon button does — not a card with
+interactive content; reach for \`HoverCard\` once the content needs more
+than a line or two, or a button of its own. Reach for \`Popover\` instead
+for click-triggered content.
+
+\`placement\` defaults to \`"top"\`, \`offsetPx\` to \`8\`, positioned through the
+same \`offset → flip → shift\` + \`autoUpdate\` floating-ui middleware as
+\`Popover\`/\`HoverCard\`. \`delayShow\` defaults to \`300\`ms, \`delayHide\` to
+\`0\`ms — Tooltip is controlled (\`open\` + \`onOpenChange\`) but, unlike
+\`Popover\`/\`HoverCard\`, has no \`defaultOpen\`; its uncontrolled default is
+always closed.
+
+Opens via \`useHover\` and \`useFocus\`, so it's reachable by keyboard, and
+closes via \`useDismiss\`. \`Tooltip.Body\` carries \`role="tooltip"\` (via
+\`useRole\`), renders in a \`FloatingPortal\`, and hard unmounts when closed —
+no exit animation.
+
+Compound: \`Tooltip.Trigger\`, \`Tooltip.Body\`.`,
+      },
+      subtitle: "A hover-triggered short text label anchored to a trigger",
+    },
   },
   tags: ["autodocs"],
 };

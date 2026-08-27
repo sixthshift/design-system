@@ -1,7 +1,7 @@
-import { Message } from "@sixthshift/design-system/message";
+import { Message, type MessageIntentName } from "@sixthshift/design-system/message";
 import { cn } from "@sixthshift/design-system/utils";
 import { AlertCircle, AlertTriangle, CheckCircle, Info } from "lucide-react";
-import type { ComponentProps, HTMLAttributes } from "react";
+import type { HTMLAttributes } from "react";
 
 export type ValidationError = {
   line: number;
@@ -16,7 +16,10 @@ export type ValidationStatusProps = HTMLAttributes<HTMLDivElement> & {
   maxRows?: number;
 };
 
-type Intent = NonNullable<ComponentProps<typeof Message>["intent"]>;
+// The closed union, not `ComponentProps<typeof Message>["intent"]`: that is now
+// widened to admit any string so consumers can add intents in CSS, which would
+// silently let a typo through this map.
+type Intent = MessageIntentName;
 
 const SEVERITY_INTENT: Record<ValidationError["severity"], Intent> = {
   error: "danger",

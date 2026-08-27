@@ -41,6 +41,12 @@ const TabsRoot = ({ items, value: controlledValue, defaultValue, onValueChange, 
   return <TabsContext.Provider value={contextValue}>{children}</TabsContext.Provider>;
 };
 
+/**
+ * NOTE: Storybook shows the copy in Tabs.stories.tsx
+ * (`parameters.docs.description.component`), not this comment. react-docgen
+ * cannot extract a description from an `Object.assign` / cast export, so a
+ * second copy here would only drift. Edit the stories file.
+ */
 export const Tabs = Object.assign(TabsRoot, {
   List: TabsList,
   Panels: TabsPanels,

@@ -6,6 +6,7 @@ const meta: Meta<typeof BarChart> = {
   component: BarChart,
   parameters: {
     layout: "padded",
+    docs: { subtitle: "Horizontal bar chart built from styled divs, not SVG" },
   },
   tags: ["autodocs"],
 };

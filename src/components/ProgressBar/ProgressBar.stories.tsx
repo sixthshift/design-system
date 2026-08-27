@@ -6,6 +6,7 @@ const meta: Meta<typeof ProgressBar> = {
   component: ProgressBar,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A labelled, clamped progress meter" },
   },
   tags: ["autodocs"],
   decorators: [

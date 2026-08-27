@@ -66,8 +66,29 @@ function formatInstantDisplay(instant: Temporal.Instant, clockFormat: "12h" | "2
 /**
  * DateTimePicker - A component for selecting both date and time
  *
- * Combines date and time selection in a single popup with side-by-side layout.
- * Values cross the boundary as canonical UTC instant strings.
+ * Combines date and time selection in a single popup with side-by-side layout:
+ * a `Calendar` grid on the left, hour/minute(/second) columns on the right.
+ * It is not a composition of `DatePicker` and `TimePicker` — it builds
+ * directly on the same internal calendar grid and time-column primitives
+ * those two use, so the two stay visually consistent without either being
+ * mounted as a component.
+ *
+ * The value is a single absolute instant: an `ISOInstant` string
+ * (`"2026-08-26T00:30:00Z"`), always UTC and always ending in `Z`. It is
+ * edited in the viewer's local timezone (`Temporal.Now.timeZoneId()`) and
+ * converted to/from UTC at the boundary, so the same stored instant displays
+ * differently to viewers in different timezones. Input written with a
+ * numeric offset is normalised to the `Z` form. Supports controlled
+ * (`value`/`onChange`) and uncontrolled (`defaultValue`) use.
+ *
+ * Opening the popover seeds date and time drafts from the committed value (or
+ * today + the current time, if none); the footer's Apply combines them into
+ * an instant and commits, Cancel discards the draft. `minDate`/`maxDate` and
+ * `disabledDates` bound the date grid; `minTime`/`maxTime` bound the wall-clock
+ * time columns — these are plain date/time constraints on the picker's grid,
+ * not constraints on the resulting instant. `clockFormat` and `showSeconds`
+ * control the time columns; `clearable` (default `true`) shows the clear
+ * button.
  */
 export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerProps>((props, ref) => {
   const {

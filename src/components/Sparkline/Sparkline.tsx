@@ -51,6 +51,17 @@ function buildPath(points: { x: number; y: number }[], interpolation: Interpolat
   return parts.join(" ");
 }
 
+/**
+ * A minimal inline trend line for embedding in a table cell or card — an
+ * `<svg>` inside an `inline-block` `<span>`, sized to `width`/`height` rather
+ * than a chart that lays out its own labels or axes.
+ *
+ * Requires at least 2 data points; with fewer it renders nothing (`null`).
+ * `color` is a single CSS color string (default `var(--fg-brand)`), and
+ * `interpolation` reuses the same `Interpolation` type as `LineChart`. The
+ * accessible name is a static `aria-label="Trend line"` — it does not
+ * describe the actual values.
+ */
 export const Sparkline = React.forwardRef<HTMLSpanElement, SparklineProps>(
   ({ data, width = 80, height = 24, color = "var(--fg-brand)", fillArea = false, interpolation = "monotone", strokeWidth = 1.5, className, ...rest }, ref) => {
     if (data.length < 2) return null;

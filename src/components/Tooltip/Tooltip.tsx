@@ -60,6 +60,12 @@ const TooltipRoot = ({ open: controlledOpen, onOpenChange, placement = "top", de
   return <TooltipContext.Provider value={contextValue}>{children}</TooltipContext.Provider>;
 };
 
+/**
+ * NOTE: Storybook shows the copy in Tooltip.stories.tsx
+ * (`parameters.docs.description.component`), not this comment. react-docgen
+ * cannot extract a description from an `Object.assign` / cast export, so a
+ * second copy here would only drift. Edit the stories file.
+ */
 export const Tooltip = Object.assign(TooltipRoot, {
   Trigger: TooltipTrigger,
   Body: TooltipBody,

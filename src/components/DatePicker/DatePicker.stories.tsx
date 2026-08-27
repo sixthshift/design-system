@@ -9,6 +9,7 @@ const meta: Meta<typeof DatePicker> = {
   tags: ["autodocs"],
   parameters: {
     layout: "centered",
+    docs: { subtitle: "Input trigger and calendar popover for picking a date, range, or multiple dates" },
   },
 };
 

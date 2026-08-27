@@ -26,6 +26,26 @@ import type { ParsedTime, TimePeriod, TimePickerProps, TimePresetOption } from "
 
 export type { TimePickerProps };
 
+/**
+ * Text input trigger plus a popover of scrollable hour/minute(/second) columns
+ * for picking a wall-clock time. The value is an `ISOTime` string — `"09:30"`
+ * and `"09:30:00"` are both accepted as input, and `onChange` always emits the
+ * canonical `HH:MM:SS` form regardless of `format`. There is no timezone
+ * conversion: the value is a plain time, not an instant.
+ *
+ * Supports both controlled (`value`/`onChange`) and uncontrolled
+ * (`defaultValue`) use. Opening the popover seeds the draft columns from the
+ * committed value (or the current time, if none); scrolling the columns only
+ * updates the draft, and the footer's Apply commits it and closes, Cancel
+ * discards it. A "Now" button resets the draft to the current time without
+ * closing the popover.
+ *
+ * `format` (`"HH:mm" | "HH:mm:ss"`) shows or hides the seconds column;
+ * `clockFormat` (`"12h" | "24h"`) shows or hides the AM/PM selector.
+ * `minTime`/`maxTime` bound the selectable time inclusively — Apply is a
+ * no-op while the draft falls outside them. `minuteStep` controls the minute
+ * column's increment. `presets` renders a sidebar of quick picks.
+ */
 export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>((props, ref) => {
   const {
     value,

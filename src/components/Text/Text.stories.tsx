@@ -7,6 +7,7 @@ const meta: Meta<typeof Text> = {
   component: Text,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "Polymorphic text primitive with no built-in styling" },
   },
   tags: ["autodocs"],
   argTypes: {
@@ -95,8 +96,8 @@ export const ArticleExample: Story = {
       <Heading as="h1">Getting Started</Heading>
       <Text className="text-fg-subtle">Published December 15, 2025</Text>
       <Text>
-        This design system ships tokens, a theme pipeline, and a React component library. Install it as a versioned dependency and configure it through the theme
-        surface.
+        This design system ships tokens, a theme pipeline, and a React component library. Install it as a versioned dependency and configure it through the
+        theme surface.
       </Text>
       <Heading as="h2">Installation</Heading>
       <Text>Getting started is easy. Install the package from npm, then import the components you need via their subpaths.</Text>

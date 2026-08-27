@@ -31,6 +31,33 @@ export type ToastProps = Omit<MessageProps, "size"> & {
 // Toast
 // =============================================================================
 
+/**
+ * A transient notification for the outcome of an action that already
+ * happened — a save, a delete, a failed request — self-positioned bottom
+ * center. Reach for `Toast` over `Message` when the feedback is about an
+ * action and shouldn't stick around in the page's layout; reach for
+ * `Message` when the feedback belongs inline, in the place the caller puts
+ * it (a form's own validation state, an in-card page-load error).
+ *
+ * Toast renders `Message` internally (`<Message intent={intent}>` wrapping
+ * `MessageIcon`/`MessageBody`/`MessageTitle`/`MessageDescription`), so it
+ * inherits Message's live-region role mapping: `intent="danger"` gets
+ * `role="alert"` (assertive), everything else gets `role="status"` (polite).
+ * `action`/`onAction` render a link-style button inside the description; the
+ * dismiss (X) button only renders when `onClose` is provided.
+ *
+ * `standalone` (default `true`) controls positioning: when `true`, Toast
+ * portals itself (`FloatingPortal`, optionally to a custom `root`) and
+ * applies the fixed bottom-center classes itself. Set it to `false` when a
+ * parent already handles portalling and position — this is how
+ * `OverlayContext`'s toast stack renders it. Toast has no built-in
+ * auto-dismiss timer; that's `useToast`'s job, one layer up.
+ *
+ * Exit animation (`usePresence`) keeps Toast mounted through its fade-out,
+ * so `onClose` fires only after the animation completes. Toast has no focus
+ * trap and no Escape handling of its own — it's a passive notification, not
+ * a dialog.
+ */
 export const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
   ({ className, intent = "neutral", title, icon, action, onAction, onClose, root, standalone = true, children, ...props }, ref) => {
     const { ref: presenceRef, state, isMounted, show, hide } = usePresence();

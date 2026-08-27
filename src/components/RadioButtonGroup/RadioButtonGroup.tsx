@@ -37,6 +37,32 @@ export type RadioButtonGroupProps = Omit<React.HTMLAttributes<HTMLDivElement>, "
   onBlur?: () => void;
 };
 
+/**
+ * A set of mutually exclusive radio options sharing one controlled/
+ * uncontrolled `string` selection, via the `value`/`defaultValue`/
+ * `onValueChange` triad (`useControllableState`).
+ *
+ * `variant="default"` (the default) renders one `RadioButton` per option.
+ * `variant="button"` is a separate rendering path — not a re-skinned
+ * `RadioButton` — a row/column of plain buttons with `role="radio"`;
+ * contiguous buttons touch and share borders (`appearance="segmented"`, the
+ * default) or sit apart with their own rounded corners
+ * (`appearance="separate"`).
+ *
+ * Implements the WAI-ARIA radiogroup keyboard pattern: the group is one tab
+ * stop, landing on the checked option (or the first enabled option if none
+ * is checked), and arrow/Home/End keys move focus *and* selection between
+ * enabled options, wrapping at the ends.
+ *
+ * Form submission only happens when `name` is set. In the default variant
+ * that means each underlying `RadioButton` gets `name`, so one hidden
+ * native radio input is rendered per option; in the button variant the
+ * group itself renders a single hidden `<input type="hidden">` carrying the
+ * selected value.
+ *
+ * Renders `role="radiogroup"`; focus leaving the whole group — not just
+ * moving between options — fires `onBlur`.
+ */
 const RadioButtonGroup = React.forwardRef<HTMLDivElement, RadioButtonGroupProps>(
   (
     {

@@ -6,6 +6,7 @@ const meta: Meta<typeof Avatar> = {
   component: Avatar,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A circular image frame with a manual initials fallback" },
   },
   tags: ["autodocs"],
 };

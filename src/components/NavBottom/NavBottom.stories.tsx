@@ -9,6 +9,7 @@ const meta: Meta<typeof NavBottom> = {
   component: NavBottom,
   parameters: {
     layout: "fullscreen",
+    docs: { subtitle: "Mobile bottom tab bar, flattened from nav sections" },
   },
   tags: ["autodocs"],
 };

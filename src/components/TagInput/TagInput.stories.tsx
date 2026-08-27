@@ -8,6 +8,7 @@ const meta: Meta<typeof TagInput> = {
   component: TagInput,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A controlled token field for tags, rendered as removable TagChips" },
   },
   tags: ["autodocs"],
 };

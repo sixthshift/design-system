@@ -20,6 +20,14 @@ const valueVariants = {
   info: "text-fg-brand",
 };
 
+/**
+ * One label/value line, meant as a child of `MetricList` (though it has no
+ * dependency on it and works standalone). `label` is plain text; `value`
+ * accepts a `ReactNode` for richer content than a string. `valueVariant`
+ * (`"normal" | "success" | "warning" | "danger" | "info"`, default
+ * `"normal"`) colours the value only — the label always stays the default
+ * text colour. Does not forward a ref.
+ */
 export const MetricRow = ({ label, value, valueVariant = "normal", className }: MetricRowProps) => {
   return (
     <div className={cn("flex justify-between", className)}>

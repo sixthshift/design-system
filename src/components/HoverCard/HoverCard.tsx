@@ -77,6 +77,12 @@ type HoverCardComponent = typeof HoverCardRoot & {
   Content: typeof HoverCardContent;
 };
 
+/**
+ * NOTE: Storybook shows the copy in HoverCard.stories.tsx
+ * (`parameters.docs.description.component`), not this comment. react-docgen
+ * cannot extract a description from this declaration shape, so keeping a
+ * second copy here would only drift. Edit the stories file.
+ */
 export const HoverCard: HoverCardComponent = Object.assign(HoverCardRoot, {
   Trigger: HoverCardTrigger,
   Content: HoverCardContent,

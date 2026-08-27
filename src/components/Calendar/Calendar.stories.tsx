@@ -19,6 +19,7 @@ const meta: Meta<typeof Calendar> = {
   component: Calendar,
   parameters: {
     layout: "padded",
+    docs: { subtitle: "Inline month grid for single, range, or multiple date selection" },
   },
   tags: ["autodocs"],
 };

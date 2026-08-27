@@ -1,4 +1,5 @@
 import type * as React from "react";
+import type { ButtonIntentName, ButtonVariantName } from "../Button/Button";
 import type { ToggleProps } from "../Toggle/Toggle";
 
 /** Extract a prop's union type from ToggleProps, stripping null added by CVA */
@@ -22,10 +23,16 @@ export type ToggleGroupBaseProps = Omit<React.HTMLAttributes<HTMLDivElement>, "o
   appearance?: "segmented" | "separate";
   /** Layout orientation */
   orientation?: "vertical" | "horizontal";
-  /** Button variant (link excluded as it has no clear pressed state in groups) */
-  variant?: Exclude<ToggleProp<"variant">, "link">;
+  /**
+   * Button variant (link excluded as it has no clear pressed state in groups).
+   *
+   * Deliberately the closed union, not Button's widened `ButtonVariant`: an
+   * `Exclude` cannot remove `link` from a type that already admits any string,
+   * so narrowing here requires narrowing from the closed names.
+   */
+  variant?: Exclude<ButtonVariantName, "link">;
   /** Color intent */
-  intent?: ToggleProp<"intent">;
+  intent?: ButtonIntentName;
   /** Button size (xl excluded — too large for grouped toggles) */
   size?: Exclude<ToggleProp<"size">, "xl">;
   /** Disable all options */

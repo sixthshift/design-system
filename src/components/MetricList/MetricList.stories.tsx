@@ -6,6 +6,7 @@ const meta: Meta<typeof MetricList> = {
   component: MetricList,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A vertical stack of label/value metric rows" },
   },
   tags: ["autodocs"],
 };

@@ -7,6 +7,7 @@ const meta: Meta<typeof StatsCard> = {
   component: StatsCard,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A bordered tile for a single metric, with a status accent" },
   },
   tags: ["autodocs"],
   argTypes: {

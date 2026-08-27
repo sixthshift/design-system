@@ -8,7 +8,10 @@ const meta: Meta<typeof DateTimeRangePicker> = {
   component: DateTimeRangePicker,
   tags: ["autodocs"],
   parameters: {
+    // Published as `./datetime-range-picker`, which kebab-casing the component name does not produce.
+    importPath: "datetime-range-picker",
     layout: "centered",
+    docs: { subtitle: "Range calendar with separate start and end time columns" },
   },
 };
 

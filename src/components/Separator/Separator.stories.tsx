@@ -6,6 +6,7 @@ const meta: Meta<typeof Separator> = {
   component: Separator,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A horizontal or vertical dividing line" },
   },
   tags: ["autodocs"],
   argTypes: {

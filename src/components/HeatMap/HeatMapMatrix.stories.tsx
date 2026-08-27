@@ -5,7 +5,12 @@ import { HeatMapMatrix } from "./HeatMapMatrix";
 const meta: Meta<typeof HeatMapMatrix> = {
   title: "Components/Data/HeatMapMatrix",
   component: HeatMapMatrix,
-  parameters: { layout: "padded" },
+  parameters: {
+    // Both heat maps publish from the one `./heat-map` subpath.
+    importPath: "heat-map",
+    layout: "padded",
+    docs: { subtitle: "Compact day-of-week by week matrix heatmap" },
+  },
   tags: ["autodocs"],
 };
 

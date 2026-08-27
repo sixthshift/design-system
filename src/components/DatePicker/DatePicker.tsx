@@ -35,6 +35,29 @@ function toTemporal(mode: DatePickerProps["mode"], value: ISODate | ISODateRange
   return fromISODateOrUndefined(value as ISODate | undefined);
 }
 
+/**
+ * Text input trigger plus a `Calendar` popover for picking a date, a range, or
+ * several dates. `mode` (`"single" | "range" | "multiple"`, default `"single"`)
+ * decides the shape of `value`/`defaultValue`/`onChange`: an `ISODate` string,
+ * an `ISODateRange` (`{ from?, to? }`), or an `ISODate[]`.
+ *
+ * Supports both controlled (`value`/`onChange`) and uncontrolled
+ * (`defaultValue`) use. Opening the popover seeds a draft from the committed
+ * value; picking a date only updates the draft; the footer's Apply commits it
+ * and closes, Cancel discards it and reverts to the last committed value. The
+ * clear button (hidden when `clearable={false}`) bypasses the draft and
+ * commits immediately.
+ *
+ * `minDate`/`maxDate` bound selectable dates inclusively; `disabled` accepts a
+ * single date, a list, or a declarative matcher (before/after/range/weekday)
+ * or predicate — see `DisabledDates`. `presets` renders a sidebar of quick
+ * picks whose values must match `mode`. When `name` is set, the committed
+ * value is mirrored into hidden `<input>`s for native form submission
+ * (`name.from`/`name.to` in range mode, `name[]` per entry in multiple mode).
+ *
+ * Keyboard interaction — arrow keys/Home/End/PageUp/PageDown on the day
+ * grid — is inherited from `Calendar`.
+ */
 export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>((props, ref) => {
   const {
     mode = "single",

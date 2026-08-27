@@ -7,6 +7,7 @@ const meta: Meta<typeof RadioButtonGroup> = {
   component: RadioButtonGroup,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A set of mutually exclusive radio options, as radios or buttons" },
   },
   tags: ["autodocs"],
 };

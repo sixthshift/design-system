@@ -8,6 +8,7 @@ const meta: Meta<typeof EmptyState> = {
   component: EmptyState,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A centered placeholder for a list or page with no data" },
   },
   tags: ["autodocs"],
 };

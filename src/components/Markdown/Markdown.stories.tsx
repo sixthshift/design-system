@@ -6,6 +6,7 @@ const meta: Meta<typeof Markdown> = {
   component: Markdown,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "Chat-style markdown rendered through the typography components" },
   },
   tags: ["autodocs"],
   decorators: [

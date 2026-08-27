@@ -1,5 +1,6 @@
 import { withThemeByDataAttribute } from "@storybook/addon-themes";
 import type { Preview } from "@storybook/react-vite";
+import { DocsPage } from "./DocsPage";
 
 import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
@@ -11,6 +12,13 @@ const preview: Preview = {
       storySort: {
         order: ["Design System", "Components", "*"],
       },
+    },
+
+    docs: {
+      // One layout for every component — see DocsPage.tsx for why this is not
+      // fifty-three MDX files. A component can still override it with its own
+      // attached MDX page.
+      page: DocsPage,
     },
 
     controls: {

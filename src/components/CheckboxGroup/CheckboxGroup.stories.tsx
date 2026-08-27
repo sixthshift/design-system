@@ -7,6 +7,7 @@ const meta: Meta<typeof CheckboxGroup> = {
   component: CheckboxGroup,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A set of checkboxes sharing one selection, as checkboxes or buttons" },
   },
   tags: ["autodocs"],
 };

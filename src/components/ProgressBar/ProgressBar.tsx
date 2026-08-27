@@ -11,6 +11,20 @@ export type ProgressBarProps = {
   className?: string;
 };
 
+/**
+ * Determinate progress meter: a labelled fill bar plus an optional `n/total`
+ * fraction (`showFraction`, default `true`).
+ *
+ * The bar itself is `role="progressbar"` with `aria-valuemin`/`-valuenow`/
+ * `-valuemax`/`-valuetext`, and `label` (default `"Progress"`) sets its
+ * accessible name — give it something more specific than the default when
+ * more than one bar can appear on a page. `completed` is clamped into
+ * `[0, total]` before it drives the fill width or `aria-valuenow`, so an
+ * out-of-range value (negative, or greater than `total`) can't produce
+ * invalid CSS or an impossible reported value — though the fraction text
+ * still shows the raw, unclamped numbers. When `total` is not positive the
+ * bar renders as indeterminate: no `aria-valuenow`/`aria-valuemax`, 0% fill.
+ */
 export const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
   ({ completed, total, showFraction = true, label = "Progress", className }, ref) => {
     // A caller can hand us anything; the bar must not render an out-of-range

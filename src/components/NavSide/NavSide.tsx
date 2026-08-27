@@ -17,6 +17,25 @@ export type NavSideProps = {
   className?: string;
 };
 
+/**
+ * Desktop/tablet sidebar navigation: a vertical stack of link sections
+ * rendered inside a `<nav>`, each item showing an icon and, when expanded, a
+ * label and optional count badge (capped at "9+").
+ *
+ * `expanded` toggles between the full sidebar (icons + labels, `w-48`) and an
+ * icon-only rail (`w-16`) — this is the desktop-vs-tablet split described in
+ * docs/responsive.md, driven by the caller rather than a self-managed
+ * collapse. When collapsed, each link gets a `title` attribute (native
+ * tooltip) in place of the visible label.
+ *
+ * There's no built-in notion of "current route": the caller decides what's
+ * active via `isActive`, and supplies `renderLink` to integrate with a router
+ * (falls back to the `Link` from `ComponentsContext` when omitted). Sections
+ * are separated by a divider, skipped before the first section.
+ *
+ * On mobile this doesn't render at all — `NavBottom` replaces it at the
+ * layout level, per docs/responsive.md.
+ */
 export const NavSide = React.forwardRef<HTMLElement, NavSideProps>(({ sections, expanded = true, isActive, renderLink, className }, ref) => {
   const { Link } = useComponents();
   const linkRenderer: RenderLinkFn = renderLink ?? (({ to, ...rest }) => <Link href={to} {...rest} />);

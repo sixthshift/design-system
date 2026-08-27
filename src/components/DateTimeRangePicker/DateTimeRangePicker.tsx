@@ -144,8 +144,28 @@ function getDefaultPresets(): DateTimeRangePresetOption[] {
 /**
  * DateTimeRangePicker - A component for selecting a datetime range
  *
- * Combines date range selection with separate time pickers for start and end times.
- * All values cross the boundary as canonical UTC instant strings.
+ * Combines a single range calendar with two sets of time columns — Start Time
+ * and End Time — shown side by side below it. Like `DateTimePicker`, it is
+ * not a composition of other picker components: it builds directly on the
+ * same internal calendar grid and time-column primitives `TimePicker` and
+ * `DateTimePicker` use.
+ *
+ * The value is an `ISOInstantRange` (`{ from?: ISOInstant, to?: ISOInstant }`,
+ * exported as `DateTimeRangeValue` for historical reasons) — both ends
+ * absolute instants, always UTC and ending in `Z`. Each end is edited in the
+ * viewer's local timezone and converted to/from UTC at the boundary. Supports
+ * controlled (`value`/`onChange`) and uncontrolled (`defaultValue`) use.
+ *
+ * Opening the popover seeds date-range and time drafts from the committed
+ * value; the footer's Apply combines them into an instant range and commits,
+ * Cancel discards the draft. `minDate`/`maxDate` and `disabledDates` bound the
+ * date grid. `minTime`/`maxTime` are wall-clock bounds that apply to **both**
+ * the start and end time columns identically — they do not mean "start no
+ * earlier than X, end no later than Y" relative to each other, and they say
+ * nothing about the resulting instants (a `maxTime` of `17:00` still allows an
+ * end date after the start date). `presets` (a zero-arg-function value, like
+ * `DateRangePicker`) replaces the built-in preset list; `showPresets={false}`
+ * hides the sidebar.
  */
 export const DateTimeRangePicker = React.forwardRef<HTMLDivElement, DateTimeRangePickerProps>((props, ref) => {
   const {

@@ -16,6 +16,21 @@ export type FormFieldProps = React.HTMLAttributes<HTMLDivElement> & {
   required?: boolean;
 };
 
+/**
+ * Wraps a form control with a label, optional description, and optional
+ * validation feedback — the composition point for `Input`, `Textarea`,
+ * `Select` and similar controls inside a form.
+ *
+ * Generates an `id` (or uses the one passed in) and clones it, plus
+ * `aria-describedby` (pointing at the description and/or feedback text) and
+ * `aria-invalid` (when `feedback.intent` is `"danger"`), onto its child —
+ * so the wrapped control does not need those wired by hand. It expects a
+ * single child control: the same id and aria attributes get cloned onto
+ * every child if more than one is passed.
+ *
+ * Distinct from `Field`, which displays a read-only label/value pair rather
+ * than wrapping an interactive control.
+ */
 const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(({ className, label, description, feedback, required, children, id, ...props }, ref) => {
   const generatedId = React.useId();
   const fieldId = id ?? generatedId;

@@ -2,14 +2,6 @@ import { TagChip } from "@sixthshift/design-system/tag-chip";
 import { cn } from "@sixthshift/design-system/utils";
 import { forwardRef, type KeyboardEvent, useState } from "react";
 
-/**
- * Token input for tags: existing tags render as removable chips, typing plus
- * Enter or comma commits a new one, Backspace on an empty field removes the
- * last. Duplicates are ignored. Controlled — the parent owns `value`.
- *
- * The chrome matches `Input` (same border/focus tokens) so it sits naturally
- * among other form fields.
- */
 export type TagInputProps = {
   value: string[];
   onChange: (tags: string[]) => void;
@@ -18,6 +10,17 @@ export type TagInputProps = {
   className?: string;
 };
 
+/**
+ * Token input for tags: existing tags render as removable `TagChip`s, typing
+ * plus Enter or comma commits a new one, Backspace on an empty field removes
+ * the last. Duplicates are ignored. Controlled only — there is no
+ * `defaultValue`, the parent always owns `value`.
+ *
+ * The chrome matches `Input` (same border/focus tokens) so it sits naturally
+ * among other form fields; the field has no visible label of its own, so
+ * give it an accessible name via a `<label htmlFor={id}>` (pass `id`) or
+ * `aria-label`.
+ */
 export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(({ value, onChange, placeholder = "Add a tag…", id, className }, ref) => {
   const [draft, setDraft] = useState("");
 

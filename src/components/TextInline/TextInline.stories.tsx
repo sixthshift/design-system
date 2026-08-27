@@ -8,6 +8,7 @@ const meta: Meta<typeof TextInline> = {
   component: TextInline,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "Inline flex row for spacing a group of text fragments" },
   },
   tags: ["autodocs"],
   argTypes: {

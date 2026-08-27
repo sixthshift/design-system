@@ -16,6 +16,21 @@ export type NavBottomProps = {
   className?: string;
 };
 
+/**
+ * Mobile bottom tab bar: flattens every section's items into a single row of
+ * links inside a `<nav>`, capped to `maxItems` (default 5) so the bar doesn't
+ * overflow a phone width.
+ *
+ * Section grouping and dividers from `NavSide` are lost here — items past
+ * `maxItems` are silently dropped, not collected into a "more" menu. Icon and
+ * label are always shown; there's no collapsed/expanded state, unlike
+ * `NavSide`. Same `isActive`/`renderLink` contract as `NavSide`, and shares
+ * its `NavItem`/`NavSection` types.
+ *
+ * Per docs/responsive.md, this is the mobile counterpart used in place of
+ * `NavSide` — a layout-level swap (the sidebar doesn't exist on mobile at
+ * all), not a responsive variant of the same component.
+ */
 export const NavBottom = React.forwardRef<HTMLElement, NavBottomProps>(({ sections, isActive, renderLink, maxItems = 5, className }, ref) => {
   const { Link } = useComponents();
   const linkRenderer: RenderLinkFn = renderLink ?? (({ to, ...rest }) => <Link href={to} {...rest} />);

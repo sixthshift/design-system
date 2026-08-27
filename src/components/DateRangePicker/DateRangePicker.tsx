@@ -60,8 +60,21 @@ function getDefaultPresets(): PresetOption[] {
 /**
  * DateRangePicker - A specialized date range picker component
  *
- * Wraps DatePicker with mode="range" and adds common range presets.
- * All date values are canonical ISO 8601 strings ("2026-08-26").
+ * Wraps `DatePicker` with `mode="range"` and adds common range presets
+ * ("Today", "Last 7 days", "This month", …). Anything `DatePicker` does in
+ * range mode — draft/commit via Apply/Cancel, keyboard navigation, form
+ * submission via hidden `name.from`/`name.to` inputs — carries over unchanged.
+ *
+ * The value is an `ISODateRange` (`{ from?: ISODate, to?: ISODate }`), both
+ * ends canonical ISO 8601 date strings ("2026-08-26"). Supports controlled
+ * (`value`/`onChange`) and uncontrolled (`defaultValue`) use.
+ *
+ * `presets` (a `PresetOption[]` whose `value` is a zero-arg function) replaces
+ * the built-in list; the function form lets relative ranges like "Last 7 days"
+ * compute from the current date on every render rather than being frozen when
+ * the preset list is defined. Set `showPresets={false}` to hide the sidebar
+ * entirely. `minDate`/`maxDate`/`disabled` bound and exclude dates exactly as
+ * in `DatePicker`.
  */
 export const DateRangePicker = React.forwardRef<HTMLDivElement, DateRangePickerProps>((props, ref) => {
   const {

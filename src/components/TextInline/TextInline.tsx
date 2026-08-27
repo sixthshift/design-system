@@ -27,6 +27,17 @@ const textInlineVariants = cva("inline-flex items-center", {
 
 export type TextInlineProps = React.HTMLAttributes<HTMLSpanElement> & VariantProps<typeof textInlineVariants>;
 
+/**
+ * Lays out several inline fragments — typically `Text` nodes, but any inline
+ * content works — in a single flex row with a consistent gap and cross-axis
+ * alignment, so a label/value pair or a value/badge pair doesn't need one-off
+ * spacing classes at every call site.
+ *
+ * Renders a single `<span>`. `gap` (default `sm`) and `align` (default
+ * `baseline`) are the only two axes; there's no `as` polymorphism, and this
+ * is not a variant of `Text` — `TextInline` is about spacing *between*
+ * inline children, not about styling the text itself.
+ */
 const TextInline = React.forwardRef<HTMLSpanElement, TextInlineProps>(({ className, gap, align, ...props }, ref) => (
   <span ref={ref} className={cn(textInlineVariants({ gap, align }), className)} {...props} />
 ));

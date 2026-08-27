@@ -9,6 +9,7 @@ const meta: Meta<typeof FormField> = {
   component: FormField,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A label, description and validation feedback wrapped around a form control" },
   },
   tags: ["autodocs"],
 };

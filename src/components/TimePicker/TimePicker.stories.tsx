@@ -10,6 +10,7 @@ const meta: Meta<typeof TimePicker> = {
   tags: ["autodocs"],
   parameters: {
     layout: "centered",
+    docs: { subtitle: "Input trigger and scrollable columns for picking a wall-clock time" },
   },
 };
 

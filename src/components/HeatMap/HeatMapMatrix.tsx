@@ -12,6 +12,20 @@ export type HeatMapMatrixProps = React.HTMLAttributes<HTMLDivElement> & {
   formatTooltip?: (cell: HeatMapCell) => string;
 };
 
+/**
+ * A compact matrix heatmap: a single SVG grid with one column per
+ * day-of-week and one row per week, each cell colored the same way as
+ * `HeatMapCalendar` (same `colorScale`/intensity-bucketing behaviour).
+ * Renders `null` for an empty `data` array.
+ *
+ * Rows aren't calendar weeks aligned to a fixed start: `data` is sorted by
+ * date, and a new row begins whenever the next date's day-of-week doesn't
+ * increase past the previous one, so a sparse or irregular date range still
+ * lays out sensibly. `showDayLabels` (default `true`) adds a header row of
+ * single-letter day labels. Same `role="img"` SVG and per-cell `title`
+ * tooltip behaviour as `HeatMapCalendar`, except the accessible title is the
+ * static string "Heat map" rather than anything date-specific.
+ */
 export const HeatMapMatrix = ({
   data,
   colorScale = DEFAULT_COLOR_SCALE,

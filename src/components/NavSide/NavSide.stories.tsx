@@ -9,6 +9,7 @@ const meta: Meta<typeof NavSide> = {
   component: NavSide,
   parameters: {
     layout: "fullscreen",
+    docs: { subtitle: "Vertical sidebar navigation with sections, icons, and an expand/collapse rail" },
   },
   tags: ["autodocs"],
 };

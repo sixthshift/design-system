@@ -8,6 +8,40 @@ const meta: Meta<typeof HoverCard> = {
   title: "Components/Feedback/HoverCard",
   component: HoverCard,
   parameters: {
+    docs: {
+      subtitle: "A hover-triggered floating card for richer info-on-demand",
+      description: {
+        component: `A hover/focus-triggered floating card for richer info-on-demand — a user
+profile, an entity preview — anchored to an inline trigger like a name or
+a link. Reach for \`HoverCard\` over \`Tooltip\` when the content is more than
+a short text label (an avatar, multiple lines, action buttons); reach for
+\`Tooltip\` when it's a terse label. Reach for \`Popover\` instead when the
+panel should open on click rather than passively on hover.
+
+Works both controlled (\`open\` + \`onOpenChange\`) and uncontrolled
+(\`defaultOpen\`) via \`useControllableState\`, same as \`Popover\`. \`placement\`
+defaults to \`"bottom-start"\`, \`offsetPx\` to \`8\`, positioned through the
+same \`offset → flip → shift\` + \`autoUpdate\` floating-ui middleware.
+
+Opens via \`useHover\` — \`delayShow\` defaults to \`500\`ms, deliberately
+longer than Tooltip's, so a hover-card doesn't pop on incidental hover —
+and via \`useFocus\`, so it's reachable by keyboard. \`delayHide\` defaults to
+\`200\`ms and uses \`safePolygon()\`, which lets the cursor travel from the
+trigger to the card (crossing the gap between them) without the card
+closing — necessary because, unlike a Tooltip, a HoverCard's content is
+meant to be interactive.
+
+\`HoverCard.Trigger\` defaults \`asChild\` to \`true\` (the reverse of
+\`Popover\`/\`Tooltip\`), since a hover-card typically wraps an existing
+inline element like a name rather than introducing a new one.
+\`HoverCard.Content\` renders in a \`FloatingPortal\` and hard unmounts when
+closed — no exit animation. Note it carries no ARIA role and isn't named
+via \`aria-labelledby\` the way \`Popover.Body\` is — give it an accessible
+name directly if the content isn't otherwise identifiable.
+
+Compound: \`HoverCard.Trigger\`, \`HoverCard.Content\`.`,
+      },
+    },
     layout: "centered",
   },
   tags: ["autodocs"],

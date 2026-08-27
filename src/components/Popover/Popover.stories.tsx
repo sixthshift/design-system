@@ -11,6 +11,7 @@ const meta: Meta<typeof Popover> = {
   component: Popover,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A click-triggered floating panel anchored to a trigger" },
   },
   tags: ["autodocs"],
 };

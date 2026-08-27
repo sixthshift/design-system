@@ -22,7 +22,12 @@ function generateData(days: number, maxValue: number) {
 const calendarMeta: Meta<typeof HeatMapCalendar> = {
   title: "Components/Data/HeatMapCalendar",
   component: HeatMapCalendar,
-  parameters: { layout: "padded" },
+  parameters: {
+    // Both heat maps publish from the one `./heat-map` subpath.
+    importPath: "heat-map",
+    layout: "padded",
+    docs: { subtitle: "GitHub-style contribution calendar heatmap" },
+  },
   tags: ["autodocs"],
 };
 

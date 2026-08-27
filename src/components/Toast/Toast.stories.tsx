@@ -11,6 +11,7 @@ const meta: Meta<typeof Toast> = {
   component: Toast,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A transient notification for the outcome of an action" },
   },
   tags: ["autodocs"],
 };

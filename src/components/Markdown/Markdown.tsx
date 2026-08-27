@@ -10,6 +10,23 @@ export type MarkdownProps = {
   className?: string;
 };
 
+/**
+ * Renders a markdown string through the design system's own typography
+ * components (`Heading`, `Body`, `Emphasis`) rather than raw HTML tags, so
+ * markdown content picks up the same type ramp as everything else.
+ *
+ * Built for short, chat/assistant-style content rather than full documents:
+ * it covers headings, paragraphs, emphasis, links, lists, and code, but
+ * heading levels are compressed — `#` renders as `Heading as="h3"`, `##` as
+ * `Heading as="h4"`, and `###` as inline `Emphasis` rather than a heading at
+ * all — and `h4`+ and tables aren't specially handled: there's no
+ * `remark-gfm`, so GFM table syntax doesn't render as a table. Raw HTML
+ * embedded in the source is not rendered.
+ *
+ * `react-markdown` is an optional peer dependency of this package — a
+ * consuming app that imports `Markdown` without installing it will fail at
+ * runtime.
+ */
 export const Markdown = React.forwardRef<HTMLDivElement, MarkdownProps>(({ children, className }, ref) => (
   <div ref={ref} className={cn("flex flex-col", className)}>
     <ReactMarkdown

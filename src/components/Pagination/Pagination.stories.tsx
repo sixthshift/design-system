@@ -7,6 +7,7 @@ const meta: Meta<typeof Pagination> = {
   component: Pagination,
   parameters: {
     layout: "padded",
+    docs: { subtitle: "Controlled page navigation with a rows-per-page selector" },
   },
   tags: ["autodocs"],
   argTypes: {

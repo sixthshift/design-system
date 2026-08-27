@@ -20,6 +20,7 @@ const meta: Meta<typeof DateRangePicker> = {
   tags: ["autodocs"],
   parameters: {
     layout: "centered",
+    docs: { subtitle: "DatePicker in range mode, with common range presets" },
   },
 };
 

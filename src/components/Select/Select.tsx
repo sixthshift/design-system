@@ -337,10 +337,9 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
 SelectRoot.displayName = "Select";
 
 /**
- * The trigger is the ref target: `register` from a form library and
- * scroll-into-view both want it, and it is a `<div>` in both the button and the
- * searchable variants. It does swap nodes when the searchable trigger replaces
- * the button one, so a callback ref sees null and then the new element — normal
- * for conditional rendering, but worth knowing if you cache the node.
+ * NOTE: Storybook shows the copy in Select.stories.tsx
+ * (`parameters.docs.description.component`), not this comment. react-docgen
+ * cannot extract a description from this declaration shape, so keeping a
+ * second copy here would only drift. Edit the stories file.
  */
 export const Select = SelectRoot as <T extends string = string>(props: SelectProps<T> & { ref?: Ref<HTMLDivElement> }) => ReactElement;

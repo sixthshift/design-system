@@ -8,6 +8,7 @@ const meta: Meta<typeof ToggleGroup> = {
   component: ToggleGroup,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A single- or multi-select group of toggle buttons" },
   },
   argTypes: {
     type: {

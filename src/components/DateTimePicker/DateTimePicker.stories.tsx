@@ -8,7 +8,10 @@ const meta: Meta<typeof DateTimePicker> = {
   component: DateTimePicker,
   tags: ["autodocs"],
   parameters: {
+    // Published as `./datetime-picker`, which kebab-casing the component name does not produce.
+    importPath: "datetime-picker",
     layout: "centered",
+    docs: { subtitle: "Calendar and time columns combined, for picking a single instant" },
   },
 };
 

@@ -6,6 +6,16 @@ export type SeparatorProps = React.HTMLAttributes<HTMLDivElement> & {
   decorative?: boolean;
 };
 
+/**
+ * Thin dividing line, horizontal or vertical (`orientation`, default
+ * `"horizontal"`). Renders a `<div>`, not `<hr>`.
+ *
+ * `decorative` (default `true`) controls whether it is exposed to assistive
+ * tech: decorative renders `role="none"` and no `aria-orientation`, so it is
+ * invisible to a screen reader; set `decorative={false}` for a divider that
+ * is actually part of the content's structure (e.g. between menu sections),
+ * which renders `role="separator"` and `aria-orientation` instead.
+ */
 const Separator = React.forwardRef<HTMLDivElement, SeparatorProps>(({ className, orientation = "horizontal", decorative = true, ...props }, ref) => (
   <div
     ref={ref}

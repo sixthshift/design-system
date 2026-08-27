@@ -23,6 +23,21 @@ export type PaginationProps = React.HTMLAttributes<HTMLDivElement> & {
   rowsLabel?: string;
 };
 
+/**
+ * Page navigation for a paged list: a rows-per-page `Select`, a "start-end of
+ * total" summary, and previous/next buttons.
+ *
+ * Fully controlled — `page` (0-based), `pageSize`, and `total` are all
+ * required, with no internal state or defaults; the caller re-renders with
+ * the new `page`/`pageSize` in response to `onPageChange`/
+ * `onPageSizeChange`. Changing the page size also calls `onPageChange(0)`,
+ * resetting to the first page, since the current `page` may no longer be
+ * valid at the new size.
+ *
+ * The previous/next buttons are icon-only `Button`s labelled via
+ * `aria-label` ("Previous page"/"Next page") and disabled at the first/last
+ * page as computed from `page`, `pageSize`, and `total`.
+ */
 const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
   (
     { page, pageSize, total, onPageChange, onPageSizeChange, pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS, rowsLabel = "Rows per page", className, ...props },

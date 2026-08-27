@@ -1,19 +1,3 @@
-/**
- * Calendar — the public, ISO-string-typed calendar.
- *
- * A thin adapter over {@link CalendarView}: it parses incoming ISO strings and
- * serialises outgoing selections. All the behaviour lives in CalendarView.
- *
- * Every conversion is memoised on the string it came from, and every handler is
- * stable. Temporal objects have no value identity — `PlainDate.from("2026-08-26")`
- * is never `===` another PlainDate for the same day — and CalendarView keys
- * `useMemo`/`useCallback` on these values directly, so converting unmemoised
- * would invalidate the whole grid on every render.
- *
- * Props are read with `"key" in props` rather than destructured per mode,
- * because every hook here has to run unconditionally.
- */
-
 import * as React from "react";
 import { useCallback, useMemo } from "react";
 import {
@@ -33,6 +17,35 @@ import type { CalendarProps, CalendarViewProps, DateRangeValue, PresetOption } f
 
 export type { CalendarProps };
 
+/**
+ * Inline month grid for picking one date, a range, or several dates — the
+ * building block `DatePicker` puts behind a popover trigger. Reach for
+ * `Calendar` directly when the grid should be always visible rather than
+ * opened on demand.
+ *
+ * `mode` (`"single" | "range" | "multiple"`) decides the shape of `value` and
+ * `onSelect`: an `ISODate` string, an `ISODateRange` (`{ from?, to? }`), or an
+ * `ISODate[]` respectively. There is no uncontrolled form — `value` and
+ * `onSelect` are both required, so the caller always owns the selection.
+ *
+ * `minDate`/`maxDate` bound the selectable range inclusively; `disabled` takes
+ * a single date, a list, or a declarative matcher (before/after/range/weekday)
+ * or predicate — see `DisabledDates`. Day cells form a roving-tabindex grid:
+ * arrow keys move by day, Home/End jump to the start/end of the week, and
+ * PageUp/PageDown request a month change.
+ *
+ * A thin adapter over {@link CalendarView}: it parses incoming ISO strings and
+ * serialises outgoing selections. All the behaviour lives in CalendarView.
+ *
+ * Every conversion is memoised on the string it came from, and every handler is
+ * stable. Temporal objects have no value identity — `PlainDate.from("2026-08-26")`
+ * is never `===` another PlainDate for the same day — and CalendarView keys
+ * `useMemo`/`useCallback` on these values directly, so converting unmemoised
+ * would invalidate the whole grid on every render.
+ *
+ * Props are read with `"key" in props` rather than destructured per mode,
+ * because every hook here has to run unconditionally.
+ */
 export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) => {
   const { mode, month, onMonthChange, minDate, maxDate, disabled, weekStartsOn, showFooter, showToday, onApply, onCancel, className } = props;
 

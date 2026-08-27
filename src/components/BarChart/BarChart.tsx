@@ -17,6 +17,18 @@ export type BarChartProps = React.HTMLAttributes<HTMLDivElement> & {
 
 const DEFAULT_COLORS = ["var(--fg-brand)", "var(--fg-success)", "var(--fg-warning)", "var(--fg-danger)", "var(--fg-subtle)"];
 
+/**
+ * Horizontal bar chart, rendered as plain `<div>` bars rather than SVG — each
+ * row is a label, a track, and a colored fill sized to the item's percentage
+ * of `maxValue` (auto-detected from the data when omitted).
+ *
+ * Colour is per-item: pass a CSS color string via `color` on a
+ * `BarChartItem` (typically a `var(--fg-*)` token), or omit it to cycle
+ * through the built-in `DEFAULT_COLORS` list by index. There is no
+ * chart-level accessible name — the only text exposed to assistive tech is
+ * the visible label and, when `showValues` is true (the default), the
+ * formatted value next to each bar.
+ */
 export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
   ({ data, showValues = true, maxValue: maxValueProp, formatValue = (v) => String(v), barHeight = 24, className, ...rest }, ref) => {
     const maxValue = maxValueProp ?? Math.max(...data.map((d) => d.value), 1);

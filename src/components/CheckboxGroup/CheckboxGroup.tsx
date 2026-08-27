@@ -36,6 +36,28 @@ export type CheckboxGroupProps = Omit<React.HTMLAttributes<HTMLDivElement>, "onC
   onBlur?: () => void;
 };
 
+/**
+ * A set of related checkboxes sharing one controlled/uncontrolled `string[]`
+ * selection, via the `value`/`defaultValue`/`onValueChange` triad
+ * (`useControllableState`).
+ *
+ * `variant="default"` (the default) renders one `Checkbox` per option, each
+ * with its own visible label, laid out in a column or row per
+ * `orientation`. `variant="button"` is a separate rendering path — not a
+ * re-skinned `Checkbox` — a row/column of plain buttons with
+ * `role="checkbox"` and no separate label; contiguous buttons touch and
+ * share borders (`appearance="segmented"`, the default) or sit apart with
+ * their own rounded corners (`appearance="separate"`).
+ *
+ * Form submission only happens when `name` is set. In the default variant
+ * that means each underlying `Checkbox` gets `name`, so one hidden native
+ * checkbox input is rendered per option; in the button variant the group
+ * itself renders one hidden `<input type="checkbox">` per *currently
+ * selected* value.
+ *
+ * Renders `role="group"`; focus leaving the whole group — not just moving
+ * between options — fires `onBlur`.
+ */
 const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps>(
   (
     {

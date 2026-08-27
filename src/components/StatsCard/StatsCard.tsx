@@ -24,6 +24,16 @@ const statusColors = {
   neutral: "border-l-border-subtle",
 };
 
+/**
+ * Bordered tile for a single metric: a title, a description, an optional
+ * header icon, and a content area for the value itself.
+ *
+ * It is not built on `Card` — it renders its own `<div>` with different
+ * defaults (a smaller `rounded` radius, `bg-bg-subtle`, no shadow, and a
+ * `border-l-2` accent). `status` (`"healthy" | "warning" | "error" |
+ * "neutral"`, default `"neutral"`) sets that left border's colour, via fixed
+ * Tailwind colour classes rather than semantic tokens.
+ */
 export const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(({ title, description, icon, status = "neutral", children, className }, ref) => {
   return (
     <div ref={ref} className={cn("flex flex-col gap-3 rounded border border-border-subtle border-l-2 bg-bg-subtle p-4", statusColors[status], className)}>

@@ -6,6 +6,7 @@ const meta: Meta<typeof Skeleton> = {
   component: Skeleton,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A pulsing placeholder for the initial-load state" },
   },
   tags: ["autodocs"],
 };

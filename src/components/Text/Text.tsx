@@ -22,6 +22,15 @@ export type TextProps = React.HTMLAttributes<HTMLElement> & {
   as?: TextElement;
 };
 
+/**
+ * The polymorphic base every typography preset (`Heading`, `Body`,
+ * `Emphasis`, ...) is built on: renders as `as` (default `span`) and applies
+ * no styling of its own beyond `className`.
+ *
+ * Reach for a preset first — the typographic ramp (docs/visual-hierarchy.md)
+ * is what keeps text sizing and color consistent across the app. Use `Text`
+ * directly only for one-off text that doesn't fit an existing preset.
+ */
 const Text = React.forwardRef<HTMLElement, TextProps>(({ as: Comp = "span", className, ...props }, ref) => (
   <Comp
     // biome-ignore lint/suspicious/noExplicitAny: polymorphic ref requires any

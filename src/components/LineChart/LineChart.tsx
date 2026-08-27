@@ -96,6 +96,23 @@ function buildPath(points: { x: number; y: number }[], interpolation: Interpolat
   return parts.join(" ");
 }
 
+/**
+ * Multi-series line chart, rendered as a single responsive SVG (a `viewBox`,
+ * no fixed pixel size) with one `<path>` per series, plus optional grid
+ * lines, axes, dots, and per-point value labels.
+ *
+ * Colour is per-series: pass a CSS color string via `color` on a
+ * `LineChartSeries` (typically a `var(--fg-*)` token), or omit it to cycle
+ * through the same default palette `BarChart` uses. The y-axis scale is
+ * computed from the data into "nice" round ticks unless `yMin`/`yMax`/
+ * `yTicks` override it.
+ *
+ * The chart has a single static accessible name — `<title>Line
+ * chart</title>` behind `role="img"` — regardless of what's plotted; it does
+ * not describe the series or values. `showTooltip` overlays a `Tooltip` at
+ * each data point, but the trigger is a plain, unfocusable `<span>`, so it
+ * only responds to mouse hover, not keyboard.
+ */
 export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
   (
     {

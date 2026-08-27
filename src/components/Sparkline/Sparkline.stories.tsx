@@ -6,6 +6,7 @@ const meta: Meta<typeof Sparkline> = {
   component: Sparkline,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "Minimal inline SVG trend line for a table cell or card" },
   },
   tags: ["autodocs"],
 };

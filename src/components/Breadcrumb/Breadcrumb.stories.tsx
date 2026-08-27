@@ -6,6 +6,7 @@ const meta: Meta<typeof Breadcrumb> = {
   component: Breadcrumb,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A navigation trail with router-aware links" },
   },
   tags: ["autodocs"],
 };

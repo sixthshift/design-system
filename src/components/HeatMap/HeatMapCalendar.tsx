@@ -73,6 +73,19 @@ function buildMonthGrids(data: HeatMapCell[]): MonthGrid[] {
   return months;
 }
 
+/**
+ * GitHub-style contribution calendar: one small SVG per calendar month
+ * spanned by `data`, each cell colored by a bucketed intensity of its
+ * `value`. Renders `null` for an empty `data` array.
+ *
+ * `colorScale` is a low-to-high array of CSS colors (default a 4-step
+ * brand-strength ramp); a cell's bucket is a ceiling-based split of
+ * `value / max` across `colorScale.length` steps, so cells with no data or a
+ * value of 0 always get `colorScale[0]`. Each month's SVG carries
+ * `role="img"` with the month name as its accessible title; per-cell
+ * tooltips only exist when `formatTooltip` is supplied, as a native SVG
+ * `<title>` on the cell — hover-only, with the usual native-title caveats.
+ */
 export const HeatMapCalendar = ({
   data,
   colorScale = DEFAULT_COLOR_SCALE,

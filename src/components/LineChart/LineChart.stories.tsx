@@ -6,6 +6,7 @@ const meta: Meta<typeof LineChart> = {
   component: LineChart,
   parameters: {
     layout: "padded",
+    docs: { subtitle: "Multi-series SVG line chart with grid, axes, and hover tooltips" },
   },
   tags: ["autodocs"],
 };

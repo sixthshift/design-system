@@ -1,0 +1,44 @@
+/**
+ * Checkbox recipe — the component-token layer for Checkbox.
+ *
+ * Checkbox has no variant/intent axis for colour, unlike Button — every
+ * colour is a fixed semantic token today. The only axis is `data-state`,
+ * already rendered by Checkbox.tsx as "unchecked" | "checked" |
+ * "indeterminate", so this file maps that state to the four `--checkbox-*`
+ * tokens the class string reads via `bg-(--checkbox-bg)`,
+ * `border-(color:--checkbox-border)`, `text-(--checkbox-fg)` and
+ * `focus-visible:ring-(color:--checkbox-ring)`.
+ *
+ * disabled is deliberately absent: Checkbox dims via `disabled:opacity-50`
+ * rather than swapping a colour, so it needs no state cell here.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  /* The floor — resting, unchecked. Border and ring are constant across every
+     state (the old class applied `border-border-brand` unconditionally), so
+     they live here rather than in a cell. `--checkbox-fg` is deliberately
+     *not* set here: the old class applied no text-colour utility while
+     unchecked, so the box inherited its color from an ancestor (`body`'s
+     `text-fg-normal`, in practice). Leaving the token undefined reproduces
+     that — an unset custom property in `color: var(--checkbox-fg)` is
+     invalid at computed-value time, which for an inherited property like
+     `color` resolves to the inherited value, not a fixed one. Setting a
+     value here would pin unchecked to `fg-normal` even where an ancestor had
+     overridden the inherited color, which is not what the old markup did. */
+  .checkbox {
+    --checkbox-bg: transparent;
+    --checkbox-border: var(--border-brand);
+    --checkbox-ring: var(--focus-ring);
+  }
+
+  /* checked and indeterminate both fill the box and read the tick/dash on
+     top of it — the same pairing the old class applied via
+     `(isChecked || isIndeterminate) && "bg-bg-brand text-fg-on-brand"`. */
+  .checkbox[data-state="checked"],
+  .checkbox[data-state="indeterminate"] {
+    --checkbox-bg: var(--bg-brand);
+    --checkbox-fg: var(--fg-on-brand);
+  }
+}

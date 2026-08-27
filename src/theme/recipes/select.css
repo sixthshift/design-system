@@ -1,0 +1,105 @@
+/**
+ * Select recipe — the component-token layer for Select.
+ *
+ * Select has no variant/intent axis of its own — every colour was a fixed
+ * semantic class before this conversion (`bg-bg-normal`, `border-border-normal`,
+ * …), so there is no cell matrix here the way there is in button.css. This file
+ * exists so a consumer can re-point one of those fixed colours, or scope a
+ * change to a subtree, without a release.
+ *
+ * Select is multi-part, so the grammar carries a `part` segment:
+ * `--select-{part}-{context}[-{state}]`, context in {bg, fg, border, ring}.
+ *
+ * Two states select via an attribute rather than a name suffix, following
+ * tabs.css's `data-selected` precedent:
+ *
+ *   - `aria-selected="true"` on `.select-option` — already rendered by
+ *     SelectDropdown.tsx for the `role="option"` contract, so this reuses it
+ *     rather than inventing a second attribute for the same fact.
+ *   - `data-highlighted="true"` on `.select-option` — nothing in the
+ *     pre-refactor DOM carried the keyboard/mouse "current" option as an
+ *     attribute (it was computed straight into a class string from
+ *     `highlightedIndex` in SelectDropdown.tsx), so SelectDropdown.tsx now
+ *     renders it. `highlightedIndex` itself is driven by Select.tsx's
+ *     `onHighlight`/`setHighlightedIndex`, which useSelectKeyboard.ts's
+ *     ArrowUp/ArrowDown/Home/End/typeahead handling calls into — i.e. the
+ *     same state that already existed, now surfaced as an attribute instead
+ *     of being compiled directly into a class name.
+ *
+ * The multi-select checkbox indicator reads its own `data-selected="true"`
+ * (mirroring tabs.css) rather than the ARIA one — it is a decorative `<span>`
+ * with no ARIA role, so `aria-selected` on it would be an invalid-attribute
+ * a11y violation.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css for the
+ * cascade reasoning.
+ */
+
+@layer components {
+  /* ---------------------------------------------------------------------
+     trigger — shared by both the button trigger (SelectTriggerButton) and
+     the searchable input trigger (SelectTriggerSearch): same look, same
+     tokens, one class hook on both root elements. */
+  .select-trigger {
+    --select-trigger-bg: var(--bg-normal);
+    --select-trigger-bg-hovered: var(--bg-subtle);
+    --select-trigger-fg: var(--fg-normal);
+    --select-trigger-border: var(--border-normal);
+    --select-trigger-ring: var(--focus-ring);
+    /* Chevron in both triggers, and the clear button's resting colour. */
+    --select-trigger-icon-fg: var(--fg-subtle);
+  }
+
+  /* clear ("x") button inside the button trigger. */
+  .select-trigger-clear {
+    --select-trigger-clear-fg: var(--fg-subtle);
+    --select-trigger-clear-fg-hovered: var(--fg-normal);
+    --select-trigger-clear-bg-hovered: var(--bg-subtle);
+  }
+
+  /* ---------------------------------------------------------------------
+     dropdown — the listbox surface. */
+  .select-dropdown {
+    --select-dropdown-bg: var(--bg-normal);
+    --select-dropdown-border: var(--border-normal);
+    /* Inherited by the "no options" message, a plain child div. */
+    --select-dropdown-empty-fg: var(--fg-subtle);
+  }
+
+  /* ---------------------------------------------------------------------
+     option — one row in the dropdown. The floor is the unselected,
+     unhighlighted look: no surface, quiet text. */
+  .select-option {
+    --select-option-bg: transparent;
+    --select-option-fg: var(--fg-subtle);
+  }
+
+  .select-option[aria-selected="true"] {
+    --select-option-fg: var(--fg-normal);
+  }
+
+  .select-option[data-highlighted="true"] {
+    --select-option-bg: var(--bg-subtle);
+  }
+
+  /* ---------------------------------------------------------------------
+     option indicator — the multi-select checkbox square. Unselected shows
+     only a border; selected fills with the brand pairing that
+     check-contrast.ts verifies. `--select-option-indicator-fg` is
+     deliberately unset at rest (not `transparent`): the pre-refactor markup
+     set no text colour class on the unselected indicator at all, so it read
+     `.select-option`'s own colour by ordinary inheritance. An unset custom
+     property referenced by `color` — an inherited property — falls back to
+     that inherited value per spec, reproducing the same result; setting it
+     explicitly here would pin a colour the original never had. */
+  .select-option-indicator {
+    --select-option-indicator-bg: transparent;
+    --select-option-indicator-border: var(--border-normal);
+  }
+
+  .select-option-indicator[data-selected="true"] {
+    --select-option-indicator-bg: var(--bg-brand);
+    --select-option-indicator-fg: var(--fg-on-brand);
+    --select-option-indicator-border: var(--border-brand);
+  }
+}

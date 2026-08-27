@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { RadioButton } from "./RadioButton";
 
 const meta: Meta<typeof RadioButton> = {
@@ -7,6 +8,7 @@ const meta: Meta<typeof RadioButton> = {
   component: RadioButton,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A single custom radio option, usually used inside RadioButtonGroup" },
   },
   tags: ["autodocs"],
 };
@@ -77,3 +79,5 @@ export const AllStates: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("radio-button");

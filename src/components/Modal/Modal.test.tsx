@@ -336,7 +336,7 @@ describe("Modal composition", () => {
     await waitForAnimation();
 
     // Click on the overlay (outside the modal)
-    const overlay = document.querySelector(".bg-bg-overlay");
+    const overlay = document.querySelector(".modal-overlay");
     if (overlay) {
       await user.click(overlay);
       // Trigger exit animation end (jsdom doesn't fire CSS animation events)

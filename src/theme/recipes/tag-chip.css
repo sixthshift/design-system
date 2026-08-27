@@ -1,0 +1,27 @@
+/**
+ * TagChip recipe — the component-token layer for TagChip.
+ *
+ * TagChip's surface (background, border, foreground) is entirely Badge's:
+ * it renders `<Badge variant="outline" intent="muted">`, so that colour
+ * already comes from `.badge`'s tokens in badge.css — duplicating it here
+ * would just be a second name for the same cell. The only colours TagChip
+ * contributes itself are the muted namespace prefix and the remove ("×")
+ * button, which is why this file covers just those two.
+ *
+ * The grammar is `--tag-chip-{part}-{context}[-{state}]`. Both tokens live
+ * on `.tag-chip` (the root Badge element) and are read by its descendants via
+ * ordinary CSS custom-property inheritance — the namespace `<span>` and the
+ * remove `<button>` need no class hooks of their own for that.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css for the
+ * cascade reasoning.
+ */
+
+@layer components {
+  .tag-chip {
+    --tag-chip-namespace-fg: var(--fg-subtle);
+    --tag-chip-remove-fg: var(--fg-subtle);
+    --tag-chip-remove-fg-hovered: var(--fg-normal);
+    --tag-chip-remove-ring: var(--focus-ring);
+  }
+}

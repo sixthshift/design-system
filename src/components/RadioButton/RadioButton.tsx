@@ -23,6 +23,26 @@ const RadioButtonIcon = () => (
   </svg>
 );
 
+/**
+ * A single custom radio option — a button with `role="radio"` rather than
+ * a native `<input type="radio">`, so it can be styled without fighting
+ * native radio rendering.
+ *
+ * Unlike `Checkbox`, it holds no internal state: `checked` is a plain
+ * controlled prop (default `false`, no `defaultChecked`), and clicking only
+ * calls `onCheckedChange` — the caller owns tracking which option in a group
+ * is selected. In practice that means using `RadioButtonGroup` to manage a
+ * group's value, or wiring up the shared selection by hand.
+ *
+ * Only participates in native form submission when `name` is set, via a
+ * hidden native `<input type="radio">` rendered alongside the button and
+ * kept in sync (`value` defaults to `"on"`); give every radio in a group the
+ * same `name` to group them for native submission.
+ *
+ * Passing `label` wraps the button and a `<Label>` together and wires
+ * `htmlFor`/`id` between them; without it, you get just the button and must
+ * supply your own accessible name.
+ */
 const RadioButton = React.forwardRef<HTMLButtonElement, RadioButtonProps>(
   ({ className, checked = false, onCheckedChange, disabled, name, value = "on", label, labelClassName, id: idProp, ...props }, ref) => {
     const generatedId = React.useId();
@@ -41,8 +61,7 @@ const RadioButton = React.forwardRef<HTMLButtonElement, RadioButtonProps>(
           ref={ref}
           onClick={() => onCheckedChange?.(!checked)}
           className={cn(
-            "peer h-4 w-4 shrink-0 cursor-pointer rounded-full border border-border-brand shadow focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            checked && "bg-bg-brand text-fg-on-brand",
+            "radio-button peer border-(color:--radio-button-border) focus-visible:ring-(color:--radio-button-ring) h-4 w-4 shrink-0 cursor-pointer rounded-full border bg-(--radio-button-bg) text-(--radio-button-fg) shadow focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
             className
           )}
           {...props}

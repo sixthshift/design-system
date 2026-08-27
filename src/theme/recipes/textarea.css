@@ -1,0 +1,20 @@
+/**
+ * Textarea recipe — the component-token layer for Textarea.
+ *
+ * Same shape as input.css: no variant/intent axis, one floor block. See
+ * button.css's header for why `@layer components` is load-bearing.
+ *
+ * Textarea's background is literal `bg-transparent` in the markup, not a
+ * semantic token today — there is nothing in tier 2 to point a `--textarea-bg`
+ * at, so no such token is introduced here. Border, placeholder and focus ring
+ * are the tokens that existed as semantic classes before this file, and are
+ * the ones made overridable.
+ */
+
+@layer components {
+  .textarea {
+    --textarea-border: var(--border-normal);
+    --textarea-ring: var(--focus-ring);
+    --textarea-placeholder-fg: var(--fg-subtle);
+  }
+}

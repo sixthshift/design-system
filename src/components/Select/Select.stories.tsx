@@ -1,12 +1,46 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { expect, screen, userEvent, within } from "storybook/test";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Select } from "./Select";
 
 const meta: Meta<typeof Select> = {
   title: "Components/Inputs/Select",
   component: Select,
   parameters: {
+    docs: {
+      subtitle: "A single- or multi-value dropdown with keyboard navigation and optional search",
+      description: {
+        component: `Single- or multi-select dropdown, switched by \`mode\`: \`"single"\` (default)
+commits one value, \`"multiple"\` an array. \`value\`/\`defaultValue\`/
+\`onValueChange\` follow whichever mode is active (\`useControllableState\`).
+
+Keyboard handling (\`useSelectKeyboard\`) covers ArrowDown/ArrowUp to move the
+highlighted option, Home/End to jump to the first/last, Enter — and Space
+when not \`searchable\` — to select it, Escape to close (or, with a search
+value present, to clear it first), and, when not \`searchable\`, typing a
+letter to jump to the next option starting with it. With \`searchable\`, the
+trigger becomes a text input (\`role="combobox"\`) and typing filters the
+list instead of matching letters. The highlighted option is tracked via
+\`aria-activedescendant\` rather than DOM focus, so focus stays on the
+listbox (or the search input) the whole time it's open. The dropdown itself
+renders \`role="listbox"\` with \`role="option"\`/\`aria-selected\` items.
+
+\`collapsed\` abbreviates the trigger to the value's first letter with a
+\`title\` tooltip, and disables opening entirely — clicks and keyboard both
+no-op. \`clearable\` adds a clear button beside the trigger, not inside it,
+since nesting two interactive controls would be invalid and unreachable by
+assistive tech.
+
+Composed from \`SelectTriggerButton\`/\`SelectTriggerSearch\` and
+\`SelectDropdown\`. \`forwardRef\` erases the generic, so the implementation
+takes the ref as an ordinary second argument and this export re-declares
+the generic signature over it — consumers keep \`Select<"a" | "b">\`
+inference *and* get a ref. The ref lands on the trigger's root \`<div>\`,
+which is swapped (not mutated) when \`searchable\` toggles between the
+button and search triggers.`,
+      },
+    },
     layout: "centered",
   },
   tags: ["autodocs"],
@@ -289,3 +323,5 @@ export const MultipleDisabled: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("select-trigger", "select-trigger-clear", "select-dropdown", "select-option", "select-option-indicator");

@@ -1,6 +1,7 @@
 import { Badge } from "@sixthshift/design-system/badge";
 import { Button } from "@sixthshift/design-system/button";
 import type { Meta, StoryObj } from "@storybook/react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Card } from ".";
 
 const meta: Meta<typeof Card> = {
@@ -8,6 +9,7 @@ const meta: Meta<typeof Card> = {
   component: Card,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A bordered container, optionally clickable" },
   },
   tags: ["autodocs"],
 };
@@ -141,3 +143,5 @@ export const InteractiveGrid: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("card");

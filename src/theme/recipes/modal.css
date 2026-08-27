@@ -1,0 +1,31 @@
+/**
+ * Modal recipe — the component-token layer for Modal.
+ *
+ * Modal has no variant/intent axis, but it is multi-part: an overlay
+ * (backdrop), a panel, and a close button that lives inside `Modal.Header`.
+ * Each part gets its own class hook so the grammar's `part` segment has
+ * something to select on: `--modal-{part}-{context}[-{state}]`.
+ *
+ * `.modal-close` is scoped separately from `.modal-header` (which carries no
+ * colour of its own — the old header had no border) because the close button
+ * is the only colour-bearing thing inside it.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  .modal {
+    --modal-bg: var(--bg-normal);
+    --modal-border: var(--border-normal);
+  }
+
+  .modal-overlay {
+    --modal-overlay-bg: var(--bg-overlay);
+  }
+
+  .modal-close {
+    --modal-close-fg: var(--fg-subtle);
+    --modal-close-fg-hovered: var(--fg-normal);
+    --modal-close-bg-hovered: var(--bg-subtle);
+  }
+}

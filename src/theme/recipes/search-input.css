@@ -1,0 +1,16 @@
+/**
+ * SearchInput recipe — the component-token layer for SearchInput.
+ *
+ * SearchInput renders `Input` for its field, so every input-surface colour
+ * (background, border, ring, placeholder, icon) already comes from
+ * `.input`'s tokens in input.css — duplicating them here would just be a
+ * second name for the same cell. The only colour SearchInput contributes
+ * itself is the clear button's hover wash, which is why this file is a single
+ * token rather than empty.
+ */
+
+@layer components {
+  .search-input {
+    --search-input-clear-bg-hovered: var(--bg-subtle);
+  }
+}

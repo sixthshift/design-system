@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Button } from "./Button";
 
 const meta: Meta<typeof Button> = {
@@ -6,6 +7,7 @@ const meta: Meta<typeof Button> = {
   component: Button,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A single action, factored into fill, meaning and size" },
   },
   tags: ["autodocs"],
   argTypes: {
@@ -139,3 +141,5 @@ export const AsChild: Story = {
     </Button>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("btn");

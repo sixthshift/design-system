@@ -25,7 +25,7 @@ describe("ValidationStatus", () => {
     it("renders a success message when there are no errors", () => {
       render(<ValidationStatus errors={[]} />);
       expect(screen.getByText("No errors — code is valid")).toBeInTheDocument();
-      expect(screen.getByRole("status")).toHaveClass("bg-bg-success-subtle");
+      expect(screen.getByRole("status")).toHaveAttribute("data-intent", "success");
     });
 
     it("does not render any per-error rows when there are no errors", () => {
@@ -38,7 +38,7 @@ describe("ValidationStatus", () => {
     it("renders a danger summary message", () => {
       render(<ValidationStatus errors={[error()]} />);
       const regions = liveRegions();
-      expect(regions[0]).toHaveClass("bg-bg-danger-subtle");
+      expect(regions[0]).toHaveAttribute("data-intent", "danger");
     });
 
     it("summarises a single error", () => {
@@ -95,9 +95,9 @@ describe("ValidationStatus", () => {
       );
       const regions = liveRegions();
       // regions[0] is the summary message; the per-row messages follow in order
-      expect(regions[1]).toHaveClass("bg-bg-danger-subtle");
-      expect(regions[2]).toHaveClass("bg-bg-warning-subtle");
-      expect(regions[3]).toHaveClass("bg-bg-normal");
+      expect(regions[1]).toHaveAttribute("data-intent", "danger");
+      expect(regions[2]).toHaveAttribute("data-intent", "warning");
+      expect(regions[3]).toHaveAttribute("data-intent", "neutral");
     });
   });
 

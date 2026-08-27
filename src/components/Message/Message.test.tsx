@@ -38,22 +38,31 @@ describe("Message", () => {
   describe("intents", () => {
     it("applies neutral intent by default", () => {
       render(<Message>Content</Message>);
-      expect(screen.getByRole("status")).toHaveClass("bg-bg-normal");
+      expect(screen.getByRole("status")).toHaveAttribute("data-intent", "neutral");
     });
 
     it("applies success intent", () => {
       render(<Message intent="success">Content</Message>);
-      expect(screen.getByRole("status")).toHaveClass("bg-bg-success-subtle");
+      expect(screen.getByRole("status")).toHaveAttribute("data-intent", "success");
     });
 
     it("applies warning intent", () => {
       render(<Message intent="warning">Content</Message>);
-      expect(screen.getByRole("status")).toHaveClass("bg-bg-warning-subtle");
+      expect(screen.getByRole("status")).toHaveAttribute("data-intent", "warning");
     });
 
     it("applies danger intent", () => {
       render(<Message intent="danger">Content</Message>);
-      expect(screen.getByRole("alert")).toHaveClass("bg-bg-danger-subtle");
+      expect(screen.getByRole("alert")).toHaveAttribute("data-intent", "danger");
+    });
+
+    it("falls back to the status role for an intent the library has never heard of", () => {
+      // "info" is outside the closed `MessageIntentName` union but legal under
+      // the widened `MessageIntent` type — a consumer-defined intent should
+      // still render, and must not resolve to an undefined role.
+      render(<Message intent="info">Content</Message>);
+      expect(screen.getByRole("status")).toHaveAttribute("data-intent", "info");
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
 
     it("keeps the assertive role for danger only", () => {

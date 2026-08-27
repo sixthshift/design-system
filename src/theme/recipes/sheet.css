@@ -1,0 +1,34 @@
+/**
+ * Sheet recipe — the component-token layer for Sheet.
+ *
+ * Sheet has no variant/intent axis, but it is multi-part: a panel, a header
+ * with a bottom border and a close button, and a footer with a top border.
+ * Each part gets its own class hook so the grammar's `part` segment has
+ * something to select on: `--sheet-{part}-{context}[-{state}]`.
+ *
+ * Unlike Modal, Sheet renders no backdrop — it is a persistent workspace, not
+ * a transient overlay — so there is no `.sheet-overlay` cell here.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  .sheet {
+    --sheet-bg: var(--bg-normal);
+    --sheet-border: var(--border-normal);
+  }
+
+  .sheet-header {
+    --sheet-header-border: var(--border-normal);
+  }
+
+  .sheet-footer {
+    --sheet-footer-border: var(--border-normal);
+  }
+
+  .sheet-close {
+    --sheet-close-fg: var(--fg-subtle);
+    --sheet-close-fg-hovered: var(--fg-normal);
+    --sheet-close-bg-hovered: var(--bg-subtle);
+  }
+}

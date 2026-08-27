@@ -1,0 +1,81 @@
+/**
+ * Toggle recipe — the pressed-state layer for Toggle and ToggleGroupItem.
+ *
+ * These cells target `.btn`, not a `.toggle` class of their own, because both
+ * components render Button's class and read Button's `--button-*` tokens
+ * (via `buttonRecipe`) — a toggle is a button with a third axis, `state`, not
+ * a different look. Reusing `.btn` here is deliberate, not a shortcut.
+ *
+ * The grammar extends button.css's `(variant, intent)` with a third selector,
+ * `[data-state="on"]` — the same attribute Toggle already renders
+ * (`data-state={pressed ? "on" : "off"}`) and ToggleGroupItem now renders for
+ * `selected`, rather than a new attribute invented for this file. `state`
+ * never appears in a token *name* any more than `intent` does — see
+ * button.css's header for why: it selects, via the attribute, which existing
+ * `--button-bg`/`--button-bg-hovered` values apply.
+ *
+ * Only solid, outline and ghost get cells, matching the pre-refactor
+ * `togglePressedVariants`, which had no compound variant for `link` — a link
+ * toggle has no surface to press, so "on" carries no colour change.
+ *
+ * Every cell repeats its own resting value into `--button-bg-hovered`: the old
+ * classes paired `bg-*` with an identical `hover:bg-*`, i.e. a pressed toggle
+ * deliberately does not shift on hover. Restating it here (rather than relying
+ * on button.css's floor, which chains `-hovered` from `--button-bg`) keeps
+ * that "no shift" behaviour explicit and correct regardless of cascade order
+ * against the button.css cells these compound with.
+ */
+
+@layer components {
+  /* solid — the main -pressed background carries through as both resting and
+     hovered, so pressing never lightens or darkens further on hover. */
+  .btn[data-state="on"][data-variant="solid"][data-intent="neutral"] {
+    --button-bg: var(--bg-brand-pressed);
+    --button-bg-hovered: var(--bg-brand-pressed);
+  }
+
+  .btn[data-state="on"][data-variant="solid"][data-intent="danger"] {
+    --button-bg: var(--bg-danger-pressed);
+    --button-bg-hovered: var(--bg-danger-pressed);
+  }
+
+  .btn[data-state="on"][data-variant="solid"][data-intent="success"] {
+    --button-bg: var(--bg-success-pressed);
+    --button-bg-hovered: var(--bg-success-pressed);
+  }
+
+  .btn[data-state="on"][data-variant="solid"][data-intent="warning"] {
+    --button-bg: var(--bg-warning-pressed);
+    --button-bg-hovered: var(--bg-warning-pressed);
+  }
+
+  /* outline and ghost — same subtle-pressed background and foreground per
+     intent, matching button.css's own pairing of these two variants. */
+  .btn[data-state="on"][data-variant="outline"][data-intent="neutral"],
+  .btn[data-state="on"][data-variant="ghost"][data-intent="neutral"] {
+    --button-bg: var(--bg-subtle-pressed);
+    --button-bg-hovered: var(--bg-subtle-pressed);
+    --button-fg: var(--fg-normal);
+  }
+
+  .btn[data-state="on"][data-variant="outline"][data-intent="danger"],
+  .btn[data-state="on"][data-variant="ghost"][data-intent="danger"] {
+    --button-bg: var(--bg-danger-subtle-pressed);
+    --button-bg-hovered: var(--bg-danger-subtle-pressed);
+    --button-fg: var(--fg-on-danger-subtle-pressed);
+  }
+
+  .btn[data-state="on"][data-variant="outline"][data-intent="success"],
+  .btn[data-state="on"][data-variant="ghost"][data-intent="success"] {
+    --button-bg: var(--bg-success-subtle-pressed);
+    --button-bg-hovered: var(--bg-success-subtle-pressed);
+    --button-fg: var(--fg-on-success-subtle-pressed);
+  }
+
+  .btn[data-state="on"][data-variant="outline"][data-intent="warning"],
+  .btn[data-state="on"][data-variant="ghost"][data-intent="warning"] {
+    --button-bg: var(--bg-warning-subtle-pressed);
+    --button-bg-hovered: var(--bg-warning-subtle-pressed);
+    --button-fg: var(--fg-on-warning-subtle-pressed);
+  }
+}

@@ -1,0 +1,42 @@
+/**
+ * RadioButton recipe — the component-token layer for RadioButton.
+ *
+ * RadioButton has no variant/intent axis for colour, unlike Button — every
+ * colour is a fixed semantic token today. The only axis is `data-state`,
+ * already rendered by RadioButton.tsx as "unchecked" | "checked", so this
+ * file maps that state to the four `--radio-button-*` tokens the class
+ * string reads via `bg-(--radio-button-bg)`,
+ * `border-(color:--radio-button-border)`, `text-(--radio-button-fg)` and
+ * `focus-visible:ring-(color:--radio-button-ring)`.
+ *
+ * disabled is deliberately absent: RadioButton dims via
+ * `disabled:opacity-50` rather than swapping a colour, so it needs no state
+ * cell here.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  /* The floor — resting, unchecked. Border and ring are constant across every
+     state (the old class applied `border-border-brand` unconditionally), so
+     they live here rather than in a cell. `--radio-button-fg` is deliberately
+     *not* set here: the old class applied no text-colour utility while
+     unchecked, so the circle inherited its color from an ancestor (`body`'s
+     `text-fg-normal`, in practice). Leaving the token undefined reproduces
+     that — an unset custom property in `color: var(--radio-button-fg)` is
+     invalid at computed-value time, which for an inherited property like
+     `color` resolves to the inherited value, not a fixed one. */
+  .radio-button {
+    --radio-button-bg: transparent;
+    --radio-button-border: var(--border-brand);
+    --radio-button-ring: var(--focus-ring);
+  }
+
+  /* checked fills the circle and reads the dot on top of it — the same
+     pairing the old class applied via `checked && "bg-bg-brand
+     text-fg-on-brand"`. */
+  .radio-button[data-state="checked"] {
+    --radio-button-bg: var(--bg-brand);
+    --radio-button-fg: var(--fg-on-brand);
+  }
+}

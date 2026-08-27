@@ -30,7 +30,7 @@ export const ModalHeader = React.forwardRef<HTMLDivElement, ModalHeaderProps>(({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-4 right-4 cursor-pointer rounded-md p-1 text-fg-subtle transition-colors hover:bg-bg-subtle hover:text-fg-normal"
+          className="modal-close absolute top-4 right-4 cursor-pointer rounded-md p-1 text-(--modal-close-fg) transition-colors hover:bg-(--modal-close-bg-hovered) hover:text-(--modal-close-fg-hovered)"
         >
           <X size={16} />
         </button>

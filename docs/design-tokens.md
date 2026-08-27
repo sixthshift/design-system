@@ -17,17 +17,21 @@ config:
   layout: elk
 ---
 flowchart TB
-    Tokens["<b>Tokens</b> (src/theme/tokens.css)<br/>Palette, semantic tokens per mode, and the @theme block"]
-    CSS["<b>theme.css</b><br/>The same file, published as-is for consumers"]
+    Tokens["<b>Tokens</b> (src/theme/tokens.css)<br/>Palette, then semantic tokens per mode, and the @theme block"]
+    Recipes["<b>Recipes</b> (src/theme/recipes/*.css)<br/>Component tokens: which meaning each part uses, per variant and state"]
+    CSS["<b>theme.css</b><br/>Tokens and recipes, published as-is for consumers"]
     Utilities["<b>Utilities</b><br/>Compiled by the consuming app's Tailwind build from @theme"]
-    Components["<b>Components</b> (src/components/*)<br/>CVA variants using Tailwind classes"]
+    Components["<b>Components</b> (src/components/*)<br/>Geometry in CVA; every colour reads a component token"]
 
+    Tokens -->|referenced by| Recipes
     Tokens -->|published as| CSS
+    Recipes -->|imported into| CSS
     Tokens -->|compiled into| Utilities
     Utilities -->|used in| Components
+    Recipes -->|resolve the colours of| Components
 
     classDef engine fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
-    class Tokens,CSS,Utilities,Components engine
+    class Tokens,Recipes,CSS,Utilities,Components engine
 ```
 
 ---
@@ -46,7 +50,7 @@ Tokens are organized by what CSS property they affect:
 
 ### Hierarchy Tokens (Neutral)
 
-For non-semantic UI elements:
+The neutral half of the semantic tier — visual weight rather than meaning:
 
 | Token      | Usage                              |
 |------------|------------------------------------|
@@ -59,9 +63,9 @@ Example classes:
 - `text-fg-subtle` - Muted text
 - `border-border-strong` - Emphasized border
 
-### Feedback Tokens (Semantic)
+### Feedback Tokens
 
-For meaningful colors:
+The other half of the semantic tier — colours that carry meaning:
 
 | Token     | Color   | Usage                        |
 |-----------|---------|------------------------------|
@@ -74,6 +78,61 @@ Each feedback token has three intensities:
 - `{token}-subtle` - Soft background (e.g., `bg-brand-subtle`)
 - `{token}` - Default (e.g., `bg-brand`)
 - `{token}-strong` - High emphasis (e.g., `bg-brand-strong`)
+
+### Component Tokens (Tier 3)
+
+Hierarchy and feedback tokens say what a colour *means*. They do not say which
+meaning a given component part uses — that mapping used to live in each
+component's `compoundVariants`, compiled into class names and unreachable from
+outside. It now lives in `src/theme/recipes/*.css` as **component tokens**.
+
+```css
+/* src/theme/recipes/button.css, in @layer components */
+.btn { --button-bg: transparent; --button-fg: var(--fg-normal); }
+
+.btn[data-variant="solid"][data-intent="danger"] {
+  --button-bg: var(--bg-danger);
+  --button-fg: var(--fg-on-danger);
+}
+```
+
+```tsx
+// Button.tsx names no colour at all
+"btn bg-(--button-bg) text-(--button-fg) hover:bg-(--button-bg-hovered)"
+```
+
+Naming grammar — the same `context` and `state` vocabulary as tier 2, plus a
+`part` axis for multi-element components:
+
+```
+--{component}[-{part}]-{context}[-{state}]
+
+--button-bg              --modal-overlay-bg        --card-border-hovered
+--input-placeholder-fg   --switch-thumb-bg         --select-option-fg
+```
+
+**Intent and variant never appear in a token name.** They select the cell via
+`data-*` attributes. `--badge-bg-danger` would restore the combinatorial
+explosion this tier removes, and would leave a consumer unable to add an intent,
+because the variable for it would not exist. `bun run check:recipes` fails the
+build on it.
+
+Which tier to edit depends on the change:
+
+| Change | Tier | Blast radius |
+|--------|------|--------------|
+| Brand is now purple | Palette or semantic | every "brand" surface |
+| Neutral buttons should be grey, not brand | Component | Button only |
+| Buttons in checkout are green | Component, scoped selector | one subtree |
+
+Tier 2 is edited to **re-skin**; tier 3 to **re-wire**. Collapsing them would
+make every re-skin risk changing semantics.
+
+Consumers override tier 3 from their own stylesheet — see
+[Restyling a component](../README.md#restyling-a-component). Overrides must be
+**unlayered**: the cascade compares layers before specificity, so unlayered
+author CSS beats the library's layered rules, and an override nested inside
+`@layer components` silently loses.
 
 ### Interactive States
 

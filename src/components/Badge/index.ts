@@ -1,1 +1,10 @@
-export { Badge, type BadgeProps, badgeVariants } from "./Badge";
+export {
+  Badge,
+  type BadgeIntent,
+  type BadgeIntentName,
+  type BadgeProps,
+  type BadgeVariant,
+  type BadgeVariantName,
+  badgeRecipe,
+  badgeVariants,
+} from "./Badge";

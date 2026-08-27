@@ -1,0 +1,26 @@
+/**
+ * Card recipe — the component-token layer for Card.
+ *
+ * Card has no variant/intent axis — every instance uses the same fixed
+ * semantic tokens the old plain class string named directly. This file just
+ * gives those tokens a name, so a consumer can re-point a cell or scope a
+ * change to a subtree without a release.
+ *
+ * The grammar is `--card-{context}[-{state}]`, context in {bg, fg, border,
+ * ring} — the same words the semantic layer uses. `--card-ring` backs the
+ * `outline-*` utilities on the interactive (clickable) variant: it plays the
+ * same role `--button-ring` plays for `ring-*`, just via a different Tailwind
+ * utility, so it keeps the `ring` context name rather than inventing one.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  .card {
+    --card-bg: var(--bg-normal);
+    --card-border: var(--border-normal);
+    --card-border-hovered: var(--border-strong);
+    --card-fg: var(--fg-normal);
+    --card-ring: var(--border-strong);
+  }
+}

@@ -66,13 +66,16 @@ export const SelectDropdown = <T extends string>({
       tabIndex={-1}
       onKeyDown={onKeyDown}
       style={floatingStyles}
-      className="z-popover max-h-60 overflow-y-auto rounded-md border border-border-normal bg-bg-normal shadow-lg"
+      className="select-dropdown border-(color:--select-dropdown-border) z-popover max-h-60 overflow-y-auto rounded-md border bg-(--select-dropdown-bg) shadow-lg"
     >
       {displayOptions.length === 0 ? (
-        <div className="px-3 py-2 text-center text-fg-subtle text-sm">{searchValue ? `No results for "${searchValue}"` : "No options available"}</div>
+        <div className="px-3 py-2 text-center text-(--select-dropdown-empty-fg) text-sm">
+          {searchValue ? `No results for "${searchValue}"` : "No options available"}
+        </div>
       ) : (
         displayOptions.map((option, index) => {
           const isSelected = selectedValues.has(option.value);
+          const isHighlighted = highlightedIndex === index;
           return (
             <button
               key={option.value}
@@ -84,6 +87,10 @@ export const SelectDropdown = <T extends string>({
               id={selectOptionId(listboxId, index)}
               role="option"
               aria-selected={isSelected}
+              // Surfaces the keyboard/mouse "current" option as an attribute
+              // the select.css recipe selects on, rather than compiling it
+              // straight into a class name — see select.css's header.
+              data-highlighted={isHighlighted ? "true" : undefined}
               // The options are not tab stops and must not steal focus: the
               // listbox holds it and delegates via aria-activedescendant, so a
               // click that moved focus onto the option would strand the keyboard
@@ -93,18 +100,15 @@ export const SelectDropdown = <T extends string>({
               onClick={() => onSelect(option.value)}
               onMouseEnter={() => onHighlight(index)}
               className={cn(
-                `flex w-full cursor-pointer items-center px-3 py-2 text-fg-normal text-sm transition-colors`,
+                `select-option flex w-full cursor-pointer items-center bg-(--select-option-bg) px-3 py-2 text-(--select-option-fg) text-sm transition-colors`,
                 multiple && "gap-2",
-                highlightedIndex === index && "bg-bg-subtle",
-                isSelected ? "font-medium text-fg-normal" : "text-fg-subtle"
+                isSelected && "font-medium"
               )}
             >
               {multiple && (
                 <span
-                  className={cn(
-                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-xs border",
-                    isSelected ? "border-border-brand bg-bg-brand text-fg-on-brand" : "border-border-normal"
-                  )}
+                  data-selected={isSelected ? "true" : undefined}
+                  className="select-option-indicator border-(color:--select-option-indicator-border) flex h-4 w-4 shrink-0 items-center justify-center rounded-xs border bg-(--select-option-indicator-bg) text-(--select-option-indicator-fg)"
                 >
                   {isSelected && <Check className="h-3 w-3" />}
                 </span>

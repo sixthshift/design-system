@@ -1,6 +1,7 @@
 import { Text } from "@sixthshift/design-system/text";
 import { TextInline } from "@sixthshift/design-system/text-inline";
 import type { Meta, StoryObj } from "@storybook/react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Badge } from "./Badge";
 
 const meta: Meta<typeof Badge> = {
@@ -8,6 +9,7 @@ const meta: Meta<typeof Badge> = {
   component: Badge,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A small status, category, or count label" },
   },
   tags: ["autodocs"],
   argTypes: {
@@ -122,3 +124,5 @@ export const WithCount: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("badge");

@@ -1,0 +1,14 @@
+/**
+ * Field recipe — the component-token layer for Field.
+ *
+ * Field's label and value both read the same semantic token (`fg-subtle`)
+ * today, in every layout and mono/proportional combination, so one token
+ * covers the whole component. See button.css's header for why
+ * `@layer components` is load-bearing.
+ */
+
+@layer components {
+  .field {
+    --field-fg: var(--fg-subtle);
+  }
+}

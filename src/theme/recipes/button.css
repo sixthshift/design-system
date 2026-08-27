@@ -1,0 +1,138 @@
+/**
+ * Button recipe — the component-token layer for Button.
+ *
+ * This is the mapping from `(variant, intent, state)` to a semantic token. It
+ * used to live in `compoundVariants` inside Button.tsx, where it was compiled
+ * into class-name literals and no consumer could reach it. Here it is data, so
+ * a consumer can re-point a cell, scope a change to a subtree, or add a variant
+ * or intent the library never shipped.
+ *
+ * The grammar is `--button-{context}[-{state}]` — the same `context` and
+ * `state` words the semantic layer uses (src/theme/schema.ts). Note what is
+ * deliberately *absent*: intent and weight never appear in a token name. They
+ * select, via the `data-` attributes below. Putting them in the name
+ * (`--button-bg-danger`) would restore the combinatorial explosion this layer
+ * exists to remove, and would leave a consumer unable to add an intent, because
+ * the variable for it would not exist.
+ *
+ * `@layer components` is load-bearing, not tidiness. The cascade compares
+ * layers before specificity, and unlayered author CSS outranks any layered
+ * author CSS — so a consumer's `.btn { ... }` (0,1,0) beats the cell rules
+ * below (0,3,0) without an `!important`. The corollary is a trap worth knowing:
+ * an override written *inside* a layer is compared on specificity again, and
+ * silently loses. Consumer overrides go unlayered.
+ */
+
+@layer components {
+  /* The floor. Applies when no cell below matches — an intent a consumer has
+     added but not yet styled renders as a plain, legible button rather than
+     something broken. `transparent` is what Tailwind's preflight already gives
+     a <button>, so this is the resting default, not a new opinion. */
+  .btn {
+    --button-bg: transparent;
+    --button-bg-hovered: var(--button-bg); /* no shift on hover */
+    --button-bg-pressed: var(--button-bg-hovered);
+    --button-fg: var(--fg-normal);
+    --button-border: var(--border-normal);
+    --button-ring: var(--focus-ring);
+  }
+
+  /* solid — a filled surface, with text read on top of it. The `fg-on-*`
+     partner is the pairing check-contrast.ts verifies, so these four cells
+     inherit that guarantee rather than restating it. */
+  .btn[data-variant="solid"][data-intent="neutral"] {
+    --button-bg: var(--bg-brand);
+    --button-bg-hovered: var(--bg-brand-hovered);
+    --button-bg-pressed: var(--bg-brand-pressed);
+    --button-fg: var(--fg-on-brand);
+  }
+
+  .btn[data-variant="solid"][data-intent="danger"] {
+    --button-bg: var(--bg-danger);
+    --button-bg-hovered: var(--bg-danger-hovered);
+    --button-bg-pressed: var(--bg-danger-pressed);
+    --button-fg: var(--fg-on-danger);
+  }
+
+  .btn[data-variant="solid"][data-intent="success"] {
+    --button-bg: var(--bg-success);
+    --button-bg-hovered: var(--bg-success-hovered);
+    --button-bg-pressed: var(--bg-success-pressed);
+    --button-fg: var(--fg-on-success);
+  }
+
+  .btn[data-variant="solid"][data-intent="warning"] {
+    --button-bg: var(--bg-warning);
+    --button-bg-hovered: var(--bg-warning-hovered);
+    --button-bg-pressed: var(--bg-warning-pressed);
+    --button-fg: var(--fg-on-warning);
+  }
+
+  /* outline carries a resting surface; ghost does not. Beyond that their
+     colour recipes are identical, so the text colour and the hover/pressed wash
+     are shared per intent and only the two lines below differ. */
+  .btn[data-variant="outline"] {
+    --button-bg: var(--bg-normal);
+  }
+
+  .btn[data-variant="outline"][data-intent="neutral"],
+  .btn[data-variant="ghost"][data-intent="neutral"] {
+    --button-bg-hovered: var(--bg-subtle-hovered);
+    --button-bg-pressed: var(--bg-subtle-pressed);
+    --button-fg: var(--fg-normal);
+  }
+
+  .btn[data-variant="outline"][data-intent="danger"],
+  .btn[data-variant="ghost"][data-intent="danger"] {
+    --button-bg-hovered: var(--bg-danger-subtle-hovered);
+    --button-bg-pressed: var(--bg-danger-subtle-pressed);
+    --button-fg: var(--fg-danger);
+  }
+
+  .btn[data-variant="outline"][data-intent="success"],
+  .btn[data-variant="ghost"][data-intent="success"] {
+    --button-bg-hovered: var(--bg-success-subtle-hovered);
+    --button-bg-pressed: var(--bg-success-subtle-pressed);
+    --button-fg: var(--fg-success);
+  }
+
+  .btn[data-variant="outline"][data-intent="warning"],
+  .btn[data-variant="ghost"][data-intent="warning"] {
+    --button-bg-hovered: var(--bg-warning-subtle-hovered);
+    --button-bg-pressed: var(--bg-warning-subtle-pressed);
+    --button-fg: var(--fg-warning);
+  }
+
+  /* The border belongs to outline alone. Ghost has no border width, so folding
+     these into the blocks above would be invisible today — and a silent
+     semantic change the moment anyone gave ghost a border. A consumer who wants
+     that can still say so in one line; it should be their decision, not a
+     side-effect of how this file was factored. `neutral` needs no rule: the
+     floor's `border-normal` is already right. */
+  .btn[data-variant="outline"][data-intent="danger"] {
+    --button-border: var(--border-danger);
+  }
+  .btn[data-variant="outline"][data-intent="success"] {
+    --button-border: var(--border-success);
+  }
+  .btn[data-variant="outline"][data-intent="warning"] {
+    --button-border: var(--border-warning);
+  }
+
+  /* link — no surface in any state; only the text carries colour, so the
+     floor's transparent background and its no-shift-on-hover chain both stand.
+     `neutral` resolving to `fg-brand` is the house opinion a consumer was
+     previously unable to escape. It is now a one-line override. */
+  .btn[data-variant="link"][data-intent="neutral"] {
+    --button-fg: var(--fg-brand);
+  }
+  .btn[data-variant="link"][data-intent="danger"] {
+    --button-fg: var(--fg-danger);
+  }
+  .btn[data-variant="link"][data-intent="success"] {
+    --button-fg: var(--fg-success);
+  }
+  .btn[data-variant="link"][data-intent="warning"] {
+    --button-fg: var(--fg-warning);
+  }
+}

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import * as React from "react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { SearchInput } from "./SearchInput";
 
 const meta: Meta<typeof SearchInput> = {
@@ -7,6 +8,7 @@ const meta: Meta<typeof SearchInput> = {
   component: SearchInput,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "An input with a search icon and a clear button" },
   },
   tags: ["autodocs"],
 };
@@ -41,3 +43,5 @@ export const Wide: Story = {
 export const Disabled: Story = {
   render: () => <SearchInput placeholder="Search..." value="cannot edit" onChange={() => {}} disabled />,
 };
+
+export const ComponentTokens = componentTokensStory("search-input");

@@ -1,4 +1,5 @@
 import { Input } from "@sixthshift/design-system/input";
+import { cn } from "@sixthshift/design-system/utils";
 import { Search, X } from "lucide-react";
 import * as React from "react";
 
@@ -10,6 +11,16 @@ export type SearchInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>,
   clearLabel?: string;
 };
 
+/**
+ * Text input specialised for search: a search icon fixed on the left and,
+ * once there is a value, a clear button on the right.
+ *
+ * Wraps `Input`, using its `iconLeft`/`iconRight` slots, rather than
+ * reimplementing the field. Always controlled — `value` is required and
+ * there is no `defaultValue`/uncontrolled mode. `onChange` receives the
+ * string value directly, not the change event. Clearing calls `onClear` if
+ * provided, otherwise calls `onChange("")`.
+ */
 const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   ({ className, value, onChange, onClear, clearLabel = "Clear search", ...props }, ref) => {
     const handleClear = () => {
@@ -29,12 +40,12 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
         iconLeft={<Search />}
         iconRight={
           value ? (
-            <button type="button" onClick={handleClear} aria-label={clearLabel} className="rounded hover:bg-bg-subtle">
+            <button type="button" onClick={handleClear} aria-label={clearLabel} className="rounded hover:bg-(--search-input-clear-bg-hovered)">
               <X />
             </button>
           ) : undefined
         }
-        className={className}
+        className={cn("search-input", className)}
         {...props}
       />
     );

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Switch } from "./Switch";
 
 const meta: Meta<typeof Switch> = {
@@ -7,6 +8,7 @@ const meta: Meta<typeof Switch> = {
   component: Switch,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A track-and-thumb on/off control with a pending state" },
   },
   tags: ["autodocs"],
 };
@@ -131,3 +133,5 @@ export const AllStates: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("switch");

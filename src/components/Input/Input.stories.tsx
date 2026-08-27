@@ -2,6 +2,7 @@ import { Label } from "@sixthshift/design-system/label";
 import type { Meta, StoryObj } from "@storybook/react";
 import { AtSign, Check, Eye, EyeOff, Lock, Mail, Search as SearchIcon } from "lucide-react";
 import * as React from "react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Input } from "./Input";
 
 const meta: Meta<typeof Input> = {
@@ -9,6 +10,7 @@ const meta: Meta<typeof Input> = {
   component: Input,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A single line of free-form text, with optional icon slots" },
   },
   tags: ["autodocs"],
 };
@@ -153,3 +155,5 @@ export const IconExamples: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("input");

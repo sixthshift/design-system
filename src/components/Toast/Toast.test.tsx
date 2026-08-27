@@ -70,26 +70,27 @@ describe("Toast", () => {
       renderToast({ title: "Title", onClose: () => {} });
       await waitForAnimation();
       // Message picks the live-region role from the intent: polite for
-      // everything except danger.
-      expect(screen.getByRole("status")).toHaveClass("bg-bg-normal");
+      // everything except danger. The colour itself is no longer a class —
+      // `data-intent` selects a cell in recipes/message.css.
+      expect(screen.getByRole("status")).toHaveAttribute("data-intent", "neutral");
     });
 
     it("renders success intent", async () => {
       renderToast({ intent: "success", title: "Title", onClose: () => {} });
       await waitForAnimation();
-      expect(screen.getByRole("status")).toHaveClass("bg-bg-success-subtle");
+      expect(screen.getByRole("status")).toHaveAttribute("data-intent", "success");
     });
 
     it("renders warning intent", async () => {
       renderToast({ intent: "warning", title: "Title", onClose: () => {} });
       await waitForAnimation();
-      expect(screen.getByRole("status")).toHaveClass("bg-bg-warning-subtle");
+      expect(screen.getByRole("status")).toHaveAttribute("data-intent", "warning");
     });
 
     it("renders danger intent", async () => {
       renderToast({ intent: "danger", title: "Title", onClose: () => {} });
       await waitForAnimation();
-      expect(screen.getByRole("alert")).toHaveClass("bg-bg-danger-subtle");
+      expect(screen.getByRole("alert")).toHaveAttribute("data-intent", "danger");
     });
   });
 

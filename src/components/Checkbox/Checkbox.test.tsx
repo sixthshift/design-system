@@ -164,7 +164,11 @@ describe("Checkbox", () => {
     it("applies checked styles when checked", () => {
       render(<Checkbox checked={true} />);
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox).toHaveClass("bg-bg-brand");
+      // Colour now comes from the --checkbox-bg component token (see
+      // src/theme/recipes/checkbox.css), keyed off data-state rather than a
+      // literal bg-bg-brand class.
+      expect(checkbox).toHaveAttribute("data-state", "checked");
+      expect(checkbox).toHaveClass("checkbox");
     });
 
     it("merges custom className", () => {

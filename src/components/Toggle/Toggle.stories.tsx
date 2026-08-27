@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Bold, Grid, Italic, List, Underline } from "lucide-react";
 import { useState } from "react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Toggle } from "./Toggle";
 
 const meta: Meta<typeof Toggle> = {
@@ -8,6 +9,7 @@ const meta: Meta<typeof Toggle> = {
   component: Toggle,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A single pressed/unpressed button, built on Button's variant and intent" },
   },
   argTypes: {
     variant: {
@@ -252,3 +254,5 @@ export const Sizes: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("btn");

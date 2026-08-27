@@ -18,22 +18,39 @@ A primitive's appearance is factored into **independent axes**, and `variant` is
 - **`intent`** — semantic color: `neutral`, `primary`, `danger`, `success`, `warning`, `muted`. What the surface *means*, shape-free.
 - **`size`** — the third axis where the primitive has one.
 
-The vocabulary above is the shared menu, not a fixed enum — each primitive declares the subset it supports. `Button` (`Button.tsx:9-29`) ships `solid|outline|ghost|link` × `neutral|danger|success|warning` × six sizes; `Badge` (`Badge.tsx:8-22`) ships `solid|soft|outline` × `neutral|primary|danger|success|warning|muted` with no size axis. Pick from the menu; don't invent a parallel name.
+The vocabulary above is the shared menu, not a fixed enum — each primitive declares the subset it supports. `Button` (`Button.tsx:65-66`) ships `solid|outline|ghost|link` × `neutral|danger|success|warning` × six sizes; `Badge` (`Badge.tsx:43-44`) ships `solid|soft|outline` × `neutral|primary|danger|success|warning|muted` with no size axis. Pick from the menu; don't invent a parallel name.
 
-The cross-product lives in cva `compoundVariants` — each concrete color is one entry keyed on `{ variant, intent }`:
+The cross-product does **not** live in cva. It lives in a recipe — `src/theme/recipes/<component>.css` — as one cell per `(variant, intent)` pair, selected by `data-*` attributes the component renders:
 
-```tsx
-// Button.tsx:38-42 — the color is selected by the (variant, intent) pair, not baked into either axis
-{
-  variant: "solid",
-  intent: "danger",
-  className: "bg-bg-danger text-fg-on-danger hover:bg-bg-danger-hovered active:bg-bg-danger-pressed",
-},
+```css
+/* recipes/button.css, in @layer components — the colour is selected by the
+   (variant, intent) pair, not baked into either axis */
+.btn[data-variant="solid"][data-intent="danger"] {
+  --button-bg: var(--bg-danger);
+  --button-bg-hovered: var(--bg-danger-hovered);
+  --button-bg-pressed: var(--bg-danger-pressed);
+  --button-fg: var(--fg-on-danger);
+}
 ```
 
-The base `variants` blocks therefore hold only axis-orthogonal styling (e.g. `solid: "shadow"`, `outline: "border ..."`); the `intent` entries are often empty strings, because color is resolved in the compound layer.
+```tsx
+// Button.tsx:21 — geometry only; not one colour is named here (excerpt;
+// the real string is a single sorted literal)
+"btn … bg-(--button-bg) … text-(--button-fg) … hover:bg-(--button-bg-hovered) …"
+```
 
-`defaultVariants` **must set every axis** so a bare `<Button />` is fully specified (`Button.tsx:117-121`).
+So a component's cva holds only axis-orthogonal, non-colour styling — `size`, and a plain lookup for the structural half of `variant` (`solid: "shadow"`, `outline: "border shadow-xs"`). `intent` is not a cva variant at all any more: it was never anything but colour.
+
+Emit the attributes through the component's `*Recipe()` helper (`buttonRecipe`, `badgeRecipe`), which returns the class string together with `data-variant`/`data-intent`. Anything reusing another component's look — `Toggle` and `ToggleGroupItem` build on Button — must call that helper rather than reproducing the classes, or it lands on the recipe's floor instead of a cell.
+
+Two rules the validator enforces (`bun run check:recipes`):
+
+- **Never put an intent or variant value in a token name.** `--button-bg-danger` is wrong; `.btn[data-intent="danger"] { --button-bg: … }` is right. The name enumerating the values is exactly what stops a consumer adding one.
+- **Every token a component reads must be declared by a recipe.** An undeclared token computes to its initial value — `transparent` for a background — with no error anywhere.
+
+Type the axes as the shipped union *plus* `string` (`Loose<T>`), so a consumer can add an intent in CSS with no release. Export the closed union too (`ButtonIntentName`): once `string` is in a union you can no longer `Exclude` from it, and downstream code that needs to narrow — `ToggleGroup` excluding `link`, `ValidationStatus` keying a map by intent — has to build on the closed names.
+
+`defaultVariants` **must set every axis**, and the component must default `variant`/`intent` in its destructure, so a bare `<Button />` renders a real cell rather than the floor.
 
 **Why this is rule #1:** it's the convention most often violated. The reflex is to add a `variant="danger"`, which collapses the two axes and makes "outline danger" unexpressible. Keeping color in `intent` means every fill works in every color for free, and a new color is one new value across all variants — not a new variant per color.
 
@@ -51,7 +68,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 ```
 
-`clsx` resolves conditionals; `twMerge` dedupes conflicting Tailwind classes so the last one wins. Always reference design tokens (`bg-bg-brand`, `text-fg-danger`, `border-border-normal`) — never raw palette values. See [design-tokens.md](design-tokens.md).
+`clsx` resolves conditionals; `twMerge` dedupes conflicting Tailwind classes so the last one wins. Never reference raw palette values. Colour belongs in the component's recipe, read back as `bg-(--button-bg)`; a bare semantic class like `bg-bg-brand` in component source is a colour decision a consumer cannot reach. See [design-tokens.md](design-tokens.md).
+
+One more trap: keep a base class string in a **single** literal. Biome's `useSortedClasses` unsafe fix strips the trailing space before a `+` in a concatenated string, welding the last class of one fragment to the first of the next.
 
 ---
 
@@ -62,8 +81,9 @@ Every primitive accepts `className` and merges it **last** so a consumer can alw
 - **cva components** — pass `className` *into* the variant call so tailwind-merge dedupes against the generated classes:
 
   ```tsx
-  // Button.tsx:135
-  className={cn(buttonVariants({ variant, intent, size, className }))}
+  // Button.tsx:83-89 — `buttonRecipe` wraps this, returning the class string
+  // together with the `data-variant`/`data-intent` the recipe selects on
+  className: cn(variantStructure[variant], buttonVariants({ size, className }))
   ```
 
 - **plain components** — `className` is the last argument to `cn()`:
@@ -84,7 +104,7 @@ Two idioms, chosen by what the primitive is:
 **`asChild?: boolean` + the in-house `Slot`** — for interactive/structural primitives that need to *become* the consumer's element while keeping all behavior (a Button rendering as a router `<Link>`, a HoverCard trigger wrapping an existing inline element):
 
 ```tsx
-// Button.tsx:133
+// Button.tsx:101
 const Comp = asChild ? Slot : "button";
 ```
 
@@ -141,7 +161,7 @@ The ref element type matches the tag: `HTMLButtonElement` for Button, `HTMLSpanE
 **Carve-out — plain function components (no `forwardRef`):**
 
 - **Context roots** — `Tabs`, `Modal`, `HoverCard`. They render a `Context.Provider`, not a DOM node, so there's nothing to forward a ref to (`Tabs.tsx:21`, `HoverCard.tsx:27`).
-- **Config-leaves** — `Badge`, `EmptyState`. They render a fixed element from props and no consumer needs the node ref (`Badge.tsx:55`, `EmptyState.tsx:18`).
+- **Config-leaves** — `Badge`, `EmptyState`. They render a fixed element from props and no consumer needs the node ref (`Badge.tsx:70`, `EmptyState.tsx:18`).
 
 If a primitive is neither a context root nor a pure config-leaf, it forwards a ref.
 
@@ -223,7 +243,7 @@ The primitive owns its a11y so consumers can't forget it:
 
 - **Custom form controls render a real semantic role + `data-state`, plus a hidden native input for form submission.** Checkbox is a `<button role="checkbox">` with `aria-checked` (`"mixed"` when indeterminate) and `data-state`, and emits a visually-hidden `<input type="checkbox">` only when `name` is set, so it posts in a form (`Checkbox.tsx:86-126`).
 - **Interactivity affordances are added only when interactive.** Card attaches `role="button"`, `tabIndex={0}`, and Enter/Space key handling **only when `onClick` is present** (`Card.tsx:12, 34`) — a static card stays a plain `<div>`.
-- **Decorative SVGs are `aria-hidden`.** The Button spinner and Checkbox icons carry `aria-hidden="true"` (`Button.tsx:138`, `Checkbox.tsx:33`).
+- **Decorative SVGs are `aria-hidden`.** The Button spinner and Checkbox icons carry `aria-hidden="true"` (`Button.tsx:106`, `Checkbox.tsx:33`).
 - **Label association uses `useId()`.** Checkbox generates an id only when it renders its own `<label>`, and wires `htmlFor`/`id` (`Checkbox.tsx:71-72, 135`).
 
 When the lint rule for a deliberate a11y choice fires, suppress it with a `biome-ignore` that explains *why* it's correct (e.g. `Checkbox.tsx:85` documents the WAI-ARIA styled-checkbox pattern) — don't restructure to silence the linter.
@@ -234,14 +254,18 @@ When the lint rule for a deliberate a11y choice fires, suppress it with a `biome
 
 Before opening a PR for a new primitive:
 
-- [ ] Color lives in `intent`, fill/shape in `variant`; `defaultVariants` sets every axis.
-- [ ] Styled with Tailwind tokens via cva + `cn()` — no CSS modules / styled-components / raw palette.
+- [ ] Color lives in `intent`, fill/shape in `variant`; `defaultVariants` sets every axis, and the component defaults `variant`/`intent` in its destructure.
+- [ ] **No colour named in the `.tsx`.** Every colour reads a `--{component}-*` token; the mapping lives in `src/theme/recipes/<component>.css`, inside `@layer components`, selected by `data-variant`/`data-intent`.
+- [ ] Recipe file created **and** imported by `src/theme/recipes/index.css`; `bun run check:recipes` passes.
+- [ ] Axis types widened with `Loose<T>`, and the closed `*Name` unions exported too so downstream code can still narrow.
+- [ ] Geometry stays in cva; base class string is a **single** literal (a `+` concatenation gets welded by biome's unsafe class sorter).
+- [ ] Styled with Tailwind + cva + `cn()` — no CSS modules / styled-components / raw palette.
 - [ ] `className` accepted and merged **last** (into the variant call for cva; last `cn()` arg otherwise).
 - [ ] Polymorphism uses `asChild`+`Slot` (wrapper) or `as`+typed union (text) — not Radix Slot.
 - [ ] Any controllable state goes through `useControllableState` with the `value`/`defaultValue`/`on*Change` triad.
 - [ ] `forwardRef` + `displayName`, ref typed to the rendered tag — unless it's a context root or config-leaf.
 - [ ] Folder is `PascalCase/`; files are `X.tsx` + `X.test.tsx` + `X.stories.tsx` + `index.ts`; sub-parts in `components/`, hooks colocated.
-- [ ] `index.ts` re-exports component + `Props` + any `*Variants`.
+- [ ] `index.ts` re-exports component + `Props` + any `*Variants` + the `*Recipe` helper and axis types.
 - [ ] **`package.json` `exports` has the `"./kebab-name"` entry** (the silent-failure step).
 - [ ] Compound parts attached via `Object.assign` + a dedicated `*Context`.
 - [ ] A11y baked in: semantic role + `data-state` + hidden native input for custom controls; interactive affordances only when interactive; decorative SVGs `aria-hidden`; `useId()` for labels.

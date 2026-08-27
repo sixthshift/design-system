@@ -31,17 +31,21 @@ describe("ColorDot", () => {
       "success",
       "warning",
       "danger",
-    ] as const)("applies background class for %s intent and no inline background color", (color) => {
+    ] as const)("selects the %s intent via data-intent and applies no inline background color", (color) => {
       render(<ColorDot color={color} data-testid="dot" />);
       const dot = screen.getByTestId("dot");
-      expect(dot.className).toMatch(/bg-/);
+      expect(dot).toHaveAttribute("data-intent", color);
       expect(dot.getAttribute("style") ?? "").not.toContain("background-color");
     });
 
-    it("maps brand and primary to the same background class", () => {
+    it("maps brand and primary to the same background class, distinguished only by data-intent", () => {
       render(<ColorDot color="brand" data-testid="brand-dot" />);
       render(<ColorDot color="primary" data-testid="primary-dot" />);
-      expect(screen.getByTestId("brand-dot").className).toBe(screen.getByTestId("primary-dot").className);
+      const brandDot = screen.getByTestId("brand-dot");
+      const primaryDot = screen.getByTestId("primary-dot");
+      expect(brandDot.className).toBe(primaryDot.className);
+      expect(brandDot).toHaveAttribute("data-intent", "brand");
+      expect(primaryDot).toHaveAttribute("data-intent", "primary");
     });
   });
 
@@ -58,10 +62,10 @@ describe("ColorDot", () => {
       expect(dot.getAttribute("style")).toContain("background-color: teal");
     });
 
-    it("does not add an intent background class for arbitrary colors", () => {
+    it("does not add a data-intent attribute for arbitrary colors", () => {
       render(<ColorDot color="#ec4899" data-testid="dot" />);
       const dot = screen.getByTestId("dot");
-      expect(dot.className).not.toMatch(/bg-/);
+      expect(dot).not.toHaveAttribute("data-intent");
     });
 
     it("merges an arbitrary color's inline style with a caller-provided style", () => {

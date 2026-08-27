@@ -1,0 +1,47 @@
+/**
+ * Message recipe — the component-token layer for Message.
+ *
+ * Message has one colour-bearing variant, `intent`, with four values. Each
+ * cell sets border + bg + fg together, exactly as the old `cva` `variants.intent`
+ * map did — this file is that map, moved to CSS so a consumer can re-point a
+ * cell or add an intent the library never shipped. `size` is pure geometry
+ * (padding, gap, font-size) and stays in Message.tsx's `cva` call; nothing
+ * here concerns it.
+ *
+ * The grammar is `--message-{context}`, context in {bg, fg, border}. Intent
+ * never appears in a token name — see button.css's header for why: it would
+ * restore the combinatorial explosion this layer exists to remove, and would
+ * leave a consumer unable to add an intent, because the variable for it would
+ * not exist. Intent selects entirely via `data-intent`.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  /* The floor. Applies when no cell below matches — an intent a consumer has
+     added but not yet styled still renders as a plain, legible message rather
+     than something broken. */
+  .message {
+    --message-bg: var(--bg-normal);
+    --message-fg: var(--fg-normal);
+    --message-border: var(--border-normal);
+  }
+
+  .message[data-intent="success"] {
+    --message-bg: var(--bg-success-subtle);
+    --message-fg: var(--fg-on-success-subtle);
+    --message-border: var(--border-success);
+  }
+
+  .message[data-intent="warning"] {
+    --message-bg: var(--bg-warning-subtle);
+    --message-fg: var(--fg-on-warning-subtle);
+    --message-border: var(--border-warning);
+  }
+
+  .message[data-intent="danger"] {
+    --message-bg: var(--bg-danger-subtle);
+    --message-fg: var(--fg-on-danger-subtle);
+    --message-border: var(--border-danger);
+  }
+}

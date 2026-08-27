@@ -2,7 +2,17 @@ import { cn } from "@sixthshift/design-system/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
-const spinnerVariants = cva("animate-spin text-fg-subtle", {
+/**
+ * Geometry (size) plus the one `--spinner-fg` component token.
+ *
+ * The colour used to be `text-fg-subtle`, a semantic token named directly in
+ * the class string — the one thing a consumer could not do was recolour a
+ * spinner without fighting `className` against it. `--spinner-fg` in
+ * src/theme/recipes/spinner.css is now that seam: a consumer overrides the
+ * variable, scoped to whatever subtree they like, instead of overriding a
+ * class.
+ */
+const spinnerVariants = cva("spinner animate-spin text-(--spinner-fg)", {
   variants: {
     size: {
       sm: "h-4 w-4",
@@ -18,6 +28,20 @@ const spinnerVariants = cva("animate-spin text-fg-subtle", {
 
 export type SpinnerProps = React.SVGAttributes<SVGElement> & VariantProps<typeof spinnerVariants>;
 
+/**
+ * Animated loading indicator — an inline `<svg>`, `size` scales it (`sm` |
+ * `default` | `lg` | `xl`). Use it for a fetching-more state at the bottom
+ * of an already-rendered list; use `Skeleton` instead for the initial-load
+ * state, so the layout doesn't jump (see docs/states.md).
+ *
+ * It is `aria-hidden="true"` unconditionally — it announces nothing to
+ * assistive tech on its own, so pair it with visible or `sr-only` text (or a
+ * live region) if the loading state needs to be announced.
+ *
+ * Colour reads the `--spinner-fg` component token
+ * (src/theme/recipes/spinner.css) rather than a class name, so a consumer
+ * can recolour a spinner scoped to a subtree without fighting `className`.
+ */
 const Spinner = React.forwardRef<SVGSVGElement, SpinnerProps>(({ className, size, ...props }, ref) => (
   <svg
     ref={ref}

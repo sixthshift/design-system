@@ -142,9 +142,17 @@ describe("Toggle", () => {
       expect(button).not.toHaveClass("shadow");
     });
 
+    // The pressed background no longer appears in the class list — it selects
+    // a recipe cell in recipes/toggle.css via `data-state="on"` alongside
+    // `data-variant`/`data-intent`, and the colour arrives through
+    // `--button-bg`. Asserting the attributes is asserting the same decision;
+    // the resolved value is covered by the visual baselines.
     it("applies pressed background for solid neutral", () => {
       render(<Toggle pressed>Bold</Toggle>);
-      expect(screen.getByRole("button")).toHaveClass("bg-bg-brand-pressed");
+      const button = screen.getByRole("button");
+      expect(button).toHaveAttribute("data-state", "on");
+      expect(button).toHaveAttribute("data-variant", "solid");
+      expect(button).toHaveAttribute("data-intent", "neutral");
     });
 
     it("applies pressed background for outline neutral", () => {
@@ -153,7 +161,10 @@ describe("Toggle", () => {
           Bold
         </Toggle>
       );
-      expect(screen.getByRole("button")).toHaveClass("bg-bg-subtle-pressed");
+      const button = screen.getByRole("button");
+      expect(button).toHaveAttribute("data-state", "on");
+      expect(button).toHaveAttribute("data-variant", "outline");
+      expect(button).toHaveAttribute("data-intent", "neutral");
     });
 
     it("applies pressed background for ghost neutral", () => {
@@ -162,12 +173,19 @@ describe("Toggle", () => {
           Bold
         </Toggle>
       );
-      expect(screen.getByRole("button")).toHaveClass("bg-bg-subtle-pressed");
+      const button = screen.getByRole("button");
+      expect(button).toHaveAttribute("data-state", "on");
+      expect(button).toHaveAttribute("data-variant", "ghost");
+      expect(button).toHaveAttribute("data-intent", "neutral");
     });
 
+    // Intent no longer appears in the class list — it selects a recipe cell in
+    // recipes/button.css via this attribute, and the colour arrives through
+    // `--button-bg`. Asserting the attribute is asserting the same decision;
+    // the resolved value is covered by the visual baselines.
     it("applies danger intent", () => {
       render(<Toggle intent="danger">Bold</Toggle>);
-      expect(screen.getByRole("button")).toHaveClass("bg-bg-danger");
+      expect(screen.getByRole("button")).toHaveAttribute("data-intent", "danger");
     });
 
     it("applies pressed background for solid danger", () => {
@@ -176,7 +194,10 @@ describe("Toggle", () => {
           Bold
         </Toggle>
       );
-      expect(screen.getByRole("button")).toHaveClass("bg-bg-danger-pressed");
+      const button = screen.getByRole("button");
+      expect(button).toHaveAttribute("data-state", "on");
+      expect(button).toHaveAttribute("data-variant", "solid");
+      expect(button).toHaveAttribute("data-intent", "danger");
     });
 
     it("applies icon size", () => {
@@ -186,7 +207,7 @@ describe("Toggle", () => {
 
     it("does not apply pressed background when unpressed", () => {
       render(<Toggle>Bold</Toggle>);
-      expect(screen.getByRole("button")).not.toHaveClass("bg-bg-brand-pressed");
+      expect(screen.getByRole("button")).toHaveAttribute("data-state", "off");
     });
 
     it("merges custom className", () => {

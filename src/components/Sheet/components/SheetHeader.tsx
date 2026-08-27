@@ -24,7 +24,7 @@ export const SheetHeader = React.forwardRef<HTMLDivElement, SheetHeaderProps>(({
     <div
       ref={ref}
       id={id ?? context?.titleId}
-      className={cn("flex flex-col space-y-1.5 border-border-normal border-b p-6", closable && "pr-12", className)}
+      className={cn("sheet-header border-(color:--sheet-header-border) flex flex-col space-y-1.5 border-b p-6", closable && "pr-12", className)}
       {...props}
     >
       {children}
@@ -33,7 +33,7 @@ export const SheetHeader = React.forwardRef<HTMLDivElement, SheetHeaderProps>(({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-4 right-4 cursor-pointer rounded-md p-1 text-fg-subtle transition-colors hover:bg-bg-subtle hover:text-fg-normal"
+          className="sheet-close absolute top-4 right-4 cursor-pointer rounded-md p-1 text-(--sheet-close-fg) transition-colors hover:bg-(--sheet-close-bg-hovered) hover:text-(--sheet-close-fg-hovered)"
         >
           <X size={16} />
         </button>

@@ -1,0 +1,17 @@
+/**
+ * Spinner recipe — the component-token layer for Spinner.
+ *
+ * Spinner has exactly one colour, and no intent — nothing here selects on a
+ * `data-*` attribute, because there is nothing to select between. The point is
+ * narrower than Button or Message's: a consumer previously had no token to
+ * hook to recolour a spinner, only `className` fighting the base string's
+ * `text-fg-subtle`. `--spinner-fg` gives them a seam.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  .spinner {
+    --spinner-fg: var(--fg-subtle);
+  }
+}

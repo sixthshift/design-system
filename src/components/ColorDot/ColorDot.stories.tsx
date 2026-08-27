@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { ColorDot } from "./ColorDot";
 
 const meta: Meta<typeof ColorDot> = {
@@ -6,6 +7,7 @@ const meta: Meta<typeof ColorDot> = {
   component: ColorDot,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A small dot for status or category, by intent or any CSS colour" },
   },
   tags: ["autodocs"],
   argTypes: {
@@ -138,3 +140,5 @@ export const CalendarExample: Story = {
     );
   },
 };
+
+export const ComponentTokens = componentTokensStory("color-dot");

@@ -126,7 +126,10 @@ const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
 
     return (
       <FloatingFocusManager context={context} modal>
-        <FloatingOverlay lockScroll className={cn("fixed inset-0 z-modal bg-bg-overlay", isEntering && "animate-fade-in", isExiting && "animate-fade-out")}>
+        <FloatingOverlay
+          lockScroll
+          className={cn("modal-overlay fixed inset-0 z-modal bg-(--modal-overlay-bg)", isEntering && "animate-fade-in", isExiting && "animate-fade-out")}
+        >
           <div
             ref={mergedRef}
             role="dialog"
@@ -137,8 +140,8 @@ const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
             tabIndex={-1}
             data-state={state}
             className={cn(
-              "fixed flex flex-col overflow-hidden outline-hidden",
-              "rounded-xl border border-border-normal bg-bg-normal",
+              "modal fixed flex flex-col overflow-hidden outline-hidden",
+              "border-(color:--modal-border) rounded-xl border bg-(--modal-bg)",
               // Size
               sizeClasses[size],
               // Cap height so ModalBody scrolls instead of overflowing the viewport
@@ -171,6 +174,42 @@ ModalRoot.displayName = "Modal";
 // Compound Component Export
 // =============================================================================
 
+/**
+ * A centered, backdrop-dimmed dialog that fully interrupts the page — the
+ * background stays visually present but the user can't reach it. Reach for
+ * `Modal` when the interruption should own the user's attention completely
+ * (a confirmation, a focused form); reach for `Sheet` when the page behind
+ * should stay visible and interactive, or `Popover` when there's no need for
+ * a backdrop at all.
+ *
+ * `size` (`"sm" | "md" | "lg" | "full"`, default `"md"`) sets the desktop
+ * width — every size slides up full-width from the bottom on mobile.
+ * `align` positions the desktop dialog `"center"` (default) or `"top"`.
+ * `dismissable` (default `true`) governs outside-press only: clicking the
+ * backdrop closes the modal unless set to `false`. `closable` shows an X
+ * button in `Modal.Header`.
+ *
+ * Modal is mount-driven — a parent (or `useModal`'s stack) decides whether it
+ * renders at all, so there's no `open` prop. `onOpenChange` still exists,
+ * firing only with `false` on dismissal, so every overlay in this library
+ * shares one open/close shape. Escape is *not* wired inside Modal itself:
+ * `OverlayProvider` owns it globally so a stack of modals closes
+ * topmost-first. That means Escape only closes a Modal opened through
+ * `useModal()` — one a parent mounts directly from its own boolean state
+ * won't respond to Escape unless the app wires that separately.
+ *
+ * Focus moves into the modal on mount and is trapped there
+ * (`FloatingFocusManager modal`) until it unmounts, then returns to whatever
+ * triggered it. The dialog carries `role="dialog"` and `aria-modal="true"`,
+ * and names itself from `Modal.Header` via `aria-labelledby` unless the
+ * caller passes their own `aria-label`. It stays mounted through its
+ * fade-out exit animation (`usePresence`), so `onOpenChange(false)` fires
+ * only after the animation completes.
+ *
+ * Compound: `Modal.Header` (title + optional close button), `Modal.Body`
+ * (scrolls internally so the modal itself never grows past the viewport),
+ * `Modal.Footer` (action buttons). None are required.
+ */
 export const Modal = Object.assign(ModalRoot, {
   Header: ModalHeader,
   Body: ModalBody,

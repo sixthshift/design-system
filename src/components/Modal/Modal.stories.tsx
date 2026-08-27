@@ -5,6 +5,7 @@ import { OverlayProvider, useModal } from "@sixthshift/design-system/overlay";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { expect, screen, userEvent, within } from "storybook/test";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from ".";
 
 const meta: Meta<typeof Modal> = {
@@ -12,6 +13,7 @@ const meta: Meta<typeof Modal> = {
   component: Modal,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A centered, backdrop-dimmed dialog that fully interrupts the page" },
   },
   tags: ["autodocs"],
 };
@@ -434,3 +436,5 @@ export const Stacking: Story = {
     },
   },
 };
+
+export const ComponentTokens = componentTokensStory("modal", "modal-overlay", "modal-close");

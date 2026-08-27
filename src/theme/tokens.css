@@ -1,22 +1,39 @@
 /**
  * Design tokens — the single source of truth for the design system.
  *
- * Hand-edited. Four layers, in order:
+ * Hand-edited. Three token tiers, each answering a different question, and each
+ * with a different editor:
  *
- *   1. Palette — raw scales. Never referenced by components.
- *   2. Semantic — what components actually use, one block per mode. Every
- *      value points at a palette entry, so a re-skin edits layer 1 only.
- *   3. `@theme` — tells Tailwind which utilities exist. Every semantic token
- *      needs an entry here or its class does not compile.
- *   4. `@layer base` — the few global rules the components genuinely need. App
- *      opinions (page background, scroll behaviour) are deliberately not here:
- *      a library has no business restyling its consumer's page.
+ *   1. Palette — raw scales. What colours exist. Never referenced by
+ *      components; a new hue is added here and nowhere else.
+ *   2. Semantic — what a colour *means*, one block per mode. Every value points
+ *      at a palette entry, so a re-skin edits tier 1 only. This tier is what
+ *      collapses the light/dark axis: 145 of its tokens remap between modes, so
+ *      nothing downstream has to know a mode exists.
+ *   3. Component — which meaning a given component part uses, per variant and
+ *      state. Lives in `recipes/`, imported below. This is the consumer's
+ *      override surface: tier 2 is edited to re-skin, tier 3 to re-wire.
+ *
+ * Two emitters carry the tiers into the build:
+ *
+ *   - `@theme` tells Tailwind which utilities exist. Every semantic token needs
+ *     an entry here or its class does not compile. Component tokens do not —
+ *     tier 3 is read as plain `var()` in CSS, never through a utility.
+ *   - `@layer base` holds the few global rules the components genuinely need.
+ *     App opinions (page background, scroll behaviour) are deliberately not
+ *     here: a library has no business restyling its consumer's page.
  *
  * Nothing verifies any of that, so when you add a token: put it in *both* mode
  * blocks and give it a `@theme` entry. Miss the dark block and it is undefined
  * in dark mode; miss the `@theme` entry and its utility never compiles. Neither
  * failure raises an error anywhere.
  */
+
+/* Tier 3. Imported here rather than from each component's `.tsx` so it reaches
+   consumers through the `theme.css` import they already have — the build is
+   `tsc` only, which does not copy `.css` into `dist/`. `@import` must precede
+   every rule in this file, so this stays at the top. */
+@import "./recipes/index.css";
 
 /* =============================================================================
    1. PALETTE

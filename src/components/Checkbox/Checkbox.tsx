@@ -51,6 +51,27 @@ const IndeterminateIcon = () => (
   </svg>
 );
 
+/**
+ * A single boolean, or tri-state, toggle — a custom button with
+ * `role="checkbox"` rather than a native `<input type="checkbox">`, so it
+ * can be styled without fighting native checkbox rendering.
+ *
+ * Controlled or uncontrolled via the `checked`/`defaultChecked`/
+ * `onCheckedChange` triad (`useControllableState`). `checked` also accepts
+ * `"indeterminate"`, which sets `aria-checked="mixed"` and swaps in a dash
+ * icon instead of the check — for a "select all" checkbox whose children are
+ * only partially selected. Clicking an indeterminate checkbox always
+ * resolves it to `true`, never back to indeterminate.
+ *
+ * Only participates in native form submission when `name` is set: a hidden
+ * native `<input type="checkbox">` is rendered alongside the button and
+ * kept in sync, carrying `value` (default `"on"`). Without `name`, state
+ * lives only in React and nothing is submitted.
+ *
+ * Passing `label` wraps the button and a `<Label>` together and wires
+ * `htmlFor`/`id` between them; without it, you get just the button and must
+ * supply your own accessible name.
+ */
 const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
   (
     {
@@ -93,8 +114,7 @@ const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
           ref={ref}
           onClick={() => setChecked(!isChecked)}
           className={cn(
-            "peer h-4 w-4 shrink-0 cursor-pointer rounded-xs border border-border-brand shadow focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            (isChecked || isIndeterminate) && "bg-bg-brand text-fg-on-brand",
+            "checkbox peer border-(color:--checkbox-border) focus-visible:ring-(color:--checkbox-ring) h-4 w-4 shrink-0 cursor-pointer rounded-xs border bg-(--checkbox-bg) text-(--checkbox-fg) shadow focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
             className
           )}
           {...props}

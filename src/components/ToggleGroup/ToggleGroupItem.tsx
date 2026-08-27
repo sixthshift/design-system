@@ -1,7 +1,6 @@
 import { cn } from "@sixthshift/design-system/utils";
 import * as React from "react";
-import { buttonVariants } from "../Button/Button";
-import { togglePressedVariants } from "../Toggle/Toggle";
+import { buttonRecipe } from "../Button/Button";
 import type { ToggleGroupBaseProps, ToggleGroupOption } from "./toggleGroup.types";
 
 type ItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
@@ -21,17 +20,23 @@ const ToggleGroupItem = React.forwardRef<HTMLButtonElement, ItemProps>(
     const isVertical = orientation === "vertical";
     const isSegmented = appearance === "segmented";
 
-    // Both modes share the same base: buttonVariants + togglePressedVariants.
-    // Segmented just overrides border/shadow/rounding so items join cleanly.
+    // Both modes share the same base: buttonVariants + the pressed-state cells
+    // in recipes/toggle.css. Segmented just overrides border/shadow/rounding
+    // so items join cleanly.
+    const recipe = buttonRecipe({ variant, intent, size });
+
     return (
       <button
         ref={ref}
+        {...recipe}
         type="button"
+        // Same attribute Toggle renders for `pressed` — recipes/toggle.css
+        // selects on it, so selected/unselected items pick up the same cells.
+        data-state={selected ? "on" : "off"}
         disabled={isDisabled}
         aria-label={option.ariaLabel}
         className={cn(
-          buttonVariants({ variant, intent, size }),
-          selected && togglePressedVariants({ variant, intent }),
+          recipe.className,
           // Segmented: only override rounding (let buttonVariants handle border/color).
           // Negative margin collapses double borders between outline items.
           isSegmented &&

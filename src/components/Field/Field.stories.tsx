@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Field } from "./Field";
 
 const meta: Meta<typeof Field> = {
@@ -6,6 +7,7 @@ const meta: Meta<typeof Field> = {
   component: Field,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A read-only label/value pair for displaying an identifier" },
   },
   tags: ["autodocs"],
   argTypes: {
@@ -65,3 +67,5 @@ export const ProportionalValue: Story = {
     mono: false,
   },
 };
+
+export const ComponentTokens = componentTokensStory("field");

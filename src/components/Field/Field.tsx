@@ -1,23 +1,6 @@
 import { cn } from "@sixthshift/design-system/utils";
 import * as React from "react";
 
-/**
- * The labelled identifier carve-out used by identity-disclosure surfaces
- * (a detail page's Identifiers card, a calendar event's per-source provenance).
- *
- * Field exists because identifiers (JIDs, external IDs, OAuth subs) are
- * *content* on these surfaces — they answer "what does the app know about this
- * contact?" The default value rendering is monospaced with `break-all`
- * because a raw JID is the canonical case and it must wrap inside the row.
- *
- * Sibling primitive — not a replacement: `MetricRow` (in `@sixthshift/design-system/metric-list`)
- * carries runtime metrics ("CPU: 12.5%"). Both are label/value pairs but the
- * value semantics differ: a metric is a short readable number; an identifier
- * is a long opaque string. Forcing `MetricRow` to do both would conflate the
- * two and break Identifiers-card wrapping.
- *
- * See: docs/engineering/explanation/concepts/identity-rendering.md
- */
 export type FieldProps = {
   /** The humane label for what the identifier identifies ("WhatsApp", "Email"). */
   label: string;
@@ -39,21 +22,39 @@ export type FieldProps = {
   className?: string;
 };
 
+/**
+ * Read-only label/value pair for displaying an identifier on
+ * identity-disclosure surfaces — a contact's JIDs, external IDs, OAuth
+ * subjects. Not a form control: there is no input and nothing to submit.
+ *
+ * `layout="stacked"` (default) puts the label above the value, for long
+ * identifiers that need width to wrap; `layout="row"` puts label and value
+ * on one line with the value right-aligned. `mono` (default `true`) renders
+ * the value monospaced with `break-all`, since a raw identifier is the
+ * canonical case; set it `false` when the value is itself human-readable.
+ *
+ * Distinct from `FormField`, which is the label + input wrapper for
+ * interactive form controls, and from `MetricRow`
+ * (`@sixthshift/design-system/metric-list`), which carries short numeric
+ * metrics. Both are label/value pairs, but the value semantics differ: a
+ * metric is a short readable number, an identifier is a long opaque string.
+ * Making one component do both would conflate them and break wrapping.
+ */
 export const Field = React.forwardRef<HTMLDivElement, FieldProps>(({ label, children, layout = "stacked", mono = true, className }, ref) => {
-  const valueClass = cn("text-fg-subtle text-xs", mono && "break-all font-mono");
+  const valueClass = cn("text-(--field-fg) text-xs", mono && "break-all font-mono");
 
   if (layout === "row") {
     return (
-      <div ref={ref} className={cn("flex items-baseline justify-between gap-3", className)}>
-        <span className="shrink-0 text-fg-subtle text-sm">{label}</span>
+      <div ref={ref} className={cn("field flex items-baseline justify-between gap-3", className)}>
+        <span className="shrink-0 text-(--field-fg) text-sm">{label}</span>
         <span className={cn(valueClass, "min-w-0 text-right")}>{children}</span>
       </div>
     );
   }
 
   return (
-    <div ref={ref} className={cn("flex flex-col gap-1", className)}>
-      <span className="text-fg-subtle text-xs uppercase tracking-wide">{label}</span>
+    <div ref={ref} className={cn("field flex flex-col gap-1", className)}>
+      <span className="text-(--field-fg) text-xs uppercase tracking-wide">{label}</span>
       <span className={valueClass}>{children}</span>
     </div>
   );

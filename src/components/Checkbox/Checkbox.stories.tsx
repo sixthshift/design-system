@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Checkbox } from "./Checkbox";
 
 const meta: Meta<typeof Checkbox> = {
@@ -7,6 +8,7 @@ const meta: Meta<typeof Checkbox> = {
   component: Checkbox,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A boolean or indeterminate toggle" },
   },
   tags: ["autodocs"],
 };
@@ -71,3 +73,5 @@ export const AllStates: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("checkbox");

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { type TabItem, Tabs } from "./Tabs";
 
 const meta: Meta<typeof Tabs> = {
@@ -7,6 +8,27 @@ const meta: Meta<typeof Tabs> = {
   component: Tabs,
   parameters: {
     layout: "centered",
+    docs: {
+      description: {
+        component: `A tabbed interface: \`Tabs\` owns the selection state and provides it via
+context to \`Tabs.List\` (the \`tablist\` of triggers) and \`Tabs.Panels\` (the
+single active \`tabpanel\`), which can be composed anywhere inside it — e.g.
+side by side for a vertical layout, stacked for horizontal.
+
+Selection can be controlled (\`value\` + \`onValueChange\`) or uncontrolled
+(\`defaultValue\`, falling back to the first non-disabled item). Only the
+active panel is ever mounted — \`content\` can be a function, invoked lazily
+the first time its tab becomes active — and \`aria-controls\` is only set on
+the selected trigger, since an unselected one has no panel in the DOM to
+point at.
+
+\`Tabs.List\` implements the WAI-ARIA tabs keyboard pattern: arrow keys
+(Left/Right, or Up/Down when \`orientation="vertical"\`) move focus *and*
+selection together, wrapping at the ends; Home/End jump to the first/last
+tab. Disabled items are skipped by both keyboard navigation and click.`,
+      },
+      subtitle: "Tabbed interface with arrow-key navigation and lazy panels",
+    },
   },
   tags: ["autodocs"],
 };
@@ -216,3 +238,5 @@ export const ManyTabs: Story = {
     </Tabs>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("tabs-trigger");

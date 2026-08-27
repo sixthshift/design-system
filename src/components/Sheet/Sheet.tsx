@@ -128,8 +128,8 @@ const SheetRoot = forwardRef<HTMLDivElement, SheetProps>(
           data-state={state}
           data-side={side}
           className={cn(
-            "fixed top-0 bottom-0 z-sheet flex flex-col overflow-hidden bg-bg-normal outline-hidden",
-            "border-border-normal shadow-lg",
+            "sheet fixed top-0 bottom-0 z-sheet flex flex-col overflow-hidden bg-(--sheet-bg) outline-hidden",
+            "border-(color:--sheet-border) shadow-lg",
             side === "right" ? "right-0 border-l" : "left-0 border-r",
             sizeClasses[size],
             "max-sm:inset-x-0",
@@ -154,6 +154,12 @@ SheetRoot.displayName = "Sheet";
 // Compound Component Export
 // =============================================================================
 
+/**
+ * NOTE: Storybook shows the copy in Sheet.stories.tsx
+ * (`parameters.docs.description.component`), not this comment. react-docgen
+ * cannot extract a description from this declaration shape, so keeping a
+ * second copy here would only drift. Edit the stories file.
+ */
 export const Sheet = Object.assign(SheetRoot, {
   Header: SheetHeader,
   Body: SheetBody,

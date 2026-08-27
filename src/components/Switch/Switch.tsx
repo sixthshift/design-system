@@ -22,6 +22,24 @@ export type SwitchProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "o
   labelClassName?: string;
 };
 
+/**
+ * A boolean on/off control rendered as a track with a sliding thumb.
+ *
+ * Controlled via `checked`/`defaultChecked`/`onCheckedChange`
+ * (`useControllableState`). Renders `role="switch"` with `aria-checked`, plus
+ * a `data-state="checked" | "unchecked"` attribute the theme recipe
+ * (`switch.css`) styles off of.
+ *
+ * `pending` shows a spinner in the thumb and blocks clicks without disabling
+ * the control — it sets `aria-busy` rather than `disabled`, so the switch
+ * stays perceivable and focusable while the change is in flight.
+ *
+ * Pass `label` to wrap the switch in a `<Label>` linked to it by `id`;
+ * without one, the caller is responsible for its own accessible name (e.g.
+ * `aria-label`). Pass `name` to also render a hidden, read-only checkbox
+ * input so the value participates in native form submission (`value`
+ * defaults to `"on"`).
+ */
 const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
   (
     {
@@ -63,8 +81,7 @@ const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
           ref={ref}
           onClick={() => !pending && setChecked(!checked)}
           className={cn(
-            "peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-normal disabled:cursor-not-allowed disabled:opacity-50",
-            checked ? "bg-bg-brand" : "bg-bg-subtle",
+            "switch peer focus-visible:ring-(color:--switch-ring) inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent bg-(--switch-bg) shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-normal disabled:cursor-not-allowed disabled:opacity-50",
             pending && "cursor-default",
             className
           )}
@@ -72,12 +89,18 @@ const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
         >
           <span
             className={cn(
-              "pointer-events-none flex h-4 w-4 items-center justify-center rounded-full bg-bg-normal shadow-lg ring-0 transition-transform",
+              "switch-thumb pointer-events-none flex h-4 w-4 items-center justify-center rounded-full bg-(--switch-thumb-bg) shadow-lg ring-0 transition-transform",
               checked ? "translate-x-4" : "translate-x-0"
             )}
           >
             {pending && (
-              <svg className="h-2.5 w-2.5 animate-spin text-fg-subtle" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+              <svg
+                className="h-2.5 w-2.5 animate-spin text-(--switch-thumb-fg)"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path
                   className="opacity-75"

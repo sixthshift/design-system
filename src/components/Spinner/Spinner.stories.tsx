@@ -2,6 +2,7 @@ import { Button } from "@sixthshift/design-system/button";
 import { Text } from "@sixthshift/design-system/text";
 import { TextInline } from "@sixthshift/design-system/text-inline";
 import type { Meta, StoryObj } from "@storybook/react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Spinner } from "./Spinner";
 
 const meta: Meta<typeof Spinner> = {
@@ -9,6 +10,7 @@ const meta: Meta<typeof Spinner> = {
   component: Spinner,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "An animated loading indicator, hidden from assistive tech" },
   },
   tags: ["autodocs"],
   argTypes: {
@@ -118,3 +120,5 @@ export const CustomColor: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("spinner");

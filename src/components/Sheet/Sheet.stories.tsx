@@ -3,12 +3,38 @@ import { Input } from "@sixthshift/design-system/input";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { expect, screen, userEvent, within } from "storybook/test";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Sheet, SheetBody, SheetFooter, SheetHeader } from ".";
 
 const meta: Meta<typeof Sheet> = {
   title: "Components/Feedback/Sheet",
   component: Sheet,
-  parameters: { layout: "fullscreen" },
+  parameters: {
+    layout: "fullscreen",
+    docs: {
+      description: {
+        component: `A side panel that slides in from the left or right edge. Unlike \`Modal\`,
+it renders no backdrop and does not trap focus (\`FloatingFocusManager\` runs
+with \`modal={false}\`), so the page behind it stays visible and interactive —
+Sheet is for work done *alongside* the page, Modal for work that must
+interrupt it.
+
+\`open\` and \`onOpenChange\` are required: Sheet owns its own mount lifecycle so
+exit animations can play, but the caller owns the state. Escape closes it by
+default (\`dismissable\`); clicking outside does **not**, because a Sheet is a
+persistent workspace rather than a transient popover — opt in with
+\`dismissOnOutsidePress\`. \`closable\` adds an X button to the header.
+
+\`side\` picks the edge (\`"right"\` by default) and \`size\` sets the desktop
+width; on mobile it is always full width.
+
+Compound: \`Sheet.Header\`, \`Sheet.Body\`, \`Sheet.Footer\`. Give it an accessible
+name with \`aria-label\` or \`aria-labelledby\` — Sheet sets a dialog role but no
+name of its own.`,
+      },
+      subtitle: "A side panel that slides in with no backdrop, leaving the page interactive",
+    },
+  },
   tags: ["autodocs"],
 };
 
@@ -157,3 +183,5 @@ export const ChatShape: Story = {
     );
   },
 };
+
+export const ComponentTokens = componentTokensStory("sheet", "sheet-header", "sheet-footer", "sheet-close");

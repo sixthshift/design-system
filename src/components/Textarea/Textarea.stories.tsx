@@ -1,5 +1,6 @@
 import { Label } from "@sixthshift/design-system/label";
 import type { Meta, StoryObj } from "@storybook/react";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Textarea } from "./Textarea";
 
 const meta: Meta<typeof Textarea> = {
@@ -7,6 +8,7 @@ const meta: Meta<typeof Textarea> = {
   component: Textarea,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "A multi-line block of free-form text" },
   },
   tags: ["autodocs"],
 };
@@ -59,3 +61,5 @@ export const MaxLength: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("textarea");

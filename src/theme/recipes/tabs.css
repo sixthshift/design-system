@@ -1,0 +1,41 @@
+/**
+ * TabsTrigger recipe — the component-token layer for TabsTrigger.
+ *
+ * This is the mapping from `selected` to a semantic token. It used to live in
+ * the two branches of a `cva` `selected` variant inside TabsTrigger.tsx,
+ * compiled into class-name literals and unreachable from outside. Here it is
+ * data, so a consumer can re-point a cell or scope a change to a subtree.
+ *
+ * The grammar is `--tabs-trigger-{context}[-{state}]` — the same `context`
+ * and `state` words the semantic layer uses (src/theme/schema.ts). `selected`
+ * never appears in a token name: it selects, via the `data-selected`
+ * attribute below. Putting it in the name (`--tabs-trigger-bg-selected`)
+ * would restore the combinatorial explosion this layer exists to remove.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css for the
+ * cascade reasoning.
+ */
+
+@layer components {
+  /* The floor, and also the unselected look: quiet text on no surface. A
+     trigger a consumer forgot to mark selected renders as a legible inactive
+     tab rather than something broken. */
+  .tabs-trigger {
+    --tabs-trigger-bg: transparent;
+    --tabs-trigger-bg-hovered: var(--bg-subtle-hovered);
+    --tabs-trigger-fg: var(--fg-subtle);
+    --tabs-trigger-fg-hovered: var(--fg-normal);
+    --tabs-trigger-ring: var(--focus-ring);
+  }
+
+  /* selected — a filled surface, reversed text on top of it. The old code
+     emitted no `hover:` classes at all for the selected branch, so the
+     hovered cells here point straight back at the resting ones: no shift on
+     hover, preserved rather than newly invented. */
+  .tabs-trigger[data-selected="true"] {
+    --tabs-trigger-bg: var(--bg-brand-pressed);
+    --tabs-trigger-bg-hovered: var(--tabs-trigger-bg);
+    --tabs-trigger-fg: var(--fg-on-brand-pressed);
+    --tabs-trigger-fg-hovered: var(--tabs-trigger-fg);
+  }
+}

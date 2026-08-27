@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, within } from "storybook/test";
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { TagChip } from "./TagChip";
 
 const meta: Meta<typeof TagChip> = {
@@ -7,6 +8,7 @@ const meta: Meta<typeof TagChip> = {
   component: TagChip,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "One rendered tag, navigable or removable" },
   },
   tags: ["autodocs"],
   argTypes: {
@@ -85,3 +87,5 @@ export const List: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("tag-chip");

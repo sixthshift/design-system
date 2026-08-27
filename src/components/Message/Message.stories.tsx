@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-
+import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
 import { Message, MessageBody, MessageDescription, MessageIcon, MessageTitle } from ".";
 
 const meta: Meta<typeof Message> = {
@@ -7,6 +7,7 @@ const meta: Meta<typeof Message> = {
   component: Message,
   parameters: {
     layout: "centered",
+    docs: { subtitle: "An inline feedback banner that stays where the caller puts it" },
   },
   tags: ["autodocs"],
   argTypes: {
@@ -295,3 +296,5 @@ export const GitHubStyleAlert: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("message");

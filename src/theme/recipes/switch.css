@@ -1,0 +1,39 @@
+/**
+ * Switch recipe — the component-token layer for Switch.
+ *
+ * Switch has no variant/intent axis for colour, unlike Button — every colour
+ * is a fixed semantic token today. The only axis is `data-state`, already
+ * rendered by Switch.tsx as "unchecked" | "checked", so this file maps that
+ * state to the track token (`--switch-bg`, read via `bg-(--switch-bg)`) plus
+ * the two tokens for the moving thumb, treated as a `part`
+ * (`--switch-thumb-bg`, `--switch-thumb-fg`) since it is a sub-element of
+ * the track, not a separate component. The thumb never changes colour
+ * between states — only its position does, which stays a plain
+ * `translate-x-*` class in Switch.tsx — so it needs no state cell, just a
+ * floor. Custom properties inherit from the track button down into the
+ * thumb `<span>`, so no separate class is needed to carry the value there;
+ * `switch-thumb` exists purely as a stable hook for a consumer who wants to
+ * scope an override to the thumb specifically.
+ *
+ * disabled is deliberately absent: Switch dims via `disabled:opacity-50`
+ * rather than swapping a colour, so it needs no state cell here.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  /* The floor — resting, unchecked. Ring is constant across every state, so
+     it lives here rather than in a cell. */
+  .switch {
+    --switch-bg: var(--bg-subtle);
+    --switch-ring: var(--focus-ring);
+    --switch-thumb-bg: var(--bg-normal);
+    --switch-thumb-fg: var(--fg-subtle);
+  }
+
+  /* checked fills the track — the same swap the old class applied via
+     `checked ? "bg-bg-brand" : "bg-bg-subtle"`. */
+  .switch[data-state="checked"] {
+    --switch-bg: var(--bg-brand);
+  }
+}

@@ -22,6 +22,7 @@ npm install @sixthshift/design-system
 /* your CSS entry — Tailwind 4 is a required peer */
 @import "tailwindcss";
 @import "@sixthshift/design-system/theme.css";
+@source "../node_modules/@sixthshift/design-system";
 ```
 
 That second line is opinionated: it replaces Tailwind's default palette with this
@@ -188,21 +189,122 @@ restyle by overriding CSS variables at runtime — component source stays
 untouched. See [docs/design-tokens.md](docs/design-tokens.md) for the full token
 reference.
 
+Tokens come in three tiers, and the one you reach for depends on the *kind* of
+change you are making:
+
+| Tier | Example | Change it to | Scope |
+| --- | --- | --- | --- |
+| Palette | `--color-ocean-600` | add or alter a hue | everything downstream |
+| Semantic | `--bg-brand` | **re-skin** — brand is now purple | every surface that means "brand" |
+| Component | `--button-bg` | **re-wire** — *this* part uses a different meaning | one component, or one subtree |
+
+Re-skinning is a token *value* change and it is global by design. Re-wiring is a
+recipe change, and it is the one that used to be impossible.
+
 ### Tailwind integration
 
-The two `@import` lines above are the whole integration. That single theme import
-carries the token variables *and* the `@theme` block declaring the library's
-utilities, so `bg-bg-brand`, `z-modal`, `animate-fade-in` and `dark:*` compile in
-your build alongside your own classes — same pass, same tree-shaking, and
+The three lines above are the whole integration. The theme import carries the
+token variables *and* the `@theme` block declaring the library's utilities, so
+`bg-bg-brand`, `z-modal`, `animate-fade-in` and `dark:*` compile in your build
+alongside your own classes — same pass, same tree-shaking, and
 `className="mt-8"` on a library component works like any other Tailwind class.
 
-Add the library to your `content` sources only if you scan explicitly; automatic
-detection already covers `node_modules` imports. There is no preset, no
-`@config`, and no prebuilt stylesheet to import.
+**The `@source` line is required.** Tailwind 4's automatic content detection
+never scans `node_modules`, so without it none of this library's classes are
+found and every component renders unstyled.
+
+The path is a filesystem path resolved relative to the CSS file that declares
+it — not a package specifier, so a bare `"@sixthshift/design-system"` silently
+matches nothing. Adjust the depth to wherever your CSS entry lives; in a
+monorepo with hoisted dependencies that is often `"../../node_modules/…"`. A
+symlinked install (pnpm) needs no special handling: `@source` follows the link
+into the store.
+
+Beyond that there is no preset, no `@config`, and no prebuilt stylesheet to
+import.
 
 **Tailwind 4 is required, not optional.** Every component is a set of Tailwind
 classes, so without it they render unstyled. That is why `tailwindcss` is a
 non-optional peer dependency.
+
+### Restyling a component
+
+Every component reads its colours from its own tokens rather than naming a
+semantic token directly. `Button` resolves `--button-bg`, whose value is decided
+by a recipe in the published stylesheet:
+
+```css
+/* what ships, in @layer components */
+.btn[data-variant="solid"][data-intent="neutral"] {
+  --button-bg: var(--bg-brand);
+  --button-bg-hovered: var(--bg-brand-hovered);
+  --button-fg: var(--fg-on-brand);
+}
+```
+
+That recipe is data, not compiled-in class names, so you can re-point any cell.
+Four granularities, narrowest to broadest:
+
+```tsx
+// one instance — inline styles outrank layers and specificity both
+<Button style={{ "--button-bg": "var(--bg-strong)" } as React.CSSProperties} />
+```
+
+```css
+/* one subtree — impossible with token values, which are global */
+.checkout .btn[data-intent="neutral"] { --button-bg: var(--bg-success); }
+
+/* one cell, app-wide — reject a house opinion */
+.btn[data-variant="link"][data-intent="neutral"] { --button-fg: var(--fg-normal); }
+
+/* every button */
+.btn { --button-bg-hovered: var(--button-bg); }   /* no hover shift, anywhere */
+```
+
+**Write your overrides unlayered.** The cascade compares layers *before*
+specificity, and unlayered author CSS outranks any layered author CSS — which is
+why a bare `.btn { … }` beats the library's three-attribute selector without an
+`!important`. The corollary is the trap: wrap the same rule in
+`@layer components` (a Tailwind 3 habit) and it lands in the library's own layer,
+where specificity decides again and your override silently loses on every cell
+the library ships.
+
+#### Adding an intent the library never shipped
+
+```css
+/* 1. the semantic tokens — both modes, mirroring the library's own selectors */
+:root:not([data-theme]),
+:root[data-theme="light"] { --bg-info: var(--color-ocean-700); --fg-on-info: #fff; }
+:root[data-theme="dark"]  { --bg-info: var(--color-ocean-400); --fg-on-info: #06121f; }
+
+/* 2. the recipe cell */
+.btn[data-variant="solid"][data-intent="info"] {
+  --button-bg: var(--bg-info);
+  --button-fg: var(--fg-on-info);
+}
+```
+
+```tsx
+<Button intent="info">Details</Button>   // type-checks; no library release needed
+```
+
+`variant` and `intent` are typed as the shipped union *plus* `string`, so a value
+you invent is accepted while the built-ins still autocomplete. Note that no
+`@theme` entry is needed: recipes read `var(--bg-info)` as plain CSS, never
+through a Tailwind utility. You own the contrast of tokens you add —
+`bun run check:contrast` only sees the library's own.
+
+#### Finding the token names
+
+`bun run check:recipes --list` prints every component token grouped by
+component. The names follow `--{component}[-{part}]-{context}[-{state}]`, where
+context is `bg`/`fg`/`border`/`ring` and state is `hovered`/`pressed`/`disabled`
+— e.g. `--modal-overlay-bg`, `--input-placeholder-fg`, `--card-border-hovered`.
+
+Intent and variant never appear in a token *name*; they select via the `data-*`
+attributes. That is what lets you add one.
+
+**These names are public API** and change only under semver, like any export.
 
 ### What the theme takes over
 

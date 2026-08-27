@@ -381,6 +381,8 @@
     "format:check": "biome format .",
     "check": "biome check .",
     "check:fix": "biome check --write .",
+    "check:recipes": "bun run scripts/check-recipes.ts",
+    "check:contrast": "bun run scripts/check-contrast.ts",
     "clean": "rm -rf dist node_modules *.tsbuildinfo",
     "clean:dist": "rm -rf dist"
   },

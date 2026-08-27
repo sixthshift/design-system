@@ -1,0 +1,29 @@
+/**
+ * Input recipe — the component-token layer for Input.
+ *
+ * Input has no variant/intent axis for colour, unlike Button — every colour is
+ * a fixed semantic token today. This file exists anyway so a consumer can
+ * re-point a cell (or scope an override to a subtree) without a release, the
+ * same reason button.css and message.css exist. One floor block, no cells: see
+ * button.css's header for what `@layer components` buys and why it is
+ * load-bearing, not tidiness.
+ *
+ * The grammar is `--input-{part}-{context}`, context in {bg, fg, border, ring}.
+ * `file` and `icon` are parts (the file-picker button, the icon/adornment
+ * slot) that happen to share their resting value with the input's own
+ * bg/border today — each still gets its own token, because a consumer wanting
+ * a different file-button background or icon colour needs a variable that
+ * exists, not a shared one they'd have to fork.
+ */
+
+@layer components {
+  .input {
+    --input-bg: var(--bg-normal);
+    --input-border: var(--border-normal);
+    --input-ring: var(--focus-ring);
+    --input-placeholder-fg: var(--fg-subtle);
+    --input-file-bg: var(--input-bg);
+    --input-file-fg: var(--fg-normal);
+    --input-icon-fg: var(--fg-subtle);
+  }
+}

@@ -59,9 +59,11 @@ describe("Spinner", () => {
       expect(screen.getByTestId("spinner")).toHaveClass("animate-spin");
     });
 
-    it("applies default text color", () => {
+    it("reads its colour from the --spinner-fg component token", () => {
       render(<Spinner data-testid="spinner" />);
-      expect(screen.getByTestId("spinner")).toHaveClass("text-fg-subtle");
+      const spinner = screen.getByTestId("spinner");
+      expect(spinner).toHaveClass("spinner");
+      expect(spinner).toHaveClass("text-(--spinner-fg)");
     });
 
     it("merges custom className", () => {

@@ -43,21 +43,25 @@ describe("Badge", () => {
     it("applies solid variant classes", () => {
       render(<Badge variant="solid">Badge</Badge>);
       const badge = screen.getByText("Badge");
-      expect(badge).toHaveClass("border-transparent");
+      // Colour (including border colour) is no longer a class literal — it is
+      // read from the `--badge-*` component tokens the `data-variant` /
+      // `data-intent` attributes select in badge.css. Structure stays a class.
+      expect(badge).toHaveAttribute("data-variant", "solid");
       expect(badge).toHaveClass("shadow");
     });
 
     it("applies soft variant classes", () => {
       render(<Badge variant="soft">Badge</Badge>);
       const badge = screen.getByText("Badge");
-      expect(badge).toHaveClass("border-transparent");
+      expect(badge).toHaveAttribute("data-variant", "soft");
       expect(badge).not.toHaveClass("shadow");
     });
 
     it("applies outline variant classes", () => {
       render(<Badge variant="outline">Badge</Badge>);
       const badge = screen.getByText("Badge");
-      expect(badge).not.toHaveClass("border-transparent");
+      expect(badge).toHaveAttribute("data-variant", "outline");
+      expect(badge).not.toHaveClass("shadow");
     });
   });
 
@@ -74,8 +78,8 @@ describe("Badge", () => {
         </Badge>
       );
       const badge = screen.getByText("Badge");
-      expect(badge).toHaveClass("bg-bg-strong");
-      expect(badge).toHaveClass("text-fg-on-strong");
+      expect(badge).toHaveAttribute("data-variant", "solid");
+      expect(badge).toHaveAttribute("data-intent", "neutral");
     });
 
     it("applies danger intent with solid variant", () => {
@@ -85,7 +89,8 @@ describe("Badge", () => {
         </Badge>
       );
       const badge = screen.getByText("Badge");
-      expect(badge).toHaveClass("bg-bg-danger");
+      expect(badge).toHaveAttribute("data-variant", "solid");
+      expect(badge).toHaveAttribute("data-intent", "danger");
     });
 
     it("applies success intent with solid variant", () => {
@@ -95,7 +100,8 @@ describe("Badge", () => {
         </Badge>
       );
       const badge = screen.getByText("Badge");
-      expect(badge).toHaveClass("bg-bg-success");
+      expect(badge).toHaveAttribute("data-variant", "solid");
+      expect(badge).toHaveAttribute("data-intent", "success");
     });
 
     it("applies warning intent with solid variant", () => {
@@ -105,7 +111,8 @@ describe("Badge", () => {
         </Badge>
       );
       const badge = screen.getByText("Badge");
-      expect(badge).toHaveClass("bg-bg-warning");
+      expect(badge).toHaveAttribute("data-variant", "solid");
+      expect(badge).toHaveAttribute("data-intent", "warning");
     });
   });
 
@@ -117,8 +124,8 @@ describe("Badge", () => {
         </Badge>
       );
       const badge = screen.getByText("Badge");
-      expect(badge).toHaveClass("bg-bg-danger-subtle");
-      expect(badge).toHaveClass("text-fg-on-danger-subtle");
+      expect(badge).toHaveAttribute("data-variant", "soft");
+      expect(badge).toHaveAttribute("data-intent", "danger");
     });
 
     it("applies outline + success combination", () => {
@@ -128,8 +135,8 @@ describe("Badge", () => {
         </Badge>
       );
       const badge = screen.getByText("Badge");
-      expect(badge).toHaveClass("border-border-success");
-      expect(badge).toHaveClass("text-fg-success");
+      expect(badge).toHaveAttribute("data-variant", "outline");
+      expect(badge).toHaveAttribute("data-intent", "success");
     });
   });
 

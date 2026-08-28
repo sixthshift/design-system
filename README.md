@@ -404,6 +404,15 @@ src/
 
 Semver via git tags (`v0.1.0`, ...). Component props **and token names** are public API — renaming a token is a breaking change.
 
+[`api/public-api.txt`](api/public-api.txt) is what makes that checkable rather
+than merely stated: every subpath's exports, the resolved shape of every type,
+and all 443 token names, in one committed file. `bun run check:api` regenerates
+it from `dist/` and fails if it differs, so a rename or removal arrives as a diff
+in the pull request. `bun run api:update` accepts an intentional change. This is
+worth more here than in most packages because the bump is derived from the commit
+*subject* and releases are unattended — a rename filed as `refactor:` cuts a
+patch and ships to consumers with no human in between.
+
 Versioning and releasing are automatic, driven by
 [Conventional Commit](https://www.conventionalcommits.org) subjects and derived
 by `scripts/next-version.ts`.

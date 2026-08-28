@@ -65,6 +65,12 @@ jobs:
       - name: Public API surface
         run: bun run check:api
 
+      # Bundles each representative subpath in isolation and holds it to a
+      # measured budget. The byte count is the backstop; the real assertion is
+      # that /button still cannot reach Floating UI, Temporal or Monaco.
+      - name: Bundle size
+        run: bun run check:size
+
       # The same projects `bun run test` covers, with the coverage gate on top,
       # so the suite runs once rather than twice. Thresholds live in
       # vitest.config.ts.

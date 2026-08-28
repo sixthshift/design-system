@@ -1,3 +1,5 @@
+"use client";
+
 import { type Temporal, today, toISODate } from "../../date-time";
 import { SegmentedField, type SegmentSpec, type SegmentValues } from "../../internal";
 import type { DateSegmentOrder } from "./datepicker.types";

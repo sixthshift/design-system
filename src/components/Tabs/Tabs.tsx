@@ -1,3 +1,5 @@
+"use client";
+
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import type * as React from "react";
 import { useId } from "react";

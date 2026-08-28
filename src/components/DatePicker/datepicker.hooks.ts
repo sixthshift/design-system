@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback } from "react";
 import { formatDateMediumYear, isPlainDate, Temporal } from "../../date-time";
 import type { DatePickerMode, DateRangeValue, DateSelectionState, DisabledDateMatcher } from "./datepicker.types";

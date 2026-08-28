@@ -1,3 +1,5 @@
+"use client";
+
 import { Label } from "@sixthshift/design-system/label";
 import { cn } from "@sixthshift/design-system/utils";
 import * as React from "react";

@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useRef, useState } from "react";
 
 declare const process: undefined | { env?: { NODE_ENV?: string } };

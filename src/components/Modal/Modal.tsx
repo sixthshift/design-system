@@ -1,3 +1,5 @@
+"use client";
+
 import { FloatingFocusManager, FloatingOverlay, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import { useMergedFloatingRef, usePresence } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";

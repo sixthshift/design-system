@@ -1,3 +1,5 @@
+"use client";
+
 import { ModalContextProvider, type ModalProps, type OnClose } from "@sixthshift/design-system/modal";
 import { type ComponentType, type ReactNode, Suspense, useCallback, useId, useRef } from "react";
 import { useOverlayContext } from "../OverlayContext";

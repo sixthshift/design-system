@@ -1,3 +1,5 @@
+"use client";
+
 import type { StackItem } from "@sixthshift/design-system/hooks";
 import { Toast, type ToastProps } from "@sixthshift/design-system/toast";
 import { type FunctionComponent, useCallback, useEffect, useId, useRef } from "react";

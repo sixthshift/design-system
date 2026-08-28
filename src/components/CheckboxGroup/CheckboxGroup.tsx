@@ -1,3 +1,5 @@
+"use client";
+
 import { Checkbox } from "@sixthshift/design-system/checkbox";
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";

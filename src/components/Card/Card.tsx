@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@sixthshift/design-system/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";

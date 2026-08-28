@@ -1,3 +1,5 @@
+"use client";
+
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { RadioButton } from "@sixthshift/design-system/radio-button";
 import { cn } from "@sixthshift/design-system/utils";

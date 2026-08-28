@@ -236,6 +236,67 @@ The root renders only `<XContext.Provider>`; parts consume it via a `useXContext
 
 ---
 
+## `"use client"` on the implementation module, and only where it's needed
+
+Every module is a Server Component until a `"use client"` prologue says
+otherwise, and the react-server build of React does not export `useState`,
+`useRef`, `useContext`, `useReducer`, `useSyncExternalStore` or `createContext`
+at all. Without the directive, a Next.js App Router consumer's first
+`import { Button } from "@sixthshift/design-system/button"` from a server file
+fails the build, and there is nothing they can do about it except wrap every
+import in a local shim.
+
+**The directive goes on the implementation module (`Switch.tsx`), never on the
+subpath entry (`index.ts`).** The boundary then lands where the client-only
+feature actually is. A barrel that only re-exports stays server-renderable, and
+so does every module that genuinely needs nothing from the client — those ship
+no JS to the browser when a server page renders them.
+
+A module needs it when it does any of:
+
+- calls a React hook — `useState`, `useEffect`, `useRef`, `useId`,
+  `useSyncExternalStore`, `useControllableState`, `useFloating`, …
+- calls `createContext`
+- attaches a JSX event handler it wires up itself (`onClick={handleClick}`) —
+  spreading `{...props}` is not that, the consumer owns those
+- reads `window` / `document` / `localStorage` / `navigator` / … 
+- declares a class component
+- renders `FloatingPortal`
+
+A module must **not** have it otherwise. A spurious directive silently drags a
+pure module — and everything it imports — into the client bundle. That is why
+`src/lib/utils.ts`, `src/theme/schema.ts`, `src/internal/Slot.tsx`,
+`src/lib/EmptyBoundary.tsx`, `withSuspense.tsx`, `withEmpty.tsx` and the whole of
+`src/typography/` deliberately do not carry it: they call no hook, attach no
+handler, and touch no browser global. `forwardRef`, `memo`, `lazy` and
+`cloneElement` are all available in the react-server build, so using them is not
+a reason on its own.
+
+`withErrorBoundary.tsx` and `withSuspenseAndErrorBoundary.tsx` are the two
+exceptions the rules above cannot see: they hand `fallback` straight to
+`ErrorBoundary`, a client component, and a *function* fallback authored in a
+server module cannot cross that boundary. They are listed by name, with that
+reason, in `scripts/check-use-client.ts`.
+
+Two things enforce this, and both run in CI:
+
+- **`bun run check:use-client`** (also part of `bun run build`) parses every
+  module and fails on a directive that is missing, spurious, or sitting below an
+  import where it is inert.
+- **`bun run test`'s `ssr` project** renders every component story through
+  `renderToString` in a DOM-less Node process — the only suite that does, since
+  `unit` runs happy-dom and `visual`/`storybook` run a real browser.
+
+The dynamic half is not redundant. `"use client"` is not a shield: a Client
+Component is still rendered once on the server, so reading `document` at *render*
+scope throws on the first request even with the directive in place. Read browser
+state in an effect, or in the `getServerSnapshot` of a `useSyncExternalStore`,
+and let a portal resolve its own root — `OverlayProvider` used to default
+`root` to `document.body` at render scope and crashed every App Router page that
+mounted it.
+
+---
+
 ## Bake accessibility into the primitive
 
 The primitive owns its a11y so consumers can't forget it:
@@ -268,6 +329,8 @@ Before opening a PR for a new primitive:
 - [ ] **`package.json` `exports` has the `"./kebab-name"` entry** (the silent-failure step).
 - [ ] Compound parts attached via `Object.assign` + a dedicated `*Context`.
 - [ ] A11y baked in: semantic role + `data-state` + hidden native input for custom controls; interactive affordances only when interactive; decorative SVGs `aria-hidden`; `useId()` for labels.
+- [ ] `"use client"` on the implementation module if it uses a hook, a handler, a browser global, `createContext` or `FloatingPortal` — and *not* on the `index.ts` or on anything pure. `bun run check:use-client` decides.
+- [ ] Nothing reads `window`/`document` at render scope — the `ssr` test project renders every story through `renderToString` with no DOM.
 
 ---
 

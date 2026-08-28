@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@sixthshift/design-system/utils";
 import { X } from "lucide-react";
 import * as React from "react";

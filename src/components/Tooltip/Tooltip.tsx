@@ -1,3 +1,5 @@
+"use client";
+
 import { autoUpdate, flip, offset, type Placement, shift, useDismiss, useFloating, useFocus, useHover, useInteractions, useRole } from "@floating-ui/react";
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { TooltipBody } from "./components/TooltipBody";

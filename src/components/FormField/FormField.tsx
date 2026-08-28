@@ -1,3 +1,5 @@
+"use client";
+
 import { Label } from "@sixthshift/design-system/label";
 import { Message } from "@sixthshift/design-system/message";
 import { Muted } from "@sixthshift/design-system/muted";

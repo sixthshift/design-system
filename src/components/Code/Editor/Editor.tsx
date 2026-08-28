@@ -1,3 +1,5 @@
+"use client";
+
 import MonacoEditor from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
 import type { HTMLAttributes } from "react";

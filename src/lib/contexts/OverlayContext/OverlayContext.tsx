@@ -1,3 +1,5 @@
+"use client";
+
 import { FloatingPortal, type FloatingPortalProps } from "@floating-ui/react";
 import { type StackItem, useStack } from "@sixthshift/design-system/hooks";
 import { createContext, type FunctionComponent, type PropsWithChildren, useContext, useEffect, useMemo } from "react";
@@ -18,9 +20,12 @@ type OverlayStackItem = StackItem & {
 };
 
 type OverlayContextType = {
-  modalRoot?: FloatingPortalProps["root"];
+  // `undefined` spelled out rather than an optional `?:` — the context value
+  // below always sets the key, and `exactOptionalPropertyTypes` treats "absent"
+  // and "present but undefined" as different types.
+  modalRoot: FloatingPortalProps["root"] | undefined;
   modalStack: ReturnType<typeof useStack<OverlayStackItem>>;
-  toastRoot?: FloatingPortalProps["root"];
+  toastRoot: FloatingPortalProps["root"] | undefined;
   toastStack: ReturnType<typeof useStack<OverlayStackItem>>;
 };
 
@@ -36,12 +41,15 @@ const OverlayContext = createContext<OverlayContextType>(undefined as unknown as
 export const useOverlayContext = () => useContext(OverlayContext);
 
 export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }: PropsWithChildren<OverlayContextProps>) => {
-  // The roots pass through unresolved, deliberately. Defaulting them to
-  // `document.body` here read the DOM during render, which threw the whole
-  // tree under SSR — and it bought nothing: `FloatingPortal` already falls
-  // back to `document.body` when no `root` is given, on the client, where a
-  // body exists. Both portals below are behind a non-empty stack, and both
-  // stacks start empty, so nothing portals on the server either way.
+  // The roots pass through unresolved, deliberately. `"use client"` makes this a
+  // Client Component, but a Client Component is still rendered once on the
+  // server — defaulting to `document.body` here read the DOM at render scope and
+  // threw "document is not defined" on the first App Router request, which
+  // src/testing/stories.ssr.test.tsx and src/exports.ssr.test.tsx now catch. It
+  // bought nothing either: `FloatingPortal` already falls back to
+  // `document.body` when no `root` is given, and does it in an effect, on the
+  // client, where a body exists. Both portals below are behind a non-empty
+  // stack, and both stacks start empty, so nothing portals on the server anyway.
   const modalStack = useStack<OverlayStackItem>([]);
   const toastStack = useStack<OverlayStackItem>([]);
 

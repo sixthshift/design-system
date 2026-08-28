@@ -1,6 +1,7 @@
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { StorybookConfig } from "@storybook/react-vite";
+import remarkGfm from "remark-gfm";
 import { sourceAliases } from "../scripts/source-aliases";
 
 /**
@@ -30,7 +31,18 @@ const config: StorybookConfig = {
   addons: [
     getAbsolutePath("@storybook/addon-vitest"),
     getAbsolutePath("@storybook/addon-a11y"),
-    getAbsolutePath("@storybook/addon-docs"),
+    {
+      name: getAbsolutePath("@storybook/addon-docs"),
+      options: {
+        // MDX 3 does not parse GFM tables — core MDX has no table syntax, and
+        // Storybook's compiler applies only the remark plugins handed to it. A
+        // `| a | b |` block silently compiles to a <p> of literal pipes, which
+        // is what the Overview page's tables rendered as until this was added.
+        // Nothing errors; the page just looks wrong, and only in Storybook —
+        // the same tables in README.md render fine on GitHub, which does GFM.
+        mdxPluginOptions: { mdxCompileOptions: { remarkPlugins: [remarkGfm] } },
+      },
+    },
     getAbsolutePath("@storybook/addon-themes"),
   ],
   framework: getAbsolutePath("@storybook/react-vite"),

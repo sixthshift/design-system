@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@sixthshift/design-system/utils";
 import type * as React from "react";
 import { forwardRef, useCallback, useRef } from "react";

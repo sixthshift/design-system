@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useSyncExternalStore } from "react";
 
 type SetValue<T> = T | ((prev: T) => T);

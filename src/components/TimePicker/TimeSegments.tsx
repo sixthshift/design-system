@@ -1,3 +1,5 @@
+"use client";
+
 import type { Temporal } from "../../date-time";
 import { SegmentedField, type SegmentSpec, type SegmentValues } from "../../internal";
 import { parsedToTemporal, temporalTimeToISO, to12Hour, to24Hour } from "./timepicker.hooks";

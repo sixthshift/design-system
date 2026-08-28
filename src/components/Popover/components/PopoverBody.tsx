@@ -1,3 +1,5 @@
+"use client";
+
 import { FloatingPortal } from "@floating-ui/react";
 import { cn } from "@sixthshift/design-system/utils";
 import * as React from "react";

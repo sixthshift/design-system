@@ -1,3 +1,5 @@
+"use client";
+
 import { Input } from "@sixthshift/design-system/input";
 import { cn } from "@sixthshift/design-system/utils";
 import { Search, X } from "lucide-react";

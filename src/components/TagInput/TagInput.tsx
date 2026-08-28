@@ -1,3 +1,5 @@
+"use client";
+
 import { TagChip } from "@sixthshift/design-system/tag-chip";
 import { cn } from "@sixthshift/design-system/utils";
 import { forwardRef, type KeyboardEvent, useState } from "react";

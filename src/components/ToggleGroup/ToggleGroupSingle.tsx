@@ -1,3 +1,5 @@
+"use client";
+
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import * as React from "react";
 import { getRovingTargetIndex } from "../../internal/rovingFocus";

@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, type KeyboardEvent, type MouseEvent, type PropsWithChildren, useContext, useMemo } from "react";
 
 export type OnClose = (event?: MouseEvent<Element> | KeyboardEvent<Element>) => void;

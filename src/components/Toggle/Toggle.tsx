@@ -1,3 +1,5 @@
+"use client";
+
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import type { VariantProps } from "class-variance-authority";

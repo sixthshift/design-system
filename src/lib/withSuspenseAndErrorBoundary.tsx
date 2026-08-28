@@ -1,3 +1,5 @@
+"use client";
+
 import type { ComponentType, ReactNode } from "react";
 import { Suspense } from "react";
 import { ErrorBoundary, type ErrorFallbackProps } from "./ErrorBoundary";

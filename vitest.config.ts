@@ -37,9 +37,10 @@ export default defineConfig({
           // scripts/ is build tooling, but next-version.ts decides published
           // version numbers, so it is covered here too.
           include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
-          // *.visual.test.tsx also ends in .test.tsx — it belongs to the
-          // browser-mode "visual" project, not here.
-          exclude: [...configDefaults.exclude, "src/date-time/**", "src/**/*.visual.test.tsx"],
+          // *.visual.test.tsx and *.ssr.test.tsx also end in .test.tsx — they
+          // belong to the browser-mode "visual" project and the Node-env "ssr"
+          // project respectively, not here.
+          exclude: [...configDefaults.exclude, "src/date-time/**", "src/**/*.visual.test.tsx", "src/**/*.ssr.test.tsx"],
           environment: "happy-dom",
           setupFiles: ["./vitest.setup.ts"],
           isolate: false,
@@ -53,6 +54,19 @@ export default defineConfig({
           include: ["src/date-time/**/*.test.ts"],
           environment: "node",
           globals: false,
+          isolate: false,
+        },
+      },
+      // Server rendering — Node env with no DOM at all, so `document` is genuinely
+      // absent rather than emulated. This is the only project that renders the
+      // library the way a Next.js App Router server request does; see
+      // src/testing/stories.ssr.test.tsx.
+      {
+        extends: true,
+        test: {
+          name: "ssr",
+          include: ["src/**/*.ssr.test.tsx"],
+          environment: "node",
           isolate: false,
         },
       },

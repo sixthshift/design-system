@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@sixthshift/design-system/utils";
 import * as React from "react";
 import { useRef, useState } from "react";

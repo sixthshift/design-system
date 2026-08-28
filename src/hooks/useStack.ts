@@ -1,3 +1,5 @@
+"use client";
+
 import { type Dispatch, type Reducer, startTransition, useCallback, useEffect, useReducer } from "react";
 
 type Id = string | number;

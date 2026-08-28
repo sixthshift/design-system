@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@sixthshift/design-system/utils";
 import { ChevronDown, X } from "lucide-react";
 import type { HTMLAttributes, Ref } from "react";

@@ -1,3 +1,5 @@
+"use client";
+
 import type { HTMLAttributes, ReactNode } from "react";
 import { useState } from "react";
 import { Editor } from "../Editor";

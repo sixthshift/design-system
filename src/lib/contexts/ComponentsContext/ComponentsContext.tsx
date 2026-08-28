@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, type PropsWithChildren, type ReactNode, useContext } from "react";
 
 type LinkProps = {

@@ -1,3 +1,5 @@
+"use client";
+
 import { autoUpdate, flip, offset, shift, size, useFloating } from "@floating-ui/react";
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { forwardRef, type HTMLAttributes, type ReactElement, type Ref, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";

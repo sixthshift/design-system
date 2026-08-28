@@ -1,3 +1,5 @@
+"use client";
+
 import { Temporal } from "../../date-time";
 import { SegmentedField, type SegmentSpec, type SegmentValues } from "../../internal";
 import { dateFromSegments, dateSpec, dateToSegments, parseDatePasteIn } from "../DatePicker/DateSegments";

@@ -1,3 +1,5 @@
+"use client";
+
 import { FloatingPortal, type FloatingPortalProps } from "@floating-ui/react";
 import { type StackItem, useStack } from "@sixthshift/design-system/hooks";
 import { createContext, type FunctionComponent, type PropsWithChildren, useContext, useEffect, useMemo } from "react";
@@ -18,9 +20,12 @@ type OverlayStackItem = StackItem & {
 };
 
 type OverlayContextType = {
-  modalRoot: FloatingPortalProps["root"];
+  // `undefined` spelled out: it is the "let FloatingPortal pick document.body"
+  // case, and `exactOptionalPropertyTypes` keeps it out of
+  // `FloatingPortalProps["root"]`.
+  modalRoot: FloatingPortalProps["root"] | undefined;
   modalStack: ReturnType<typeof useStack<OverlayStackItem>>;
-  toastRoot: FloatingPortalProps["root"];
+  toastRoot: FloatingPortalProps["root"] | undefined;
   toastStack: ReturnType<typeof useStack<OverlayStackItem>>;
 };
 
@@ -28,9 +33,13 @@ const OverlayContext = createContext<OverlayContextType>(undefined as unknown as
 export const useOverlayContext = () => useContext(OverlayContext);
 
 export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }: PropsWithChildren<OverlayContextProps>) => {
-  const resolvedModalRoot = modalRoot ?? document.body;
-  const resolvedToastRoot = toastRoot ?? document.body;
-
+  // Deliberately not defaulted to `document.body` here. `"use client"` makes
+  // this a Client Component, but a Client Component is still rendered once on
+  // the server — reading `document` at render scope threw
+  // "document is not defined" on the first App Router request, which
+  // src/testing/stories.ssr.test.tsx now catches. `FloatingPortal` already
+  // falls back to `document.body` for an undefined root, and does it in an
+  // effect, so the server pass renders nothing and the client pass portals.
   const modalStack = useStack<OverlayStackItem>([]);
   const toastStack = useStack<OverlayStackItem>([]);
 
@@ -55,12 +64,12 @@ export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }
   // Memoize context value to prevent unnecessary re-renders in consumers
   const contextValue = useMemo(
     () => ({
-      modalRoot: resolvedModalRoot,
+      modalRoot,
       modalStack,
-      toastRoot: resolvedToastRoot,
+      toastRoot,
       toastStack,
     }),
-    [resolvedModalRoot, modalStack, resolvedToastRoot, toastStack]
+    [modalRoot, modalStack, toastRoot, toastStack]
   );
 
   return (
@@ -69,7 +78,7 @@ export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }
 
       {/* Modal stack - rendered in portal */}
       {modals.length > 0 && (
-        <FloatingPortal root={resolvedModalRoot}>
+        <FloatingPortal {...(modalRoot ? { root: modalRoot } : {})}>
           {modals.map(({ id, component: Component, data }) => (
             <Component key={id} data={data} />
           ))}
@@ -78,7 +87,7 @@ export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }
 
       {/* Toast stack - rendered in portal */}
       {toasts.length > 0 && (
-        <FloatingPortal root={resolvedToastRoot}>
+        <FloatingPortal {...(toastRoot ? { root: toastRoot } : {})}>
           <div className="pointer-events-none fixed bottom-6 left-1/2 z-toast flex -translate-x-1/2 flex-col-reverse items-center gap-3">
             {toasts.map(({ id, component: Component, onClose, ...props }) => (
               <div key={id} className="pointer-events-auto">

@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useMemo } from "react";
 import { addDays, formatDateMediumYear, isPlainDate, isSameDay, isSameMonth, startOfMonth, startOfWeek, Temporal, today } from "../../date-time";
 import type { DateRangeValue, DateSelectionState, DisabledDateMatcher, SelectionMode } from "./calendar.types";

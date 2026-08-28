@@ -42,6 +42,36 @@ TypeScript sources are published too, but only as the target of the declaration 
 
 **Module resolution:** subpath types only resolve under `"moduleResolution": "bundler"`, `"node16"`, or `"nodenext"` in `tsconfig.json`. The older `"node"` setting ignores the `exports` map entirely and fails with `TS2307` on every subpath. The package is also ESM-only — every `exports` entry has an `"import"` condition and nothing else, so `require("@sixthshift/design-system/button")` fails with `ERR_PACKAGE_PATH_NOT_EXPORTED`. A CJS test runner (e.g. Jest without ESM configured) needs to be set up for ESM before it can import this package.
 
+### Server Components / Next.js App Router
+
+Nothing to configure — import components straight into a server file:
+
+```tsx
+// app/page.tsx — a Server Component, no "use client" needed
+import { Button } from "@sixthshift/design-system/button";
+import { Heading } from "@sixthshift/design-system/heading";
+```
+
+Every module that needs a client boundary carries its own `"use client"`
+prologue, placed on the implementation module rather than the subpath entry. So
+the boundary starts where the interactivity does: `Heading`, `Body`, `Text`,
+`Badge`, `Input`, `Spinner` and the rest of the static surface render on the
+server and ship no JS, while `Switch`, `Select`, `Card`, the pickers and the
+overlays become client components at the point you use them.
+
+Two consequences worth knowing:
+
+- **Event handlers still can't cross the boundary.** `<Button onClick={...} />`
+  needs `"use client"` in *your* file — that is React's rule about passing
+  functions to Client Components, not something this package can lift.
+- **Hooks are client-only.** `@sixthshift/design-system/hooks`,
+  `useModal`/`useToast`, and `OverlayProvider` have to be called from a client
+  component.
+
+A DOM-less `renderToString` pass over every component story runs in CI
+(`bun run test`, the `ssr` project), and `bun run check:use-client` fails the
+build on a missing or spurious directive.
+
 ### Peer dependencies
 
 `react`, `react-dom` and `tailwindcss` are the required peers — React at **18 or 19**, Tailwind at **4**. CI runs the type-check and the full unit suite against both React versions on every change, so that range is verified rather than merely declared.
@@ -339,7 +369,7 @@ block after the import — everything you do not name stays gone:
 ```bash
 bun install          # `prepare` builds JS, types and styles into dist/
 bun run dev          # component workbench on :6006
-bun run test         # unit + date-time tests
+bun run test         # unit + date-time + server-render (ssr) tests
 bun run type-check   # tsc --noEmit (src and tests)
 bun run check        # biome lint + format
 ```

@@ -1,3 +1,5 @@
+"use client";
+
 import { FloatingPortal, type FloatingPortalProps } from "@floating-ui/react";
 import { Button } from "@sixthshift/design-system/button";
 import { usePresence } from "@sixthshift/design-system/hooks";

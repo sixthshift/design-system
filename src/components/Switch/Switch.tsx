@@ -1,3 +1,5 @@
+"use client";
+
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { Label } from "@sixthshift/design-system/label";
 import { cn } from "@sixthshift/design-system/utils";

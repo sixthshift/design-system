@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * CalendarView — the Temporal-typed calendar grid.
  *

@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { Slot } from "../../../internal/Slot";
 import type { WritableRefObject } from "../../../internal/types";

@@ -1,3 +1,5 @@
+"use client";
+
 import { Badge } from "@sixthshift/design-system/badge";
 import { cn } from "@sixthshift/design-system/utils";
 import { cva } from "class-variance-authority";

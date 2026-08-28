@@ -1,3 +1,5 @@
+"use client";
+
 import { autoUpdate, flip, offset, type Placement, shift, useClick, useDismiss, useFloating, useInteractions } from "@floating-ui/react";
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import type * as React from "react";

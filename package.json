@@ -342,6 +342,7 @@
     "check:published": "bun run scripts/check-published.ts",
     "check:consumer-resolution": "bun run scripts/check-consumer-resolution.ts",
     "check:use-client": "bun run scripts/check-use-client.ts",
+    "clean:artifacts": "rm -rf coverage .vitest-attachments",
     "clean": "rm -rf dist node_modules *.tsbuildinfo",
     "clean:dist": "rm -rf dist"
   },

@@ -106,6 +106,14 @@ export default defineConfig({
           environment: "happy-dom",
           setupFiles: ["./vitest.setup.ts"],
           isolate: false,
+          // Headroom, not a fix for a slow test: the slowest test in this
+          // project is 519ms, so vitest's 5s default already allows 10x. But
+          // eight of the date and calendar interaction tests timed out at 5s
+          // once, on a machine that was also running a browser suite, and CI
+          // now depends on this project for the coverage gate — a red run on a
+          // green codebase costs more trust than it saves seconds. A genuinely
+          // hung test still fails, ten seconds later.
+          testTimeout: 15_000,
         },
       },
       // Pure date/time utilities — Node env, no DOM, explicit vitest imports

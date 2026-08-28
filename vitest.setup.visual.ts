@@ -1,5 +1,6 @@
 import { cleanup } from "@testing-library/react";
-import { afterEach, beforeAll } from "vitest";
+import { afterEach, beforeAll, vi } from "vitest";
+import { Temporal } from "./src/date-time";
 
 // The real theme surface — screenshots are only meaningful if the tokens, base
 // styles and fonts are the ones on screen. .storybook/styles.css is the same
@@ -22,7 +23,27 @@ const FREEZE_MOTION = `
   }
 `;
 
+/**
+ * The clock every baseline is recorded against.
+ *
+ * Thursday, mid-month, mid-week, nowhere near a DST boundary — so a month grid
+ * shows leading and trailing days from both neighbours, and the week the pickers
+ * default to is an ordinary one. Without this, Calendar draws its today ring on
+ * whatever day the recording happened and the baseline expires overnight.
+ *
+ * `toFake: ["Date"]` and nothing else. Faking `setTimeout` would break the
+ * things this suite depends on most — userEvent's delays, Floating UI's
+ * positioning pass, the transitions the freeze stylesheet is already handling.
+ * `Temporal.Now` reads through `Date`, so pinning one pins both — and the
+ * instant is spelled with Temporal rather than `new Date`, which the lint rules
+ * rightly refuse.
+ */
+const RECORDED_AT = Temporal.Instant.from("2026-03-12T10:30:00Z").epochMilliseconds;
+
 beforeAll(async () => {
+  vi.useFakeTimers({ toFake: ["Date"], shouldAdvanceTime: true });
+  vi.setSystemTime(RECORDED_AT);
+
   const style = document.createElement("style");
   style.setAttribute("data-visual-test", "freeze-motion");
   style.textContent = FREEZE_MOTION;

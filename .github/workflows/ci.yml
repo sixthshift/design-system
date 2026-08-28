@@ -59,8 +59,11 @@ jobs:
       - name: Consumer resolution
         run: bun run check:consumer-resolution
 
-      - name: Tests
-        run: bun run test
+      # The same projects `bun run test` covers, with the coverage gate on top,
+      # so the suite runs once rather than twice. Thresholds live in
+      # vitest.config.ts.
+      - name: Tests and coverage
+        run: bun run test:coverage
 
   react-19:
     name: React 19 compatibility

@@ -323,6 +323,7 @@
     "dev": "storybook dev -p 6006 --no-open",
     "build:storybook": "storybook build",
     "test": "vitest run --project unit --project date-time --project ssr --reporter=dot",
+    "test:coverage": "vitest run --project unit --project date-time --project ssr --coverage --reporter=dot",
     "test:verbose": "vitest run --project unit --project date-time --project ssr",
     "test:watch": "vitest --project unit --project date-time --project ssr",
     "test:visual": "vitest run --project visual",

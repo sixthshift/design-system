@@ -46,6 +46,50 @@ export default defineConfig({
   // stale build cannot masquerade as a passing test run.
   resolve: { alias: sourceAliases() },
   test: {
+    coverage: {
+      provider: "v8",
+      reporter: ["text-summary", "html", "lcov"],
+
+      // What ships, and only what ships. `all: true` so a source file with no
+      // test at all counts as zero rather than being invisible — the failure
+      // mode a coverage gate exists to catch is a new untested module, and a
+      // gate that only measures files the tests already import cannot see one.
+      all: true,
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        "src/**/*.test.{ts,tsx}",
+        "src/**/*.stories.tsx",
+        // Storybook's own documentation surface, excluded from the published
+        // package by package.json `files` and covered by its own story tests.
+        "src/stories/**",
+        // Test helpers. Measuring the camera with the camera.
+        "src/testing/**",
+        // Re-export barrels carry no logic; including them just inflates the
+        // numbers with free 100%s.
+        "src/**/index.ts",
+        // Type-only modules compile to nothing, so v8 reports them as 0% of 0.
+        "src/**/*.types.ts",
+        "src/internal/types.ts",
+        // Monaco mounts a browser-only editor and is the one component with no
+        // unit test file — see docs/component-authoring.md. Excluded explicitly
+        // rather than left to drag the average, so the number stays readable.
+        "src/components/Code/Editor/**",
+        "src/components/Code/Workspace/**",
+      ],
+
+      // Measured on 2026-08-28 at 87.17 / 82.63 / 90.76 / 87.83, then rounded
+      // down a couple of points: tight enough that deleting a test file fails
+      // CI, loose enough that a legitimate refactor moving a branch around does
+      // not. Raise them in the same commit that raises coverage — a threshold
+      // that never moves has stopped being a signal.
+      //
+      // The obvious next ratchet is src/typography/: seven presets (Code,
+      // Display, Lead, Mono, SectionTitle, Subtitle, Timestamp) sit at 0%
+      // because they have neither a test file nor a story the unit or ssr
+      // projects load. They are eight-line forwardRef wrappers, so covering
+      // them is cheap, and they are public subpath exports.
+      thresholds: { statements: 85, branches: 80, functions: 88, lines: 85 },
+    },
     projects: [
       // Unit tests with happy-dom (3-5× faster setup than jsdom)
       {

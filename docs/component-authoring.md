@@ -197,10 +197,12 @@ Every primitive folder follows the same shape:
 
 ```
 Button/
-  Button.tsx        # implementation
-  Button.test.tsx   # Vitest unit tests
-  Button.stories.tsx# Storybook stories
-  index.ts          # re-exports
+  Button.tsx              # implementation
+  Button.test.tsx         # Vitest unit tests
+  Button.stories.tsx      # Storybook stories
+  Button.visual.test.tsx  # screenshot baselines, both themes
+  __screenshots__/        # the committed baselines themselves
+  index.ts                # re-exports
 ```
 
 Complex primitives add a `components/` subdir for sub-parts and colocate `useX*.ts` hooks beside the root:
@@ -233,6 +235,58 @@ export const Tabs = Object.assign(TabsRoot, {
 ```
 
 The root renders only `<XContext.Provider>`; parts consume it via a `useXContext()` hook (`HoverCard.tsx:72`, `HoverCardTrigger.tsx:11`). Type the assembled value explicitly where the parts' types matter (`HoverCard.tsx:75-83`).
+
+---
+
+## A new component ships with a visual test
+
+Every component in `src/components/` carries a `*.visual.test.tsx` — the two
+exceptions are `Code/Editor` and `Code/Workspace`, where Monaco mounts
+asynchronously into a browser-only editor. A new one is expected to arrive with
+its own.
+
+The file is short by design. Stories are the fixtures and
+`src/testing/visual.tsx` is the camera:
+
+```tsx
+const { VariantIntentMatrix, AllSizes } = composeStories(stories);
+
+test.for(THEMES)("variant/intent matrix - %s", async (theme) => {
+  await expectScreenshot(<VariantIntentMatrix />, "variant-intent-matrix", theme);
+});
+```
+
+Shoot **two or three stories, not all of them** — the ones that put a whole axis
+on one surface (the variant × intent matrix, all sizes, the states). A story
+showing a single default instance adds a baseline to maintain and catches nothing
+the matrix does not. Skip stories whose interesting state is post-interaction;
+their play functions already assert the behaviour.
+
+Both themes, always, via `test.for(THEMES)`. Half the token surface only exists
+in one of them.
+
+**Portalled components use `expectViewportScreenshot`** with an `open` callback
+(`openByClick` / `openByHover`). Modal, Sheet, Toast, Tooltip, Popover and
+HoverCard render to `document.body`, so the framed shot would capture the trigger
+button and pass forever. The reasoning behind that choice is in
+`src/testing/visual.tsx`.
+
+**Nothing may read the wall clock.** The visual setup pins it to
+2026-03-12T10:30:00Z (`vitest.setup.visual.ts`) precisely because Calendar draws
+a ring on today; a baseline recorded against the real clock expires overnight.
+Pin data the same way — no `Math.random()`, no `new Date()`.
+
+Record in the devcontainer, never in CI:
+
+```bash
+bun run test:visual:update    # records
+bun run test:visual           # verifies
+```
+
+Commit the `__screenshots__/**/*-chromium-linux-arm64.png` files. If a baseline
+will not settle, fix the source rather than the tolerance — the
+`allowedMismatchedPixelRatio: 0` reasoning in `vitest.config.ts` explains why
+loosening it turns the suite into a blind spot.
 
 ---
 
@@ -329,6 +383,7 @@ Before opening a PR for a new primitive:
 - [ ] **`package.json` `exports` has the `"./kebab-name"` entry** (the silent-failure step).
 - [ ] Compound parts attached via `Object.assign` + a dedicated `*Context`.
 - [ ] A11y baked in: semantic role + `data-state` + hidden native input for custom controls; interactive affordances only when interactive; decorative SVGs `aria-hidden`; `useId()` for labels.
+- [ ] A `*.visual.test.tsx` shooting two or three matrix stories in both themes, with baselines recorded in the devcontainer; `expectViewportScreenshot` if the component portals.
 - [ ] `"use client"` on the implementation module if it uses a hook, a handler, a browser global, `createContext` or `FloatingPortal` — and *not* on the `index.ts` or on anything pure. `bun run check:use-client` decides.
 - [ ] Nothing reads `window`/`document` at render scope — the `ssr` test project renders every story through `renderToString` with no DOM.
 

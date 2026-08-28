@@ -1,0 +1,244 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+{/*
+  The landing page — the first thing the sidebar opens, pinned first by the
+  storySort order in .storybook/preview.tsx.
+
+  Scope: how to install it, the conventions that make the library predictable,
+  what it deliberately does not do, and what it costs you.
+
+  Deliberately NOT a catalog, in either direction: prop tables live on each
+  component's docs page, generated from the props themselves, and finding a
+  component by name is the sidebar's job. A hand-maintained index is exactly
+  what drifted in docs/component-catalog.md — and what a by-task index on this
+  page drifted into in turn.
+
+  Deliberately no rendered components either. Every story in the sidebar is a
+  live example already; a demo here would be a fourth copy of the same thing to
+  keep working, and this page is prose whose job is to be read once.
+
+  Counts in this file are checked by overview-links.test.ts. If you are about to
+  type a number here, expect that test to have an opinion about it.
+*/}
+
+<Meta title="Overview" />
+
+<div className="sb-unstyled">
+
+# @sixthshift/design-system
+
+</div>
+
+## Install
+
+```bash
+npm install @sixthshift/design-system
+```
+
+```css
+/* your CSS entry — Tailwind 4 is a required peer */
+@import "tailwindcss";
+@import "@sixthshift/design-system/theme.css";
+@source "../node_modules/@sixthshift/design-system";
+```
+
+```tsx
+import { Button } from "@sixthshift/design-system/button";
+```
+
+That is the whole setup. Two caveats before you paste it into a real app:
+
+The `theme.css` import is **opinionated** — it replaces Tailwind's default
+palette with this system's tokens and takes over a few globals. The README's
+*what the theme takes over* section is the full list; read it before adopting.
+
+**No prebuilt stylesheet ships.** The components are Tailwind classes, so your
+build compiles them from the `@theme` block that `theme.css` brings with it.
+That is what the `@source` line is for, and leaving it out is the single most
+common reason a component renders unstyled.
+
+## One subpath per component
+
+There is no root barrel — `import { Button } from "@sixthshift/design-system"`
+does not resolve, and never will. Every component is its own entry point, named
+as the kebab-case of the component:
+
+```tsx
+import { Button } from "@sixthshift/design-system/button";
+import { TagChip } from "@sixthshift/design-system/tag-chip";
+import { CheckboxGroup } from "@sixthshift/design-system/checkbox-group";
+```
+
+Three entry points break that rule and are worth memorising, because they are
+the ones you will guess wrong: `datetime-picker` and `datetime-range-picker`
+(not `date-time-*`), and `code-editor-workspace` (not `code-workspace`). Every
+component's docs page prints its own import line at the top, so you never have
+to guess anywhere else.
+
+The non-component surfaces follow the same shape: `/theme`, `/hooks`, `/utils`,
+`/format`, `/date-time`, plus one entry point per named typography component
+(`/heading`, `/label`, `/lead`, `/caption`, `/mono`, …).
+
+## Four conventions carry the whole library
+
+Learn these and every component behaves the way you expect.
+
+**`variant` × `intent` are orthogonal.** `variant` is the visual treatment —
+how loud the thing is:
+
+| `variant` | Treatment | Ships on |
+| --- | --- | --- |
+| `solid` | Filled. The default wherever it exists | Button, Toggle, Badge |
+| `outline` | A border, no fill | Button, Toggle, Badge |
+| `ghost` | Neither, until you interact with it | Button, Toggle |
+| `soft` | A tinted fill, low contrast | Badge |
+| `link` | Text and an underline, no box | Button |
+
+`intent` is what the thing *means* — and it is the same vocabulary everywhere,
+which is the half worth memorising:
+
+| `intent` | Meaning |
+| --- | --- |
+| `neutral` | No colour opinion. The default, so `brand` stays an affirmative choice |
+| `brand` | The primary action, or the branded thing |
+| `danger` | Destructive, or failed |
+| `success` | Done, healthy |
+| `warning` | Needs attention, has not failed yet |
+| `muted` | Deliberately de-emphasised — Badge only |
+
+The two axes cross freely, so a destructive primary action is a combination, not
+a component:
+
+```tsx
+<Button variant="solid" intent="danger">Delete</Button>
+```
+
+There is no `<DangerButton>`, and no `color="red"` — a token name describes
+meaning, never appearance, so a component that grows three special-case props is
+a sign the axes are wrong.
+
+Both axes are open. The prop types are widened (`"solid" | (string & {})`), and
+each cell resolves through a component token in `src/theme/recipes/`, so adding
+an intent is CSS in your own app rather than a release here — see Component
+Tokens below.
+
+**`asChild` for polymorphism.** Render a component's styling onto a different
+element — a router link, a label — instead of wrapping it:
+
+```tsx
+<Button asChild><a href="/settings">Settings</a></Button>
+```
+
+**Controlled or uncontrolled, your choice.** Pass `value` and `onChange` to
+drive a component; omit them and it keeps its own state.
+
+**Date and time components exchange ISO 8601 strings.** They use Temporal
+internally, via the bundled `/date-time` module — consuming a `DatePicker` does
+not mean adopting Temporal in your app.
+
+The `variant`/`intent`/`size` axes are being consolidated; `docs/component-axes.md`
+describes that target, and is explicitly ahead of the code.
+
+## What is not in here
+
+Knowing the gaps up front is faster than finding them one sidebar click at a
+time. This library deliberately does not ship:
+
+| Not included | What to do instead |
+| --- | --- |
+| An app shell — side rails, top bars, page chrome | Compose it in your app; `Tabs` covers in-page navigation only |
+| A data grid or table | Not built yet, and not a small component. Nothing here stands in for one |
+| A router, or router-aware links | Use `asChild` to render a `Button` as your router's link |
+| An icon set | `lucide-react` is a runtime dependency and used internally — import from it directly |
+| A form library | The components are controlled-or-uncontrolled; bring React Hook Form, or wire them by hand |
+| A root barrel export | By design. One subpath per component, so nothing you do not import is bundled |
+| Theming by editing component source | Override tokens instead — see Component Tokens below |
+
+## What it costs
+
+Every import drags something in. This is the whole of it:
+
+| If you import | You also pay for |
+| --- | --- |
+| Anything at all | `clsx` + `tailwind-merge` + `class-variance-authority` — roughly 19 kB gzipped, once |
+| An overlay — `Modal`, `Sheet`, `Popover`, `Tooltip`, `HoverCard`, `Select`, `Toast` | `@floating-ui/react`, for positioning |
+| A date or time picker — `Calendar`, `DatePicker`, `DateRangePicker`, `TimePicker`, `DateTimePicker`, `DateTimeRangePicker` | `@js-temporal/polyfill`. It is the heaviest unavoidable dependency here, and it is confined to these six |
+| `/code-editor`, `/code-editor-workspace` | `monaco-editor` + `@monaco-editor/react` — **optional peers**, ~74 MB on disk, and not installed unless you ask for them |
+| `/markdown` | `react-markdown` — an optional peer |
+| The default typefaces | The two `@fontsource-variable` packages — optional peers. Skip them and text falls back to `ui-sans-serif` / `ui-monospace`: everything still works, it just will not match Storybook |
+
+The module tree is published unbundled, so subpath imports tree-shake — a
+`Button`-only app never sees Floating UI or Temporal. Everything beyond `react`,
+`react-dom` and `tailwindcss` that is marked optional above is genuinely
+optional; package managers will not warn about it, and nothing else in the
+library imports it.
+
+## Requirements
+
+| | |
+| --- | --- |
+| React | 18 or 19 — both verified in CI on every change |
+| Tailwind | 4, as a required peer |
+| Modules | ESM only. `require()` of any subpath fails with `ERR_PACKAGE_PATH_NOT_EXPORTED` |
+| TypeScript | `"moduleResolution"` must be `bundler`, `node16` or `nodenext`. The legacy `"node"` setting ignores the `exports` map and fails with `TS2307` on every subpath |
+
+## Where to go next
+
+<div className="sb-unstyled grid gap-3 sm:grid-cols-2">
+
+<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
+
+**[Components](?path=/docs/components-button--docs)**
+
+The catalog — all 44, alphabetical in the sidebar. Every page carries its import
+line, a live example, and a prop table generated from the source.
+
+</div>
+
+<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
+
+**[Theme](?path=/story/design-system-theme--all-tokens)**
+
+Tier 2: what a colour *means* — `bg-*`, `fg-*`, `border-*` — and their
+interactive states. Every value points at a palette entry, and this is the tier
+that remaps between light and dark. Start here when you are styling something
+the library does not cover.
+
+</div>
+
+<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
+
+**[Component Tokens](?path=/story/design-system-component-tokens--reference)**
+
+Tier 3: each component's own `--component-*` variables. Open this when a
+component's default is wrong and you want to change it everywhere, without
+forking the source.
+
+</div>
+
+<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
+
+**[Palette](?path=/story/design-system-palette--all-scales)**
+
+Tier 1: the raw colour scales the semantic tokens are built from. Reference
+material — components never name these directly, so a re-skin edits this tier
+alone.
+
+</div>
+
+<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
+
+**[Typography](?path=/story/design-system-typography--type-scale)**
+
+The type scale, weights, families, and the hierarchy they compose into.
+
+</div>
+
+</div>
+
+## The bar this holds itself to
+
+Accessibility violations fail CI rather than filing a backlog ticket. Every
+story is executed in both light and dark, as two separate test projects. The
+unit suite runs against React 18 and 19. That is why the guidance above is safe
+to take literally.

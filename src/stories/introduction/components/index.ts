@@ -1,1 +1,0 @@
-export { ProofStrip } from "./ProofStrip";

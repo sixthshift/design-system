@@ -42,6 +42,16 @@ TypeScript sources are published too, but only as the target of the declaration 
 
 **Module resolution:** subpath types only resolve under `"moduleResolution": "bundler"`, `"node16"`, or `"nodenext"` in `tsconfig.json`. The older `"node"` setting ignores the `exports` map entirely and fails with `TS2307` on every subpath. The package is also ESM-only — every `exports` entry has an `"import"` condition and nothing else, so `require("@sixthshift/design-system/button")` fails with `ERR_PACKAGE_PATH_NOT_EXPORTED`. A CJS test runner (e.g. Jest without ESM configured) needs to be set up for ESM before it can import this package.
 
+Those four sentences are enforced, not just written down. `bun run check:consumer-resolution`
+type-checks [a real consumer](fixtures/consumer-resolution/consumer.tsx) — importing
+by package name, so resolution goes through `exports` — under each of
+`bundler`, `node16` and `nodenext`, and asserts that `node10` still fails with
+`TS2307` on every subpath. `bun run check:published` runs
+[publint](https://publint.dev) and [arethetypeswrong](https://arethetypeswrong.github.io)
+over the packed tarball and holds all 69 subpath entries to the same
+`{ types, import }` shape, so an accidental `require` condition cannot slip in.
+Both run in CI.
+
 ### Server Components / Next.js App Router
 
 Nothing to configure — import components straight into a server file:

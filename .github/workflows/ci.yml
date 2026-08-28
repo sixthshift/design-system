@@ -49,6 +49,16 @@ jobs:
       - name: Lint and format
         run: bun run check
 
+      # Over the packed tarball, so it sees what npm will serve rather than the
+      # working tree. dist/ already exists — `bun install` runs `prepare`.
+      - name: Validate the published package
+        run: bun run check:published
+
+      # Type-checks a consumer under every moduleResolution the README makes a
+      # promise about, including the one it documents as broken.
+      - name: Consumer resolution
+        run: bun run check:consumer-resolution
+
       - name: Tests
         run: bun run test
 

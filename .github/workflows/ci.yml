@@ -59,6 +59,12 @@ jobs:
       - name: Consumer resolution
         run: bun run check:consumer-resolution
 
+      # Diffs the committed public API surface. Releases are unattended, so a
+      # rename filed as `refactor:` would ship a patch bump; this puts the change
+      # in the pull request where a human can label it.
+      - name: Public API surface
+        run: bun run check:api
+
       # The same projects `bun run test` covers, with the coverage gate on top,
       # so the suite runs once rather than twice. Thresholds live in
       # vitest.config.ts.

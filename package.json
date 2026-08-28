@@ -340,6 +340,8 @@
     "check:fix": "biome check --write .",
     "check:recipes": "bun run scripts/check-recipes.ts",
     "check:contrast": "bun run scripts/check-contrast.ts",
+    "check:api": "bun run scripts/api-snapshot.ts --check",
+    "api:update": "bun run scripts/api-snapshot.ts",
     "check:published": "bun run scripts/check-published.ts",
     "check:consumer-resolution": "bun run scripts/check-consumer-resolution.ts",
     "check:use-client": "bun run scripts/check-use-client.ts",

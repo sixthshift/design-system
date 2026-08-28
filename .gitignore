@@ -29,6 +29,11 @@ Thumbs.db
 coverage/
 # Visual-diff output; baselines under src/**/__screenshots__ ARE committed
 .vitest-attachments/
+# A failed screenshot assertion also drops the actual render *beside* the
+# baseline, as `<File>-<test name>-<n>.png`. Baselines always carry a
+# `-<browser>-<platform>-<arch>` suffix, so anything ending `-<n>.png` is a
+# leftover from a failing run and must never be committed.
+src/**/__screenshots__/**/*-[0-9].png
 .playwright-mcp/
 .playwright/
 

@@ -98,6 +98,13 @@ export default defineConfig({
           name: "visual",
           include: ["src/**/*.visual.test.tsx"],
           setupFiles: ["./vitest.setup.visual.ts"],
+          // Same reason the storybook project below serialises, reached the same
+          // way: at six files this ran parallel without complaint, and at
+          // thirty-four it started timing out — Card, Field and Button each
+          // failed a different run, always on "did not succeed in time", never
+          // on a pixel. Screenshots contend for one browser, so the cost of
+          // parallelism here is a suite that fails at random.
+          fileParallelism: false,
           browser: {
             enabled: true,
             headless: true,

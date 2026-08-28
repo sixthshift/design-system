@@ -21,6 +21,24 @@ const BROWSER_OPTIMIZE_DEPS = ["react", "react-dom", "react-dom/client", "react/
 // file that interacts with its component needs this pinned.
 const STORYBOOK_OPTIMIZE_DEPS = [...BROWSER_OPTIMIZE_DEPS, "storybook/test"];
 
+// The visual project composes the same story files, so it inherits the same
+// lazy-discovery problem and then some: the component tree drags in Floating UI,
+// the icon set and the class utilities, and none of them are reachable from the
+// test file itself. Both reloads seen while recording baselines came from this
+// list being short. Naming every dependency the run actually resolves is the
+// only version of this that stays fixed as more components get baselines.
+const VISUAL_OPTIMIZE_DEPS = [
+  ...STORYBOOK_OPTIMIZE_DEPS,
+  "@floating-ui/react",
+  "@storybook/react",
+  "@testing-library/react",
+  "@testing-library/user-event",
+  "class-variance-authority",
+  "clsx",
+  "lucide-react",
+  "tailwind-merge",
+];
+
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   // Components import each other by package name, which the `exports` map now
@@ -75,10 +93,7 @@ export default defineConfig({
       {
         extends: true,
         plugins: [tailwindcss()],
-        // lucide-react joins the list for the same reason: the icons only appear
-        // once a component story is imported, so Vite discovered it mid-run,
-        // re-optimized and reloaded the page — with a screenshot in flight.
-        optimizeDeps: { include: [...BROWSER_OPTIMIZE_DEPS, "@testing-library/react", "lucide-react"] },
+        optimizeDeps: { include: VISUAL_OPTIMIZE_DEPS },
         test: {
           name: "visual",
           include: ["src/**/*.visual.test.tsx"],

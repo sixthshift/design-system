@@ -10,7 +10,7 @@ const describe = (attrs: Record<string, string>) =>
     .join(" · ");
 
 /**
- * Every recipe named in `hooks` (or all of them), for one mode.
+ * Every recipe named in `hooks`, for one mode.
  *
  * The subtree is pinned to the mode's token values so light and dark can sit on
  * one page — `data-theme` is matched on `:root` and does nothing on a nested
@@ -18,9 +18,9 @@ const describe = (attrs: Record<string, string>) =>
  * leaves text inheriting whatever colour the ambient theme already computed,
  * which is white-on-white when the two disagree. The a11y suite caught that.
  */
-export function RecipeTables({ mode, hooks }: { mode: "light" | "dark"; hooks?: readonly string[] }) {
+export function RecipeTables({ mode, hooks }: { mode: "light" | "dark"; hooks: readonly string[] }) {
   const modeVars = modeVarsFrom(readTokens(mode));
-  const recipes = readRecipes().filter((recipe) => !hooks || hooks.includes(recipe.hook));
+  const recipes = readRecipes().filter((recipe) => hooks.includes(recipe.hook));
 
   return (
     <div style={modeVars as React.CSSProperties} className="flex flex-col gap-8 rounded-lg bg-bg-normal p-4 text-fg-normal">

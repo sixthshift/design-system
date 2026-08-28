@@ -75,7 +75,10 @@ export default defineConfig({
       {
         extends: true,
         plugins: [tailwindcss()],
-        optimizeDeps: { include: [...BROWSER_OPTIMIZE_DEPS, "@testing-library/react"] },
+        // lucide-react joins the list for the same reason: the icons only appear
+        // once a component story is imported, so Vite discovered it mid-run,
+        // re-optimized and reloaded the page — with a screenshot in flight.
+        optimizeDeps: { include: [...BROWSER_OPTIMIZE_DEPS, "@testing-library/react", "lucide-react"] },
         test: {
           name: "visual",
           include: ["src/**/*.visual.test.tsx"],

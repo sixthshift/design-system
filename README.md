@@ -38,6 +38,14 @@ import { Button } from "@sixthshift/design-system/button";
 
 **What ships:** compiled ESM (`.js`) plus type declarations (`.d.ts`) in `dist/`, and the tokens as CSS. No prebuilt stylesheet: the components are Tailwind classes, so your build compiles them from the `@theme` block `theme.css` brings with it. Nothing runs on install and no consumer toolchain has to transpile this package. The module tree is preserved rather than bundled, so subpath imports still tree-shake.
 
+That last sentence is measured, not asserted. `bun run check:size` bundles ten
+representative subpaths in isolation and holds each to a committed budget —
+`/button` is 9.9 kB gzipped and cannot reach Floating UI, Temporal or Monaco;
+`/code-editor` is 2.5 kB because Monaco stays an optional peer. Tree-shaking is
+doing real work: lucide-react is 1.4 MB of source and contributes 1.6 kB to
+`/date-picker`. `bun run scripts/check-size.ts --why ./button` breaks any entry
+down by what actually survives into the bundle.
+
 TypeScript sources are published too, but only as the target of the declaration and source maps — nothing resolves to them. Go-to-definition lands on real `.tsx`, and stack traces map back to it.
 
 **Module resolution:** subpath types only resolve under `"moduleResolution": "bundler"`, `"node16"`, or `"nodenext"` in `tsconfig.json`. The older `"node"` setting ignores the `exports` map entirely and fails with `TS2307` on every subpath. The package is also ESM-only — every `exports` entry has an `"import"` condition and nothing else, so `require("@sixthshift/design-system/button")` fails with `ERR_PACKAGE_PATH_NOT_EXPORTED`. A CJS test runner (e.g. Jest without ESM configured) needs to be set up for ESM before it can import this package.

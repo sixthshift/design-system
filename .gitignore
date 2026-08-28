@@ -27,6 +27,10 @@ Thumbs.db
 
 # Testing
 coverage/
+# publint and attw both pack the package to inspect what npm would serve, and
+# both clean up after themselves — but not if they die mid-run.
+*.tgz
+
 # Visual-diff output; baselines under src/**/__screenshots__ ARE committed
 .vitest-attachments/
 # A failed screenshot assertion also drops the actual render *beside* the

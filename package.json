@@ -339,6 +339,8 @@
     "check:fix": "biome check --write .",
     "check:recipes": "bun run scripts/check-recipes.ts",
     "check:contrast": "bun run scripts/check-contrast.ts",
+    "check:published": "bun run scripts/check-published.ts",
+    "check:consumer-resolution": "bun run scripts/check-consumer-resolution.ts",
     "check:use-client": "bun run scripts/check-use-client.ts",
     "clean": "rm -rf dist node_modules *.tsbuildinfo",
     "clean:dist": "rm -rf dist"
@@ -352,6 +354,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@biomejs/biome": "2.4.15",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
@@ -377,6 +380,7 @@
     "happy-dom": "^20.9.0",
     "monaco-editor": "^0.55.1",
     "playwright": "^1.57.0",
+    "publint": "^0.3.24",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^10.1.0",

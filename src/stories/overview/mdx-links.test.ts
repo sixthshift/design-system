@@ -149,7 +149,7 @@ describe("MDX pages", () => {
 
   /** Every `data-variant` / `data-intent` value tier 3 selects on, by recipe. */
   function declared(attribute: "variant" | "intent"): Map<string, Set<string>> {
-    const dir = join(SRC, "theme", "recipes");
+    const dir = join(SRC, "theming", "recipes");
     const byValue = new Map<string, Set<string>>();
     for (const file of readdirSync(dir).filter((f) => f.endsWith(".css") && f !== "index.css")) {
       const component = file
@@ -198,12 +198,12 @@ describe("Theming page", () => {
   /**
    * The page teaches the naming convention through TokenBuilder rather than in
    * prose, so the widget's option lists *are* the documented vocabulary. A slot
-   * value added to src/theme/schema.ts and not to the widget shortens the
+   * value added to src/theming/vocabulary.ts and not to the widget shortens the
    * grammar a reader is shown, silently — nothing else would notice, because
    * the widget renders a perfectly plausible shorter list.
    */
   it("offers exactly the vocabulary the schema declares", async () => {
-    const schema = await import("../../theme/schema");
+    const schema = await import("../../theming/vocabulary");
     const { SLOTS } = await import("../theming/components/TokenBuilder");
 
     // `fg-on` is a context in the widget and a naming variation in the schema:
@@ -221,7 +221,7 @@ describe("Theming page", () => {
    * utilities exist. It is the only hand-written mapping left on it.
    */
   it("quotes an @theme entry that is really declared", () => {
-    const tokens = readFileSync(join(SRC, "theme", "tokens.css"), "utf8");
+    const tokens = readFileSync(join(SRC, "theming", "tailwind.css"), "utf8");
     const quoted = Array.from(page().matchAll(/`(--color-[\w-]+): (var\(--[\w-]+\))`/g));
 
     expect(quoted.length, "the @theme explanation is gone").toBeGreaterThan(0);

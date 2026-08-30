@@ -1,5 +1,5 @@
 import { Text } from "@sixthshift/design-system/text";
-import { readTokens, type TokenSet } from "../../theme/read-tokens";
+import { readTokens, type TokenSet } from "../../../theme/read-tokens";
 
 const interactiveStates = ["hovered", "pressed", "disabled"] as const;
 

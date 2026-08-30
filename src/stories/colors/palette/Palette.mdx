@@ -1,0 +1,146 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import * as PaletteStories from "./Palette.stories";
+import { PaletteScales, SpineChart } from "./components";
+
+{/*
+  Tier 1 of the default theme (src/theme/default/palette.css), as swatches and as an argument.
+
+  A docs page rather than a bare story because the scales do not explain
+  themselves: the reason a stop looks right is a construction rule, and the rule
+  had nowhere to live next to the colours it produced. The swatches, the chart
+  and the numbers beside every swatch all read the assembled theme back at render time
+  (components/PaletteScales.tsx, components/SpineChart.tsx), so this page cannot
+  drift from the stylesheet the way a written-out table would.
+
+  Attached to Palette.stories.tsx, so the per-family stories keep their ids and
+  the links other pages already point at keep resolving. Links are checked by
+  ../../overview/mdx-links.test.ts.
+*/}
+
+<Meta of={PaletteStories} />
+
+<div className="sb-unstyled">
+
+# Palette
+
+</div>
+
+The raw colour scales — seven families, eleven stops each. This is tier 1: it is
+referenced only by the semantic tokens in tier 2, and never by a component. A
+re-skin is a tier-1 edit, which is the whole point of the three-tier split that
+[Theming](?path=/docs/design-system-theming--docs) describes.
+
+Every swatch below is read out of the stylesheet at render time, hex and
+measured lightness both. Nothing on this page is typed out by hand.
+
+<PaletteScales />
+
+## The spine
+
+The families are not seven independent choices. Each runs on **one shared OKLCH
+spine**: the same eleven lightness stops, one chroma envelope peaking at
+500–600, and one hue held constant down the ramp.
+
+<SpineChart />
+
+Seven lines lying on top of each other is the argument. Three properties follow
+from it, and each one is a defect the palette used to have:
+
+**A stop means the same thing in every hue.** A `ruby-300` badge and an
+`emerald-300` badge carry equal visual weight. Before this construction
+`sky-300` sat at L=.851 and `ruby-300` at L=.736 — a difference of .115 at the
+same stop, which is what made the system read as unconsidered.
+
+**A state change is a deepening, not a hue shift.** Hue is constant per family,
+give or take 8° of drift toward the ends that corrects for the Abney effect.
+`ocean` used to swing 252°→269° with chroma zig-zagging `.106 → .092 → .111 →
+.090 → .104`, so a button hover — 600 → 700 — changed colour family rather than
+getting darker.
+
+**No cliffs.** Lightness is monotonic and evenly stepped. `sky` used to fall .21
+between 400 (`#44c9e2`, a bright cyan) and 500 (`#1282a2`, a dark teal) where
+every other step moved about .08. It was two ramps glued together.
+
+### The stops
+
+| Stop | Lightness (chromatic) | Lightness (neutral) | Chroma (× family peak) |
+| ---: | --------------------: | ------------------: | ---------------------: |
+|   50 |                 0.982 |               0.982 |                   0.07 |
+|  100 |                 0.950 |               0.950 |                   0.19 |
+|  200 |                 0.898 |               0.898 |                   0.37 |
+|  300 |                 0.820 |               0.820 |                   0.58 |
+|  400 |                 0.700 |               0.700 |                   0.80 |
+|  500 |                 0.545 |               0.545 |                   0.97 |
+|  600 |                 0.470 |               0.470 |                   1.00 |
+|  700 |                 0.404 |               0.390 |                   0.88 |
+|  800 |                 0.336 |               0.300 |                   0.72 |
+|  900 |                 0.272 |               0.225 |                   0.58 |
+|  950 |                 0.205 |               0.150 |                   0.42 |
+
+### Why the neutrals leave the bundle
+
+`slate` and `earth` run deeper than the chromatic spine from 700 down — the one
+divergence visible in the chart. Neutrals carry surfaces rather than accents:
+`slate-900` is the dark-mode page background, so it has to reach a real dark
+(L=.225) rather than the L=.272 that suits an accent's 900.
+
+### Why 500 and 600 are not free
+
+Both are fills that carry white text — `bg-brand` resolves to 600 in light mode
+and to 500 in dark — so their lightness is bounded by WCAG AA against white. The
+spine's 500 stop sits at .545 rather than a rounder .565 for exactly that
+reason: at .565, `emerald-500` came in at 4.30:1.
+
+`bun run check:contrast` is the gate. It checks all 162 token pairings in both
+modes, and it is the thing to run after any tier-1 edit.
+
+## The families
+
+| Family | Hue | Peak chroma | Role |
+| --- | ---: | ---: | --- |
+| `ocean` | 250 | 0.135 | Brand, focus ring |
+| `emerald` | 156 | 0.120 | Success |
+| `topaz` | 65 | 0.145 | Warning |
+| `ruby` | 25 | 0.175 | Danger |
+| `slate` | 256 | 0.022 | Neutral — every surface, border and text |
+| `sky` | 218 | 0.120 | Unwired — an info hue, already on-spine |
+| `earth` | 66 | 0.034 | Unwired — a warm neutral, already on-spine |
+
+Chroma is deliberately moderate. A default theme has to survive being someone
+else's brand-adjacent neutral ground, so the accents are confident without being
+loud, and `slate` keeps a slight cool bias (C=.022) rather than going flat grey —
+enough that a surface feels chosen, not enough to force a blue cast over
+everything a consumer builds on top.
+
+`sky` and `earth` are declared but referenced by no semantic token. They are
+there so that re-skinning tier 2 starts from an info hue and a warm neutral
+already sitting on the spine, rather than one hand-mixed against it.
+
+## Changing it
+
+**Regenerate the whole spine rather than nudging one value.** An off-spine stop
+is precisely the defect this construction removes, and a single hand-tuned hex
+stays invisible until it turns up beside its neighbours in a component.
+
+Change one of three things — a family's hue, a family's peak chroma, or a spine
+constant — then re-emit all seven scales in OKLCH, gamut-map each into sRGB by
+reducing chroma until every channel is in range, and write the resulting hex
+values into the `:root` block of `src/theme/default/palette.css`. Then:
+
+```sh
+bun run check:contrast          # 162 pairings, both modes — the hard gate
+bun run test:stories            # story a11y suite, light and dark
+bun run test:visual:update      # baselines change by design when fills move
+```
+
+Bump `--theme-version` in the same commit. It is declared as a variable rather
+than a comment so anything that wants it can read it at runtime — the
+[Theme](?path=/docs/design-system-theme--docs) sheet does exactly that.
+
+## Where to go next
+
+| You want | Go to |
+| --- | --- |
+| What a colour *means*, and which token to type | [Semantic](?path=/story/design-system-colors-semantic--all-tokens) |
+| Every variable the theme declares | [Theme](?path=/docs/design-system-theme--docs) |
+| How to override any of it in your own app | [Theming](?path=/docs/design-system-theming--docs) |

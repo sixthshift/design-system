@@ -3,7 +3,7 @@ import { readTokens } from "../../theme/read-tokens";
 import { modeVarsFrom, readRecipes } from "../read-recipes";
 import { CellRow, type Column } from "./CellRow";
 
-/** Describe a cell by its attribute values — `solid · neutral` beats a selector. */
+/** Describe a row by its attribute values — `solid · neutral` beats a selector. */
 const describe = (attrs: Record<string, string>) =>
   Object.entries(attrs)
     .map(([, value]) => value)

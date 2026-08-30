@@ -2,7 +2,7 @@
  * Reads the component-token layer back out of the stylesheet at runtime.
  *
  * The sibling of read-tokens.ts, for tier 3. Same principle and same payoff: the
- * recipes in src/theme/recipes/*.css are the only source, so the reference story
+ * recipes in src/theming/recipes/*.css are the only source, so the reference story
  * reads the shipped CSS through the CSSOM rather than a copy someone has to
  * remember to update. Delete a cell and the row documenting it disappears.
  *

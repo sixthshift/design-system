@@ -1,8 +1,8 @@
 import { Meta } from "@storybook/addon-docs/blocks";
 
 {/*
-  The landing page — the first thing the sidebar opens, pinned first by the
-  storySort order in .storybook/preview.tsx.
+  The landing page — the first thing the sidebar opens, pinned first inside
+  Design System by the storySort order in .storybook/preview.tsx.
 
   Scope: how to install it, the conventions that make the library predictable,
   what it deliberately does not do, and what it costs you.
@@ -21,7 +21,7 @@ import { Meta } from "@storybook/addon-docs/blocks";
   type a number here, expect that test to have an opinion about it.
 */}
 
-<Meta title="Overview" />
+<Meta title="Design System/Overview" />
 
 <div className="sb-unstyled">
 
@@ -38,7 +38,7 @@ npm install @sixthshift/design-system
 ```css
 /* your CSS entry — Tailwind 4 is a required peer */
 @import "tailwindcss";
-@import "@sixthshift/design-system/theme.css";
+@import "@sixthshift/design-system/themes/default.css";
 @source "../node_modules/@sixthshift/design-system";
 ```
 
@@ -48,12 +48,13 @@ import { Button } from "@sixthshift/design-system/button";
 
 That is the whole setup. Two caveats before you paste it into a real app:
 
-The `theme.css` import is **opinionated** — it replaces Tailwind's default
-palette with this system's tokens and takes over a few globals. The README's
-*what the theme takes over* section is the full list; read it before adopting.
+The theme import is **opinionated** — it replaces Tailwind's default
+palette with this system's tokens and takes over a few globals.
+[Theming](?path=/docs/design-system-theming--docs) lists all of it; read that
+before adopting.
 
 **No prebuilt stylesheet ships.** The components are Tailwind classes, so your
-build compiles them from the `@theme` block that `theme.css` brings with it.
+build compiles them from the `@theme` block that the theme import brings with it.
 That is what the `@source` line is for, and leaving it out is the single most
 common reason a component renders unstyled.
 
@@ -118,7 +119,7 @@ meaning, never appearance, so a component that grows three special-case props is
 a sign the axes are wrong.
 
 Both axes are open. The prop types are widened (`"solid" | (string & {})`), and
-each cell resolves through a component token in `src/theme/recipes/`, so adding
+each cell resolves through a component token in `src/theming/recipes/`, so adding
 an intent is CSS in your own app rather than a release here — see Component
 Tokens below.
 
@@ -152,7 +153,7 @@ time. This library deliberately does not ship:
 | An icon set | `lucide-react` is a runtime dependency and used internally — import from it directly |
 | A form library | The components are controlled-or-uncontrolled; bring React Hook Form, or wire them by hand |
 | A root barrel export | By design. One subpath per component, so nothing you do not import is bundled |
-| Theming by editing component source | Override tokens instead — see Component Tokens below |
+| Theming by editing component source | Override tokens instead — see Theming below, and each component's *Component tokens* Docs section |
 
 ## What it costs
 
@@ -197,28 +198,36 @@ line, a live example, and a prop table generated from the source.
 
 <div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
 
-**[Theme](?path=/story/design-system-theme--all-tokens)**
+**[Theming](?path=/docs/design-system-theming--docs)**
 
-Tier 2: what a colour *means* — `bg-*`, `fg-*`, `border-*` — and their
-interactive states. Every value points at a palette entry, and this is the tier
-that remaps between light and dark. Start here when you are styling something
-the library does not cover.
-
-</div>
-
-<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
-
-**[Component Tokens](?path=/story/design-system-component-tokens-overrides--rewire-a-cell)**
-
-Tier 3: each component's own `--component-*` variables, tabulated on that
-component's own Docs tab. Open this when a component's default is wrong and you
-want to change it everywhere, without forking the source.
+**Start here.** The semantic tokens — what a colour *means*, the naming
+grammar, the utilities they compile into, how light and dark are declared, and
+how to re-skin one. Where to reach first when you are styling anything.
 
 </div>
 
 <div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
 
-**[Palette](?path=/story/design-system-palette--all-scales)**
+**[Theme](?path=/docs/design-system-theme--docs)**
+
+Copy a starting theme file for your own app, pre-filled with the shipped
+values — then the full reference: every CSS variable the system declares, in
+both modes, filterable, parsed from the stylesheet itself.
+
+</div>
+
+<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
+
+**[Semantic](?path=/story/design-system-colors-semantic--all-tokens)**
+
+The same colour tokens as swatches rather than a list — every meaning in light
+and dark, side by side, with how each moves under hover, press and disable.
+
+</div>
+
+<div className="rounded-lg border border-border-subtle bg-bg-subtle p-4">
+
+**[Palette](?path=/story/design-system-colors-palette--all-scales)**
 
 Tier 1: the raw colour scales the semantic tokens are built from. Reference
 material — components never name these directly, so a re-skin edits this tier

@@ -1,0 +1,199 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import { FamilyAnatomy, PairingDemo, TokenBuilder } from "./components";
+
+{/*
+  The how-to page for the semantic token layer, pinned first under Design System
+  by the storySort order in .storybook/preview.tsx.
+
+  Scope is one layer. Semantic tokens are what a consumer reads, writes and
+  re-skins; the per-component layer on top of them is documented on each
+  component's own Docs tab (a standalone how-to page was tried and cut — it
+  restated what the tabs already show).
+
+  The palette is absent on purpose too: it coordinates the semantic values with
+  each other, and nothing downstream may name it. Design System → Palette exists
+  for the person tuning those values.
+
+  Shape: TokenBuilder carries the whole naming convention — grammar, vocabulary,
+  which combinations exist, what they resolve to, and the utility each compiles
+  into — so the page does not restate any of that in prose. What is left is the
+  three things the widget cannot do: the fg/fg-on distinction (PairingDemo), the
+  set you must change together when re-skinning (FamilyAnatomy), and the rules
+  that only show up as silent breakage.
+
+  Links are checked by ../overview/mdx-links.test.ts, which also holds the
+  widget's slot vocabulary against src/theming/vocabulary.ts. The components are
+  pinned by ./theming.visual.test.tsx.
+*/}
+
+<Meta title="Design System/Theming" />
+
+<div className="sb-unstyled">
+
+# Theming
+
+</div>
+
+Semantic tokens are the theming surface. Each one names **a meaning, not a
+colour** — `--bg-danger`, not `--bg-red` — and carries one value per mode.
+Components read them, your markup reads them, and re-declaring one re-skins
+every surface that means the same thing.
+
+```css
+@import "tailwindcss";
+@import "@sixthshift/design-system/themes/default.css";   /* the tokens + their utilities */
+@source "../node_modules/@sixthshift/design-system";
+```
+
+`@source` is required — Tailwind 4 never scans `node_modules`, and without it
+every component renders unstyled.
+
+## Build a token name
+
+Names are assembled left to right, and you stop as soon as you have said enough:
+`--bg-danger` is a complete name, and most tokens use neither of the last two
+slots.
+
+<TokenBuilder />
+
+A ✕ marks an option that would name something the stylesheet does not declare.
+Those gaps are the convention, not an oversight — the clearest one being that
+`normal`, `subtle` and `strong` take no weight, because **they are the weight**.
+They are one grey scale, so `--bg-subtle-strong` asks for two positions at once.
+The four intents that carry meaning are a hue, and the weight says how loud to
+be within it.
+
+## `fg` versus `fg-on`
+
+The one distinction the builder cannot teach you, because both names are real.
+`--fg-danger` is danger-coloured text on an **ordinary** surface;
+`--fg-on-danger` is the text that goes **on top of** `--bg-danger`.
+
+<PairingDemo />
+
+The rule: if the element behind your text is painted with `--bg-{intent}`, the
+text is `--fg-on-{intent}`. Otherwise it is `--fg-{intent}`. Weight travels with
+the pair — `--bg-danger-subtle` wants `--fg-on-danger-subtle`.
+
+Every `fg-on-*` pairing the library ships is verified at 4.5:1 by
+`bun run check:contrast`. The two halves of a mismatched pair are not, because
+they were never meant to meet.
+
+## Using them
+
+Two ways in, resolving to the same variable:
+
+```tsx
+<aside className="bg-bg-danger-subtle text-fg-on-danger-subtle border border-border-danger">
+```
+
+```css
+.receipt-total { color: var(--fg-danger); }
+```
+
+The utilities exist because each token has a matching `@theme` entry
+(`--color-bg-danger: var(--bg-danger)` is what makes `bg-bg-danger` compile).
+That block also sets `--color-*: initial`, dropping Tailwind's stock colours, so
+`bg-red-500` does not compile in your own markup either. Re-declare any you want
+back in your own `@theme` after the import.
+
+Non-colour tokens work the same way:
+
+| Tokens | Utility | Values |
+| --- | --- | --- |
+| `--z-index-*` | `z-modal` | `content-sticky` 10 · `app-bar` 30 · `sheet` 50 · `popover` 60 · `modal` 70 · `toast` 9999 |
+| `--animate-*` | `animate-fade-in` | `fade-in/out`, `fade-in/out-slow`, `slide-{up,right,left}-in/out` |
+| `--font-sans`, `--font-mono` | `font-sans` | Inter Variable, JetBrains Mono Variable |
+
+One token sits outside the naming convention entirely: `--focus-ring`.
+
+## Light and dark
+
+This layer is where the two modes live: same names, two blocks, and nothing
+downstream has to know a mode exists.
+
+```css
+:root:not([data-theme]),
+:root[data-theme="light"] { --bg-danger: #9e2533; }
+:root[data-theme="dark"]  { --bg-danger: #d55368; }
+```
+
+Mode is a `data-theme` attribute on `:root`, not `prefers-color-scheme`. The
+`:not([data-theme])` half covers an app that has not set the attribute yet, and
+declaring a token in one block only leaves it **undefined** in the other — no
+error, no fallback.
+
+Set the attribute however you like; the bundled hook is the short path:
+
+```tsx
+import { bootstrapTheme, useTheme } from "@sixthshift/design-system/hooks";
+
+useEffect(() => bootstrapTheme(), []);            // once, at app bootstrap
+
+const { theme, resolvedTheme, setTheme, toggleTheme } = useTheme();
+// theme: "light" | "dark" | "system" — stored, syncs across tabs
+// resolvedTheme: what "system" currently means right now
+```
+
+Because mode is an attribute, `dark:` in **your** markup also means
+`[data-theme="dark"]` rather than the OS setting.
+
+## Re-skinning
+
+Redeclare the tokens, in both blocks, in your own stylesheet after the import.
+Everything that means the same thing follows — no component knows it happened:
+
+```css
+:root:not([data-theme]),
+:root[data-theme="light"] { --bg-brand: #6d28d9; --fg-on-brand: #ffffff; }
+:root[data-theme="dark"]  { --bg-brand: #a78bfa; --fg-on-brand: #1a0b2e; }
+```
+
+Re-skin the whole family, not one token of it: `--bg-brand` without
+`--bg-brand-hovered` gives you a button that snaps back to the old hue the
+moment it is hovered. **[Theme](?path=/docs/design-system-theme--docs) emits the
+whole family as CSS you can copy**, pre-filled with the shipped values — start
+from that rather than assembling it from here. This is what one contains:
+
+<FamilyAnatomy family="danger" />
+
+**Adding a token of your own** — say a new `info` intent — takes the same two
+blocks, plus an `@theme` entry if you also want the Tailwind utility:
+
+```css
+:root:not([data-theme]),
+:root[data-theme="light"] { --bg-info: #034078; --fg-on-info: #ffffff; }
+:root[data-theme="dark"]  { --bg-info: #6691c7; --fg-on-info: #06121f; }
+
+@theme { --color-bg-info: var(--bg-info); }   /* only if you want `bg-bg-info` */
+```
+
+You own the contrast of anything you add or re-point: `bun run check:contrast`
+only sees the pairings the library ships.
+
+## The silent failures
+
+None of these raise an error. Each just renders the wrong thing.
+
+| Mistake | What happens |
+| --- | --- |
+| Token declared in one mode block only | Undefined in the other mode |
+| New token with no `@theme` entry | `var(--bg-info)` works, the `bg-bg-info` utility never compiles |
+| `--fg-danger` where `--fg-on-danger` belongs | Danger-on-danger. Legible in review, unreadable in production |
+| Override wrapped in `@layer` | Loses. The cascade compares layers before specificity, and the library's tokens are unlayered — so yours must be too |
+| One token of a family re-skinned | The hover, pressed or disabled state snaps back to the old hue |
+
+## Lookups
+
+| Question | Where |
+| --- | --- |
+| Does this token exist, and what does it resolve to? | The builder above |
+| Every variable the system declares | [Theme](?path=/docs/design-system-theme--docs) — the full reference sheet, filterable |
+| The colour tokens as swatches | [Semantic](?path=/story/design-system-colors-semantic--all-tokens), with [interactive states](?path=/story/design-system-colors-semantic--interactive-states) |
+| Is my pairing accessible? | `bun run check:contrast` |
+| Type scale, weights, families | [Typography](?path=/story/design-system-typography--type-scale) |
+
+Components layer their own `--{component}-*` tokens on top of these, so a single
+component can be restyled without touching a shared meaning. Each component's
+Docs tab lists its tokens under *Component tokens*, with the computed value in
+both modes; `bun run check:recipes --list` prints them all.

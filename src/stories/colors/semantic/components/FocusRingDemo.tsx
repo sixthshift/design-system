@@ -1,6 +1,6 @@
 import { Heading } from "@sixthshift/design-system/heading";
 import { Text } from "@sixthshift/design-system/text";
-import { readTokens } from "../../theme/read-tokens";
+import { readTokens } from "../../../theme/read-tokens";
 
 export function FocusRingDemo({ mode }: { mode: "light" | "dark" }) {
   const value = readTokens(mode)["focus-ring"];

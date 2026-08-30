@@ -13,7 +13,7 @@ Deliberately not recorded: the package version, and anything under src/stories
 or src/testing. Neither is part of what a consumer can import.
 
 ==============================================================================
-SUBPATH EXPORTS — 69 subpaths, 452 exports
+SUBPATH EXPORTS — 69 subpaths, 454 exports
 ==============================================================================
 
 ./badge
@@ -671,13 +671,15 @@ SUBPATH EXPORTS — 69 subpaths, 452 exports
   type  FieldProps = { label: string; children: ReactNode; layout?: "stacked" | "row" | undefined; mono?: boolean | undefined; className?: string | undefined; }
 
 ./form-field
-  value FormField = ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & { label: string;
-                    description?: string | undefined;
+  value FormField = ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & { label: ReactNode;
+                    description?: ReactNode;
                     feedback?: FormFieldFeedback | undefined;
                     required?: boolean | undefined;
                     } & RefAttributes<HTMLDivElement>>
+  type  FormFieldContextValue = { id: string; describedBy: string | undefined; invalid: boolean; required: boolean; }
   type  FormFieldFeedback = { message: string; intent: "danger" | "success" | "warning"; }
-  type  FormFieldProps = HTMLAttributes<HTMLDivElement> & { label: string; description?: string | undefined; feedback?: FormFieldFeedback | undefined; required?: boolean | undefined; }
+  type  FormFieldProps = HTMLAttributes<HTMLDivElement> & { label: ReactNode; description?: ReactNode; feedback?: FormFieldFeedback | undefined; required?: boolean | undefined; }
+  value useFormField = () => FormFieldContextValue | null
 
 ./format
   value formatBytes = (bytes: number) => string
@@ -903,7 +905,7 @@ SUBPATH EXPORTS — 69 subpaths, 452 exports
                    closeAllModals: () => void;
                    }
   value useOverlayContext = () => OverlayContextType
-  value useToast = (args: ToastPropsWithDuration | FunctionComponent<ToastProps>) => { openToast: () => void; closeToast: () => void; }
+  value useToast = (args: ToastPropsWithDuration | FunctionComponent<ToastProps>) => { openToast: () => () => void; closeToast: () => void; }
 
 ./popover
   value Popover = (({ open: controlledOpen,
@@ -1000,16 +1002,16 @@ SUBPATH EXPORTS — 69 subpaths, 452 exports
 
 ./search-input
   value SearchInput = ForwardRefExoticComponent<Omit<InputHTMLAttributes<HTMLInputElement>,
-                      "onChange" | "type"> & { value: string;
-                      onChange: (value: string) => void;
+                      "type"> & { value: string;
+                      onValueChange: (value: string) => void;
                       onClear?: (() => void)
                       | undefined;
                       clearLabel?: string
                       | undefined;
                       } & RefAttributes<HTMLInputElement>>
   type  SearchInputProps = Omit<InputHTMLAttributes<HTMLInputElement>,
-                           "onChange" | "type"> & { value: string;
-                           onChange: (value: string) => void;
+                           "type"> & { value: string;
+                           onValueChange: (value: string) => void;
                            onClear?: (() => void) | undefined;
                            clearLabel?: string | undefined;
                            }
@@ -1190,7 +1192,19 @@ SUBPATH EXPORTS — 69 subpaths, 452 exports
 
 ./tag-input
   value TagInput = ForwardRefExoticComponent<TagInputProps & RefAttributes<HTMLDivElement>>
-  type  TagInputProps = { value: string[]; onChange: (tags: string[]) => void; placeholder?: string | undefined; id?: string | undefined; className?: string | undefined; }
+  type  TagInputProps = { value: string[];
+                        onValueChange: (tags: string[]) => void;
+                        placeholder?: string
+                        | undefined;
+                        id?: string
+                        | undefined;
+                        className?: string
+                        | undefined;
+                        name?: string
+                        | undefined;
+                        form?: string
+                        | undefined;
+                        }
 
 ./text
   value Text = ForwardRefExoticComponent<HTMLAttributes<HTMLElement> & { as?: TextElement | undefined; } & RefAttributes<HTMLElement>>
@@ -1212,7 +1226,7 @@ SUBPATH EXPORTS — 69 subpaths, 452 exports
   value Textarea = ForwardRefExoticComponent<TextareaProps & RefAttributes<HTMLTextAreaElement>>
   type  TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>
 
-./theme
+./theming
   type  BgToken = "bg-brand"
                   | "bg-danger"
                   | "bg-success"
@@ -1430,78 +1444,6 @@ SUBPATH EXPORTS — 69 subpaths, 452 exports
                           "bg-warning-subtle-pressed"?: string | undefined;
                           "bg-overlay-strong-pressed"?: string | undefined;
                           "bg-overlay-subtle-pressed"?: string | undefined;
-                          "border-brand"?: string | undefined;
-                          "border-danger"?: string | undefined;
-                          "border-success"?: string | undefined;
-                          "border-warning"?: string | undefined;
-                          "border-strong"?: string | undefined;
-                          "border-normal"?: string | undefined;
-                          "border-subtle"?: string | undefined;
-                          "border-overlay"?: string | undefined;
-                          "border-brand-strong"?: string | undefined;
-                          "border-brand-subtle"?: string | undefined;
-                          "border-danger-strong"?: string | undefined;
-                          "border-danger-subtle"?: string | undefined;
-                          "border-success-strong"?: string | undefined;
-                          "border-success-subtle"?: string | undefined;
-                          "border-warning-strong"?: string | undefined;
-                          "border-warning-subtle"?: string | undefined;
-                          "border-overlay-strong"?: string | undefined;
-                          "border-overlay-subtle"?: string | undefined;
-                          "border-brand-disabled"?: string | undefined;
-                          "border-danger-disabled"?: string | undefined;
-                          "border-success-disabled"?: string | undefined;
-                          "border-warning-disabled"?: string | undefined;
-                          "border-strong-disabled"?: string | undefined;
-                          "border-normal-disabled"?: string | undefined;
-                          "border-subtle-disabled"?: string | undefined;
-                          "border-overlay-disabled"?: string | undefined;
-                          "border-brand-strong-disabled"?: string | undefined;
-                          "border-brand-subtle-disabled"?: string | undefined;
-                          "border-danger-strong-disabled"?: string | undefined;
-                          "border-danger-subtle-disabled"?: string | undefined;
-                          "border-success-strong-disabled"?: string | undefined;
-                          "border-success-subtle-disabled"?: string | undefined;
-                          "border-warning-strong-disabled"?: string | undefined;
-                          "border-warning-subtle-disabled"?: string | undefined;
-                          "border-overlay-strong-disabled"?: string | undefined;
-                          "border-overlay-subtle-disabled"?: string | undefined;
-                          "border-brand-hovered"?: string | undefined;
-                          "border-danger-hovered"?: string | undefined;
-                          "border-success-hovered"?: string | undefined;
-                          "border-warning-hovered"?: string | undefined;
-                          "border-strong-hovered"?: string | undefined;
-                          "border-normal-hovered"?: string | undefined;
-                          "border-subtle-hovered"?: string | undefined;
-                          "border-overlay-hovered"?: string | undefined;
-                          "border-brand-strong-hovered"?: string | undefined;
-                          "border-brand-subtle-hovered"?: string | undefined;
-                          "border-danger-strong-hovered"?: string | undefined;
-                          "border-danger-subtle-hovered"?: string | undefined;
-                          "border-success-strong-hovered"?: string | undefined;
-                          "border-success-subtle-hovered"?: string | undefined;
-                          "border-warning-strong-hovered"?: string | undefined;
-                          "border-warning-subtle-hovered"?: string | undefined;
-                          "border-overlay-strong-hovered"?: string | undefined;
-                          "border-overlay-subtle-hovered"?: string | undefined;
-                          "border-brand-pressed"?: string | undefined;
-                          "border-danger-pressed"?: string | undefined;
-                          "border-success-pressed"?: string | undefined;
-                          "border-warning-pressed"?: string | undefined;
-                          "border-strong-pressed"?: string | undefined;
-                          "border-normal-pressed"?: string | undefined;
-                          "border-subtle-pressed"?: string | undefined;
-                          "border-overlay-pressed"?: string | undefined;
-                          "border-brand-strong-pressed"?: string | undefined;
-                          "border-brand-subtle-pressed"?: string | undefined;
-                          "border-danger-strong-pressed"?: string | undefined;
-                          "border-danger-subtle-pressed"?: string | undefined;
-                          "border-success-strong-pressed"?: string | undefined;
-                          "border-success-subtle-pressed"?: string | undefined;
-                          "border-warning-strong-pressed"?: string | undefined;
-                          "border-warning-subtle-pressed"?: string | undefined;
-                          "border-overlay-strong-pressed"?: string | undefined;
-                          "border-overlay-subtle-pressed"?: string | undefined;
                           "fg-brand"?: string | undefined;
                           "fg-danger"?: string | undefined;
                           "fg-success"?: string | undefined;
@@ -1646,9 +1588,81 @@ SUBPATH EXPORTS — 69 subpaths, 452 exports
                           "fg-on-warning-subtle-pressed"?: string | undefined;
                           "fg-on-overlay-strong-pressed"?: string | undefined;
                           "fg-on-overlay-subtle-pressed"?: string | undefined;
+                          "border-brand"?: string | undefined;
+                          "border-danger"?: string | undefined;
+                          "border-success"?: string | undefined;
+                          "border-warning"?: string | undefined;
+                          "border-strong"?: string | undefined;
+                          "border-normal"?: string | undefined;
+                          "border-subtle"?: string | undefined;
+                          "border-overlay"?: string | undefined;
+                          "border-brand-strong"?: string | undefined;
+                          "border-brand-subtle"?: string | undefined;
+                          "border-danger-strong"?: string | undefined;
+                          "border-danger-subtle"?: string | undefined;
+                          "border-success-strong"?: string | undefined;
+                          "border-success-subtle"?: string | undefined;
+                          "border-warning-strong"?: string | undefined;
+                          "border-warning-subtle"?: string | undefined;
+                          "border-overlay-strong"?: string | undefined;
+                          "border-overlay-subtle"?: string | undefined;
+                          "border-brand-disabled"?: string | undefined;
+                          "border-danger-disabled"?: string | undefined;
+                          "border-success-disabled"?: string | undefined;
+                          "border-warning-disabled"?: string | undefined;
+                          "border-strong-disabled"?: string | undefined;
+                          "border-normal-disabled"?: string | undefined;
+                          "border-subtle-disabled"?: string | undefined;
+                          "border-overlay-disabled"?: string | undefined;
+                          "border-brand-strong-disabled"?: string | undefined;
+                          "border-brand-subtle-disabled"?: string | undefined;
+                          "border-danger-strong-disabled"?: string | undefined;
+                          "border-danger-subtle-disabled"?: string | undefined;
+                          "border-success-strong-disabled"?: string | undefined;
+                          "border-success-subtle-disabled"?: string | undefined;
+                          "border-warning-strong-disabled"?: string | undefined;
+                          "border-warning-subtle-disabled"?: string | undefined;
+                          "border-overlay-strong-disabled"?: string | undefined;
+                          "border-overlay-subtle-disabled"?: string | undefined;
+                          "border-brand-hovered"?: string | undefined;
+                          "border-danger-hovered"?: string | undefined;
+                          "border-success-hovered"?: string | undefined;
+                          "border-warning-hovered"?: string | undefined;
+                          "border-strong-hovered"?: string | undefined;
+                          "border-normal-hovered"?: string | undefined;
+                          "border-subtle-hovered"?: string | undefined;
+                          "border-overlay-hovered"?: string | undefined;
+                          "border-brand-strong-hovered"?: string | undefined;
+                          "border-brand-subtle-hovered"?: string | undefined;
+                          "border-danger-strong-hovered"?: string | undefined;
+                          "border-danger-subtle-hovered"?: string | undefined;
+                          "border-success-strong-hovered"?: string | undefined;
+                          "border-success-subtle-hovered"?: string | undefined;
+                          "border-warning-strong-hovered"?: string | undefined;
+                          "border-warning-subtle-hovered"?: string | undefined;
+                          "border-overlay-strong-hovered"?: string | undefined;
+                          "border-overlay-subtle-hovered"?: string | undefined;
+                          "border-brand-pressed"?: string | undefined;
+                          "border-danger-pressed"?: string | undefined;
+                          "border-success-pressed"?: string | undefined;
+                          "border-warning-pressed"?: string | undefined;
+                          "border-strong-pressed"?: string | undefined;
+                          "border-normal-pressed"?: string | undefined;
+                          "border-subtle-pressed"?: string | undefined;
+                          "border-overlay-pressed"?: string | undefined;
+                          "border-brand-strong-pressed"?: string | undefined;
+                          "border-brand-subtle-pressed"?: string | undefined;
+                          "border-danger-strong-pressed"?: string | undefined;
+                          "border-danger-subtle-pressed"?: string | undefined;
+                          "border-success-strong-pressed"?: string | undefined;
+                          "border-success-subtle-pressed"?: string | undefined;
+                          "border-warning-strong-pressed"?: string | undefined;
+                          "border-warning-subtle-pressed"?: string | undefined;
+                          "border-overlay-strong-pressed"?: string | undefined;
+                          "border-overlay-subtle-pressed"?: string | undefined;
                           "focus-ring"?: string | undefined;
                           }
-  type  ColorToken = BgToken | BorderToken | FgToken | "focus-ring"
+  type  ColorToken = BgToken | FgToken | BorderToken | "focus-ring"
   type  Context = "bg" | "fg" | "border"
   value contexts = readonly ["bg", "fg", "border"]
   value cssVar = (token: TokenName) => string
@@ -1724,78 +1738,6 @@ SUBPATH EXPORTS — 69 subpaths, 452 exports
                      | "--bg-warning-subtle-pressed"
                      | "--bg-overlay-strong-pressed"
                      | "--bg-overlay-subtle-pressed"
-                     | "--border-brand"
-                     | "--border-danger"
-                     | "--border-success"
-                     | "--border-warning"
-                     | "--border-strong"
-                     | "--border-normal"
-                     | "--border-subtle"
-                     | "--border-overlay"
-                     | "--border-brand-strong"
-                     | "--border-brand-subtle"
-                     | "--border-danger-strong"
-                     | "--border-danger-subtle"
-                     | "--border-success-strong"
-                     | "--border-success-subtle"
-                     | "--border-warning-strong"
-                     | "--border-warning-subtle"
-                     | "--border-overlay-strong"
-                     | "--border-overlay-subtle"
-                     | "--border-brand-disabled"
-                     | "--border-danger-disabled"
-                     | "--border-success-disabled"
-                     | "--border-warning-disabled"
-                     | "--border-strong-disabled"
-                     | "--border-normal-disabled"
-                     | "--border-subtle-disabled"
-                     | "--border-overlay-disabled"
-                     | "--border-brand-strong-disabled"
-                     | "--border-brand-subtle-disabled"
-                     | "--border-danger-strong-disabled"
-                     | "--border-danger-subtle-disabled"
-                     | "--border-success-strong-disabled"
-                     | "--border-success-subtle-disabled"
-                     | "--border-warning-strong-disabled"
-                     | "--border-warning-subtle-disabled"
-                     | "--border-overlay-strong-disabled"
-                     | "--border-overlay-subtle-disabled"
-                     | "--border-brand-hovered"
-                     | "--border-danger-hovered"
-                     | "--border-success-hovered"
-                     | "--border-warning-hovered"
-                     | "--border-strong-hovered"
-                     | "--border-normal-hovered"
-                     | "--border-subtle-hovered"
-                     | "--border-overlay-hovered"
-                     | "--border-brand-strong-hovered"
-                     | "--border-brand-subtle-hovered"
-                     | "--border-danger-strong-hovered"
-                     | "--border-danger-subtle-hovered"
-                     | "--border-success-strong-hovered"
-                     | "--border-success-subtle-hovered"
-                     | "--border-warning-strong-hovered"
-                     | "--border-warning-subtle-hovered"
-                     | "--border-overlay-strong-hovered"
-                     | "--border-overlay-subtle-hovered"
-                     | "--border-brand-pressed"
-                     | "--border-danger-pressed"
-                     | "--border-success-pressed"
-                     | "--border-warning-pressed"
-                     | "--border-strong-pressed"
-                     | "--border-normal-pressed"
-                     | "--border-subtle-pressed"
-                     | "--border-overlay-pressed"
-                     | "--border-brand-strong-pressed"
-                     | "--border-brand-subtle-pressed"
-                     | "--border-danger-strong-pressed"
-                     | "--border-danger-subtle-pressed"
-                     | "--border-success-strong-pressed"
-                     | "--border-success-subtle-pressed"
-                     | "--border-warning-strong-pressed"
-                     | "--border-warning-subtle-pressed"
-                     | "--border-overlay-strong-pressed"
-                     | "--border-overlay-subtle-pressed"
                      | "--fg-brand"
                      | "--fg-danger"
                      | "--fg-success"
@@ -1940,6 +1882,78 @@ SUBPATH EXPORTS — 69 subpaths, 452 exports
                      | "--fg-on-warning-subtle-pressed"
                      | "--fg-on-overlay-strong-pressed"
                      | "--fg-on-overlay-subtle-pressed"
+                     | "--border-brand"
+                     | "--border-danger"
+                     | "--border-success"
+                     | "--border-warning"
+                     | "--border-strong"
+                     | "--border-normal"
+                     | "--border-subtle"
+                     | "--border-overlay"
+                     | "--border-brand-strong"
+                     | "--border-brand-subtle"
+                     | "--border-danger-strong"
+                     | "--border-danger-subtle"
+                     | "--border-success-strong"
+                     | "--border-success-subtle"
+                     | "--border-warning-strong"
+                     | "--border-warning-subtle"
+                     | "--border-overlay-strong"
+                     | "--border-overlay-subtle"
+                     | "--border-brand-disabled"
+                     | "--border-danger-disabled"
+                     | "--border-success-disabled"
+                     | "--border-warning-disabled"
+                     | "--border-strong-disabled"
+                     | "--border-normal-disabled"
+                     | "--border-subtle-disabled"
+                     | "--border-overlay-disabled"
+                     | "--border-brand-strong-disabled"
+                     | "--border-brand-subtle-disabled"
+                     | "--border-danger-strong-disabled"
+                     | "--border-danger-subtle-disabled"
+                     | "--border-success-strong-disabled"
+                     | "--border-success-subtle-disabled"
+                     | "--border-warning-strong-disabled"
+                     | "--border-warning-subtle-disabled"
+                     | "--border-overlay-strong-disabled"
+                     | "--border-overlay-subtle-disabled"
+                     | "--border-brand-hovered"
+                     | "--border-danger-hovered"
+                     | "--border-success-hovered"
+                     | "--border-warning-hovered"
+                     | "--border-strong-hovered"
+                     | "--border-normal-hovered"
+                     | "--border-subtle-hovered"
+                     | "--border-overlay-hovered"
+                     | "--border-brand-strong-hovered"
+                     | "--border-brand-subtle-hovered"
+                     | "--border-danger-strong-hovered"
+                     | "--border-danger-subtle-hovered"
+                     | "--border-success-strong-hovered"
+                     | "--border-success-subtle-hovered"
+                     | "--border-warning-strong-hovered"
+                     | "--border-warning-subtle-hovered"
+                     | "--border-overlay-strong-hovered"
+                     | "--border-overlay-subtle-hovered"
+                     | "--border-brand-pressed"
+                     | "--border-danger-pressed"
+                     | "--border-success-pressed"
+                     | "--border-warning-pressed"
+                     | "--border-strong-pressed"
+                     | "--border-normal-pressed"
+                     | "--border-subtle-pressed"
+                     | "--border-overlay-pressed"
+                     | "--border-brand-strong-pressed"
+                     | "--border-brand-subtle-pressed"
+                     | "--border-danger-strong-pressed"
+                     | "--border-danger-subtle-pressed"
+                     | "--border-success-strong-pressed"
+                     | "--border-success-subtle-pressed"
+                     | "--border-warning-strong-pressed"
+                     | "--border-warning-subtle-pressed"
+                     | "--border-overlay-strong-pressed"
+                     | "--border-overlay-subtle-pressed"
                      | "--focus-ring"
   value feedback = readonly ["success", "warning", "danger"]
   type  Feedback = "danger" | "success" | "warning"
@@ -1957,7 +1971,7 @@ SUBPATH EXPORTS — 69 subpaths, 452 exports
   type  State = "disabled" | "hovered" | "pressed"
   value states = readonly ["hovered", "pressed", "disabled"]
   type  ThemeSchema = { name: string; version: string; light: Partial<Record<TokenName, string>>; dark: Partial<Record<TokenName, string>>; }
-  type  TokenName = BgToken | BorderToken | FgToken | "focus-ring"
+  type  TokenName = BgToken | FgToken | BorderToken | "focus-ring"
   type  Weight = "strong" | "subtle"
   value weights = readonly ["subtle", "strong"]
 
@@ -2104,7 +2118,7 @@ SUBPATH EXPORTS — 69 subpaths, 452 exports
   value withSuspenseAndErrorBoundary = <P extends object>(Component: ComponentType<P>, options: Options) => { (props: P): Element; displayName: string; }
 
 ==============================================================================
-DESIGN TOKENS — 443 custom properties declared in src/theme/tokens.css
+DESIGN TOKENS — 443 custom properties declared by the default theme (src/theme/default/ + src/theming/tailwind.css)
 ==============================================================================
 
 --animate-fade-in

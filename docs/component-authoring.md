@@ -20,7 +20,7 @@ A primitive's appearance is factored into **independent axes**, and `variant` is
 
 The vocabulary above is the shared menu, not a fixed enum — each primitive declares the subset it supports. `Button` (`Button.tsx:65-66`) ships `solid|outline|ghost|link` × `neutral|danger|success|warning` × six sizes; `Badge` (`Badge.tsx:43-44`) ships `solid|soft|outline` × `neutral|primary|danger|success|warning|muted` with no size axis. Pick from the menu; don't invent a parallel name.
 
-The cross-product does **not** live in cva. It lives in a recipe — `src/theme/recipes/<component>.css` — as one cell per `(variant, intent)` pair, selected by `data-*` attributes the component renders:
+The cross-product does **not** live in cva. It lives in a recipe — `src/theming/recipes/<component>.css` — as one cell per `(variant, intent)` pair, selected by `data-*` attributes the component renders:
 
 ```css
 /* recipes/button.css, in @layer components — the colour is selected by the
@@ -319,7 +319,7 @@ A module needs it when it does any of:
 
 A module must **not** have it otherwise. A spurious directive silently drags a
 pure module — and everything it imports — into the client bundle. That is why
-`src/lib/utils.ts`, `src/theme/schema.ts`, `src/internal/Slot.tsx`,
+`src/lib/utils.ts`, `src/theming/vocabulary.ts`, `src/internal/Slot.tsx`,
 `src/lib/EmptyBoundary.tsx`, `withSuspense.tsx`, `withEmpty.tsx` and the whole of
 `src/typography/` deliberately do not carry it: they call no hook, attach no
 handler, and touch no browser global. `forwardRef`, `memo`, `lazy` and
@@ -369,8 +369,8 @@ When the lint rule for a deliberate a11y choice fires, suppress it with a `biome
 Before opening a PR for a new primitive:
 
 - [ ] Color lives in `intent`, fill/shape in `variant`; `defaultVariants` sets every axis, and the component defaults `variant`/`intent` in its destructure.
-- [ ] **No colour named in the `.tsx`.** Every colour reads a `--{component}-*` token; the mapping lives in `src/theme/recipes/<component>.css`, inside `@layer components`, selected by `data-variant`/`data-intent`.
-- [ ] Recipe file created **and** imported by `src/theme/recipes/index.css`; `bun run check:recipes` passes.
+- [ ] **No colour named in the `.tsx`.** Every colour reads a `--{component}-*` token; the mapping lives in `src/theming/recipes/<component>.css`, inside `@layer components`, selected by `data-variant`/`data-intent`.
+- [ ] Recipe file created **and** imported by `src/theming/recipes/index.css`; `bun run check:recipes` passes.
 - [ ] Axis types widened with `Loose<T>`, and the closed `*Name` unions exported too so downstream code can still narrow.
 - [ ] Geometry stays in cva; base class string is a **single** literal (a `+` concatenation gets welded by biome's unsafe class sorter).
 - [ ] Styled with Tailwind + cva + `cn()` — no CSS modules / styled-components / raw palette.

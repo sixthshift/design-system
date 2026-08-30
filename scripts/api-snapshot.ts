@@ -18,7 +18,7 @@
  *
  *   1. what each subpath exports, and whether it is a value or a type
  *   2. the resolved shape of every exported type and value signature
- *   3. every design token name, plus the vocabularies schema.ts exports
+ *   3. every design token name, plus the vocabularies vocabulary.ts exports
  *
  * Read from `dist/`, not `src/` — the question is what a consumer resolves, and
  * the emitted `.d.ts` is the answer. Run the build first.
@@ -41,7 +41,11 @@ import ts from "typescript";
 
 const ROOT = resolve(import.meta.dir, "..");
 const SNAPSHOT = resolve(ROOT, "api", "public-api.txt");
-const TOKENS = resolve(ROOT, "src", "theme", "tokens.css");
+const TOKEN_SOURCES = [
+  resolve(ROOT, "src", "theme", "default", "palette.css"),
+  resolve(ROOT, "src", "theme", "default", "theme.css"),
+  resolve(ROOT, "src", "theming", "tailwind.css"),
+];
 
 const check = process.argv.includes("--check");
 
@@ -202,7 +206,7 @@ for (const [subpath, file] of entryPoints) {
 // Tokens
 // ---------------------------------------------------------------------------
 
-const css = readFileSync(TOKENS, "utf8");
+const css = TOKEN_SOURCES.map((file) => readFileSync(file, "utf8")).join("\n");
 const tokenNames = [...new Set([...css.matchAll(/(--[\w-]+)\s*:/g)].map((match) => match[1] as string))].sort();
 
 // ---------------------------------------------------------------------------
@@ -232,7 +236,7 @@ const body = [
   "",
   ...lines,
   rule,
-  `DESIGN TOKENS — ${tokenNames.length} custom properties declared in src/theme/tokens.css`,
+  `DESIGN TOKENS — ${tokenNames.length} custom properties declared by the default theme (src/theme/default/ + src/theming/tailwind.css)`,
   rule,
   "",
   ...tokenNames,

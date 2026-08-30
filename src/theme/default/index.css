@@ -1,0 +1,11 @@
+/**
+ * Default theme — the exported artifact (`@sixthshift/design-system/themes/default.css`).
+ *
+ * Plain CSS composition, no build step. Order matters only for readability —
+ * custom properties resolve lazily. A consumer imports exactly one theme;
+ * everything theme-independent (recipes, Tailwind config) rides in through here.
+ */
+
+@import "../../theming/recipes/index.css";
+@import "./theme.css"; /* imports ./palette.css itself */
+@import "../../theming/tailwind.css";

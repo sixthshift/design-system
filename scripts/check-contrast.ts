@@ -23,10 +23,11 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const TOKENS = resolve(ROOT, "src/theme/tokens.css");
+const THEME_DIR = resolve(ROOT, "src/theme/default");
 const AA_NORMAL_TEXT = 4.5;
 
-const css = readFileSync(TOKENS, "utf8");
+// The theme is plain CSS composed by @import; read the sources directly.
+const css = [readFileSync(resolve(THEME_DIR, "palette.css"), "utf8"), readFileSync(resolve(THEME_DIR, "theme.css"), "utf8")].join("\n");
 
 // ---------------------------------------------------------------------------
 // Parse
@@ -43,7 +44,7 @@ const declarations = (block: string): Map<string, string> => {
 
 const blockAfter = (selector: string): string => {
   const start = css.indexOf(selector);
-  if (start === -1) throw new Error(`tokens.css no longer contains the selector \`${selector}\``);
+  if (start === -1) throw new Error(`the theme sources no longer contain the selector \`${selector}\``);
   const open = css.indexOf("{", start);
   const close = css.indexOf("\n}", open);
   return css.slice(open, close);
@@ -158,7 +159,7 @@ for (const warning of warnings) console.warn(`⚠ ${warning}`);
 if (failures.length > 0) {
   console.error(`\n✗ ${failures.length} of ${checkedCount} token pairings fall below WCAG AA:\n`);
   for (const failure of failures) console.error(`  ${failure}`);
-  console.error("\nFix the value in src/theme/tokens.css, or state why the pairing is exempt.");
+  console.error("\nFix the value in src/theme/default/, or state why the pairing is exempt.");
   process.exit(1);
 }
 

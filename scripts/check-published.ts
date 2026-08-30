@@ -39,12 +39,12 @@ const ROOT = resolve(import.meta.dir, "..");
  */
 const ALLOWED_CONDITIONS = ["types", "import"] as const;
 
-/** Not a JS or TS entry point, so attw has nothing to resolve for it. */
-const NON_CODE_ENTRYPOINTS = ["./theme.css"];
-
 const pkg = JSON.parse(readFileSync(resolve(ROOT, "package.json"), "utf8")) as {
   exports: Record<string, string | Record<string, string>>;
 };
+
+/** Not JS or TS entry points, so attw has nothing to resolve for them — every theme stylesheet. */
+const NON_CODE_ENTRYPOINTS = Object.keys(pkg.exports).filter((subpath) => subpath.endsWith(".css"));
 
 // ---------------------------------------------------------------------------
 // 1. The ESM-only invariant

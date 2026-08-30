@@ -1,7 +1,7 @@
 /**
  * Assert the component-token layer (tier 3) still holds together.
  *
- * Tier 3 lives in src/theme/recipes/*.css and maps `(variant, intent, state)`
+ * Tier 3 lives in src/theming/recipes/*.css and maps `(variant, intent, state)`
  * to a semantic token. Nothing else verifies it: a component can read a token no
  * recipe defines and the property silently computes to its initial value, which
  * for `background-color` is `transparent` and for `color` is whatever it
@@ -35,13 +35,13 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const RECIPES = resolve(ROOT, "src/theme/recipes");
-const TOKENS = resolve(ROOT, "src/theme/tokens.css");
+const RECIPES = resolve(ROOT, "src/theming/recipes");
+const TOKENS = resolve(ROOT, "src/theme/default/theme.css");
 const COMPONENTS = resolve(ROOT, "src/components");
 
 /** What CSS property a token drives. The last segment, or the one before a state. */
 const CONTEXTS = new Set(["bg", "fg", "border", "ring", "shadow"]);
-/** Interaction states, mirroring `states` in src/theme/schema.ts. */
+/** Interaction states, mirroring `states` in src/theming/vocabulary.ts. */
 const STATES = new Set(["hovered", "pressed", "disabled"]);
 
 // ---------------------------------------------------------------------------
@@ -225,7 +225,7 @@ for (const warning of warnings) console.warn(`⚠ ${warning}`);
 if (failures.length > 0) {
   console.error(`\n✗ ${failures.length} problem(s) in the component-token layer:\n`);
   for (const failure of failures) console.error(`  ${failure}`);
-  console.error("\nSee src/theme/recipes/button.css for the pattern.");
+  console.error("\nSee src/theming/recipes/button.css for the pattern.");
   process.exit(1);
 }
 

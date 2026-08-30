@@ -1,0 +1,83 @@
+/*
+ * 05 — Muted workhorse — tier 1 (palette).
+ * Derived from the plans/10 palette exploration; hand-owned now — edit freely.
+ *
+ * Thesis:   Everything sits in one mid-chroma band. Nothing shouts, because the screen is already full of data.
+ * Ships in: Atlassian, enterprise admin and BI
+ *
+ * Family names are this theme's own — a palette's names are part of its
+ * premise. theme.css points every semantic token at them.
+ */
+
+:root {
+  --theme-name: "Muted workhorse";
+  --theme-version: "0.1.0";
+
+  /* gray (neutral) */
+  --color-gray-50: #f9f9f9;
+  --color-gray-100: #edefef;
+  --color-gray-200: #dbdedf;
+  --color-gray-300: #c0c5c7;
+  --color-gray-400: #9a9fa2;
+  --color-gray-500: #6b7175;
+  --color-gray-600: #555c5f;
+  --color-gray-700: #404649;
+  --color-gray-800: #2a2f31;
+  --color-gray-900: #191c1e;
+  --color-gray-950: #090b0d;
+
+  /* teal (accent) */
+  --color-teal-50: #f5fafc;
+  --color-teal-100: #e5f1f7;
+  --color-teal-200: #cae2ed;
+  --color-teal-300: #a6cadd;
+  --color-teal-400: #74a6bf;
+  --color-teal-500: #3a7895;
+  --color-teal-600: #1f637f;
+  --color-teal-700: #154f67;
+  --color-teal-800: #0f3c4f;
+  --color-teal-900: #092b39;
+  --color-teal-950: #051a23;
+
+  /* sage (green) */
+  --color-sage-50: #f7faf8;
+  --color-sage-100: #e8f1eb;
+  --color-sage-200: #d1e3d6;
+  --color-sage-300: #b0ccb9;
+  --color-sage-400: #83a98f;
+  --color-sage-500: #4f7c5f;
+  --color-sage-600: #386649;
+  --color-sage-700: #2b533a;
+  --color-sage-800: #203f2b;
+  --color-sage-900: #152d1e;
+  --color-sage-950: #0b1b11;
+
+  /* ochre (amber) */
+  --color-ochre-50: #fcf8f5;
+  --color-ochre-100: #f6ede2;
+  --color-ochre-200: #ecdac6;
+  --color-ochre-300: #dabfa0;
+  --color-ochre-400: #bb986c;
+  --color-ochre-500: #8f6731;
+  --color-ochre-600: #7a5116;
+  --color-ochre-700: #63410d;
+  --color-ochre-800: #4b3109;
+  --color-ochre-900: #362205;
+  --color-ochre-950: #221403;
+
+  /* rust (red) */
+  --color-rust-50: #fef7f6;
+  --color-rust-100: #fceae7;
+  --color-rust-200: #f6d4cf;
+  --color-rust-300: #e9b6ae;
+  --color-rust-400: #ce8a81;
+  --color-rust-500: #a3574e;
+  --color-rust-600: #8c4038;
+  --color-rust-700: #73322b;
+  --color-rust-800: #582520;
+  --color-rust-900: #401a15;
+  --color-rust-950: #280e0b;
+
+  --font-sans: Inter Variable, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: JetBrains Mono Variable, ui-monospace, monospace;
+}

@@ -145,7 +145,7 @@ function tagName(node: ts.JsxOpeningElement | ts.JsxSelfClosingElement): string 
  * module is server-renderable.
  *
  * Reading the AST rather than the text matters more than it looks: `document`
- * appears in a prose comment in src/theme/schema.ts and src/components/Popover,
+ * appears in a prose comment in src/theming/vocabulary.ts and src/components/Popover,
  * and a grep-based version of this check flagged both.
  */
 function clientReasons(source: ts.SourceFile): Reason[] {

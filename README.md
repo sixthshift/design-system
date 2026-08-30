@@ -23,7 +23,7 @@ npm install @sixthshift/design-system
 ```css
 /* your CSS entry — Tailwind 4 is a required peer */
 @import "tailwindcss";
-@import "@sixthshift/design-system/theme.css";
+@import "@sixthshift/design-system/themes/default.css";
 @source "../node_modules/@sixthshift/design-system";
 ```
 
@@ -36,7 +36,7 @@ system's tokens and takes over a few globals. See
 import { Button } from "@sixthshift/design-system/button";
 ```
 
-**What ships:** compiled ESM (`.js`) plus type declarations (`.d.ts`) in `dist/`, and the tokens as CSS. No prebuilt stylesheet: the components are Tailwind classes, so your build compiles them from the `@theme` block `theme.css` brings with it. Nothing runs on install and no consumer toolchain has to transpile this package. The module tree is preserved rather than bundled, so subpath imports still tree-shake.
+**What ships:** compiled ESM (`.js`) plus type declarations (`.d.ts`) in `dist/`, and the tokens as CSS. No prebuilt stylesheet: the components are Tailwind classes, so your build compiles them from the `@theme` block the theme import brings with it. Nothing runs on install and no consumer toolchain has to transpile this package. The module tree is preserved rather than bundled, so subpath imports still tree-shake.
 
 That last sentence is measured, not asserted. `bun run check:size` bundles ten
 representative subpaths in isolation and holds each to a committed budget —
@@ -229,15 +229,26 @@ ISO helpers above cover what they were reachable for.
 
 ## Theming
 
-Tokens are CSS (`src/theme/tokens.css`), published as `theme.css`. That one file
-holds the palette, the semantic tokens for each mode, and the `@theme` block that
-tells Tailwind which utilities exist — so a token and its utility can never
-disagree.
+Tokens are CSS. Themes are folders under `src/theme/` — `palette.css` (raw
+scales) plus `theme.css` (semantic tokens per mode) — assembled with the shared
+`tailwind.css` into one artifact per theme and published under `./themes/`.
+Consumers import exactly one — `themes/default.css`, or one of the alternatives
+(`ink-led`, `hue-anchored`, `contrast-locked`, `seeded`, `muted-workhorse`,
+`expressive` — the palette explorations from `plans/10`, shipped as full
+themes). Only the default is contrast-audited today.
+Each artifact holds the palette, the semantic tokens for each mode, and the
+`@theme` block that tells Tailwind which utilities exist — so a token and its
+utility can never disagree.
 
 Light/dark switch via the `data-theme` attribute on the root element. Consumers
 restyle by overriding CSS variables at runtime — component source stays
-untouched. See [docs/design-tokens.md](docs/design-tokens.md) for the full token
-reference.
+untouched. The
+[Theme page in Storybook](https://sixthshift.github.io/design-system/?path=/docs/design-system-theme--docs)
+emits a starting theme file for you to copy — every token, pre-filled with the
+shipped values — and lists every variable the system declares. The
+[Theming page](https://sixthshift.github.io/design-system/?path=/docs/design-system-theming--docs)
+is the guide to what the names mean; [docs/design-tokens.md](docs/design-tokens.md)
+is the architecture behind both.
 
 Tokens come in three tiers, and the one you reach for depends on the *kind* of
 change you are making:
@@ -280,85 +291,36 @@ non-optional peer dependency.
 ### Restyling a component
 
 Every component reads its colours from its own tokens rather than naming a
-semantic token directly. `Button` resolves `--button-bg`, whose value is decided
-by a recipe in the published stylesheet:
+semantic token directly. `Button` paints `var(--button-bg)`, and a recipe in the
+published stylesheet decides what that resolves to for each cell:
 
 ```css
 /* what ships, in @layer components */
-.btn[data-variant="solid"][data-intent="neutral"] {
+.btn[data-variant="solid"][data-intent="brand"] {
   --button-bg: var(--bg-brand);
   --button-bg-hovered: var(--bg-brand-hovered);
   --button-fg: var(--fg-on-brand);
 }
 ```
 
-That recipe is data, not compiled-in class names, so you can re-point any cell.
-Four granularities, narrowest to broadest:
+That recipe is data, not compiled-in class names, so any cell can be re-pointed
+from your own stylesheet — one instance, one subtree, one cell app-wide, or
+every instance. **Write your overrides unlayered:** the cascade compares layers
+before specificity, so a bare `.btn { … }` beats the library's three-attribute
+selector with no `!important`, while the same rule wrapped in
+`@layer components` lands in the library's own layer and silently loses.
 
-```tsx
-// one instance — inline styles outrank layers and specificity both
-<Button style={{ "--button-bg": "var(--bg-strong)" } as React.CSSProperties} />
-```
-
-```css
-/* one subtree — impossible with token values, which are global */
-.checkout .btn[data-intent="neutral"] { --button-bg: var(--bg-success); }
-
-/* one cell, app-wide — reject a house opinion */
-.btn[data-variant="link"][data-intent="neutral"] { --button-fg: var(--fg-normal); }
-
-/* every button */
-.btn { --button-bg-hovered: var(--button-bg); }   /* no hover shift, anywhere */
-```
-
-**Write your overrides unlayered.** The cascade compares layers *before*
-specificity, and unlayered author CSS outranks any layered author CSS — which is
-why a bare `.btn { … }` beats the library's three-attribute selector without an
-`!important`. The corollary is the trap: wrap the same rule in
-`@layer components` (a Tailwind 3 habit) and it lands in the library's own layer,
-where specificity decides again and your override silently loses on every cell
-the library ships.
-
-#### Adding an intent the library never shipped
-
-```css
-/* 1. the semantic tokens — both modes, mirroring the library's own selectors */
-:root:not([data-theme]),
-:root[data-theme="light"] { --bg-info: var(--color-ocean-700); --fg-on-info: #fff; }
-:root[data-theme="dark"]  { --bg-info: var(--color-ocean-400); --fg-on-info: #06121f; }
-
-/* 2. the recipe cell */
-.btn[data-variant="solid"][data-intent="info"] {
-  --button-bg: var(--bg-info);
-  --button-fg: var(--fg-on-info);
-}
-```
-
-```tsx
-<Button intent="info">Details</Button>   // type-checks; no library release needed
-```
-
-`variant` and `intent` are typed as the shipped union *plus* `string`, so a value
-you invent is accepted while the built-ins still autocomplete. Note that no
-`@theme` entry is needed: recipes read `var(--bg-info)` as plain CSS, never
-through a Tailwind utility. You own the contrast of tokens you add —
-`bun run check:contrast` only sees the library's own.
-
-#### Finding the token names
-
-`bun run check:recipes --list` prints every component token grouped by
-component. The names follow `--{component}[-{part}]-{context}[-{state}]`, where
-context is `bg`/`fg`/`border`/`ring` and state is `hovered`/`pressed`/`disabled`
-— e.g. `--modal-overlay-bg`, `--input-placeholder-fg`, `--card-border-hovered`.
-
-Intent and variant never appear in a token *name*; they select via the `data-*`
-attributes. That is what lets you add one.
-
-**These names are public API** and change only under semver, like any export.
+**The semantic layer — the naming grammar, what each token means, the
+utilities they compile into, light and dark, and re-skinning — is the
+[Theming page in Storybook](https://sixthshift.github.io/design-system/?path=/docs/design-system-theming--docs).**
+The component-token techniques above are running live, with controls, under
+[Component Tokens](https://sixthshift.github.io/design-system/?path=/docs/design-system-component-tokens--docs).
+Component token names are public API and change only under semver;
+`bun run check:recipes --list` prints them all.
 
 ### What the theme takes over
 
-This is a design system, not a component grab-bag: importing `theme.css` adopts
+This is a design system, not a component grab-bag: importing a theme adopts
 its opinions across your whole app, not just inside its components. All of it is
 deliberate, and all of it is worth knowing before you commit.
 
@@ -375,7 +337,7 @@ block after the import — everything you do not name stays gone:
 
 ```css
 @import "tailwindcss";
-@import "@sixthshift/design-system/theme.css";
+@import "@sixthshift/design-system/themes/default.css";
 
 @theme {
   --color-red-500: oklch(63.7% 0.237 25.331);

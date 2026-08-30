@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import * as React from "react";
 import { expect, userEvent, within } from "storybook/test";
-import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
+import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
 import { SearchInput } from "./SearchInput";
 
 const meta: Meta<typeof SearchInput> = {
@@ -17,9 +17,9 @@ const meta: Meta<typeof SearchInput> = {
 export default meta;
 type Story = StoryObj<typeof SearchInput>;
 
-const ControlledSearchInput = (props: Omit<React.ComponentProps<typeof SearchInput>, "value" | "onChange">) => {
+const ControlledSearchInput = (props: Omit<React.ComponentProps<typeof SearchInput>, "value" | "onValueChange">) => {
   const [value, setValue] = React.useState("");
-  return <SearchInput {...props} value={value} onChange={setValue} />;
+  return <SearchInput {...props} value={value} onValueChange={setValue} />;
 };
 
 export const Default: Story = {
@@ -52,7 +52,7 @@ export const TypeAndClear: Story = {
 export const WithValue: Story = {
   render: () => {
     const [value, setValue] = React.useState("hello world");
-    return <SearchInput placeholder="Search..." value={value} onChange={setValue} />;
+    return <SearchInput placeholder="Search..." value={value} onValueChange={setValue} />;
   },
 };
 
@@ -65,7 +65,7 @@ export const Wide: Story = {
 };
 
 export const Disabled: Story = {
-  render: () => <SearchInput placeholder="Search..." value="cannot edit" onChange={() => {}} disabled />,
+  render: () => <SearchInput placeholder="Search..." value="cannot edit" onValueChange={() => {}} disabled />,
 };
 
 export const ComponentTokens = componentTokensStory("search-input");

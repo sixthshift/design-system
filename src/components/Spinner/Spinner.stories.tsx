@@ -3,7 +3,7 @@ import { Text } from "@sixthshift/design-system/text";
 import { TextInline } from "@sixthshift/design-system/text-inline";
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect } from "storybook/test";
-import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
+import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
 import { Spinner } from "./Spinner";
 
 const meta: Meta<typeof Spinner> = {

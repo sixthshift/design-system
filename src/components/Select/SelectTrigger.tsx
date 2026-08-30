@@ -57,6 +57,9 @@ export const SelectTriggerButton = ({
           className
         )}
         title={collapsed ? displayLabel : undefined}
+        // The APG select-only combobox: a button-behaving element announced as
+        // a combobox, which also admits aria-required — a plain button doesn't.
+        role="combobox"
         aria-haspopup="listbox"
         aria-expanded={open}
         // The listbox unmounts when closed, so only reference it while it exists.

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { AtSign, Check, Eye, EyeOff, Lock, Mail, Search as SearchIcon } from "lucide-react";
 import * as React from "react";
 import { expect, userEvent, within } from "storybook/test";
-import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
+import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
 import { Input } from "./Input";
 
 const meta: Meta<typeof Input> = {

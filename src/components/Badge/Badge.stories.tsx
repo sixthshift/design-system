@@ -2,7 +2,7 @@ import { Text } from "@sixthshift/design-system/text";
 import { TextInline } from "@sixthshift/design-system/text-inline";
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, within } from "storybook/test";
-import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
+import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
 import { Badge } from "./Badge";
 
 const meta: Meta<typeof Badge> = {

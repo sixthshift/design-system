@@ -15,8 +15,8 @@ import {
   today,
   toISOInstantOrUndefined,
 } from "../../date-time";
-
 import { PickerField } from "../../internal";
+import { useEscapeLayer } from "../../internal/escapeLayers";
 import { Button } from "../Button";
 import { CalendarView } from "../Calendar/CalendarView";
 import { isDateDisabled } from "../Calendar/calendar.hooks";
@@ -253,6 +253,10 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
 
   const click = useClick(context);
   const dismiss = useDismiss(context);
+
+  // While open, an Escape press closes this picker's popover and must not
+  // also close a Modal/Sheet it is rendered inside.
+  useEscapeLayer(open);
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
 
   // IDs for accessibility

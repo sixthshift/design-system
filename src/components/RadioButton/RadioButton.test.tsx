@@ -195,7 +195,7 @@ describe("RadioButton", () => {
       render(<RadioButton checked={true} />);
       const radio = screen.getByRole("radio");
       // Colour now comes from the --radio-button-bg component token (see
-      // src/theme/recipes/radio-button.css), keyed off data-state rather
+      // src/theming/recipes/radio-button.css), keyed off data-state rather
       // than a literal bg-bg-brand class.
       expect(radio).toHaveAttribute("data-state", "checked");
       expect(radio).toHaveClass("radio-button");

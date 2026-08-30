@@ -21,6 +21,8 @@ const ToggleGroupMultiple = React.forwardRef<HTMLDivElement, ToggleGroupMultiple
       iconOnly = false,
       disabled,
       className,
+      name,
+      form,
       ...props
     },
     ref
@@ -56,6 +58,8 @@ const ToggleGroupMultiple = React.forwardRef<HTMLDivElement, ToggleGroupMultiple
             onClick={() => handleToggle(option.value)}
           />
         ))}
+        {/* Mirrors the selection for native form submission, same contract as Checkbox/DatePicker. */}
+        {name && value.map((v) => <input key={v} type="hidden" name={`${name}[]`} value={v} {...(form ? { form } : {})} />)}
       </ToggleGroupContainer>
     );
   }

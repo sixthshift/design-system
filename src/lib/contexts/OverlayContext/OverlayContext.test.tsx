@@ -1,6 +1,7 @@
 /// <reference types="@testing-library/jest-dom" />
 
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@sixthshift/design-system/modal";
+import { Select } from "@sixthshift/design-system/select";
 import { act, renderHook, render as rtlRender, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { PropsWithChildren } from "react";
@@ -351,5 +352,71 @@ describe("useToast prop freshness", () => {
     // Stability is the reason the memo existed; it must survive the fix.
     expect(identities.length).toBeGreaterThanOrEqual(2);
     expect(identities[identities.length - 1]).toBe(identities[identities.length - 2]);
+  });
+});
+
+describe("toast stacking", () => {
+  it("shows a separate toast for every openToast call", async () => {
+    const user = userEvent.setup();
+    rtlRender(<OpenToastButton duration={0} />, { wrapper });
+
+    await user.click(screen.getByRole("button", { name: "Open toast" }));
+    await user.click(screen.getByRole("button", { name: "Open toast" }));
+
+    // The id used to be stable per hook instance, so the second push deduped
+    // inside useStack and silently showed one toast.
+    expect(screen.getAllByText("Saved")).toHaveLength(2);
+  });
+
+  it("does not drop a toast opened while the previous one is mid-exit", async () => {
+    const user = userEvent.setup();
+    rtlRender(<OpenToastButton duration={0} />, { wrapper });
+
+    await user.click(screen.getByRole("button", { name: "Open toast" }));
+    // Start the exit animation but do not finish it — the first toast is
+    // still mounted, carrying its (previously shared) id.
+    await user.click(screen.getByRole("button", { name: "Dismiss" }));
+    await user.click(screen.getByRole("button", { name: "Open toast" }));
+
+    expect(screen.getAllByText("Saved").length).toBeGreaterThanOrEqual(1);
+
+    // Let the exiting toast leave; the fresh one must survive it.
+    for (const status of screen.getAllByRole("status")) triggerAnimationEnd(status);
+    await waitFor(() => expect(screen.getAllByText("Saved")).toHaveLength(1));
+  });
+});
+
+describe("escape with a transient overlay above the modal stack", () => {
+  const FruitModal = (_props: ModalComponentProps) => (
+    <Modal>
+      <ModalHeader>
+        <h3>Pick a fruit</h3>
+      </ModalHeader>
+      <ModalBody>
+        <Select aria-label="Fruit" options={[{ value: "apple", label: "Apple" }]} />
+      </ModalBody>
+    </Modal>
+  );
+
+  it("closes only the open Select dropdown, then the modal on the next press", async () => {
+    const user = userEvent.setup();
+    const { result } = renderHook(() => useModal(), { wrapper });
+
+    act(() => {
+      result.current.openModal(FruitModal);
+    });
+    expect(screen.getByRole("dialog", { hidden: true })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("combobox", { name: "Fruit" }));
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+
+    // First Escape: the dropdown consumes it, the modal stays.
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("listbox")).not.toBeInTheDocument());
+    expect(screen.getByRole("dialog", { hidden: true })).toBeInTheDocument();
+
+    // Second Escape: nothing transient left, the modal closes.
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog", { hidden: true })).not.toBeInTheDocument(), { timeout: 2000 });
   });
 });

@@ -5,7 +5,7 @@ import { OverlayProvider, useModal } from "@sixthshift/design-system/overlay";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { expect, screen, userEvent, within } from "storybook/test";
-import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
+import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from ".";
 
 const meta: Meta<typeof Modal> = {

@@ -7,7 +7,7 @@ import { Slot } from "../../internal/Slot";
  * Geometry and behaviour only.
  *
  * Every colour reads a `--button-*` component token whose value is decided by
- * src/theme/recipes/button.css. That file is the mapping from
+ * src/theming/recipes/button.css. That file is the mapping from
  * `(variant, intent, state)` to a semantic token — the layer that used to be
  * `compoundVariants` here, where it was compiled into class-name literals and
  * unreachable from outside. Nothing in this file names a colour, which is the

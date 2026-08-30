@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Bold, Grid, Italic, List, Underline } from "lucide-react";
 import { useState } from "react";
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
+import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
 import { Toggle } from "./Toggle";
 
 const meta: Meta<typeof Toggle> = {

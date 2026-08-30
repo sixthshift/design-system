@@ -1,5 +1,5 @@
 /// <reference types="@testing-library/jest-dom" />
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -15,7 +15,7 @@ describe("Select", () => {
   describe("rendering", () => {
     it("renders a button trigger", () => {
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
-      expect(screen.getByRole("button")).toBeInTheDocument();
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
     });
 
     it("displays selected option label", () => {
@@ -30,7 +30,7 @@ describe("Select", () => {
 
     it("has aria-haspopup='listbox'", () => {
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
-      expect(screen.getByRole("button")).toHaveAttribute("aria-haspopup", "listbox");
+      expect(screen.getByRole("combobox")).toHaveAttribute("aria-haspopup", "listbox");
     });
   });
 
@@ -39,7 +39,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       expect(screen.getByRole("listbox")).toBeInTheDocument();
     });
 
@@ -47,7 +47,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       expect(screen.getByRole("option", { name: "Apple" })).toBeInTheDocument();
       expect(screen.getByRole("option", { name: "Banana" })).toBeInTheDocument();
       expect(screen.getByRole("option", { name: "Cherry" })).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="apple" options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       await user.click(screen.getByRole("option", { name: "Banana" }));
 
       expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
@@ -68,10 +68,10 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-      expect(screen.getByRole("button")).toHaveAttribute("aria-expanded", "false");
+      expect(screen.getByRole("combobox")).toHaveAttribute("aria-expanded", "false");
 
-      await user.click(screen.getByRole("button"));
-      expect(screen.getByRole("button")).toHaveAttribute("aria-expanded", "true");
+      await user.click(screen.getByRole("combobox"));
+      expect(screen.getByRole("combobox")).toHaveAttribute("aria-expanded", "true");
     });
   });
 
@@ -81,7 +81,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="apple" options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       await user.click(screen.getByRole("option", { name: "Cherry" }));
 
       expect(handleChange).toHaveBeenCalledWith("cherry");
@@ -91,7 +91,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="banana" options={options} onValueChange={() => {}} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       expect(screen.getByRole("option", { name: "Banana" })).toHaveAttribute("aria-selected", "true");
       expect(screen.getByRole("option", { name: "Apple" })).toHaveAttribute("aria-selected", "false");
     });
@@ -100,14 +100,14 @@ describe("Select", () => {
   describe("disabled state", () => {
     it("can be disabled", () => {
       render(<Select value="apple" options={options} onValueChange={() => {}} disabled />);
-      expect(screen.getByRole("button")).toBeDisabled();
+      expect(screen.getByRole("combobox")).toBeDisabled();
     });
 
     it("does not open when disabled", async () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} disabled />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
     });
   });
@@ -123,13 +123,13 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} collapsed />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
     });
 
     it("shows title tooltip when collapsed", () => {
       render(<Select value="banana" options={options} onValueChange={() => {}} collapsed />);
-      expect(screen.getByRole("button")).toHaveAttribute("title", "Banana");
+      expect(screen.getByRole("combobox")).toHaveAttribute("title", "Banana");
     });
   });
 
@@ -138,7 +138,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       expect(screen.getByRole("listbox")).toBeInTheDocument();
 
       await user.keyboard("{Escape}");
@@ -149,7 +149,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-      screen.getByRole("button").focus();
+      screen.getByRole("combobox").focus();
       await user.keyboard("{ArrowDown}");
       expect(screen.getByRole("listbox")).toBeInTheDocument();
     });
@@ -158,7 +158,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-      screen.getByRole("button").focus();
+      screen.getByRole("combobox").focus();
       await user.keyboard("{ArrowUp}");
       expect(screen.getByRole("listbox")).toBeInTheDocument();
     });
@@ -167,7 +167,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-      screen.getByRole("button").focus();
+      screen.getByRole("combobox").focus();
       await user.keyboard("{Enter}");
       expect(screen.getByRole("listbox")).toBeInTheDocument();
     });
@@ -176,7 +176,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-      screen.getByRole("button").focus();
+      screen.getByRole("combobox").focus();
       await user.keyboard(" ");
       expect(screen.getByRole("listbox")).toBeInTheDocument();
     });
@@ -186,7 +186,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="apple" options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       await user.keyboard("{ArrowDown}");
       await user.keyboard("{Enter}");
 
@@ -198,7 +198,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="banana" options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       await user.keyboard("{ArrowUp}");
       await user.keyboard("{Enter}");
 
@@ -210,7 +210,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="cherry" options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       await user.keyboard("{Home}");
       await user.keyboard("{Enter}");
 
@@ -222,7 +222,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="apple" options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       await user.keyboard("{End}");
       await user.keyboard("{Enter}");
 
@@ -234,7 +234,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="apple" options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       await user.keyboard("{ArrowDown}{Enter}");
 
       expect(handleChange).toHaveBeenCalledWith("banana");
@@ -246,7 +246,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="apple" options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       await user.keyboard("{ArrowDown} ");
 
       expect(handleChange).toHaveBeenCalledWith("banana");
@@ -258,7 +258,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="apple" options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       await user.keyboard("c");
       await user.keyboard("{Enter}");
 
@@ -270,7 +270,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="apple" options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       await user.keyboard("{ArrowUp}");
       await user.keyboard("{Enter}");
 
@@ -282,7 +282,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="cherry" options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       await user.keyboard("{ArrowDown}");
       await user.keyboard("{Enter}");
 
@@ -293,7 +293,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       expect(screen.getByRole("listbox")).toBeInTheDocument();
 
       await user.keyboard("{Tab}");
@@ -304,7 +304,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-      const trigger = screen.getByRole("button");
+      const trigger = screen.getByRole("combobox");
       await user.click(trigger);
       await user.keyboard("{Escape}");
 
@@ -315,7 +315,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-      const trigger = screen.getByRole("button");
+      const trigger = screen.getByRole("combobox");
       await user.click(trigger);
       await user.keyboard("{ArrowDown}{Enter}");
 
@@ -329,7 +329,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="banana" options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       // Pressing Enter should select the currently highlighted (selected) option
       await user.keyboard("{Enter}");
 
@@ -341,7 +341,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value={"" as "apple"} options={options} onValueChange={handleChange} />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       await user.keyboard("{Enter}");
 
       expect(handleChange).toHaveBeenCalledWith("apple");
@@ -351,7 +351,7 @@ describe("Select", () => {
   describe("styling", () => {
     it("applies default classes to trigger", () => {
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
-      const button = screen.getByRole("button");
+      const button = screen.getByRole("combobox");
       expect(button).toHaveClass("rounded-md");
       expect(button).toHaveClass("border");
     });
@@ -359,7 +359,7 @@ describe("Select", () => {
     it("merges custom className", () => {
       render(<Select value="apple" options={options} onValueChange={() => {}} className="custom-class" />);
       // className is now on the button itself
-      expect(screen.getByRole("button")).toHaveClass("custom-class");
+      expect(screen.getByRole("combobox")).toHaveClass("custom-class");
     });
   });
 
@@ -388,7 +388,7 @@ describe("Select", () => {
         />
       );
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       expect(screen.getByRole("combobox")).toBeInTheDocument();
       expect(seen.at(-1)).toBeInstanceOf(HTMLDivElement);
     });
@@ -400,32 +400,30 @@ describe("Select", () => {
       const ref = vi.fn();
       render(<Select ref={ref} value="apple" options={options} onValueChange={() => {}} searchable />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       expect(screen.getByRole("listbox")).toBeInTheDocument();
     });
   });
 
   describe("searchable mode", () => {
-    it("renders as button when closed", () => {
+    it("renders as a button-backed combobox when closed", () => {
       render(<Select value="apple" options={options} onValueChange={() => {}} searchable />);
-      expect(screen.getByRole("button")).toBeInTheDocument();
-      expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+      expect(screen.getByRole("combobox").tagName).toBe("BUTTON");
     });
 
     it("transforms to input when opened", async () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} searchable />);
 
-      await user.click(screen.getByRole("button"));
-      expect(screen.getByRole("combobox")).toBeInTheDocument();
-      expect(screen.queryByRole("button")).not.toBeInTheDocument();
+      await user.click(screen.getByRole("combobox"));
+      expect(screen.getByRole("combobox").tagName).toBe("INPUT");
     });
 
     it("filters options based on search input", async () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} searchable />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       const input = screen.getByRole("combobox");
 
       await user.type(input, "ba");
@@ -440,7 +438,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} searchable />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       const input = screen.getByRole("combobox");
 
       await user.type(input, "xyz");
@@ -453,7 +451,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} searchable />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       const input = screen.getByRole("combobox");
 
       await user.type(input, "BANANA");
@@ -466,14 +464,14 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value="apple" options={options} onValueChange={handleChange} searchable />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       const input = screen.getByRole("combobox");
 
       await user.type(input, "ba");
       await user.click(screen.getByRole("option", { name: "Banana" }));
 
       // Reopen to check search is cleared
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       const newInput = screen.getByRole("combobox");
       expect(newInput).toHaveValue("");
     });
@@ -482,7 +480,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} searchable />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       const input = screen.getByRole("combobox");
 
       await user.type(input, "test");
@@ -492,10 +490,10 @@ describe("Select", () => {
       await user.keyboard("{Escape}");
 
       // Wait for dropdown to close and transform back to button
-      expect(await screen.findByRole("button")).toBeInTheDocument();
+      await waitFor(() => expect(screen.getByRole("combobox").tagName).toBe("BUTTON"));
 
       // Reopen to check search is cleared
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       const newInput = screen.getByRole("combobox");
       expect(newInput).toHaveValue("");
     });
@@ -504,7 +502,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} searchable />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       const input = screen.getByRole("combobox");
 
       await user.type(input, "test");
@@ -515,9 +513,10 @@ describe("Select", () => {
       expect(screen.getByRole("combobox")).toHaveValue("");
       expect(screen.getByRole("listbox")).toBeInTheDocument(); // Still open
 
-      // Second escape closes
+      // Second escape closes — the trigger reverts to its button form
       await user.keyboard("{Escape}");
-      expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.getByRole("combobox").tagName).toBe("BUTTON"));
+      expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
     });
 
     it("navigates filtered options with arrow keys", async () => {
@@ -525,7 +524,7 @@ describe("Select", () => {
       const handleChange = vi.fn();
       render(<Select value={"" as any} options={options} onValueChange={handleChange} searchable />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       const input = screen.getByRole("combobox");
 
       await user.type(input, "ban");
@@ -542,7 +541,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} searchable />);
 
-      const button = screen.getByRole("button");
+      const button = screen.getByRole("combobox");
       button.focus();
 
       await user.keyboard("b");
@@ -556,7 +555,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="banana" options={options} onValueChange={() => {}} searchable />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       const input = screen.getByRole("combobox");
 
       expect(input).toHaveAttribute("placeholder", "Banana");
@@ -570,7 +569,7 @@ describe("Select", () => {
       ];
       render(<Select value="apple-pie" options={moreOptions} onValueChange={() => {}} searchable />);
 
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("combobox"));
       const input = screen.getByRole("combobox");
 
       await user.type(input, "Banana Split");
@@ -592,7 +591,7 @@ describe("Select", () => {
 
       // Opening the second would be an outside-press that dismisses the first,
       // so open them in turn and compare the ids each one generates.
-      const triggers = screen.getAllByRole("button");
+      const triggers = screen.getAllByRole("combobox");
 
       await user.click(triggers[0]!);
       const firstId = screen.getByRole("listbox").id;
@@ -611,7 +610,7 @@ describe("Select", () => {
       const user = userEvent.setup();
       render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-      const trigger = screen.getByRole("button");
+      const trigger = screen.getByRole("combobox");
       // Closed: the listbox is not mounted, so nothing should be referenced.
       expect(trigger).not.toHaveAttribute("aria-controls");
 
@@ -630,7 +629,7 @@ describe("Select", () => {
         </>
       );
 
-      const triggers = screen.getAllByRole("button");
+      const triggers = screen.getAllByRole("combobox");
       await user.click(triggers[0]!);
       await user.click(triggers[1]!);
 
@@ -646,7 +645,7 @@ describe("Select ARIA wiring", () => {
     const user = userEvent.setup();
     render(<Select value="apple" options={options} onValueChange={() => {}} placeholder="Choose fruit" />);
 
-    await user.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("combobox"));
     expect(screen.getByRole("listbox", { name: "Choose fruit" })).toBeInTheDocument();
   });
 
@@ -654,7 +653,7 @@ describe("Select ARIA wiring", () => {
     const user = userEvent.setup();
     render(<Select value="apple" options={options} onValueChange={() => {}} aria-label="Fruit" />);
 
-    await user.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("combobox"));
     expect(screen.getByRole("listbox", { name: "Fruit" })).toBeInTheDocument();
   });
 
@@ -662,7 +661,7 @@ describe("Select ARIA wiring", () => {
     const user = userEvent.setup();
     render(<Select value="apple" options={options} onValueChange={() => {}} />);
 
-    await user.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("combobox"));
     const listbox = screen.getByRole("listbox");
     // Options are never focused — the listbox holds focus and delegates.
     expect(listbox).toHaveFocus();
@@ -676,7 +675,7 @@ describe("Select ARIA wiring", () => {
     const user = userEvent.setup();
     render(<Select value="apple" options={options} onValueChange={() => {}} searchable />);
 
-    await user.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("combobox"));
     const input = screen.getByRole("combobox");
     expect(input).toHaveFocus();
 
@@ -693,7 +692,7 @@ describe("Select ARIA wiring", () => {
       </>
     );
 
-    await user.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("combobox"));
     expect(screen.getByRole("listbox")).toBeInTheDocument();
 
     // The handler used to live on `document`, so an open Select swallowed keys
@@ -704,5 +703,39 @@ describe("Select ARIA wiring", () => {
 
     expect(screen.getByRole("listbox")).toBeInTheDocument();
     expect(screen.getByRole("listbox")).toHaveAttribute("aria-activedescendant", screen.getByRole("option", { name: "Apple" }).id);
+  });
+});
+
+describe("form integration", () => {
+  it("mirrors the single-mode selection into a hidden input when name is set", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Select aria-label="Fruit" name="fruit" options={options} />);
+
+    expect(container.querySelector('input[type="hidden"]')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("combobox"));
+    await user.click(screen.getByRole("option", { name: "Apple" }));
+
+    const hidden = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+    expect(hidden).toHaveAttribute("name", "fruit");
+    expect(hidden).toHaveValue("apple");
+  });
+
+  it("mirrors every multiple-mode selection into name[] hidden inputs", () => {
+    const { container } = render(<Select<string> aria-label="Fruit" name="fruit" mode="multiple" defaultValue={["apple", "banana"]} options={options} />);
+
+    const hidden = Array.from(container.querySelectorAll<HTMLInputElement>('input[type="hidden"]'));
+    expect(hidden.map((input) => input.name)).toEqual(["fruit[]", "fruit[]"]);
+    expect(hidden.map((input) => input.value)).toEqual(["apple", "banana"]);
+  });
+
+  it("stamps form onto the hidden input so the Select can live outside its <form>", () => {
+    const { container } = render(<Select aria-label="Fruit" name="fruit" form="checkout" defaultValue="apple" options={options} />);
+    expect(container.querySelector('input[type="hidden"]')).toHaveAttribute("form", "checkout");
+  });
+
+  it("marks the trigger aria-required when required is set", () => {
+    render(<Select aria-label="Fruit" required options={options} />);
+    expect(screen.getByRole("combobox")).toHaveAttribute("aria-required", "true");
   });
 });

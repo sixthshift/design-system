@@ -1,7 +1,7 @@
 import { Label } from "@sixthshift/design-system/label";
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, within } from "storybook/test";
-import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
+import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
 import { Textarea } from "./Textarea";
 
 const meta: Meta<typeof Textarea> = {

@@ -8,6 +8,7 @@ import * as React from "react";
 import { useCallback, useId, useMemo, useState } from "react";
 import { fromISOTime, fromISOTimeOrUndefined, type Temporal, toISOTimeOrUndefined } from "../../date-time";
 import { PickerField } from "../../internal";
+import { useEscapeLayer } from "../../internal/escapeLayers";
 import { Button } from "../Button";
 import { Separator } from "../Separator";
 import { PeriodSelector } from "./PeriodSelector";
@@ -243,6 +244,10 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>((pro
 
   const click = useClick(context);
   const dismiss = useDismiss(context);
+
+  // While open, an Escape press closes this picker's popover and must not
+  // also close a Modal/Sheet it is rendered inside.
+  useEscapeLayer(open);
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
 
   // IDs for accessibility

@@ -3,7 +3,7 @@ import { Input } from "@sixthshift/design-system/input";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { expect, screen, userEvent, within } from "storybook/test";
-import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
+import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
 import { Sheet, SheetBody, SheetFooter, SheetHeader } from ".";
 
 const meta: Meta<typeof Sheet> = {

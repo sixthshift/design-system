@@ -3,7 +3,7 @@ import { Button } from "@sixthshift/design-system/button";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
-import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
+import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
 import { Card } from ".";
 
 const meta: Meta<typeof Card> = {

@@ -1,6 +1,6 @@
 "use client";
 
-import { type Dispatch, type Reducer, startTransition, useCallback, useEffect, useReducer } from "react";
+import { type Dispatch, type Reducer, startTransition, useCallback, useEffect, useReducer, useRef } from "react";
 
 type Id = string | number;
 type Transition = {
@@ -72,22 +72,43 @@ export function useStack<T extends StackItem>(initialStack: T[] = []): [T[], Sta
 
   const [state, dispatch] = useReducer(reducer, initialStack);
 
-  useEffect(() => {
-    const itemsToRemove = state.filter((item) => item.transition);
+  // One removal timer per transitioning item. The effect re-runs on every
+  // state change, so timers are tracked in a ref keyed by item id: an item
+  // already scheduled is never scheduled again (re-running the effect must not
+  // reset or duplicate its countdown), and a timer whose item has left the
+  // stack by other means is cancelled rather than left to fire at a reused id.
+  const removalTimersRef = useRef(new Map<Id, ReturnType<typeof setTimeout>>());
 
-    if (itemsToRemove.length === 0) {
-      return;
+  useEffect(() => {
+    const timers = removalTimersRef.current;
+    const transitioning = new Set(state.filter((item) => item.transition).map((item) => item.id));
+
+    for (const [id, timer] of timers) {
+      if (!transitioning.has(id)) {
+        clearTimeout(timer);
+        timers.delete(id);
+      }
     }
 
-    itemsToRemove.reverse().forEach((itemToRemove) => {
-      setTimeout(
-        () => {
-          dispatch({ type: "remove", id: itemToRemove.id });
-        }, // We found the item by the `transition` property, so we can be sure it exists.
-        (itemToRemove.transition as Transition).duration
-      );
-    });
+    for (const item of state) {
+      if (!item.transition || timers.has(item.id)) continue;
+      const timer = setTimeout(() => {
+        timers.delete(item.id);
+        dispatch({ type: "remove", id: item.id });
+      }, item.transition.duration);
+      timers.set(item.id, timer);
+    }
   }, [state]);
+
+  // Unmount only: without this, a stack unmounted mid-transition dispatches
+  // into an unmounted reducer.
+  useEffect(() => {
+    const timers = removalTimersRef.current;
+    return () => {
+      for (const timer of timers.values()) clearTimeout(timer);
+      timers.clear();
+    };
+  }, []);
 
   // Memoize the dispatch wrapper to prevent unnecessary re-renders
   // dispatch from useReducer is stable, so this only creates once

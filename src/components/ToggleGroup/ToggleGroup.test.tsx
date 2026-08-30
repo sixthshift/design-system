@@ -343,3 +343,29 @@ describe("ToggleGroup", () => {
     });
   });
 });
+
+describe("form integration", () => {
+  const opts = [
+    { value: "a", label: "A" },
+    { value: "b", label: "B" },
+  ];
+
+  it("mirrors the single-mode selection into a hidden input when name is set", () => {
+    const { container } = render(<ToggleGroup type="single" name="view" value="a" onValueChange={() => {}} options={opts} aria-label="View" />);
+    const hidden = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+    expect(hidden).toHaveAttribute("name", "view");
+    expect(hidden).toHaveValue("a");
+  });
+
+  it("renders no hidden input when nothing is selected", () => {
+    const { container } = render(<ToggleGroup type="single" name="view" options={opts} aria-label="View" />);
+    expect(container.querySelector('input[type="hidden"]')).not.toBeInTheDocument();
+  });
+
+  it("mirrors every multiple-mode selection into name[] hidden inputs", () => {
+    const { container } = render(<ToggleGroup type="multiple" name="format" value={["a", "b"]} onValueChange={() => {}} options={opts} aria-label="Format" />);
+    const hidden = Array.from(container.querySelectorAll<HTMLInputElement>('input[type="hidden"]'));
+    expect(hidden.map((input) => input.name)).toEqual(["format[]", "format[]"]);
+    expect(hidden.map((input) => input.value)).toEqual(["a", "b"]);
+  });
+});

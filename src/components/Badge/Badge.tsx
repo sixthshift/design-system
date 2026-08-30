@@ -6,7 +6,7 @@ import * as React from "react";
  * Geometry and behaviour only.
  *
  * Every colour reads a `--badge-*` component token whose value is decided by
- * src/theme/recipes/badge.css. That file is the mapping from
+ * src/theming/recipes/badge.css. That file is the mapping from
  * `(variant, intent)` to a semantic token — the layer that used to be
  * `compoundVariants` here, where it was compiled into class-name literals and
  * unreachable from outside. Nothing in this file names a colour, which is the
@@ -85,7 +85,7 @@ export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
  * does not manage an accessible name of its own.
  *
  * Colour is not decided here: each `(variant, intent)` pairing resolves
- * through a `--badge-*` component token (src/theme/recipes/badge.css), the
+ * through a `--badge-*` component token (src/theming/recipes/badge.css), the
  * same seam Button uses, so a consumer can re-point a cell without a
  * release.
  */

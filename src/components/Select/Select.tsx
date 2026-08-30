@@ -3,6 +3,7 @@
 import { autoUpdate, flip, offset, shift, size, useFloating } from "@floating-ui/react";
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { forwardRef, type HTMLAttributes, type ReactElement, type Ref, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEscapeLayer } from "../../internal/escapeLayers";
 import { SelectDropdown, selectOptionId } from "./SelectDropdown";
 import { SelectTriggerButton, SelectTriggerSearch } from "./SelectTrigger";
 import { useSelectKeyboard } from "./useSelectKeyboard";
@@ -21,6 +22,12 @@ type SelectBaseProps<T extends string = string> = Omit<HTMLAttributes<HTMLElemen
   placeholder?: string;
   searchable?: boolean;
   clearable?: boolean;
+  /** Input name for native form submission. Selected value(s) are mirrored into hidden `<input>`s, `${name}[]` in multiple mode. */
+  name?: string;
+  /** The `form` attribute for the hidden input(s), for a Select rendered outside its `<form>`. */
+  form?: string;
+  /** Marks the combobox `aria-required`. Constraint validation is the caller's job — the mirrored inputs are hidden. */
+  required?: boolean;
 };
 
 type SelectSingleProps<T extends string = string> = SelectBaseProps<T> & {
@@ -56,6 +63,9 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
     placeholder = "Select...",
     searchable = false,
     clearable = false,
+    name,
+    form,
+    required = false,
     ...restProps
   } = props;
 
@@ -246,6 +256,10 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
     }
   }, [highlightedIndex, open]);
 
+  // While open, an Escape press closes the dropdown and must not also close
+  // a Modal/Sheet this Select is rendered inside.
+  useEscapeLayer(open);
+
   // Close on outside click
   useEffect(() => {
     if (!open) return;
@@ -268,7 +282,8 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
   const activeOptionId = open && highlightedIndex >= 0 && highlightedIndex < filteredOptions.length ? selectOptionId(listboxId, highlightedIndex) : undefined;
 
   // Strip mode from DOM props
-  const { mode: _, value: _v, defaultValue: _dv, onValueChange: _oc, ...htmlProps } = restProps as Record<string, unknown>;
+  const { mode: _, value: _v, defaultValue: _dv, onValueChange: _oc, ...strippedProps } = restProps as Record<string, unknown>;
+  const htmlProps = required ? { "aria-required": true, ...strippedProps } : strippedProps;
 
   // `role="listbox"` requires an accessible name of its own, and the trigger
   // can't supply one: its label is the current *value*, and in searchable mode
@@ -312,6 +327,12 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
           props={htmlProps as HTMLAttributes<HTMLElement>}
         />
       )}
+
+      {/* Hidden inputs mirror the selection for native form submission — same
+          contract as DatePicker: rendered inline (not portalled) so they sit
+          inside the surrounding <form> unless `form` points elsewhere. */}
+      {name && !isMultiple && singleValue && <input type="hidden" name={name} value={singleValue} {...(form ? { form } : {})} />}
+      {name && isMultiple && multiValue.map((v) => <input key={v} type="hidden" name={`${name}[]`} value={v} {...(form ? { form } : {})} />)}
 
       {open && !collapsed && (
         <SelectDropdown

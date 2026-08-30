@@ -32,15 +32,45 @@ export const useToast = (args: ToastPropsWithDuration | FunctionComponent<ToastP
     toastStack: [, dispatch],
   } = useOverlayContext();
 
-  const id = useId();
+  // Each `openToast()` call mints its own id. The id used to be `useId()`
+  // alone — stable per hook instance — so a second call while the first toast
+  // was still mounted (or still mid-exit) deduped inside useStack and showed
+  // nothing, and the first toast's auto-dismiss timer would close the second.
+  const baseId = useId();
+  const counterRef = useRef(0);
 
   const customComponent = isFunction(args) ? args : null;
   const props = isPlainObject(args) ? args : ({} as ToastPropsWithDuration);
   const { duration = DEFAULT_DURATION, ...toastPropsRaw } = props;
 
+  // Live toasts from this hook instance, each with its pending auto-dismiss
+  // timer (if any), so closing — manual or unmount — always cancels the timer.
+  const openToastsRef = useRef(new Map<string, ReturnType<typeof setTimeout> | null>());
+
+  const closeToastById = useCallback(
+    (id: string) => {
+      const timer = openToastsRef.current.get(id);
+      if (timer) clearTimeout(timer);
+      openToastsRef.current.delete(id);
+      dispatch({ type: "remove", id, transition: { duration: 300 } });
+    },
+    [dispatch]
+  );
+
+  /** Closes every toast this hook instance has opened. */
   const closeToast = useCallback(() => {
-    dispatch({ type: "remove", id, transition: { duration: 300 } });
-  }, [dispatch, id]);
+    for (const id of [...openToastsRef.current.keys()]) closeToastById(id);
+  }, [closeToastById]);
+
+  useEffect(() => {
+    const openToasts = openToastsRef.current;
+    return () => {
+      for (const timer of openToasts.values()) {
+        if (timer) clearTimeout(timer);
+      }
+      openToasts.clear();
+    };
+  }, []);
 
   // `openToast` has to be both referentially stable — callers put it in effect
   // dependency arrays — and able to see the current props. A ref refreshed after
@@ -57,23 +87,25 @@ export const useToast = (args: ToastPropsWithDuration | FunctionComponent<ToastP
 
   const openToast = useCallback(() => {
     const { customComponent: component, toastProps, duration: autoDismiss } = latest.current;
+    const id = `${baseId}-${counterRef.current++}`;
+    const close = () => closeToastById(id);
 
     dispatch({
       type: "push",
       item: {
         id,
         component: component ?? Toast,
-        onClose: closeToast,
+        onClose: close,
         standalone: false, // OverlayContext handles positioning
         ...toastProps,
       } as ToastStackItem,
     });
 
     // Auto-dismiss if duration is set
-    if (autoDismiss > 0) {
-      setTimeout(closeToast, autoDismiss);
-    }
-  }, [dispatch, id, closeToast]);
+    openToastsRef.current.set(id, autoDismiss > 0 ? setTimeout(close, autoDismiss) : null);
+
+    return close;
+  }, [dispatch, baseId, closeToastById]);
 
   return {
     openToast,

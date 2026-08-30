@@ -21,6 +21,7 @@ import {
   toISODateRange,
 } from "../../date-time";
 import { PickerField } from "../../internal";
+import { useEscapeLayer } from "../../internal/escapeLayers";
 import { CalendarView } from "../Calendar/CalendarView";
 import { isDateDisabled } from "../Calendar/calendar.hooks";
 import type { PresetOption } from "../Calendar/calendar.types";
@@ -238,6 +239,10 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>((pro
 
   const click = useClick(context);
   const dismiss = useDismiss(context);
+
+  // While open, an Escape press closes this picker's popover and must not
+  // also close a Modal/Sheet it is rendered inside.
+  useEscapeLayer(open);
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
 
   // IDs for accessibility

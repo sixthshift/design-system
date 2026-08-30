@@ -4,6 +4,7 @@ import { autoUpdate, flip, offset, type Placement, shift, useClick, useDismiss, 
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import type * as React from "react";
 import { useId } from "react";
+import { useEscapeLayer } from "../../internal/escapeLayers";
 import { PopoverBody } from "./components/PopoverBody";
 import { PopoverClose } from "./components/PopoverClose";
 import { PopoverContext } from "./components/PopoverContext";
@@ -43,6 +44,10 @@ const PopoverRoot = ({ open: controlledOpen, onOpenChange, defaultOpen = false, 
   const click = useClick(context);
   const dismiss = useDismiss(context);
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
+
+  // While open, an Escape press dismisses this popover and must not also
+  // close a Modal/Sheet underneath it.
+  useEscapeLayer(open);
 
   const id = useId();
   const contentId = `popover-content-${id}`;

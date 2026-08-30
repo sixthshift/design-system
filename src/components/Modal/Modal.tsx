@@ -1,9 +1,10 @@
 "use client";
 
-import { FloatingFocusManager, FloatingOverlay, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
+import { FloatingFocusManager, FloatingOverlay, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import { useMergedFloatingRef, usePresence } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import { forwardRef, type HTMLAttributes, type ReactNode, useCallback, useContext, useEffect, useId, useMemo, useState } from "react";
+import { hasOpenEscapeLayer, useEscapeDialog } from "../../internal/escapeLayers";
 import { ModalBody, ModalContext, ModalFooter, ModalHeader } from "./components";
 
 // =============================================================================
@@ -23,9 +24,11 @@ export type ModalProps = Pick<HTMLAttributes<HTMLDivElement>, "className" | "sty
   /** Children - use Modal.Header, Modal.Body, Modal.Footer */
   children: ReactNode;
   /**
-   * When true (default), clicking outside closes the modal.
+   * When true (default), clicking outside — and, for a directly-mounted
+   * modal, pressing Escape — closes the modal.
    * When false, the modal can only be closed programmatically.
-   * Note: Escape key is handled by OverlayContext for proper stack ordering.
+   * Note: for modals opened via `useModal()`, Escape is handled by
+   * OverlayContext for proper stack ordering.
    */
   dismissable?: boolean;
   /** When true, shows a close (X) button in the modal header */
@@ -68,6 +71,9 @@ const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
   ) => {
     // Prefer explicit prop over context (context is set by useModal's overlay system)
     const contextValue = useContext(ModalContext);
+    // A context means useModal's stack owns this modal — and with it, Escape
+    // ordering. Without one the modal is mounted directly and handles its own.
+    const isStackManaged = contextValue != null;
     // Context provides a parameterless onClose for programmatic modals; adapt to the boolean shape.
     const handleDismiss = useCallback(() => {
       if (onOpenChange) onOpenChange(false);
@@ -86,8 +92,12 @@ const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
 
     const { refs, context } = useFloating({
       open: true,
-      onOpenChange: (nextOpen) => {
-        if (!nextOpen) handleClose();
+      onOpenChange: (nextOpen, _event, reason) => {
+        if (nextOpen) return;
+        // A transient overlay (Select dropdown, Popover, picker) open above
+        // this modal consumes the Escape itself — don't also close the modal.
+        if (reason === "escape-key" && hasOpenEscapeLayer()) return;
+        handleClose();
       },
     });
 
@@ -95,8 +105,10 @@ const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
 
     const dismiss = useDismiss(context, {
       enabled: dismissable,
-      // OverlayContext handles escape key for proper stack ordering
-      escapeKey: false,
+      // Stack-managed modals leave Escape to OverlayContext, which closes
+      // topmost-first. A directly-mounted modal has no stack above it and
+      // handles its own Escape here.
+      escapeKey: !isStackManaged,
       outsidePress: true,
       outsidePressEvent: "mousedown",
     });
@@ -121,52 +133,63 @@ const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
 
     const modalContextValue = useMemo(() => ({ onClose: handleClose, closable, titleId, registerTitle }), [closable, handleClose, titleId, registerTitle]);
 
+    // While mounted (exit animation included), a non-modal Sheet underneath
+    // must leave Escape to this dialog.
+    useEscapeDialog(isMounted);
+
     if (!isMounted) return null;
 
     const isEntering = state === "entering";
     const isExiting = state === "exiting";
 
     return (
-      <FloatingFocusManager context={context} modal>
-        <FloatingOverlay
-          lockScroll
-          className={cn("modal-overlay fixed inset-0 z-modal bg-(--modal-overlay-bg)", isEntering && "animate-fade-in", isExiting && "animate-fade-out")}
-        >
-          <div
-            ref={mergedRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label={ariaLabel}
-            aria-labelledby={labelledBy}
-            aria-describedby={ariaDescribedBy}
-            tabIndex={-1}
-            data-state={state}
-            className={cn(
-              "modal fixed flex flex-col overflow-hidden outline-hidden",
-              "border-(color:--modal-border) rounded-xl border bg-(--modal-bg)",
-              // Size
-              sizeClasses[size],
-              // Cap height so ModalBody scrolls instead of overflowing the viewport
-              "max-h-[95%]",
-              // Mobile: slide up from bottom, full width
-              "max-sm:inset-x-0 max-sm:bottom-0 max-sm:rounded-b-none",
-              isEntering && "max-sm:animate-slide-up-in",
-              isExiting && "max-sm:animate-slide-up-out",
-              // Desktop: horizontal center + vertical alignment
-              "sm:left-1/2 sm:-translate-x-1/2",
-              align === "center" && "sm:top-1/2 sm:-translate-y-1/2",
-              align === "top" && "sm:top-[15vh]",
-              isEntering && "sm:animate-fade-in",
-              isExiting && "sm:animate-fade-out",
-              className
-            )}
-            style={style}
-            {...getFloatingProps({})}
+      // Self-portalled: `position: fixed` resolves against the nearest
+      // transformed/filtered ancestor, so a modal rendered in place inside a
+      // `transform` container would be positioned (and clipped) by it. Nested
+      // FloatingPortals attach to the parent portal's node, so a stack-managed
+      // modal stays inside the `OverlayProvider`'s custom `modal` root.
+      <FloatingPortal>
+        <FloatingFocusManager context={context} modal>
+          <FloatingOverlay
+            lockScroll
+            className={cn("modal-overlay fixed inset-0 z-modal bg-(--modal-overlay-bg)", isEntering && "animate-fade-in", isExiting && "animate-fade-out")}
           >
-            <ModalContext.Provider value={modalContextValue}>{children}</ModalContext.Provider>
-          </div>
-        </FloatingOverlay>
-      </FloatingFocusManager>
+            <div
+              ref={mergedRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label={ariaLabel}
+              aria-labelledby={labelledBy}
+              aria-describedby={ariaDescribedBy}
+              tabIndex={-1}
+              data-state={state}
+              className={cn(
+                "modal fixed flex flex-col overflow-hidden outline-hidden",
+                "border-(color:--modal-border) rounded-xl border bg-(--modal-bg)",
+                // Size
+                sizeClasses[size],
+                // Cap height so ModalBody scrolls instead of overflowing the viewport
+                "max-h-[95%]",
+                // Mobile: slide up from bottom, full width
+                "max-sm:inset-x-0 max-sm:bottom-0 max-sm:rounded-b-none",
+                isEntering && "max-sm:animate-slide-up-in",
+                isExiting && "max-sm:animate-slide-up-out",
+                // Desktop: horizontal center + vertical alignment
+                "sm:left-1/2 sm:-translate-x-1/2",
+                align === "center" && "sm:top-1/2 sm:-translate-y-1/2",
+                align === "top" && "sm:top-[15vh]",
+                isEntering && "sm:animate-fade-in",
+                isExiting && "sm:animate-fade-out",
+                className
+              )}
+              style={style}
+              {...getFloatingProps({})}
+            >
+              <ModalContext.Provider value={modalContextValue}>{children}</ModalContext.Provider>
+            </div>
+          </FloatingOverlay>
+        </FloatingFocusManager>
+      </FloatingPortal>
     );
   }
 );
@@ -194,11 +217,12 @@ ModalRoot.displayName = "Modal";
  * Modal is mount-driven — a parent (or `useModal`'s stack) decides whether it
  * renders at all, so there's no `open` prop. `onOpenChange` still exists,
  * firing only with `false` on dismissal, so every overlay in this library
- * shares one open/close shape. Escape is *not* wired inside Modal itself:
- * `OverlayProvider` owns it globally so a stack of modals closes
- * topmost-first. That means Escape only closes a Modal opened through
- * `useModal()` — one a parent mounts directly from its own boolean state
- * won't respond to Escape unless the app wires that separately.
+ * shares one open/close shape. Escape closes the modal: a directly-mounted
+ * Modal handles it itself (via `useDismiss`, so `dismissable={false}` turns
+ * it off along with outside-press), while one opened through `useModal()`
+ * defers to `OverlayProvider`, which closes a stack of modals topmost-first.
+ * Either way, an Escape pressed while a transient overlay (Select dropdown,
+ * Popover, picker) is open above the modal closes only that overlay.
  *
  * Focus moves into the modal on mount and is trapped there
  * (`FloatingFocusManager modal`) until it unmounts, then returns to whatever

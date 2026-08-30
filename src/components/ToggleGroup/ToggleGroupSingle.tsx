@@ -23,6 +23,8 @@ const ToggleGroupSingle = React.forwardRef<HTMLDivElement, ToggleGroupSingleProp
       iconOnly = false,
       disabled,
       className,
+      name,
+      form,
       ...props
     },
     ref
@@ -100,6 +102,8 @@ const ToggleGroupSingle = React.forwardRef<HTMLDivElement, ToggleGroupSingleProp
             onClick={() => handleSelect(option.value)}
           />
         ))}
+        {/* Mirrors the selection for native form submission, same contract as Checkbox/DatePicker. */}
+        {name && value && <input type="hidden" name={name} value={value} {...(form ? { form } : {})} />}
       </ToggleGroupContainer>
     );
   }

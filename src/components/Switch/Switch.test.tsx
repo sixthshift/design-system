@@ -191,7 +191,7 @@ describe("Switch", () => {
     it("applies unchecked background", () => {
       render(<Switch checked={false} />);
       // Colour now comes from the --switch-bg component token (see
-      // src/theme/recipes/switch.css), keyed off data-state rather than a
+      // src/theming/recipes/switch.css), keyed off data-state rather than a
       // literal bg-bg-subtle class.
       expect(screen.getByRole("switch")).toHaveAttribute("data-state", "unchecked");
     });
@@ -199,7 +199,7 @@ describe("Switch", () => {
     it("applies checked background", () => {
       render(<Switch checked={true} />);
       // Colour now comes from the --switch-bg component token (see
-      // src/theme/recipes/switch.css), keyed off data-state rather than a
+      // src/theming/recipes/switch.css), keyed off data-state rather than a
       // literal bg-bg-brand class.
       expect(screen.getByRole("switch")).toHaveAttribute("data-state", "checked");
     });

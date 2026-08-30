@@ -39,6 +39,13 @@ export type ToggleGroupBaseProps = Omit<React.HTMLAttributes<HTMLDivElement>, "o
   iconOnly?: boolean;
   /** Disable all options */
   disabled?: boolean;
+  /**
+   * Input name for native form submission. The selection is mirrored into
+   * hidden `<input>`s — `name` in single mode, `${name}[]` in multiple mode.
+   */
+  name?: string;
+  /** The `form` attribute for the hidden input(s), for a group rendered outside its `<form>`. */
+  form?: string;
 };
 
 export type ToggleGroupSingleProps = ToggleGroupBaseProps & {

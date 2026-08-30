@@ -29,7 +29,7 @@ const TagInputDemo = ({ initial = [] as string[] }) => {
       <label htmlFor="tags" className="font-medium text-sm">
         Tags
       </label>
-      <TagInput id="tags" value={tags} onChange={setTags} />
+      <TagInput id="tags" value={tags} onValueChange={setTags} />
     </div>
   );
 };

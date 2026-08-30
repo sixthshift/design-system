@@ -1,9 +1,10 @@
 "use client";
 
-import { FloatingFocusManager, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
+import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import { useMergedFloatingRef, usePresence } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import { forwardRef, type HTMLAttributes, type ReactNode, useCallback, useEffect, useId, useMemo, useState } from "react";
+import { hasOpenEscapeDialog, hasOpenEscapeLayer } from "../../internal/escapeLayers";
 import { SheetBody, SheetContext, SheetFooter, SheetHeader } from "./components";
 
 // =============================================================================
@@ -80,8 +81,14 @@ const SheetRoot = forwardRef<HTMLDivElement, SheetProps>(
 
     const { refs, context } = useFloating({
       open,
-      onOpenChange: (nextOpen) => {
-        if (!nextOpen) requestClose();
+      onOpenChange: (nextOpen, _event, reason) => {
+        if (nextOpen) return;
+        // The sheet is non-modal, so overlays above it keep their own Escape
+        // handling: a transient layer (Select dropdown, Popover, picker)
+        // consumes the press, and an open Modal owns it. Only a bare Escape
+        // — nothing stacked above — closes the sheet.
+        if (reason === "escape-key" && (hasOpenEscapeLayer() || hasOpenEscapeDialog())) return;
+        requestClose();
       },
     });
 
@@ -116,37 +123,43 @@ const SheetRoot = forwardRef<HTMLDivElement, SheetProps>(
     const isExiting = state === "exiting";
 
     return (
-      <FloatingFocusManager context={context} modal={false}>
-        <div
-          ref={mergedRef}
-          // Explicit, though `getFloatingProps` also supplies it from `useRole`:
-          // the ARIA attributes below are only valid on a dialog, and static
-          // analysis cannot see a role that arrives through a spread. Matches Modal.
-          role="dialog"
-          aria-label={ariaLabel}
-          aria-labelledby={labelledBy}
-          aria-describedby={ariaDescribedBy}
-          tabIndex={-1}
-          data-state={state}
-          data-side={side}
-          className={cn(
-            "sheet fixed top-0 bottom-0 z-sheet flex flex-col overflow-hidden bg-(--sheet-bg) outline-hidden",
-            "border-(color:--sheet-border) shadow-lg",
-            side === "right" ? "right-0 border-l" : "left-0 border-r",
-            sizeClasses[size],
-            "max-sm:inset-x-0",
-            isEntering && side === "right" && "animate-slide-right-in",
-            isExiting && side === "right" && "animate-slide-right-out",
-            isEntering && side === "left" && "animate-slide-left-in",
-            isExiting && side === "left" && "animate-slide-left-out",
-            className
-          )}
-          style={style}
-          {...getFloatingProps({})}
-        >
-          <SheetContext.Provider value={sheetContextValue}>{children}</SheetContext.Provider>
-        </div>
-      </FloatingFocusManager>
+      // Self-portalled for the same reason as Modal: `position: fixed` inside
+      // a transformed/filtered ancestor would anchor (and clip) the sheet to
+      // that ancestor instead of the viewport. `FloatingPortal` preserves tab
+      // order around the trigger for non-modal focus management.
+      <FloatingPortal>
+        <FloatingFocusManager context={context} modal={false}>
+          <div
+            ref={mergedRef}
+            // Explicit, though `getFloatingProps` also supplies it from `useRole`:
+            // the ARIA attributes below are only valid on a dialog, and static
+            // analysis cannot see a role that arrives through a spread. Matches Modal.
+            role="dialog"
+            aria-label={ariaLabel}
+            aria-labelledby={labelledBy}
+            aria-describedby={ariaDescribedBy}
+            tabIndex={-1}
+            data-state={state}
+            data-side={side}
+            className={cn(
+              "sheet fixed top-0 bottom-0 z-sheet flex flex-col overflow-hidden bg-(--sheet-bg) outline-hidden",
+              "border-(color:--sheet-border) shadow-lg",
+              side === "right" ? "right-0 border-l" : "left-0 border-r",
+              sizeClasses[size],
+              "max-sm:inset-x-0",
+              isEntering && side === "right" && "animate-slide-right-in",
+              isExiting && side === "right" && "animate-slide-right-out",
+              isEntering && side === "left" && "animate-slide-left-in",
+              isExiting && side === "left" && "animate-slide-left-out",
+              className
+            )}
+            style={style}
+            {...getFloatingProps({})}
+          >
+            <SheetContext.Provider value={sheetContextValue}>{children}</SheetContext.Provider>
+          </div>
+        </FloatingFocusManager>
+      </FloatingPortal>
     );
   }
 );

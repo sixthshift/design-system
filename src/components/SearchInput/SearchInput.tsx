@@ -5,9 +5,10 @@ import { cn } from "@sixthshift/design-system/utils";
 import { Search, X } from "lucide-react";
 import * as React from "react";
 
-export type SearchInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type" | "onChange"> & {
+export type SearchInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> & {
   value: string;
-  onChange: (value: string) => void;
+  /** Called with the input's string value on every change. The native `onChange(event)` also fires, unchanged. */
+  onValueChange: (value: string) => void;
   onClear?: () => void;
   /** Accessible name for the clear button — it is icon-only. */
   clearLabel?: string;
@@ -19,17 +20,18 @@ export type SearchInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>,
  *
  * Wraps `Input`, using its `iconLeft`/`iconRight` slots, rather than
  * reimplementing the field. Always controlled — `value` is required and
- * there is no `defaultValue`/uncontrolled mode. `onChange` receives the
- * string value directly, not the change event. Clearing calls `onClear` if
- * provided, otherwise calls `onChange("")`.
+ * there is no `defaultValue`/uncontrolled mode. `onValueChange` receives the
+ * string value directly; the native `onChange` keeps its event signature and
+ * fires too if passed. Clearing calls `onClear` if provided, otherwise calls
+ * `onValueChange("")` — note a programmatic clear dispatches no native event.
  */
 const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ className, value, onChange, onClear, clearLabel = "Clear search", ...props }, ref) => {
+  ({ className, value, onValueChange, onChange, onClear, clearLabel = "Clear search", ...props }, ref) => {
     const handleClear = () => {
       if (onClear) {
         onClear();
       } else {
-        onChange("");
+        onValueChange("");
       }
     };
 
@@ -38,7 +40,10 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
         ref={ref}
         type="text"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          onValueChange(e.target.value);
+          onChange?.(e);
+        }}
         iconLeft={<Search />}
         iconRight={
           value ? (

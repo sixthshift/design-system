@@ -3,6 +3,7 @@
 import { FloatingPortal, type FloatingPortalProps } from "@floating-ui/react";
 import { type StackItem, useStack } from "@sixthshift/design-system/hooks";
 import { createContext, type FunctionComponent, type PropsWithChildren, useContext, useEffect, useMemo } from "react";
+import { hasOpenEscapeLayer } from "../../../internal/escapeLayers";
 
 type OverlayContextProps = {
   modal?: FloatingPortalProps["root"];
@@ -52,6 +53,10 @@ export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        // A transient overlay open above the modal (a Select dropdown, a
+        // Popover, a picker calendar) consumes this Escape via its own
+        // dismiss handling — closing the modal too would double-fire.
+        if (hasOpenEscapeLayer()) return;
         const topModal = modals.at(-1);
         topModal?.onClose?.();
       }

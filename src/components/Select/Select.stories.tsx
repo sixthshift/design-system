@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { expect, screen, userEvent, within } from "storybook/test";
-import { componentTokensStory } from "../../stories/recipes/componentTokensStory";
+import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
 import { Select } from "./Select";
 
 const meta: Meta<typeof Select> = {
@@ -71,7 +71,7 @@ const SelectWrapper = (props: { collapsed?: boolean; disabled?: boolean; searcha
   const [value, setValue] = useState("all");
   return (
     <div className="w-48">
-      <Select value={value} options={defaultOptions} onValueChange={setValue} {...props} />
+      <Select aria-label="Space" value={value} options={defaultOptions} onValueChange={setValue} {...props} />
     </div>
   );
 };
@@ -83,7 +83,7 @@ const SelectWrapper = (props: { collapsed?: boolean; disabled?: boolean; searcha
  */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getByRole("button"));
+    await userEvent.click(within(canvasElement).getByRole("combobox"));
     const listbox = await screen.findByRole("listbox");
     await expect(listbox).toHaveAttribute("aria-activedescendant", screen.getByRole("option", { name: "All" }).id);
   },
@@ -95,7 +95,7 @@ export const WithPlaceholder: Story = {
     const [value, setValue] = useState("");
     return (
       <div className="w-48">
-        <Select value={value} options={defaultOptions} onValueChange={setValue} placeholder="Select a space..." />
+        <Select aria-label="Space" value={value} options={defaultOptions} onValueChange={setValue} placeholder="Select a space..." />
       </div>
     );
   },
@@ -128,7 +128,7 @@ export const ManyOptions: Story = {
     ];
     return (
       <div className="w-48">
-        <Select value={value} options={months} onValueChange={setValue} />
+        <Select aria-label="Month" value={value} options={months} onValueChange={setValue} />
       </div>
     );
   },
@@ -148,10 +148,10 @@ export const InContext: Story = {
     return (
       <div className="flex items-center gap-4">
         <div className="w-32">
-          <Select value={space} options={defaultOptions} onValueChange={setSpace} />
+          <Select aria-label="Space" value={space} options={defaultOptions} onValueChange={setSpace} />
         </div>
         <div className="w-28">
-          <Select value={view} options={viewOptions} onValueChange={setView} />
+          <Select aria-label="View" value={view} options={viewOptions} onValueChange={setView} />
         </div>
       </div>
     );
@@ -163,7 +163,7 @@ export const Clearable: Story = {
     const [value, setValue] = useState("all");
     return (
       <div className="w-48">
-        <Select value={value} options={defaultOptions} onValueChange={setValue} clearable />
+        <Select aria-label="Space" value={value} options={defaultOptions} onValueChange={setValue} clearable />
       </div>
     );
   },
@@ -171,7 +171,7 @@ export const Clearable: Story = {
 
 export const Searchable: Story = {
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getByRole("button"));
+    await userEvent.click(within(canvasElement).getByRole("combobox"));
     // The trigger becomes a combobox input, which keeps focus and owns the
     // active-option pointer.
     await expect(await screen.findByRole("combobox")).toHaveFocus();
@@ -195,7 +195,7 @@ export const Searchable: Story = {
     ];
     return (
       <div className="w-48">
-        <Select value={value} options={months} onValueChange={setValue} searchable />
+        <Select aria-label="Month" value={value} options={months} onValueChange={setValue} searchable />
       </div>
     );
   },
@@ -236,7 +236,7 @@ export const SearchableManyOptions: Story = {
     ];
     return (
       <div className="w-64">
-        <Select value={value} options={countries} onValueChange={setValue} searchable />
+        <Select aria-label="Country" value={value} options={countries} onValueChange={setValue} searchable />
       </div>
     );
   },
@@ -256,14 +256,14 @@ const tagOptions = [
 
 export const Multiple: Story = {
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getByRole("button"));
+    await userEvent.click(within(canvasElement).getByRole("combobox"));
     await expect(await screen.findByRole("listbox")).toHaveAttribute("aria-multiselectable", "true");
   },
   render: () => {
     const [value, setValue] = useState<string[]>(["work"]);
     return (
       <div className="w-48">
-        <Select mode="multiple" value={value} options={tagOptions} onValueChange={setValue} />
+        <Select aria-label="Tags" mode="multiple" value={value} options={tagOptions} onValueChange={setValue} />
       </div>
     );
   },
@@ -274,7 +274,7 @@ export const MultipleEmpty: Story = {
     const [value, setValue] = useState<string[]>([]);
     return (
       <div className="w-48">
-        <Select mode="multiple" value={value} options={tagOptions} onValueChange={setValue} placeholder="Select tags..." />
+        <Select aria-label="Tags" mode="multiple" value={value} options={tagOptions} onValueChange={setValue} placeholder="Select tags..." />
       </div>
     );
   },
@@ -285,7 +285,7 @@ export const MultipleClearable: Story = {
     const [value, setValue] = useState<string[]>(["work", "urgent"]);
     return (
       <div className="w-48">
-        <Select mode="multiple" value={value} options={tagOptions} onValueChange={setValue} clearable />
+        <Select aria-label="Tags" mode="multiple" value={value} options={tagOptions} onValueChange={setValue} clearable />
       </div>
     );
   },
@@ -310,7 +310,15 @@ export const MultipleSearchable: Story = {
     ];
     return (
       <div className="w-64">
-        <Select mode="multiple" value={value} options={countries} onValueChange={setValue} searchable placeholder="Select countries..." />
+        <Select
+          aria-label="Countries"
+          mode="multiple"
+          value={value}
+          options={countries}
+          onValueChange={setValue}
+          searchable
+          placeholder="Select countries..."
+        />
       </div>
     );
   },
@@ -319,7 +327,7 @@ export const MultipleSearchable: Story = {
 export const MultipleDisabled: Story = {
   render: () => (
     <div className="w-48">
-      <Select mode="multiple" value={["work", "urgent"]} options={tagOptions} disabled />
+      <Select aria-label="Tags" mode="multiple" value={["work", "urgent"]} options={tagOptions} disabled />
     </div>
   ),
 };

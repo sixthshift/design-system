@@ -31,7 +31,7 @@ iconOnly?: boolean   // squares the box at the current size (was size="icon")
 
 The house rule is stated in `design-philosophy.md`: **`intent="danger"`, not `color="red"`.** Name the meaning; let the theme decide the rendering. The `intent` axis has followed that rule since the component-token layer landed. The second axis never did — `variant="solid"` is `color="red"` for shape.
 
-That naming actively defeats the layer beneath it. The point of `theme/recipes/*.css` is that a consumer repoints rendering without a release. But `variant="outline"` **pins the rendering at the call site**: a brand that decides its middle rung should be a tinted fill rather than a border has to edit every call site, because the decision was baked into JSX. `emphasis="normal"` puts that decision in one recipe cell, where the rest of the system already keeps its decisions.
+That naming actively defeats the layer beneath it. The point of `theming/recipes/*.css` is that a consumer repoints rendering without a release. But `variant="outline"` **pins the rendering at the call site**: a brand that decides its middle rung should be a tinted fill rather than a border has to edit every call site, because the decision was baked into JSX. `emphasis="normal"` puts that decision in one recipe cell, where the rest of the system already keeps its decisions.
 
 It also matters that the name survives a re-skin. If a consumer brand expresses its middle rung as a 3px offset shadow with no border, a prop named `outline` is **false in the JSX** — the call site asserts a rendering that isn't happening. `emphasis="normal"` stays true under any theme, for the same reason `intent="danger"` stayed true when the danger palette changed.
 
@@ -101,7 +101,7 @@ The first attempt made `brand` the default, reasoning that a bare `<Button>` wou
 
 With rendering-preservation off the table, the principle decides it: **the default of an axis should be the value that means "unspecified."** `neutral` is the absence of a colour family; `brand` is an affirmative choice. A primary action now says `intent="brand"` out loud — four call sites in this repo, all Apply buttons in the date/time pickers.
 
-An override demo in `Overrides.stories.tsx` scoped on `[data-intent="neutral"]` with a bare `<Button>` is what pinned this down: with a `brand` default its selector silently stopped matching, and `overrides.visual.test.tsx` failed. That test exists precisely to catch a demo that stops demonstrating anything.
+An override demo in `src/stories/component-tokens/` scoped on `[data-intent="neutral"]` with a bare `<Button>` is what pinned this down: with a `brand` default its selector silently stopped matching, and `component-tokens.visual.test.tsx` failed. That test exists precisely to catch a demo that stops demonstrating anything.
 
 **Open:** `Badge` still defaults to `brand` (its old default was `primary`, unambiguously the brand colour, so keeping it preserves rendering). That leaves `<Button>` grey and `<Badge>` brand. Defensible — a badge with no intent still needs colour presence — but it is an inconsistency in defaults worth ruling on.
 

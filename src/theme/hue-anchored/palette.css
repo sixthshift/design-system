@@ -1,0 +1,83 @@
+/*
+ * 02 — Hue-anchored — tier 1 (palette).
+ * Derived from the plans/10 palette exploration; hand-owned now — edit freely.
+ *
+ * Thesis:   One temperature runs through everything, the grey included. Warm here, so it reads as paper.
+ * Ships in: Radix (sand, sage, olive), IBM Carbon warm grey
+ *
+ * Family names are this theme's own — a palette's names are part of its
+ * premise. theme.css points every semantic token at them.
+ */
+
+:root {
+  --theme-name: "Hue-anchored";
+  --theme-version: "0.1.0";
+
+  /* sand (neutral) */
+  --color-sand-50: #f9f9f9;
+  --color-sand-100: #efeeed;
+  --color-sand-200: #dfdddb;
+  --color-sand-300: #c6c4c0;
+  --color-sand-400: #a19e9a;
+  --color-sand-500: #736f6b;
+  --color-sand-600: #5e5a55;
+  --color-sand-700: #484440;
+  --color-sand-800: #302d2a;
+  --color-sand-900: #1d1b19;
+  --color-sand-950: #0c0b09;
+
+  /* blue (accent) */
+  --color-blue-50: #f6f9fe;
+  --color-blue-100: #e6effd;
+  --color-blue-200: #cddff9;
+  --color-blue-300: #abc6ee;
+  --color-blue-400: #7ca0d5;
+  --color-blue-500: #4771ae;
+  --color-blue-600: #315a97;
+  --color-blue-700: #25487c;
+  --color-blue-800: #1b375f;
+  --color-blue-900: #122746;
+  --color-blue-950: #09172c;
+
+  /* green */
+  --color-green-50: #f6faf6;
+  --color-green-100: #e7f2e8;
+  --color-green-200: #cee4d0;
+  --color-green-300: #accfb0;
+  --color-green-400: #7dac83;
+  --color-green-500: #467f50;
+  --color-green-600: #2e693a;
+  --color-green-700: #23552d;
+  --color-green-800: #194121;
+  --color-green-900: #102e16;
+  --color-green-950: #081c0c;
+
+  /* amber */
+  --color-amber-50: #fdf8f3;
+  --color-amber-100: #f9ecdf;
+  --color-amber-200: #f1d9bf;
+  --color-amber-300: #e1bd94;
+  --color-amber-400: #c4945b;
+  --color-amber-500: #9a620b;
+  --color-amber-600: #7e4f00;
+  --color-amber-700: #663f00;
+  --color-amber-800: #4e2f00;
+  --color-amber-900: #392100;
+  --color-amber-950: #241300;
+
+  /* red */
+  --color-red-50: #fff7f6;
+  --color-red-100: #ffe9e5;
+  --color-red-200: #fed1c9;
+  --color-red-300: #f5b1a5;
+  --color-red-400: #dc8274;
+  --color-red-500: #b24b3d;
+  --color-red-600: #9b3225;
+  --color-red-700: #7f251b;
+  --color-red-800: #611c13;
+  --color-red-900: #47120c;
+  --color-red-950: #2d0906;
+
+  --font-sans: Inter Variable, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: JetBrains Mono Variable, ui-monospace, monospace;
+}

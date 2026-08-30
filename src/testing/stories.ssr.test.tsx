@@ -35,7 +35,7 @@ import { describe, expect, test } from "vitest";
  *
  * `ComponentTokens` is documentation, not a fixture: componentTokensStory()
  * reads the live `document.styleSheets` so the token tables cannot drift from
- * src/theme/recipes/. It lives in src/stories, which is excluded from the
+ * src/theming/recipes/. It lives in src/stories, which is excluded from the
  * published package, so it is not part of the surface this suite guards.
  */
 const SKIPPED_STORIES: Record<string, string> = {

@@ -8,7 +8,7 @@
  * or intent the library never shipped.
  *
  * The grammar is `--button-{context}[-{state}]` — the same `context` and
- * `state` words the semantic layer uses (src/theme/schema.ts). Note what is
+ * `state` words the semantic layer uses (src/theming/vocabulary.ts). Note what is
  * deliberately *absent*: intent and weight never appear in a token name. They
  * select, via the `data-` attributes below. Putting them in the name
  * (`--button-bg-danger`) would restore the combinatorial explosion this layer

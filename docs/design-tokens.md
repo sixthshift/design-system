@@ -6,7 +6,7 @@ Design tokens, component patterns, and styling architecture for the design syste
 
 The design system is built on:
 
-- **`src/theme/tokens.css`**: Source of truth for color tokens
+- **`src/theme/default/`** (`palette.css` + `theme.css`, assembled with `src/theming/tailwind.css` into `default/index.css`): source of truth for color tokens
 - **CSS Variables**: Runtime theming with light/dark modes
 - **Tailwind CSS**: Utilities declared by the same file, via `@theme`
 - **CVA**: Type-safe component variants
@@ -17,9 +17,9 @@ config:
   layout: elk
 ---
 flowchart TB
-    Tokens["<b>Tokens</b> (src/theme/tokens.css)<br/>Palette, then semantic tokens per mode, and the @theme block"]
-    Recipes["<b>Recipes</b> (src/theme/recipes/*.css)<br/>Component tokens: which meaning each part uses, per variant and state"]
-    CSS["<b>theme.css</b><br/>Tokens and recipes, published as-is for consumers"]
+    Tokens["<b>Tokens</b> (src/theme/default/ + theming/tailwind.css)<br/>Palette, then semantic tokens per mode, and the @theme block"]
+    Recipes["<b>Recipes</b> (src/theming/recipes/*.css)<br/>Component tokens: which meaning each part uses, per variant and state"]
+    CSS["<b>themes/default.css</b><br/>Tokens and recipes, published as-is for consumers"]
     Utilities["<b>Utilities</b><br/>Compiled by the consuming app's Tailwind build from @theme"]
     Components["<b>Components</b> (src/components/*)<br/>Geometry in CVA; every colour reads a component token"]
 
@@ -84,10 +84,10 @@ Each feedback token has three intensities:
 Hierarchy and feedback tokens say what a colour *means*. They do not say which
 meaning a given component part uses — that mapping used to live in each
 component's `compoundVariants`, compiled into class names and unreachable from
-outside. It now lives in `src/theme/recipes/*.css` as **component tokens**.
+outside. It now lives in `src/theming/recipes/*.css` as **component tokens**.
 
 ```css
-/* src/theme/recipes/button.css, in @layer components */
+/* src/theming/recipes/button.css, in @layer components */
 .btn { --button-bg: transparent; --button-fg: var(--fg-normal); }
 
 .btn[data-variant="solid"][data-intent="danger"] {
@@ -176,14 +176,20 @@ The theme uses named color scales:
 | Emerald | Green | Success states |
 | Topaz   | Amber | Warning states |
 | Ruby    | Red   | Danger states  |
+| Sky     | Azure | Unwired — an info hue for consumers |
+| Earth   | Warm  | Unwired — a warm neutral for consumers |
 
-Each scale has values from 50 (lightest) to 950 (darkest).
+Each scale has values from 50 (lightest) to 950 (darkest), and all seven run on one
+shared OKLCH spine so a given stop carries the same visual weight in every hue. How
+that spine is constructed, and how to regenerate it without breaking contrast, is on
+the Palette page in Storybook (`Design System/Colors/Palette`), next to the swatches
+it describes.
 
 ---
 
 ## Z-Index Scale
 
-Stacking is a named token scale (the `--z-index-*` entries in `src/theme/tokens.css`), not ad-hoc `z-[n]`. Use the token; never a raw value. Tailwind v4 accepts bare values like `z-10` whatever the theme says, so this one is convention rather than a compile error.
+Stacking is a named token scale (the `--z-index-*` entries in `src/theming/tailwind.css`), not ad-hoc `z-[n]`. Use the token; never a raw value. Tailwind v4 accepts bare values like `z-10` whatever the theme says, so this one is convention rather than a compile error.
 
 | Token              | Value | Layer                          |
 |--------------------|-------|--------------------------------|
@@ -341,9 +347,10 @@ Render component styles on a different element:
 ```
 src/
 ├── theme/
-│   ├── tokens.css         # Source of truth: palette, tokens, @theme
-│   ├── schema.ts          # The naming vocabulary, as types
-│   ├── schema.ts          # TypeScript types for tokens
+│   ├── default/           # A theme: palette.css + theme.css (+ generated index.css)
+│   ├── ink-led/ …         # Alternative themes, same shape (from the plans/10 exploration)
+│   ├── (theming logic lives in src/theming/: tailwind.css, recipes/, vocabulary.ts)
+│   ├── vocabulary.ts      # The token naming vocabulary, as types and data
 │   └── index.ts           # Exports
 ├── styles/
 │   └── base.css           # Tailwind imports + base styles
@@ -361,7 +368,7 @@ src/
 ```css
 /* In your CSS entry point: */
 @import "tailwindcss";
-@import "@sixthshift/design-system/theme.css";
+@import "@sixthshift/design-system/themes/default.css";
 ```
 
 ---

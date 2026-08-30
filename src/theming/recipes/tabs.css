@@ -7,7 +7,7 @@
  * data, so a consumer can re-point a cell or scope a change to a subtree.
  *
  * The grammar is `--tabs-trigger-{context}[-{state}]` — the same `context`
- * and `state` words the semantic layer uses (src/theme/schema.ts). `selected`
+ * and `state` words the semantic layer uses (src/theming/vocabulary.ts). `selected`
  * never appears in a token name: it selects, via the `data-selected`
  * attribute below. Putting it in the name (`--tabs-trigger-bg-selected`)
  * would restore the combinatorial explosion this layer exists to remove.

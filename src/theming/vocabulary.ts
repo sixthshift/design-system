@@ -1,12 +1,12 @@
 /**
- * Theme Schema
+ * Token naming vocabulary
  *
  * The naming convention for design tokens, as types and as data:
  *
  *   {context}-[on-]{intent}[-{weight}][-{state}]
  *
- * src/theme/tokens.css is the only place tokens are defined, and nothing derives
- * TypeScript from it. These types describe the *shape* a token name can take
+ * The theme sources (src/theme/<name>/ plus src/theming/tailwind.css) are the only place
+ * tokens are defined, and nothing derives TypeScript from them. These types describe the *shape* a token name can take
  * rather than enumerating the names that happen to exist today, which is why the
  * vocabulary below is the thing to edit when the system grows a new axis.
  *

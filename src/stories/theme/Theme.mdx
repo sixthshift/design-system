@@ -1,0 +1,94 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import { ThemeReference, ThemeTemplate } from "./components";
+
+{/*
+  The reference sheet for the assembled default theme (src/theme/default/index.css), pinned second under Design
+  System by the storySort order in .storybook/preview.tsx.
+
+  A docs page rather than a story: this is something you read and search, not a
+  demo with states worth stepping through, and the page-level prose — what it is
+  parsed from, what is deliberately missing, where to go instead — had nowhere
+  to live in CSF except a JSDoc no reader ever sees. The sheet itself stays a
+  component (components/ThemeReference.tsx) so its grouping logic keeps its
+  browser tests.
+
+  One consequence worth knowing: MDX docs pages are not indexed as stories, so
+  the a11y suite does not run here. That is fine and was already the case in
+  spirit — the story carried an explicit `color-contrast: off` parameter,
+  because a sheet listing the intentionally low-contrast `-disabled` values is
+  documentation, not a control.
+
+  Links are checked by ../overview/mdx-links.test.ts; the sheet is pinned by
+  ./theme-reference.visual.test.tsx.
+*/}
+
+<Meta title="Design System/Theme" />
+
+<div className="sb-unstyled">
+
+# Theme
+
+</div>
+
+Every CSS variable `@sixthshift/design-system/themes/default.css` declares, in one place.
+This is the *what exists* page — exhaustive and searchable. For what a name
+means and how to use it, read
+[Theming](?path=/docs/design-system-theming--docs); for the colour tokens as
+swatches, [Semantic](?path=/story/design-system-colors-semantic--all-tokens).
+
+Two things to know before you read it:
+
+**It is parsed from the stylesheet, not from the browser.** Tailwind only emits
+the `@theme` variables a build actually uses, so reading the running page would
+list `--z-index-modal` and omit `--z-index-app-bar` purely because nothing in
+this Storybook writes `z-app-bar`. The sheet imports the assembled theme itself, so it
+lists what the file declares. Delete a token and its row disappears; nothing
+here is typed out by hand.
+
+**Component tokens are not here.** `--button-bg` and its siblings are
+per-component, and they live on that component's own Docs tab under *Component
+tokens* — one home each, rather than a system-wide index that says the same
+thing twice. To re-point one, write a rule against the selector shown there in
+your own stylesheet, after the import.
+
+## Start here: your own theme
+
+There is no template to download and no file to fork. A consumer's theme is
+their own stylesheet, overriding the tokens they care about after the import —
+which means the honest starting point is the shipped values, written out in the
+shape you would write them.
+
+That is what this is. Pick what you are re-skinning, copy it, paste it after the
+import, and edit. Anything you delete keeps the library's value.
+
+<ThemeTemplate />
+
+```css
+/* the whole of your CSS entry, for context */
+@import "tailwindcss";
+@import "@sixthshift/design-system/themes/default.css";
+@source "../node_modules/@sixthshift/design-system";
+
+/* …paste the block above here… */
+```
+
+Values are emitted as literals, not as `var(--color-…)` palette references: the
+palette is the library's own coordination device, and a hex is a value you own
+from the moment you paste it. Adding a token the library never shipped works the
+same way — declare it in both blocks, and add an `@theme` entry if you also want
+its Tailwind utility. [Theming](?path=/docs/design-system-theming--docs) covers
+that, and the naming rules behind it.
+
+## Every variable, as declared
+
+<ThemeReference />
+
+## Where else to look
+
+| For | Go to |
+| --- | --- |
+| What a token name means, and how to use it | [Theming](?path=/docs/design-system-theming--docs) |
+| The colour tokens as swatches, in both modes | [Semantic](?path=/story/design-system-colors-semantic--all-tokens), with [interactive states](?path=/story/design-system-colors-semantic--interactive-states) |
+| The raw scales, laid out by hue | [Palette](?path=/story/design-system-colors-palette--all-scales) |
+| One component's own tokens | That component's Docs tab → *Component tokens* |
+| The type scale and weights | [Typography](?path=/story/design-system-typography--type-scale) |

@@ -5,7 +5,7 @@
  * labels each swatch with its hex, and the theme story applies a whole mode's
  * values to a subtree so light and dark can sit side by side on one page.
  *
- * Nothing generates that data into TypeScript any more — src/theme/tokens.css is
+ * Nothing generates that data into TypeScript any more — the theme CSS is
  * the only source, so these stories read the real thing through the CSSOM. That
  * makes them a genuine check on the shipped CSS rather than a view of a copy: if
  * a token stops being emitted, the story that documents it goes blank.
@@ -19,8 +19,23 @@ const DARK_SELECTOR = ':root[data-theme="dark"]';
 export type TokenSet = Record<string, string>;
 export type ColorMode = "light" | "dark";
 
-/** Custom properties declared by the rules matching `selector`, in source order. */
-function declarationsFor(selector: string): TokenSet {
+/**
+ * Every style rule in the document, descending through `@layer`, `@media` and
+ * `@supports`. The blocks these readers want are unlayered today, but Tailwind
+ * emits its own `@theme` output inside `@layer theme` — so a flat walk of
+ * `sheet.cssRules` is one refactor away from silently returning less than it
+ * did. The sibling of the problem read-recipes.ts documents for
+ * `@layer components`.
+ */
+function* everyStyleRule(rules: CSSRuleList): Generator<CSSStyleRule> {
+  for (const rule of Array.from(rules)) {
+    if (rule instanceof CSSStyleRule) yield rule;
+    else if ("cssRules" in rule) yield* everyStyleRule((rule as CSSGroupingRule).cssRules);
+  }
+}
+
+/** Custom properties declared by every rule whose selector satisfies `matches`. */
+function declarationsWhere(matches: (selector: string) => boolean): TokenSet {
   const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
   const out: TokenSet = {};
 
@@ -32,15 +47,19 @@ function declarationsFor(selector: string): TokenSet {
       // A cross-origin sheet cannot be read. None of ours are, so skip quietly.
       continue;
     }
-    for (const rule of Array.from(rules)) {
-      if (!(rule instanceof CSSStyleRule)) continue;
-      if (normalize(rule.selectorText) !== selector) continue;
+    for (const rule of everyStyleRule(rules)) {
+      if (!matches(normalize(rule.selectorText))) continue;
       for (const property of Array.from(rule.style)) {
         if (property.startsWith("--")) out[property.slice(2)] = normalize(rule.style.getPropertyValue(property));
       }
     }
   }
   return out;
+}
+
+/** Custom properties declared by the rules matching `selector` exactly. */
+function declarationsFor(selector: string): TokenSet {
+  return declarationsWhere((candidate) => candidate === selector);
 }
 
 /** Resolve one variable to the value the browser actually computed. */

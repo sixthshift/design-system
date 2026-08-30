@@ -1,7 +1,7 @@
 import { Heading } from "@sixthshift/design-system/heading";
 import { Text } from "@sixthshift/design-system/text";
 import type { Meta, StoryObj } from "@storybook/react";
-import { readIdentity, readTokens } from "../theme/read-tokens";
+import { readIdentity, readTokens } from "../../theme/read-tokens";
 import { FocusDemo, FocusRingDemo, InteractiveButton, TokenGroup } from "./components";
 
 /**
@@ -13,7 +13,7 @@ import { FocusDemo, FocusRingDemo, InteractiveButton, TokenGroup } from "./compo
  * typography and the Tailwind bridge — is Design System → Theme.
  */
 const meta: Meta = {
-  title: "Design System/Semantic Colors",
+  title: "Design System/Colors/Semantic",
   parameters: {
     layout: "padded",
   },
@@ -23,7 +23,7 @@ export default meta;
 type Story = StoryObj;
 
 // Pin a subtree to one mode's values, so light and dark can sit on one page.
-// Read from the stylesheet at render time — tokens.css is the only source.
+// Read from the stylesheet at render time — the assembled theme is the only source.
 const modeVars = (mode: "light" | "dark") =>
   Object.fromEntries(Object.entries(readTokens(mode)).map(([token, value]) => [`--${token}`, value])) as React.CSSProperties;
 

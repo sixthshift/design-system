@@ -29,20 +29,21 @@ export function componentTokensStory(...hooks: string[]): StoryObj {
     name: "Component tokens",
     parameters: {
       layout: "padded",
-      // The table documents the recipe, not this component's props.
+      // The table documents this component's tokens, not its props.
       controls: { disable: true },
       docs: {
         description: {
           story:
-            "Every colour this component paints comes from one of these tokens. Re-point any of them from your own stylesheet to restyle it — see Design System → Component Tokens → Overrides.",
+            "Every colour this component paints comes from one of these tokens. Re-point any of them from your own stylesheet to restyle it — see Design System → Component Tokens.",
         },
       },
     },
     render: () => (
       <div className="flex flex-col gap-6">
         <Text as="p" className="max-w-3xl text-fg-subtle">
-          Read from the shipped stylesheet at render time, so this cannot drift from <code className="font-mono text-xs">src/theme/recipes/</code>. Each row is
-          a recipe cell; each swatch is what the token actually computes to. A token shown as <em>unset</em> is deliberately undeclared so it inherits.
+          Read from the shipped stylesheet at render time, so this cannot drift from <code className="font-mono text-xs">src/theming/recipes/</code>. Each row
+          is one combination of <code className="font-mono text-xs">variant</code>, <code className="font-mono text-xs">intent</code> and state; each swatch is
+          what that token computes to. A token shown as <em>unset</em> is deliberately undeclared, so it inherits.
         </Text>
         {(["light", "dark"] as const).map((mode) => (
           <section key={mode} className="flex flex-col gap-2">

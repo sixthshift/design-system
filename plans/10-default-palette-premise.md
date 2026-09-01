@@ -1,5 +1,14 @@
 # 10 — The default palette's premise (decision)
 
+> **Status (2026-08-30): done.** Consolidated to one theme, **Linen** — the
+> hue-anchored take (02), promoted and renamed. (It shipped for a few days as
+> *Gesso*; renamed 2026-08-31 because the name was jargon, and because a primer
+> is a coat you paint over, while this theme's warmth is meant to be seen.) The six other explorations were
+> deleted from the package and live at the `themes-exploration` git tag. All
+> acceptance criteria below hold (theme-version went to 1.0.0 rather than
+> 0.3.0, marking the new identity). The step-semantic rewrite (07) remains
+> open as a separate, later change.
+
 **Effort:** S to decide · M–L to implement · **Risk:** medium (touches every
 surface in the library) · **Blocks:** nothing, but gets more expensive with every
 consumer

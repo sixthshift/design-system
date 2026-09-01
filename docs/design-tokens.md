@@ -6,7 +6,7 @@ Design tokens, component patterns, and styling architecture for the design syste
 
 The design system is built on:
 
-- **`src/theme/default/`** (`palette.css` + `theme.css`, assembled with `src/theming/tailwind.css` into `default/index.css`): source of truth for color tokens
+- **`src/theme/linen/`** (`palette.css` + `theme.css`, assembled with `src/theming/tailwind.css` into `linen/index.css`): source of truth for color tokens
 - **CSS Variables**: Runtime theming with light/dark modes
 - **Tailwind CSS**: Utilities declared by the same file, via `@theme`
 - **CVA**: Type-safe component variants
@@ -17,9 +17,9 @@ config:
   layout: elk
 ---
 flowchart TB
-    Tokens["<b>Tokens</b> (src/theme/default/ + theming/tailwind.css)<br/>Palette, then semantic tokens per mode, and the @theme block"]
-    Recipes["<b>Recipes</b> (src/theming/recipes/*.css)<br/>Component tokens: which meaning each part uses, per variant and state"]
-    CSS["<b>themes/default.css</b><br/>Tokens and recipes, published as-is for consumers"]
+    Tokens["<b>Tokens</b> (src/theme/linen/ + theming/tailwind.css)<br/>Palette, then semantic tokens per mode, and the @theme block"]
+    Recipes["<b>Recipes</b> (components/*/*.recipe.css, imported by theming/tailwind.css)<br/>Component tokens: which meaning each part uses, per variant and state"]
+    CSS["<b>themes/linen.css</b><br/>Tokens and recipes, published as-is for consumers"]
     Utilities["<b>Utilities</b><br/>Compiled by the consuming app's Tailwind build from @theme"]
     Components["<b>Components</b> (src/components/*)<br/>Geometry in CVA; every colour reads a component token"]
 
@@ -50,7 +50,7 @@ Tokens are organized by what CSS property they affect:
 
 ### Hierarchy Tokens (Neutral)
 
-The neutral half of the semantic tier — visual weight rather than meaning:
+The neutral half of the semantic layer — visual weight rather than meaning:
 
 | Token      | Usage                              |
 |------------|------------------------------------|
@@ -65,29 +65,29 @@ Example classes:
 
 ### Feedback Tokens
 
-The other half of the semantic tier — colours that carry meaning:
+The other half of the semantic layer — colours that carry meaning:
 
 | Token     | Color   | Usage                        |
 |-----------|---------|------------------------------|
-| `brand`   | Ocean   | Primary actions, brand color |
-| `success` | Emerald | Positive states, completed   |
-| `warning` | Topaz   | Caution, attention needed    |
-| `danger`  | Ruby    | Destructive, errors          |
+| `brand`   | Blue    | Primary actions, brand color |
+| `success` | Green   | Positive states, completed   |
+| `warning` | Amber   | Caution, attention needed    |
+| `danger`  | Red     | Destructive, errors          |
 
 Each feedback token has three intensities:
 - `{token}-subtle` - Soft background (e.g., `bg-brand-subtle`)
 - `{token}` - Default (e.g., `bg-brand`)
 - `{token}-strong` - High emphasis (e.g., `bg-brand-strong`)
 
-### Component Tokens (Tier 3)
+### Component Tokens (Layer 2)
 
 Hierarchy and feedback tokens say what a colour *means*. They do not say which
 meaning a given component part uses — that mapping used to live in each
 component's `compoundVariants`, compiled into class names and unreachable from
-outside. It now lives in `src/theming/recipes/*.css` as **component tokens**.
+outside. It now lives beside each component as `src/components/<Component>/<component>.recipe.css` — imported into the theme by `src/theming/tailwind.css` — as **component tokens**.
 
 ```css
-/* src/theming/recipes/button.css, in @layer components */
+/* src/components/Button/button.recipe.css, in @layer components */
 .btn { --button-bg: transparent; --button-fg: var(--fg-normal); }
 
 .btn[data-variant="solid"][data-intent="danger"] {
@@ -101,7 +101,7 @@ outside. It now lives in `src/theming/recipes/*.css` as **component tokens**.
 "btn bg-(--button-bg) text-(--button-fg) hover:bg-(--button-bg-hovered)"
 ```
 
-Naming grammar — the same `context` and `state` vocabulary as tier 2, plus a
+Naming grammar — the same `context` and `state` vocabulary as the semantic layer, plus a
 `part` axis for multi-element components:
 
 ```
@@ -113,26 +113,29 @@ Naming grammar — the same `context` and `state` vocabulary as tier 2, plus a
 
 **Intent and variant never appear in a token name.** They select the cell via
 `data-*` attributes. `--badge-bg-danger` would restore the combinatorial
-explosion this tier removes, and would leave a consumer unable to add an intent,
+explosion this layer removes, and would leave a consumer unable to add an intent,
 because the variable for it would not exist. `bun run check:recipes` fails the
 build on it.
 
-Which tier to edit depends on the change:
+Which layer to edit depends on the change:
 
-| Change | Tier | Blast radius |
-|--------|------|--------------|
-| Brand is now purple | Palette or semantic | every "brand" surface |
+| Change | Layer | Blast radius |
+|--------|-------|--------------|
+| Brand is now purple | Semantic (in practice, via the palette convention) | every "brand" surface |
 | Neutral buttons should be grey, not brand | Component | Button only |
 | Buttons in checkout are green | Component, scoped selector | one subtree |
 
-Tier 2 is edited to **re-skin**; tier 3 to **re-wire**. Collapsing them would
-make every re-skin risk changing semantics.
+The semantic layer is edited to **re-skin**; the component layer to **re-wire**.
+Collapsing them would make every re-skin risk changing semantics.
 
-Consumers override tier 3 from their own stylesheet — see
-[Restyling a component](../README.md#restyling-a-component). Overrides must be
-**unlayered**: the cascade compares layers before specificity, so unlayered
-author CSS beats the library's layered rules, and an override nested inside
-`@layer components` silently loses.
+Consumers override the component layer from their own stylesheet — see
+[Restyling a component](../README.md#restyling-a-component). Component-token
+overrides belong in **`@layer overrides`**, a layer the theme declares after
+`components` and `utilities`, so a plain class outranks the recipes with no
+`!important` and no selector mimicry. (Unlayered CSS also still wins.) Semantic
+re-skins are the one exception: the theme's `:root` blocks are unlayered, so a
+re-skin must stay unlayered too — a semantic override inside any `@layer`
+silently loses.
 
 ### Interactive States
 
@@ -167,19 +170,23 @@ For text on colored backgrounds:
 
 ## Color Palette
 
-The theme uses named color scales:
+The palette is not a layer — it is the authoring convention behind `theme.css`:
+components never name these scales, and consumers should treat them as not-API
+(reach for a semantic token or bring your own value). They exist so the semantic
+values stay coordinated, and so a re-skin can be done by re-mixing what the
+semantic tokens point at.
 
-| Name    | Hue   | Usage          |
-|---------|-------|----------------|
-| Slate   | Gray  | Neutral UI     |
-| Ocean   | Blue  | Brand color    |
-| Emerald | Green | Success states |
-| Topaz   | Amber | Warning states |
-| Ruby    | Red   | Danger states  |
-| Sky     | Azure | Unwired — an info hue for consumers |
-| Earth   | Warm  | Unwired — a warm neutral for consumers |
+The theme uses plain hue names for its scales:
 
-Each scale has values from 50 (lightest) to 950 (darkest), and all seven run on one
+| Name  | Hue        | Usage          |
+|-------|------------|----------------|
+| Sand  | Warm grey  | Neutral UI — every surface, border and text |
+| Blue  | Blue       | Brand color    |
+| Green | Green      | Success states |
+| Amber | Amber      | Warning states |
+| Red   | Red        | Danger states  |
+
+Each scale has values from 50 (lightest) to 950 (darkest), and all five run on one
 shared OKLCH spine so a given stop carries the same visual weight in every hue. How
 that spine is constructed, and how to regenerate it without breaking contrast, is on
 the Palette page in Storybook (`Design System/Colors/Palette`), next to the swatches
@@ -221,7 +228,7 @@ The token vocabulary above is the *whole* vocabulary. Two failure modes recur, a
 
 **Every fill has an `fg-on-*` pair.** Text placed on a colored fill uses the matching `fg-on-*` token for legible contrast — `bg-bg-brand` → `text-fg-on-brand`, `bg-bg-strong` → `text-fg-on-strong`, `bg-bg-success-subtle` → `text-fg-on-success-subtle`. Reaching for a plain `fg-*` on a colored fill is the most-missed half of the palette.
 
-**Focus rings use `ring-focus-ring`.** There is one purpose-built focus token (`focus-ring`, an ocean hue). Keyboard focus is `focus-visible:ring-2 focus-visible:ring-focus-ring` — not `ring-border-brand`, not `ring-border-strong`. The global `:focus-visible` rule in `base.css` applies it by default, so most elements need no per-component ring at all.
+**Focus rings use `ring-focus-ring`.** There is one purpose-built focus token (`focus-ring`, a blue hue). Keyboard focus is `focus-visible:ring-2 focus-visible:ring-focus-ring` — not `ring-border-brand`, not `ring-border-strong`. The global `:focus-visible` rule in `base.css` applies it by default, so most elements need no per-component ring at all.
 
 **`font-sans` is not Inter.** The config defines no `fontFamily` key; Inter / JetBrains Mono apply only through the `body { font-family: var(--font-sans) }` cascade. The `font-sans` / `font-mono` utilities resolve to Tailwind's *default* stacks — avoid them and inherit the body font instead.
 
@@ -258,9 +265,9 @@ Consistent across all components:
 | Intent    | Usage                          | Color   |
 |-----------|--------------------------------|---------|
 | `neutral` | Default, no special meaning    | Brand   |
-| `danger`  | Destructive actions, errors    | Ruby    |
-| `success` | Positive states, confirmations | Emerald |
-| `warning` | Caution, needs attention       | Topaz   |
+| `danger`  | Destructive actions, errors    | Red     |
+| `success` | Positive states, confirmations | Green   |
+| `warning` | Caution, needs attention       | Amber   |
 
 ### Size Scale
 
@@ -347,11 +354,10 @@ Render component styles on a different element:
 ```
 src/
 ├── theme/
-│   ├── default/           # A theme: palette.css + theme.css (+ generated index.css)
-│   ├── ink-led/ …         # Alternative themes, same shape (from the plans/10 exploration)
-│   ├── (theming logic lives in src/theming/: tailwind.css, recipes/, vocabulary.ts)
-│   ├── vocabulary.ts      # The token naming vocabulary, as types and data
-│   └── index.ts           # Exports
+│   └── linen/             # The theme: palette.css + theme.css (+ index.css manifest)
+├── theming/
+│   ├── tailwind.css       # Imports every component's *.recipe.css; @theme block, base layer, dark variant
+│   └── vocabulary.ts      # The token naming vocabulary, as types and data
 ├── styles/
 │   └── base.css           # Tailwind imports + base styles
 ├── components/
@@ -368,7 +374,7 @@ src/
 ```css
 /* In your CSS entry point: */
 @import "tailwindcss";
-@import "@sixthshift/design-system/themes/default.css";
+@import "@sixthshift/design-system/themes/linen.css";
 ```
 
 ---

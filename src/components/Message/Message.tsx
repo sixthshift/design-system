@@ -10,7 +10,7 @@ import { MessageTitle } from "./components/MessageTitle";
  * Geometry only, plus the three `--message-*` component tokens.
  *
  * Every colour reads a `--message-*` component token whose value is decided by
- * src/theming/recipes/message.css. That file is the mapping from `intent` to a
+ * src/components/Message/message.recipe.css. That file is the mapping from `intent` to a
  * semantic token — the layer that used to be the `intent` entry in `variants`
  * here, compiled into class-name literals and unreachable from outside.
  * `size` stays here: it is pure geometry (padding, gap, font-size), not

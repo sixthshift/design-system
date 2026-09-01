@@ -47,7 +47,7 @@
     --button-fg: var(--fg-on-brand);
   }
 
-  /* `neutral` means *no colour family* — the grey tiers. It used to resolve to
+  /* `neutral` means *no colour family* — the grey ramp. It used to resolve to
      the brand fill, which made `intent="neutral"` mean one thing on Button and
      another on Badge and Message, where it was already grey. Button
      was the outlier; this is the cell that ends that. A brand-coloured button

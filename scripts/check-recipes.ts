@@ -1,7 +1,7 @@
 /**
- * Assert the component-token layer (tier 3) still holds together.
+ * Assert the component-token layer (layer 2) still holds together.
  *
- * Tier 3 lives in src/theming/recipes/*.css and maps `(variant, intent, state)`
+ * Layer 2 lives beside each component (src/components/<Name>/<name>.recipe.css) and maps `(variant, intent, state)`
  * to a semantic token. Nothing else verifies it: a component can read a token no
  * recipe defines and the property silently computes to its initial value, which
  * for `background-color` is `transparent` and for `color` is whatever it
@@ -20,7 +20,7 @@
  *      layers before specificity, so this is what lets an unlayered consumer
  *      override win against a higher-specificity library rule. Unlayered by
  *      accident and consumers cannot override at all.
- *   3. Wiring — every recipe is imported by recipes/index.css, and every import
+ *   3. Wiring — every recipe is imported by theming/tailwind.css, and every import
  *      points at a file that exists.
  *   4. References resolve — every `var(--x)` in a recipe names either another
  *      component token or a semantic token defined in BOTH mode blocks. Miss the
@@ -35,8 +35,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const RECIPES = resolve(ROOT, "src/theming/recipes");
-const TOKENS = resolve(ROOT, "src/theme/default/theme.css");
+const AGGREGATOR = resolve(ROOT, "src/theming/tailwind.css");
+const TOKENS = resolve(ROOT, "src/theme/linen/theme.css");
 const COMPONENTS = resolve(ROOT, "src/components");
 
 /** What CSS property a token drives. The last segment, or the one before a state. */
@@ -48,12 +48,18 @@ const STATES = new Set(["hovered", "pressed", "disabled"]);
 // Read
 // ---------------------------------------------------------------------------
 
-const recipeFiles = readdirSync(RECIPES)
-  .filter((f) => f.endsWith(".css") && f !== "index.css")
+/** Recipes live beside their components, keyed here as `Component/name.recipe.css`. */
+const recipeFiles = readdirSync(COMPONENTS, { withFileTypes: true })
+  .filter((e) => e.isDirectory())
+  .flatMap((e) =>
+    readdirSync(join(COMPONENTS, e.name))
+      .filter((f) => f.endsWith(".recipe.css"))
+      .map((f) => `${e.name}/${f}`)
+  )
   .sort();
 
-const recipeSource = new Map(recipeFiles.map((f) => [f, readFileSync(join(RECIPES, f), "utf8")]));
-const indexSource = readFileSync(join(RECIPES, "index.css"), "utf8");
+const recipeSource = new Map(recipeFiles.map((f) => [f, readFileSync(join(COMPONENTS, f), "utf8")]));
+const indexSource = readFileSync(AGGREGATOR, "utf8");
 const tokensSource = readFileSync(TOKENS, "utf8");
 
 /** Every `--name:` declared in a block, as a set. */
@@ -143,12 +149,12 @@ for (const [file, css] of recipeSource) {
 }
 
 // 3. Wiring.
-const imported = new Set([...indexSource.matchAll(/@import\s+"\.\/([\w-]+\.css)"/g)].map((m) => m[1]!));
+const imported = new Set([...indexSource.matchAll(/@import\s+"\.\.\/components\/([\w/-]+\.recipe\.css)"/g)].map((m) => m[1]!));
 for (const file of recipeFiles) {
-  if (!imported.has(file)) failures.push(`${file}: never imported by recipes/index.css — it ships to nobody.`);
+  if (!imported.has(file)) failures.push(`${file}: never imported by theming/tailwind.css — it ships to nobody.`);
 }
 for (const file of imported) {
-  if (!recipeSource.has(file)) failures.push(`recipes/index.css imports ./${file}, which does not exist.`);
+  if (!recipeSource.has(file)) failures.push(`theming/tailwind.css imports components/${file}, which does not exist.`);
 }
 
 // 4. Every reference resolves, in BOTH modes.
@@ -159,7 +165,7 @@ for (const [file, css] of recipeSource) {
     const inDark = darkTokens.has(name!);
     if (inLight && inDark) continue;
     if (!inLight && !inDark) {
-      failures.push(`${file}: references \`${name}\`, which no tier defines.`);
+      failures.push(`${file}: references \`${name}\`, which no layer defines.`);
     } else {
       failures.push(`${file}: references \`${name}\`, defined only in the ${inLight ? "light" : "dark"} block — undefined in the other theme.`);
     }
@@ -225,7 +231,7 @@ for (const warning of warnings) console.warn(`⚠ ${warning}`);
 if (failures.length > 0) {
   console.error(`\n✗ ${failures.length} problem(s) in the component-token layer:\n`);
   for (const failure of failures) console.error(`  ${failure}`);
-  console.error("\nSee src/theming/recipes/button.css for the pattern.");
+  console.error("\nSee src/components/Button/button.recipe.css for the pattern.");
   process.exit(1);
 }
 

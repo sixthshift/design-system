@@ -42,8 +42,8 @@ import ts from "typescript";
 const ROOT = resolve(import.meta.dir, "..");
 const SNAPSHOT = resolve(ROOT, "api", "public-api.txt");
 const TOKEN_SOURCES = [
-  resolve(ROOT, "src", "theme", "default", "palette.css"),
-  resolve(ROOT, "src", "theme", "default", "theme.css"),
+  resolve(ROOT, "src", "theme", "linen", "palette.css"),
+  resolve(ROOT, "src", "theme", "linen", "theme.css"),
   resolve(ROOT, "src", "theming", "tailwind.css"),
 ];
 
@@ -236,7 +236,7 @@ const body = [
   "",
   ...lines,
   rule,
-  `DESIGN TOKENS — ${tokenNames.length} custom properties declared by the default theme (src/theme/default/ + src/theming/tailwind.css)`,
+  `DESIGN TOKENS — ${tokenNames.length} custom properties declared by the theme (src/theme/linen/ + src/theming/tailwind.css)`,
   rule,
   "",
   ...tokenNames,

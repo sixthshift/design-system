@@ -19,7 +19,7 @@ export type CardProps = Omit<React.HTMLAttributes<HTMLDivElement>, "title"> & {
  * `role="button"`, `tabIndex={0}`, and both Enter and Space activate it, not
  * just a pointer click. Omit `onClick` for a purely presentational card.
  *
- * Colour reads `--card-*` component tokens (src/theming/recipes/card.css) —
+ * Colour reads `--card-*` component tokens (src/components/Card/card.recipe.css) —
  * the same seam Button and Badge use — so a consumer can re-point them
  * without a release.
  */

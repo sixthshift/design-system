@@ -1,12 +1,12 @@
 /**
  * Reads the component-token layer back out of the stylesheet at runtime.
  *
- * The sibling of read-tokens.ts, for tier 3. Same principle and same payoff: the
- * recipes in src/theming/recipes/*.css are the only source, so the reference story
+ * The sibling of read-tokens.ts, for the component layer. Same principle and same payoff: the
+ * recipes beside each component (src/components/<Name>/<name>.recipe.css) are the only source, so the reference story
  * reads the shipped CSS through the CSSOM rather than a copy someone has to
  * remember to update. Delete a cell and the row documenting it disappears.
  *
- * One structural difference from tier 2, and it is the whole reason this file
+ * One structural difference from the semantic layer, and it is the whole reason this file
  * exists rather than reusing `declarationsFor`: recipes sit inside
  * `@layer components`, so their rules are children of a `CSSLayerBlockRule` and
  * a flat walk of `sheet.cssRules` never sees them.
@@ -142,7 +142,7 @@ export function resolveCell(hook: string, attrs: Record<string, string>, tokens:
 
   // Read each token through a real CSS property rather than
   // `getPropertyValue("--x")`: Chromium hands back custom properties as their
-  // unresolved token stream (`var(--color-slate-800)`), which cannot be painted.
+  // unresolved token stream (`var(--color-sand-800)`), which cannot be painted.
   // `color` is always fully computed, so the swatch shows what a viewer sees.
   const spans = tokens.map((token) => {
     const span = document.createElement("span");

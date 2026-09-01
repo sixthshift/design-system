@@ -76,8 +76,8 @@ export function ThemeReference() {
       <div className="flex flex-col gap-2">
         <Heading as="h2">Theme reference</Heading>
         <Text className="max-w-3xl text-fg-subtle">
-          Every CSS variable <code className="font-mono text-xs">themes/default.css</code> declares — {total} of them, parsed from the file. Component tokens
-          are per-component and live on each component's Docs tab.
+          Every CSS variable <code className="font-mono text-xs">themes/linen.css</code> declares — {total} of them, parsed from the file. Component tokens are
+          per-component and live on each component's Docs tab.
         </Text>
         <label className="flex max-w-sm flex-col gap-1">
           <span className="text-fg-subtle text-xs">Filter by name</span>

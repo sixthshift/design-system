@@ -1,17 +1,21 @@
 /*
- * 02 — Hue-anchored — tier 1 (palette).
- * Derived from the plans/10 palette exploration; hand-owned now — edit freely.
+ * Linen — the palette: the authoring convention behind theme.css, not a
+ * layer. Referenced only by theme.css; not API for consumers.
  *
- * Thesis:   One temperature runs through everything, the grey included. Warm here, so it reads as paper.
- * Ships in: Radix (sand, sage, olive), IBM Carbon warm grey
+ * Thesis:   One temperature runs through everything, the grey included. Warm
+ *           here — hue ~70 across the board, so the page reads as woven cloth
+ *           rather than blue-grey screen. Named for the warm off-white ground
+ *           a canvas is made of before anything is painted on it: a surface
+ *           with a temperature of its own, not a blank.
+ * Kin:      Radix (sand, sage, olive), IBM Carbon warm grey
  *
  * Family names are this theme's own — a palette's names are part of its
  * premise. theme.css points every semantic token at them.
  */
 
 :root {
-  --theme-name: "Hue-anchored";
-  --theme-version: "0.1.0";
+  --theme-name: "Linen";
+  --theme-version: "1.0.0";
 
   /* sand (neutral) */
   --color-sand-50: #f9f9f9;

@@ -102,7 +102,7 @@ export const MonospaceShowcase: Story = {
     <div className="space-y-6">
       <div>
         <p className="mb-2 text-fg-subtle text-sm">Code Block</p>
-        <pre className="rounded-lg bg-slate-900 p-4 text-slate-100" style={{ fontFamily: "var(--font-mono)" }}>
+        <pre className="rounded-lg bg-bg-strong p-4 text-fg-on-strong" style={{ fontFamily: "var(--font-mono)" }}>
           {`function greet(name: string): string {
   return \`Hello, \${name}!\`;
 }
@@ -115,7 +115,7 @@ console.log(result); // Hello, World!`}
         <p className="mb-2 text-fg-subtle text-sm">Inline Code</p>
         <p className="text-lg">
           Use the{" "}
-          <code className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-900" style={{ fontFamily: "var(--font-mono)" }}>
+          <code className="rounded bg-bg-subtle px-1.5 py-0.5 text-fg-normal" style={{ fontFamily: "var(--font-mono)" }}>
             npm install
           </code>{" "}
           command to install dependencies.

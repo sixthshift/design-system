@@ -8,7 +8,7 @@ import * as React from "react";
  * The colour used to be `text-fg-subtle`, a semantic token named directly in
  * the class string — the one thing a consumer could not do was recolour a
  * spinner without fighting `className` against it. `--spinner-fg` in
- * src/theming/recipes/spinner.css is now that seam: a consumer overrides the
+ * src/components/Spinner/spinner.recipe.css is now that seam: a consumer overrides the
  * variable, scoped to whatever subtree they like, instead of overriding a
  * class.
  */
@@ -40,7 +40,7 @@ export type SpinnerProps = React.SVGAttributes<SVGElement> & VariantProps<typeof
  * live region) if the loading state needs to be announced.
  *
  * Colour reads the `--spinner-fg` component token
- * (src/theming/recipes/spinner.css) rather than a class name, so a consumer
+ * (src/components/Spinner/spinner.recipe.css) rather than a class name, so a consumer
  * can recolour a spinner scoped to a subtree without fighting `className`.
  */
 const Spinner = React.forwardRef<SVGSVGElement, SpinnerProps>(({ className, size, ...props }, ref) => (

@@ -38,7 +38,7 @@ npm install @sixthshift/design-system
 ```css
 /* your CSS entry — Tailwind 4 is a required peer */
 @import "tailwindcss";
-@import "@sixthshift/design-system/themes/default.css";
+@import "@sixthshift/design-system/themes/linen.css";
 @source "../node_modules/@sixthshift/design-system";
 ```
 
@@ -119,7 +119,7 @@ meaning, never appearance, so a component that grows three special-case props is
 a sign the axes are wrong.
 
 Both axes are open. The prop types are widened (`"solid" | (string & {})`), and
-each cell resolves through a component token in `src/theming/recipes/`, so adding
+each cell resolves through a component token in the component's own `*.recipe.css`, so adding
 an intent is CSS in your own app rather than a release here — see Component
 Tokens below.
 
@@ -229,9 +229,9 @@ and dark, side by side, with how each moves under hover, press and disable.
 
 **[Palette](?path=/story/design-system-colors-palette--all-scales)**
 
-Tier 1: the raw colour scales the semantic tokens are built from. Reference
-material — components never name these directly, so a re-skin edits this tier
-alone.
+The raw colour scales the semantic tokens are built from — the authoring
+convention behind the theme, not a layer. Components never name these directly,
+which is what makes a re-skin safe.
 
 </div>
 

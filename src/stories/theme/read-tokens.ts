@@ -91,7 +91,7 @@ export function readResolvedTokens(mode: ColorMode): TokenSet {
   return out;
 }
 
-/** Palette scales, `{ ocean: { "500": "#368086" } }`, from the `:root` block. */
+/** Palette scales, `{ blue: { "500": "#4771ae" } }`, from the `:root` block. */
 export function readPalette(): Record<string, TokenSet> {
   const scales: Record<string, TokenSet> = {};
   for (const [name, value] of Object.entries(declarationsFor(":root"))) {

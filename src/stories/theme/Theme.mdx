@@ -2,7 +2,7 @@ import { Meta } from "@storybook/addon-docs/blocks";
 import { ThemeReference, ThemeTemplate } from "./components";
 
 {/*
-  The reference sheet for the assembled default theme (src/theme/default/index.css), pinned second under Design
+  The reference sheet for the assembled theme (src/theme/linen/index.css), pinned second under Design
   System by the storySort order in .storybook/preview.tsx.
 
   A docs page rather than a story: this is something you read and search, not a
@@ -30,7 +30,7 @@ import { ThemeReference, ThemeTemplate } from "./components";
 
 </div>
 
-Every CSS variable `@sixthshift/design-system/themes/default.css` declares, in one place.
+Every CSS variable `@sixthshift/design-system/themes/linen.css` declares, in one place.
 This is the *what exists* page — exhaustive and searchable. For what a name
 means and how to use it, read
 [Theming](?path=/docs/design-system-theming--docs); for the colour tokens as
@@ -66,7 +66,7 @@ import, and edit. Anything you delete keeps the library's value.
 ```css
 /* the whole of your CSS entry, for context */
 @import "tailwindcss";
-@import "@sixthshift/design-system/themes/default.css";
+@import "@sixthshift/design-system/themes/linen.css";
 @source "../node_modules/@sixthshift/design-system";
 
 /* …paste the block above here… */

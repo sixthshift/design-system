@@ -1,0 +1,11 @@
+/**
+ * Linen — the exported artifact (`@sixthshift/design-system/themes/linen.css`).
+ * The system's one theme, consolidated from the plans/10 exploration (was
+ * "02 Hue-anchored"; the six alternatives live at the `themes-exploration` tag).
+ * Plain CSS composition, no build step. A theme is exactly two imports: its
+ * own tokens, plus the theme-independent system (recipes, Tailwind config),
+ * which theming/tailwind.css composes.
+ */
+
+@import "./theme.css"; /* imports ./palette.css itself */
+@import "../../theming/tailwind.css"; /* imports every component's *.recipe.css itself */

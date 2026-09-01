@@ -31,7 +31,7 @@ iconOnly?: boolean   // squares the box at the current size (was size="icon")
 
 The house rule is stated in `design-philosophy.md`: **`intent="danger"`, not `color="red"`.** Name the meaning; let the theme decide the rendering. The `intent` axis has followed that rule since the component-token layer landed. The second axis never did — `variant="solid"` is `color="red"` for shape.
 
-That naming actively defeats the layer beneath it. The point of `theming/recipes/*.css` is that a consumer repoints rendering without a release. But `variant="outline"` **pins the rendering at the call site**: a brand that decides its middle rung should be a tinted fill rather than a border has to edit every call site, because the decision was baked into JSX. `emphasis="normal"` puts that decision in one recipe cell, where the rest of the system already keeps its decisions.
+That naming actively defeats the layer beneath it. The point of the `*.recipe.css` recipes is that a consumer repoints rendering without a release. But `variant="outline"` **pins the rendering at the call site**: a brand that decides its middle rung should be a tinted fill rather than a border has to edit every call site, because the decision was baked into JSX. `emphasis="normal"` puts that decision in one recipe cell, where the rest of the system already keeps its decisions.
 
 It also matters that the name survives a re-skin. If a consumer brand expresses its middle rung as a 3px offset shadow with no border, a prop named `outline` is **false in the JSX** — the call site asserts a rendering that isn't happening. `emphasis="normal"` stays true under any theme, for the same reason `intent="danger"` stayed true when the danger palette changed.
 
@@ -43,7 +43,7 @@ Of the sixteen non-story `variant=` call sites in the library today, ten are gen
 
 So `primary` would fail the same way `solid` does, inverted. `solid` names a rendering truthfully and lies about being universal; `primary` names a rank truthfully and lies about applying to things that have no rank.
 
-Attention weight is what all seventeen sites actually express, and it is still a content property — an "Overdue" badge deserves more attention than a "Paid" one regardless of how either is drawn. `subtle | normal | strong` is already the house word for it in the token tiers.
+Attention weight is what all seventeen sites actually express, and it is still a content property — an "Overdue" badge deserves more attention than a "Paid" one regardless of how either is drawn. `subtle | normal | strong` is already the house word for it in the token layers.
 
 **Known cost:** `emphasis="strong"` suggests `--bg-*-strong` and will not deliver it (Button's loudest rung reaches for `--bg-brand`). The association is loose and deliberate. Also lost: "one primary per view" is a real design rule that these names do not carry — it belongs in prose review guidance, which is where it was enforceable anyway.
 
@@ -144,7 +144,7 @@ appearance?: "control" | "segmented" | "separate"
 - `Code/Workspace/Toolbar.tsx` imports `ButtonEmphasisName` instead of re-declaring the union as a literal.
 - `SearchInput` and `TagInput`: `onChange` → `onValueChange`. Both take a bare value rather than a `ChangeEvent`, which is the ambiguity `onValueChange` exists to remove.
 
-## Prerequisite: a structural token tier
+## Prerequisite: a structural token layer
 
 **The axis rename is cosmetic without this.** Renaming `variantStructure`'s keys to `strong|normal|subtle` renames the problem.
 
@@ -161,7 +161,7 @@ Across the library: **38 components hardcode radius, 21 hardcode shadow, 20 hard
 The fix is the one colour already had — structure moves into the cell:
 
 ```css
-/* tokens.css — new tier */
+/* tokens.css — new layer */
 --radius-sm/md/lg/full, --shadow-xs/sm/md/lg, --border-width-thin/thick
 
 /* recipes/button.css */
@@ -185,17 +185,17 @@ The `.tsx` then holds no rendering opinion at all, which is what the component-t
 
 This also repairs `Loose<T>`, currently half-working: a consumer adding `emphasis="brutalist"` today gets a colour cell and then fights `variantStructure`'s silence with `className`. With structural tokens, `[data-emphasis="brutalist"]` defines the whole thing.
 
-**Open within this:** how much structure belongs in the shared tier versus per-component. A brand wanting square badges but round buttons needs `--badge-radius` not to be simply `var(--radius-md)`. The component-token grammar handles it; it needs deciding per property.
+**Open within this:** how much structure belongs in the shared layer versus per-component. A brand wanting square badges but round buttons needs `--badge-radius` not to be simply `var(--radius-md)`. The component-token grammar handles it; it needs deciding per property.
 
 ## Suggested order
 
-The intent and size work is independently correct and does not get cheaper by waiting on the structural tier.
+The intent and size work is independently correct and does not get cheaper by waiting on the structural layer.
 
 1. **Vocabulary renames** — `primary`→`brand`, `default`→`md`, `icon`→`iconOnly`. ~~Done.~~ Clean break, no aliases: the library has no external consumers, so a deprecation window would only preserve names nobody uses.
 2. **Button's neutral/brand swap** — the one real behaviour change, isolated to `button.css` and `toggle.css`.
 3. **ProgressBar onto a recipe** — replaces its hardcoded `bg-fg-success` fill. StatsCard and MetricRow, which held the last raw-palette colours, are no longer in the library.
 4. **`appearance` collapse, `onValueChange`, ToggleGroup / FormField / Toolbar type fixes.**
-5. **Structural token tier** — its own design pass, not a passenger on a rename.
+5. **Structural token layer** — its own design pass, not a passenger on a rename.
 6. **`variant` → `emphasis`** — last, once the recipes can actually express what a rung means.
 7. Fold the settled parts into `component-authoring.md`.
 

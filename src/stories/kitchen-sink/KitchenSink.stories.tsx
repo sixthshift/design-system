@@ -46,11 +46,10 @@ const meta = {
     docs: {
       description: {
         component: `Most of the library on one screen, composed the way an app would compose it —
-built for judging a theme, not reading about a component. Flip the **Palette**
-toolbar (the alternative themes under \`src/theme/\`, from the \`plans/10\`
-explorations) and the light/dark toolbar and watch everything move at once:
-solids, tints, borders, focus rings, charts, overlays. Each component's own
-page stays the place to study its API.`,
+built for judging the theme on real components, not reading about one at a
+time. Flip the light/dark toolbar and watch everything move at once: solids,
+tints, borders, focus rings, charts, overlays. Each component's own page stays
+the place to study its API.`,
       },
     },
   },
@@ -115,7 +114,7 @@ const KitchenSink = () => {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="flex flex-col gap-1">
             <Heading>Kitchen sink</Heading>
-            <Muted>Every family of component on one surface — swap the Palette toolbar and watch it all move.</Muted>
+            <Muted>Every family of component on one surface — flip light and dark and watch it all move.</Muted>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" intent="neutral">

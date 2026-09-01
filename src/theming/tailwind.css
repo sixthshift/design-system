@@ -1,19 +1,46 @@
 /**
- * The Tailwind config, CSS-first (v4) — everything a theme folder does NOT
- * contain, shared by every theme under src/theme/<name>/:
+ * The system's theme-independent half, CSS-first (v4) — everything a theme
+ * folder does NOT contain. A theme imports its own theme.css plus this file,
+ * and is complete:
  *
+ *   - the component recipes (layer 2), imported first: every component's
+ *     `*.recipe.css`, each inside `@layer components`. Adding a component
+ *     adds one import line here; `check:recipes` fails the build on a recipe
+ *     nobody imports, or an import pointing at nothing.
  *   - `@theme` tells Tailwind which utilities exist. Every semantic token
  *     needs an entry here or its class does not compile. Component tokens do
- *     not — tier 3 is read as plain `var()` in CSS, never through a utility.
+ *     not — layer 2 is read as plain `var()` in CSS, never through a utility.
  *   - `@layer base` holds the few global rules the components genuinely need.
  *     App opinions (page background, scroll behaviour) are deliberately not
  *     here: a library has no business restyling its consumer's page.
  *   - Stacking order, animations, and the `dark:` variant — theme-independent
  *     by design.
- *
- * Composed after a theme's palette.css + theme.css by each theme's
- * index.css manifest, through plain CSS `@import`.
+ *   - the `overrides` layer, declared last so it outranks `components` and
+ *     `utilities`: the consumer's home for component-token overrides. Naming
+ *     the four Tailwind layers too pins the whole order even when this file
+ *     loads before Tailwind's own declaration.
  */
+
+@layer theme, base, components, utilities, overrides;
+
+@import "../components/Button/button.recipe.css";
+@import "../components/Badge/badge.recipe.css";
+@import "../components/Message/message.recipe.css";
+@import "../components/Spinner/spinner.recipe.css";
+@import "../components/Tabs/tabs.recipe.css";
+@import "../components/Toggle/toggle.recipe.css";
+@import "../components/Input/input.recipe.css";
+@import "../components/Textarea/textarea.recipe.css";
+@import "../components/SearchInput/search-input.recipe.css";
+@import "../components/Field/field.recipe.css";
+@import "../components/Checkbox/checkbox.recipe.css";
+@import "../components/RadioButton/radio-button.recipe.css";
+@import "../components/Switch/switch.recipe.css";
+@import "../components/Card/card.recipe.css";
+@import "../components/Modal/modal.recipe.css";
+@import "../components/Sheet/sheet.recipe.css";
+@import "../components/Select/select.recipe.css";
+@import "../components/TagChip/tag-chip.recipe.css";
 
 /* =============================================================================
    3. TAILWIND THEME

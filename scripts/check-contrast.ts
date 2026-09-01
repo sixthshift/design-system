@@ -23,7 +23,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const THEME_DIR = resolve(ROOT, "src/theme/default");
+const THEME_DIR = resolve(ROOT, "src/theme/linen");
 const AA_NORMAL_TEXT = 4.5;
 
 // The theme is plain CSS composed by @import; read the sources directly.
@@ -159,7 +159,7 @@ for (const warning of warnings) console.warn(`⚠ ${warning}`);
 if (failures.length > 0) {
   console.error(`\n✗ ${failures.length} of ${checkedCount} token pairings fall below WCAG AA:\n`);
   for (const failure of failures) console.error(`  ${failure}`);
-  console.error("\nFix the value in src/theme/default/, or state why the pairing is exempt.");
+  console.error("\nFix the value in src/theme/linen/, or state why the pairing is exempt.");
   process.exit(1);
 }
 

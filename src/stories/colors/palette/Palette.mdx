@@ -3,7 +3,7 @@ import * as PaletteStories from "./Palette.stories";
 import { PaletteScales, SpineChart } from "./components";
 
 {/*
-  Tier 1 of the default theme (src/theme/default/palette.css), as swatches and as an argument.
+  The palette convention behind the Linen theme (src/theme/linen/palette.css), as swatches and as an argument.
 
   A docs page rather than a bare story because the scales do not explain
   themselves: the reason a stop looks right is a construction rule, and the rule
@@ -25,10 +25,13 @@ import { PaletteScales, SpineChart } from "./components";
 
 </div>
 
-The raw colour scales — seven families, eleven stops each. This is tier 1: it is
-referenced only by the semantic tokens in tier 2, and never by a component. A
-re-skin is a tier-1 edit, which is the whole point of the three-tier split that
-[Theming](?path=/docs/design-system-theming--docs) describes.
+The raw colour scales — five families, eleven stops each. The palette is not a
+layer: it is referenced only by the semantic tokens in `theme.css`, never by a
+component, and it is not API for consumers either. It is the authoring
+convention that keeps the theme's values coordinated — a re-skin edits the
+semantic layer, and in practice you do it here, by re-mixing what the semantic
+tokens point at. [Theming](?path=/docs/design-system-theming--docs) describes
+the layers themselves.
 
 Every swatch below is read out of the stylesheet at render time, hex and
 measured lightness both. Nothing on this page is typed out by hand.
@@ -37,29 +40,29 @@ measured lightness both. Nothing on this page is typed out by hand.
 
 ## The spine
 
-The families are not seven independent choices. Each runs on **one shared OKLCH
+The families are not five independent choices. Each runs on **one shared OKLCH
 spine**: the same eleven lightness stops, one chroma envelope peaking at
 500–600, and one hue held constant down the ramp.
 
 <SpineChart />
 
-Seven lines lying on top of each other is the argument. Three properties follow
-from it, and each one is a defect the palette used to have:
+Five lines lying on top of each other is the argument. Three properties follow
+from it, and each one is a defect this system's first palette had before the
+spine construction:
 
-**A stop means the same thing in every hue.** A `ruby-300` badge and an
-`emerald-300` badge carry equal visual weight. Before this construction
-`sky-300` sat at L=.851 and `ruby-300` at L=.736 — a difference of .115 at the
-same stop, which is what made the system read as unconsidered.
+**A stop means the same thing in every hue.** A `red-300` badge and a
+`green-300` badge carry equal visual weight. In the pre-spine palette the same
+stop varied by up to .115 in lightness between families, which is what made the
+system read as unconsidered.
 
 **A state change is a deepening, not a hue shift.** Hue is constant per family,
-give or take 8° of drift toward the ends that corrects for the Abney effect.
-`ocean` used to swing 252°→269° with chroma zig-zagging `.106 → .092 → .111 →
-.090 → .104`, so a button hover — 600 → 700 — changed colour family rather than
-getting darker.
+give or take 8° of drift toward the ends that corrects for the Abney effect. The
+old brand blue swung 252°→269° down its ramp with chroma zig-zagging, so a
+button hover — 600 → 700 — changed colour family rather than getting darker.
 
-**No cliffs.** Lightness is monotonic and evenly stepped. `sky` used to fall .21
-between 400 (`#44c9e2`, a bright cyan) and 500 (`#1282a2`, a dark teal) where
-every other step moved about .08. It was two ramps glued together.
+**No cliffs.** Lightness is monotonic and evenly stepped — no stop where the
+ramp falls .21 while every other step moves about .08, which is what two ramps
+glued together look like.
 
 ### The stops
 
@@ -77,11 +80,11 @@ every other step moved about .08. It was two ramps glued together.
 |  900 |                 0.272 |               0.225 |                   0.58 |
 |  950 |                 0.205 |               0.150 |                   0.42 |
 
-### Why the neutrals leave the bundle
+### Why the neutral leaves the bundle
 
-`slate` and `earth` run deeper than the chromatic spine from 700 down — the one
-divergence visible in the chart. Neutrals carry surfaces rather than accents:
-`slate-900` is the dark-mode page background, so it has to reach a real dark
+`sand` runs deeper than the chromatic spine from 700 down — the one divergence
+visible in the chart. The neutral carries surfaces rather than accents:
+`sand-900` is the dark-mode page background, so it has to reach a real dark
 (L=.225) rather than the L=.272 that suits an accent's 900.
 
 ### Why 500 and 600 are not free
@@ -89,32 +92,29 @@ divergence visible in the chart. Neutrals carry surfaces rather than accents:
 Both are fills that carry white text — `bg-brand` resolves to 600 in light mode
 and to 500 in dark — so their lightness is bounded by WCAG AA against white. The
 spine's 500 stop sits at .545 rather than a rounder .565 for exactly that
-reason: at .565, `emerald-500` came in at 4.30:1.
+reason: at .565, a 500-stop fill came in at 4.30:1.
 
 `bun run check:contrast` is the gate. It checks all 162 token pairings in both
-modes, and it is the thing to run after any tier-1 edit.
+modes, and it is the thing to run after any palette edit.
 
 ## The families
 
 | Family | Hue | Peak chroma | Role |
 | --- | ---: | ---: | --- |
-| `ocean` | 250 | 0.135 | Brand, focus ring |
-| `emerald` | 156 | 0.120 | Success |
-| `topaz` | 65 | 0.145 | Warning |
-| `ruby` | 25 | 0.175 | Danger |
-| `slate` | 256 | 0.022 | Neutral — every surface, border and text |
-| `sky` | 218 | 0.120 | Unwired — an info hue, already on-spine |
-| `earth` | 66 | 0.034 | Unwired — a warm neutral, already on-spine |
+| `sand` | 74 | 0.009 | Neutral — every surface, border and text |
+| `blue` | 258 | 0.110 | Brand, focus ring |
+| `green` | 148 | 0.098 | Success |
+| `amber` | 71 | 0.118 | Warning |
+| `red` | 30 | 0.142 | Danger |
 
-Chroma is deliberately moderate. A default theme has to survive being someone
-else's brand-adjacent neutral ground, so the accents are confident without being
-loud, and `slate` keeps a slight cool bias (C=.022) rather than going flat grey —
-enough that a surface feels chosen, not enough to force a blue cast over
-everything a consumer builds on top.
-
-`sky` and `earth` are declared but referenced by no semantic token. They are
-there so that re-skinning tier 2 starts from an info hue and a warm neutral
-already sitting on the spine, rather than one hand-mixed against it.
+One warm temperature runs through everything, the grey included — that is the
+theme's premise, and the reason it is named for a woven canvas. `sand` sits on
+the same hue axis as `amber` (74 against 71), so warning reads as the neutral
+turned up rather than a foreign yellow, and its chroma is a whisper (C=.009) —
+enough that a surface feels chosen, not enough to force a cast over everything a
+consumer builds on top. Chroma everywhere else is deliberately moderate: this
+theme has to survive being someone else's brand-adjacent neutral ground. Every
+family is wired to a semantic token; the palette carries no spare hues.
 
 ## Changing it
 
@@ -123,9 +123,9 @@ is precisely the defect this construction removes, and a single hand-tuned hex
 stays invisible until it turns up beside its neighbours in a component.
 
 Change one of three things — a family's hue, a family's peak chroma, or a spine
-constant — then re-emit all seven scales in OKLCH, gamut-map each into sRGB by
+constant — then re-emit all five scales in OKLCH, gamut-map each into sRGB by
 reducing chroma until every channel is in range, and write the resulting hex
-values into the `:root` block of `src/theme/default/palette.css`. Then:
+values into the `:root` block of `src/theme/linen/palette.css`. Then:
 
 ```sh
 bun run check:contrast          # 162 pairings, both modes — the hard gate

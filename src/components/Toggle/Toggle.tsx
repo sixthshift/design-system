@@ -34,7 +34,7 @@ export type ToggleProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "o
  * Built directly on Button: it calls `buttonRecipe(...)` and takes the same
  * `variant`/`intent`/`size` axes Button does, plus `iconOnly` for a toolbar
  * toggle whose whole content is an icon. The
- * pressed-state colour mapping lives in `src/theming/recipes/toggle.css`,
+ * pressed-state colour mapping lives in `src/components/Toggle/toggle.recipe.css`,
  * keyed off the `data-state="on" | "off"` attribute this component renders
  * alongside `aria-pressed`.
  *

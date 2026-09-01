@@ -38,13 +38,7 @@
     "!src/testing"
   ],
   "exports": {
-    "./themes/default.css": "./src/theme/default/index.css",
-    "./themes/ink-led.css": "./src/theme/ink-led/index.css",
-    "./themes/hue-anchored.css": "./src/theme/hue-anchored/index.css",
-    "./themes/contrast-locked.css": "./src/theme/contrast-locked/index.css",
-    "./themes/seeded.css": "./src/theme/seeded/index.css",
-    "./themes/muted-workhorse.css": "./src/theme/muted-workhorse/index.css",
-    "./themes/expressive.css": "./src/theme/expressive/index.css",
+    "./themes/linen.css": "./src/theme/linen/index.css",
     "./theming": {
       "types": "./dist/theming/vocabulary.d.ts",
       "import": "./dist/theming/vocabulary.js"

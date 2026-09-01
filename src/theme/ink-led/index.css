@@ -1,9 +1,0 @@
-/**
- * 01 — Ink-led — the exported artifact (`@sixthshift/design-system/themes/ink-led.css`).
- * Plain CSS composition, no build step. A consumer imports exactly one theme;
- * everything theme-independent (recipes, Tailwind config) rides in through here.
- */
-
-@import "../../theming/recipes/index.css";
-@import "./theme.css"; /* imports ./palette.css itself */
-@import "../../theming/tailwind.css";

@@ -6,8 +6,8 @@ import { inkOn, lightness } from "./lightness";
  *
  * The column alignment is the point rather than a layout convenience: the
  * palette's central claim is that a stop means the same thing in every hue, and
- * that claim is only checkable when `ruby-300` sits directly above
- * `emerald-300`. The previous layout wrapped each family independently, which
+ * that claim is only checkable when `red-300` sits directly above
+ * `green-300`. The previous layout wrapped each family independently, which
  * made the one defect worth seeing — families disagreeing about a stop — the
  * one thing it could not show.
  *
@@ -19,13 +19,11 @@ export const STOPS = ["50", "100", "200", "300", "400", "500", "600", "700", "80
 
 /** Families in role order — what each is wired to, not what hue it happens to be. */
 export const FAMILIES = [
-  { scale: "ocean", role: "Brand, focus ring" },
-  { scale: "emerald", role: "Success" },
-  { scale: "topaz", role: "Warning" },
-  { scale: "ruby", role: "Danger" },
-  { scale: "slate", role: "Neutral — every surface, border and text" },
-  { scale: "sky", role: "Unwired — an info hue, already on-spine" },
-  { scale: "earth", role: "Unwired — a warm neutral, already on-spine" },
+  { scale: "sand", role: "Neutral — every surface, border and text" },
+  { scale: "blue", role: "Brand, focus ring" },
+  { scale: "green", role: "Success" },
+  { scale: "amber", role: "Warning" },
+  { scale: "red", role: "Danger" },
 ] as const;
 
 function Row({ scale, role }: { scale: string; role: string }) {

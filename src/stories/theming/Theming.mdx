@@ -41,7 +41,7 @@ every surface that means the same thing.
 
 ```css
 @import "tailwindcss";
-@import "@sixthshift/design-system/themes/default.css";   /* the tokens + their utilities */
+@import "@sixthshift/design-system/themes/linen.css";   /* the tokens + their utilities */
 @source "../node_modules/@sixthshift/design-system";
 ```
 
@@ -180,7 +180,7 @@ None of these raise an error. Each just renders the wrong thing.
 | Token declared in one mode block only | Undefined in the other mode |
 | New token with no `@theme` entry | `var(--bg-info)` works, the `bg-bg-info` utility never compiles |
 | `--fg-danger` where `--fg-on-danger` belongs | Danger-on-danger. Legible in review, unreadable in production |
-| Override wrapped in `@layer` | Loses. The cascade compares layers before specificity, and the library's tokens are unlayered — so yours must be too |
+| Semantic re-skin wrapped in `@layer` | Loses. The library's `:root` token blocks are unlayered, and unlayered CSS beats every layer — so re-skins must stay unlayered. (Component-token overrides are the opposite: they belong in `@layer overrides`, which outranks the recipes.) |
 | One token of a family re-skinned | The hover, pressed or disabled state snaps back to the old hue |
 
 ## Lookups

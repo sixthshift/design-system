@@ -21,7 +21,7 @@
  *      page tells you to memorise three exceptions; a fourth appearing without
  *      being named there is worse than not having listed any.
  *   4. The `variant` and `intent` tables match the recipes. Both read as
- *      exhaustive, and both are derivable: tier 3 selects on `data-variant` and
+ *      exhaustive, and both are derivable: the component layer selects on `data-variant` and
  *      `data-intent`, so a value added to a recipe without being added here
  *      turns the page into a shorter list than the library actually ships.
  *   5. The Markdown tables still compile to tables. This is the quietest failure
@@ -147,18 +147,20 @@ describe("MDX pages", () => {
     );
   }
 
-  /** Every `data-variant` / `data-intent` value tier 3 selects on, by recipe. */
+  /** Every `data-variant` / `data-intent` value the component layer selects on, by recipe. */
   function declared(attribute: "variant" | "intent"): Map<string, Set<string>> {
-    const dir = join(SRC, "theming", "recipes");
+    const componentsDir = join(SRC, "components");
     const byValue = new Map<string, Set<string>>();
-    for (const file of readdirSync(dir).filter((f) => f.endsWith(".css") && f !== "index.css")) {
-      const component = file
-        .replace(/\.css$/, "")
-        .split("-")
-        .map((part) => part[0].toUpperCase() + part.slice(1))
-        .join("");
-      for (const [, value] of readFileSync(join(dir, file), "utf8").matchAll(new RegExp(`data-${attribute}="([a-z]+)"`, "g"))) {
-        byValue.set(value, (byValue.get(value) ?? new Set()).add(component));
+    for (const entry of readdirSync(componentsDir, { withFileTypes: true }).filter((e) => e.isDirectory())) {
+      for (const file of readdirSync(join(componentsDir, entry.name)).filter((f) => f.endsWith(".recipe.css"))) {
+        const component = file
+          .replace(/\.recipe\.css$/, "")
+          .split("-")
+          .map((part) => part[0].toUpperCase() + part.slice(1))
+          .join("");
+        for (const [, value] of readFileSync(join(componentsDir, entry.name, file), "utf8").matchAll(new RegExp(`data-${attribute}="([a-z]+)"`, "g"))) {
+          byValue.set(value, (byValue.get(value) ?? new Set()).add(component));
+        }
       }
     }
     return byValue;

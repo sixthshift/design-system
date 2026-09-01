@@ -5,7 +5,7 @@
  * button.css's header for why `@layer components` is load-bearing.
  *
  * Textarea's background is literal `bg-transparent` in the markup, not a
- * semantic token today — there is nothing in tier 2 to point a `--textarea-bg`
+ * semantic token today — there is nothing in the semantic layer to point a `--textarea-bg`
  * at, so no such token is introduced here. Border, placeholder and focus ring
  * are the tokens that existed as semantic classes before this file, and are
  * the ones made overridable.

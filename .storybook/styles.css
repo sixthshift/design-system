@@ -15,7 +15,7 @@
  */
 
 @import "tailwindcss" source(none);
-@import "../src/theme/default/index.css";
+@import "../src/theme/linen/index.css";
 
 @source "../src";
 

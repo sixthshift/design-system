@@ -2,13 +2,13 @@
 
 Personal design system: design tokens, theme pipeline, and a React component library. Consumed as a versioned dependency (MUI-style), configured through the theme surface — never by editing component source in the consumer.
 
-A single package, `@sixthshift/design-system`: ~80 components (primitives, overlays, forms, pickers, charts, typography) + a three-tier CSS token pipeline + Tailwind config. Built on [shadcn/ui](https://ui.shadcn.com) patterns.
+A single package, `@sixthshift/design-system`: ~80 components (primitives, overlays, forms, pickers, charts, typography) + a two-layer CSS token pipeline + Tailwind config. Built on [shadcn/ui](https://ui.shadcn.com) patterns.
 
 Browse the components: **[sixthshift.github.io/design-system](https://sixthshift.github.io/design-system/)** — Storybook, rebuilt from `main` by `.github/workflows/pages.yml`.
 
 ## Orientation
 
-**Owns:** The component library — 80+ exports via subpath imports, design tokens, theme system (three CSS token tiers: palette, semantic, component recipes), Tailwind config, and Storybook stories. Components span primitives, composites, typography, charts, and overlays.
+**Owns:** The component library — 80+ exports via subpath imports, design tokens, theme system (two CSS token layers — semantic and component — authored over a palette convention), Tailwind config, and Storybook stories. Components span primitives, composites, typography, charts, and overlays.
 
 **Boundaries:** Bundles a `./date-time` module (`@sixthshift/design-system/date-time`, wrapping `@js-temporal/polyfill`) used internally by the date/time components — those components exchange ISO 8601 strings, so consuming one does not require adopting Temporal. Also Floating UI (popover/tooltip positioning) and CVA (variant styling). Peer-depends on React 18 or 19. No app/domain coupling — domain-specific components live in consuming apps.
 
@@ -23,7 +23,7 @@ npm install @sixthshift/design-system
 ```css
 /* your CSS entry — Tailwind 4 is a required peer */
 @import "tailwindcss";
-@import "@sixthshift/design-system/themes/default.css";
+@import "@sixthshift/design-system/themes/linen.css";
 @source "../node_modules/@sixthshift/design-system";
 ```
 
@@ -229,14 +229,13 @@ ISO helpers above cover what they were reachable for.
 
 ## Theming
 
-Tokens are CSS. Themes are folders under `src/theme/` — `palette.css` (raw
-scales) plus `theme.css` (semantic tokens per mode) — assembled with the shared
-`tailwind.css` into one artifact per theme and published under `./themes/`.
-Consumers import exactly one — `themes/default.css`, or one of the alternatives
-(`ink-led`, `hue-anchored`, `contrast-locked`, `seeded`, `muted-workhorse`,
-`expressive` — the palette explorations from `plans/10`, shipped as full
-themes). Only the default is contrast-audited today.
-Each artifact holds the palette, the semantic tokens for each mode, and the
+Tokens are CSS. The theme is a folder under `src/theme/` — `palette.css` (raw
+scales) plus `theme.css` (semantic tokens per mode) — plus one import of the
+shared, theme-independent system (`theming/tailwind.css`, which carries the
+component recipes and the Tailwind config), published as `themes/linen.css`. **Linen** is
+the system's one theme: one warm temperature through everything, the grey
+included, consolidated from the `plans/10` palette explorations (the six
+alternatives live at the `themes-exploration` git tag). The artifact holds the palette, the semantic tokens for each mode, and the
 `@theme` block that tells Tailwind which utilities exist — so a token and its
 utility can never disagree.
 
@@ -250,17 +249,24 @@ shipped values — and lists every variable the system declares. The
 is the guide to what the names mean; [docs/design-tokens.md](docs/design-tokens.md)
 is the architecture behind both.
 
-Tokens come in three tiers, and the one you reach for depends on the *kind* of
+Tokens come in two layers, and the one you reach for depends on the *kind* of
 change you are making:
 
-| Tier | Example | Change it to | Scope |
+| Layer | Example | Change it to | Scope |
 | --- | --- | --- | --- |
-| Palette | `--color-ocean-600` | add or alter a hue | everything downstream |
-| Semantic | `--bg-brand` | **re-skin** — brand is now purple | every surface that means "brand" |
-| Component | `--button-bg` | **re-wire** — *this* part uses a different meaning | one component, or one subtree |
+| Semantic (`theme.css`) | `--bg-brand` | **re-skin** — brand is now purple | every surface that means "brand" |
+| Component (recipes) | `--button-bg` | **re-wire** — *this* part uses a different meaning | one component, or one subtree |
 
-Re-skinning is a token *value* change and it is global by design. Re-wiring is a
-recipe change, and it is the one that used to be impossible.
+The semantic layer *is* the theme, and it is the default way to restyle anything
+that has a name and recurs. Re-skinning is a token *value* change and it is
+global by design. Re-wiring is a recipe change, the exception card — if you find
+yourself writing the same component-token override in more than one scope,
+you are doing semantic work at the component layer: hoist it.
+
+Behind the semantic layer sits a palette (`--color-blue-600` and friends). It is
+an authoring convention that keeps the theme's values coordinated — not a third
+layer: components never reference it, and it is not API for consumers either.
+Reach for a semantic token or bring your own value.
 
 ### Tailwind integration
 
@@ -305,10 +311,29 @@ published stylesheet decides what that resolves to for each cell:
 
 That recipe is data, not compiled-in class names, so any cell can be re-pointed
 from your own stylesheet — one instance, one subtree, one cell app-wide, or
-every instance. **Write your overrides unlayered:** the cascade compares layers
-before specificity, so a bare `.btn { … }` beats the library's three-attribute
-selector with no `!important`, while the same rule wrapped in
-`@layer components` lands in the library's own layer and silently loses.
+every instance. **Write component-token overrides in `@layer overrides`** — a
+layer the theme declares last, so it outranks the recipes (`components`) and
+the utilities by layer order alone:
+
+```css
+@layer overrides {
+  .checkout-confirm {
+    --button-bg: var(--bg-success);
+    --button-bg-hovered: var(--bg-success-hovered);
+    --button-bg-pressed: var(--bg-success-pressed);
+    --button-fg: var(--fg-on-success);
+  }
+}
+```
+
+No selector mimicry, no `!important`: the cascade compares layers before
+specificity, so one plain class beats the recipe's three-attribute selector.
+Unlayered CSS still wins over everything, so existing unlayered overrides keep
+working. One asymmetry to know: **semantic-token re-skins stay unlayered** —
+the theme's own `:root` blocks are unlayered, and unlayered library CSS beats
+any layered rule of yours, so a re-skin wrapped in `@layer` silently loses.
+Rule of thumb: component vars → `@layer overrides`; semantic tokens → plain
+CSS after the import.
 
 **The semantic layer — the naming grammar, what each token means, the
 utilities they compile into, light and dark, and re-skinning — is the
@@ -330,14 +355,14 @@ deliberate, and all of it is worth knowing before you commit.
 | **`dark:` means `[data-theme="dark"]`** | Not `prefers-color-scheme`. Theming here is a runtime attribute swap, so every `dark:` utility in your app follows the attribute instead of the OS setting. |
 | **`font-sans` and `font-mono`** | Resolve to Inter Variable and JetBrains Mono. Install the [font peers](#fonts) or the stacks fall through to the system defaults. |
 | **Three global rules** | `*` gets `border-color: var(--border-normal)`, so a bare `border` is the token colour rather than `currentColor`; `:focus-visible` gets the system focus ring; and under `prefers-reduced-motion` every animation and transition is pinned to `0.01ms`. These apply to your elements as well as ours. |
-| **`--color-{emerald,sky,slate}-*`** | 33 variable names shared with Tailwind's palette hold this system's values. Only reachable if you read the variables directly in your own CSS. |
+| **`--color-{blue,green,amber,red}-*`** | 44 variable names shared with Tailwind's palette hold this system's values. Only reachable if you read the variables directly in your own CSS — don't: the palette is an authoring convention, not API, and its names can change without a major version. |
 
 If you want a specific stock colour back, re-declare it in your own `@theme`
 block after the import — everything you do not name stays gone:
 
 ```css
 @import "tailwindcss";
-@import "@sixthshift/design-system/themes/default.css";
+@import "@sixthshift/design-system/themes/linen.css";
 
 @theme {
   --color-red-500: oklch(63.7% 0.237 25.331);

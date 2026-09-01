@@ -11,7 +11,7 @@ import { type TabItem, useTabsContext } from "./TabsContext";
  *
  * Colour reads `--tabs-trigger-bg` / `--tabs-trigger-fg` component tokens
  * (each with a `-hovered` state) whose values are decided by
- * src/theming/recipes/tabs.css. That file is the mapping from `selected` to a
+ * src/components/Tabs/tabs.recipe.css. That file is the mapping from `selected` to a
  * semantic token — the layer that used to be the two branches of a `cva`
  * `selected` variant here, compiled into class-name literals and unreachable
  * from outside. Nothing in this file names a colour, which is the point: the

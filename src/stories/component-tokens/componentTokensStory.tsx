@@ -3,7 +3,7 @@ import type { StoryObj } from "@storybook/react";
 import { RecipeTables } from "./components/RecipeTables";
 
 /**
- * The tier-3 reference for one component, as a story it can own.
+ * The component-token (layer 2) reference for one component, as a story it can own.
  *
  * A component's tokens belong beside the component: reading Button's docs and
  * having to leave for a global table to find out what `--button-bg` does is the
@@ -41,9 +41,9 @@ export function componentTokensStory(...hooks: string[]): StoryObj {
     render: () => (
       <div className="flex flex-col gap-6">
         <Text as="p" className="max-w-3xl text-fg-subtle">
-          Read from the shipped stylesheet at render time, so this cannot drift from <code className="font-mono text-xs">src/theming/recipes/</code>. Each row
-          is one combination of <code className="font-mono text-xs">variant</code>, <code className="font-mono text-xs">intent</code> and state; each swatch is
-          what that token computes to. A token shown as <em>unset</em> is deliberately undeclared, so it inherits.
+          Read from the shipped stylesheet at render time, so this cannot drift from the component’s <code className="font-mono text-xs">*.recipe.css</code>.
+          Each row is one combination of <code className="font-mono text-xs">variant</code>, <code className="font-mono text-xs">intent</code> and state; each
+          swatch is what that token computes to. A token shown as <em>unset</em> is deliberately undeclared, so it inherits.
         </Text>
         {(["light", "dark"] as const).map((mode) => (
           <section key={mode} className="flex flex-col gap-2">

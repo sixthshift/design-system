@@ -37,7 +37,7 @@ export function InteractiveTokenRow({ baseToken, type, mode }: { baseToken: stri
     const themeMode: TokenSet = readTokens(mode);
     const value = themeMode[token];
     if (!value) return "";
-    // Extract just the color reference, e.g., "var(--color-emerald-100)" -> "emerald-100"
+    // Extract just the color reference, e.g., "var(--color-green-100)" -> "green-100"
     const match = value.match(/var\(--color-([^)]+)\)/);
     return match?.[1] ?? value;
   };

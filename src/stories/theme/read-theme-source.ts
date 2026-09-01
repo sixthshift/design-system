@@ -1,5 +1,5 @@
 /**
- * Parses the default theme's sources (palette, semantics, Tailwind config) at build\n * time, via Vite's `?raw` — the same files the `@import` manifest composes.
+ * Parses the theme's sources (palette, semantics, Tailwind config) at build\n * time, via Vite's `?raw` — the same files the `@import` manifest composes.
  *
  * The rest of this directory reads the CSSOM, which is the right source when
  * the question is "what does the browser compute". It is the wrong source for a
@@ -15,8 +15,8 @@
  * Story-only. `src/stories` is excluded from the published package.
  */
 
-import paletteCss from "../../theme/default/palette.css?raw";
-import semanticCss from "../../theme/default/theme.css?raw";
+import paletteCss from "../../theme/linen/palette.css?raw";
+import semanticCss from "../../theme/linen/theme.css?raw";
 import tailwindCss from "../../theming/tailwind.css?raw";
 
 const tokensCss = [paletteCss, semanticCss, tailwindCss].join("\n");
@@ -49,7 +49,7 @@ function blocks(css: string): { selector: string; body: string }[] {
     // Everything since the previous block can include statement at-rules —
     // `@import …;`, `@custom-variant …;` — so the selector is only the fragment
     // after the last semicolon. Without this the first block in the file is
-    // named `@import "./recipes/index.css"; :root` and never matches.
+    // named `@import "…"; :root` and never matches.
     const preamble = css.slice(index, open);
     found.push({
       selector: (preamble.split(";").pop() as string).replace(/\s+/g, " ").trim(),

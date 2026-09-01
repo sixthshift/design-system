@@ -5,10 +5,10 @@ import { FAMILIES, STOPS } from "./PaletteScales";
 /**
  * Perceived lightness against stop, one line per family.
  *
- * Seven lines lying on top of each other is the whole argument for how this
+ * Five lines lying on top of each other is the whole argument for how this
  * palette is built, and it is an argument a grid of swatches cannot make: the
  * eye reads a red and a green at the same stop as different colours long before
- * it reads them as the same weight. The two neutrals leaving the bundle below
+ * it reads them as the same weight. The neutral leaving the bundle below
  * 700 is the one deliberate exception, and it shows here as exactly that — a
  * documented divergence rather than the noise the previous palette produced.
  *
@@ -43,7 +43,7 @@ export function SpineChart() {
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         className="h-auto w-full min-w-[520px]"
         role="img"
-        aria-label="Perceived lightness by stop. All seven families follow one curve; the two neutrals run deeper below the 700 stop."
+        aria-label="Perceived lightness by stop. All five families follow one curve; the neutral runs deeper below the 700 stop."
       >
         <title>Perceived lightness by stop, per family</title>
 

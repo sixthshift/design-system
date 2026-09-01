@@ -23,30 +23,22 @@ export const Spine: Story = {
   render: () => <SpineChart />,
 };
 
-export const Ocean: Story = {
-  render: () => <PaletteScales scale="ocean" />,
+export const Sand: Story = {
+  render: () => <PaletteScales scale="sand" />,
 };
 
-export const Emerald: Story = {
-  render: () => <PaletteScales scale="emerald" />,
+export const Blue: Story = {
+  render: () => <PaletteScales scale="blue" />,
 };
 
-export const Topaz: Story = {
-  render: () => <PaletteScales scale="topaz" />,
+export const Green: Story = {
+  render: () => <PaletteScales scale="green" />,
 };
 
-export const Ruby: Story = {
-  render: () => <PaletteScales scale="ruby" />,
+export const Amber: Story = {
+  render: () => <PaletteScales scale="amber" />,
 };
 
-export const Slate: Story = {
-  render: () => <PaletteScales scale="slate" />,
-};
-
-export const Sky: Story = {
-  render: () => <PaletteScales scale="sky" />,
-};
-
-export const Earth: Story = {
-  render: () => <PaletteScales scale="earth" />,
+export const Red: Story = {
+  render: () => <PaletteScales scale="red" />,
 };

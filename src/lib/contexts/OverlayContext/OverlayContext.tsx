@@ -18,19 +18,30 @@ type OverlayStackItem = StackItem & {
 };
 
 type OverlayContextType = {
-  modalRoot: FloatingPortalProps["root"];
+  modalRoot?: FloatingPortalProps["root"];
   modalStack: ReturnType<typeof useStack<OverlayStackItem>>;
-  toastRoot: FloatingPortalProps["root"];
+  toastRoot?: FloatingPortalProps["root"];
   toastStack: ReturnType<typeof useStack<OverlayStackItem>>;
 };
+
+/**
+ * `root` omitted when the caller gave none, rather than passed as `undefined`
+ * or `null`. The distinction is load-bearing: `FloatingPortal` bails out of
+ * creating its portal node entirely on an explicit `null` ("wait for the root
+ * to exist"), and only a missing `root` falls through to `document.body`.
+ */
+const rootProp = (root: FloatingPortalProps["root"] | undefined) => (root === undefined ? {} : { root });
 
 const OverlayContext = createContext<OverlayContextType>(undefined as unknown as OverlayContextType);
 export const useOverlayContext = () => useContext(OverlayContext);
 
 export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }: PropsWithChildren<OverlayContextProps>) => {
-  const resolvedModalRoot = modalRoot ?? document.body;
-  const resolvedToastRoot = toastRoot ?? document.body;
-
+  // The roots pass through unresolved, deliberately. Defaulting them to
+  // `document.body` here read the DOM during render, which threw the whole
+  // tree under SSR — and it bought nothing: `FloatingPortal` already falls
+  // back to `document.body` when no `root` is given, on the client, where a
+  // body exists. Both portals below are behind a non-empty stack, and both
+  // stacks start empty, so nothing portals on the server either way.
   const modalStack = useStack<OverlayStackItem>([]);
   const toastStack = useStack<OverlayStackItem>([]);
 
@@ -55,12 +66,12 @@ export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }
   // Memoize context value to prevent unnecessary re-renders in consumers
   const contextValue = useMemo(
     () => ({
-      modalRoot: resolvedModalRoot,
+      modalRoot,
       modalStack,
-      toastRoot: resolvedToastRoot,
+      toastRoot,
       toastStack,
     }),
-    [resolvedModalRoot, modalStack, resolvedToastRoot, toastStack]
+    [modalRoot, modalStack, toastRoot, toastStack]
   );
 
   return (
@@ -69,7 +80,7 @@ export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }
 
       {/* Modal stack - rendered in portal */}
       {modals.length > 0 && (
-        <FloatingPortal root={resolvedModalRoot}>
+        <FloatingPortal {...rootProp(modalRoot)}>
           {modals.map(({ id, component: Component, data }) => (
             <Component key={id} data={data} />
           ))}
@@ -78,7 +89,7 @@ export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }
 
       {/* Toast stack - rendered in portal */}
       {toasts.length > 0 && (
-        <FloatingPortal root={resolvedToastRoot}>
+        <FloatingPortal {...rootProp(toastRoot)}>
           <div className="pointer-events-none fixed bottom-6 left-1/2 z-toast flex -translate-x-1/2 flex-col-reverse items-center gap-3">
             {toasts.map(({ id, component: Component, onClose, ...props }) => (
               <div key={id} className="pointer-events-auto">

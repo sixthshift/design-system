@@ -28,7 +28,7 @@ describe("Card", () => {
     expect(card).toHaveClass("rounded-xl");
     expect(card).toHaveClass("border");
     expect(card).toHaveClass("shadow");
-    expect(card).toHaveClass("p-6");
+    expect(card).toHaveClass("p-4");
   });
 
   it("does not apply flex-col by default", () => {
@@ -67,16 +67,80 @@ describe("Card with title", () => {
     expect(titleElement).toHaveClass("font-semibold");
   });
 
-  it("renders header as semantic header element", () => {
+  it("renders the header row above the content", () => {
     render(<Card title="My Title">Content</Card>);
-    const header = screen.getByRole("banner");
-    expect(header).toBeInTheDocument();
+    const header = screen.getByText("My Title").parentElement;
     expect(header).toHaveClass("mb-4");
+  });
+
+  it("does not make the header a banner landmark", () => {
+    // A <header> at the top level of a plain <div> is a banner, so two titled
+    // cards on one page would claim two page banners.
+    render(
+      <>
+        <Card title="One">Content</Card>
+        <Card title="Two">Content</Card>
+      </>
+    );
+    expect(screen.queryAllByRole("banner")).toHaveLength(0);
+  });
+
+  it("scales header spacing with size", () => {
+    const { rerender } = render(<Card title="T" size="xs" />);
+    expect(screen.getByText("T").parentElement).toHaveClass("mb-2", "gap-2");
+    rerender(<Card title="T" size="xl" />);
+    expect(screen.getByText("T").parentElement).toHaveClass("mb-6", "gap-4");
   });
 
   it("renders ReactNode as title", () => {
     render(<Card title={<span data-testid="custom-title">Custom</span>}>Content</Card>);
     expect(screen.getByTestId("custom-title")).toBeInTheDocument();
+  });
+});
+
+describe("Card size", () => {
+  // The ramp is 8 / 12 / 16 / 24 / 32px, with radius never exceeding padding.
+  const ramp = [
+    { size: "xs", padding: "p-2", radius: "rounded-md" },
+    { size: "sm", padding: "p-3", radius: "rounded-lg" },
+    { size: "md", padding: "p-4", radius: "rounded-xl" },
+    { size: "lg", padding: "p-6", radius: "rounded-xl" },
+    { size: "xl", padding: "p-8", radius: "rounded-2xl" },
+  ] as const;
+
+  it.for(ramp)("$size pairs $padding with $radius", ({ size, padding, radius }) => {
+    render(
+      <Card data-testid="card" size={size}>
+        Content
+      </Card>
+    );
+    const card = screen.getByTestId("card");
+    expect(card).toHaveClass(padding);
+    expect(card).toHaveClass(radius);
+  });
+
+  it("defaults to md", () => {
+    render(<Card data-testid="card">Content</Card>);
+    expect(screen.getByTestId("card")).toHaveClass("p-4", "rounded-xl");
+  });
+
+  it("does not set a font size at any step, so typography presets win", () => {
+    for (const { size } of ramp) {
+      const { container, unmount } = render(<Card size={size}>Content</Card>);
+      expect(container.firstElementChild?.className).not.toMatch(/\btext-(xs|sm|base|lg|xl)\b/);
+      unmount();
+    }
+  });
+
+  it("lets className override the ramp's padding", () => {
+    render(
+      <Card data-testid="card" size="lg" className="p-0">
+        Content
+      </Card>
+    );
+    const card = screen.getByTestId("card");
+    expect(card).toHaveClass("p-0");
+    expect(card).not.toHaveClass("p-6");
   });
 });
 
@@ -107,9 +171,15 @@ describe("Card with headerAction", () => {
 });
 
 describe("Card without header", () => {
-  it("does not render header element when no title or headerAction", () => {
-    render(<Card>Content</Card>);
-    expect(screen.queryByRole("banner")).not.toBeInTheDocument();
+  it("does not render a header row when no title or headerAction", () => {
+    render(
+      <Card data-testid="card">
+        <p>Content</p>
+      </Card>
+    );
+    // The paragraph is the card's only child; no header wrapper precedes it.
+    expect(screen.getByTestId("card").children).toHaveLength(1);
+    expect(screen.getByTestId("card").firstElementChild?.tagName).toBe("P");
   });
 });
 

@@ -54,6 +54,34 @@ export const Default: Story = {
   ),
 };
 
+/**
+ * `size` is a density axis, not a padding setting: it moves padding, header
+ * spacing and corner radius together. `md` (16px) is the default — the two
+ * steps below it are for surfaces that repeat dozens of times, the two above
+ * for surfaces that are the page.
+ */
+export const AllSizes: Story = {
+  render: () => (
+    <div className="flex w-87.5 flex-col gap-4">
+      <Card size="xs" title="Extra Small">
+        <p className="text-fg-subtle text-sm">Dense data — table rows, compact tiles.</p>
+      </Card>
+      <Card size="sm" title="Small">
+        <p className="text-fg-subtle text-sm">List rows and secondary cards.</p>
+      </Card>
+      <Card size="md" title="Medium">
+        <p className="text-fg-subtle text-sm">A standalone content card. The default.</p>
+      </Card>
+      <Card size="lg" title="Large">
+        <p className="text-fg-subtle text-sm">Primary and feature cards — a main panel, a form.</p>
+      </Card>
+      <Card size="xl" title="Extra Large">
+        <p className="text-fg-subtle text-sm">Hero, empty-state and marketing surfaces.</p>
+      </Card>
+    </div>
+  ),
+};
+
 export const WithHeaderAction: Story = {
   render: () => (
     <Card className="w-87.5" title="Card Title" headerAction={<Button size="sm">Action</Button>}>

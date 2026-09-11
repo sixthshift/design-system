@@ -1,10 +1,15 @@
 /**
  * Card recipe — the component-token layer for Card.
  *
- * Card has no variant/intent axis — every instance uses the same fixed
+ * Card has no colour-bearing variant — every instance uses the same fixed
  * semantic tokens the old plain class string named directly. This file just
  * gives those tokens a name, so a consumer can re-point a cell or scope a
  * change to a subtree without a release.
+ *
+ * Card's `size` axis is pure geometry (padding, header gap, radius) and stays
+ * in Card.tsx's `cva` call; nothing here concerns it. Same split as
+ * message.css — this layer is colour, and a consumer wanting a different
+ * spacing rhythm re-points Tailwind's `--spacing`, not a token here.
  *
  * The grammar is `--card-{context}[-{state}]`, context in {bg, fg, border,
  * ring} — the same words the semantic layer uses. `--card-ring` backs the

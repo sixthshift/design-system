@@ -2,11 +2,15 @@ import { describe, test } from "vitest";
 import { composeStories, expectScreenshot, THEMES } from "../../testing/visual";
 import * as stories from "./Card.stories";
 
-const { Default, WithHeaderAction, BillCard } = composeStories(stories);
+const { Default, AllSizes, WithHeaderAction, BillCard } = composeStories(stories);
 
 describe("Card", () => {
   test.for(THEMES)("default - %s", async (theme) => {
     await expectScreenshot(<Default />, "default", theme);
+  });
+
+  test.for(THEMES)("all sizes - %s", async (theme) => {
+    await expectScreenshot(<AllSizes />, "all-sizes", theme);
   });
 
   test.for(THEMES)("with header action - %s", async (theme) => {

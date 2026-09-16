@@ -113,6 +113,47 @@ describe("Textarea", () => {
     });
   });
 
+  describe("autosize", () => {
+    it("is off by default, leaving the manual resize handle in place", () => {
+      render(<Textarea />);
+      const textarea = screen.getByRole("textbox");
+      expect(textarea).not.toHaveClass("resize-none");
+      expect(textarea).not.toHaveClass("overflow-hidden");
+    });
+
+    it("disables the manual resize handle when enabled", () => {
+      render(<Textarea autosize />);
+      const textarea = screen.getByRole("textbox");
+      expect(textarea).toHaveClass("resize-none");
+      expect(textarea).toHaveClass("overflow-hidden");
+    });
+
+    it("recalculates height on input", async () => {
+      const user = userEvent.setup();
+      render(<Textarea autosize />);
+      const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
+
+      const setHeight = vi.spyOn(textarea.style, "height", "set");
+      await user.type(textarea, "hello");
+      expect(setHeight).toHaveBeenCalled();
+    });
+
+    it("still calls a consumer's own onInput handler", async () => {
+      const user = userEvent.setup();
+      const handleInput = vi.fn();
+      render(<Textarea autosize onInput={handleInput} />);
+
+      await user.type(screen.getByRole("textbox"), "hi");
+      expect(handleInput).toHaveBeenCalled();
+    });
+
+    it("still forwards ref when autosize is on", () => {
+      const ref = vi.fn();
+      render(<Textarea autosize ref={ref} />);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLTextAreaElement));
+    });
+  });
+
   describe("form attributes", () => {
     it("accepts name attribute", () => {
       render(<Textarea name="message" />);

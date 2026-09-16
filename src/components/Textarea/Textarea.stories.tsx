@@ -77,4 +77,17 @@ export const MaxLength: Story = {
   ),
 };
 
+/**
+ * `autosize` grows the box to fit its content, starting from one row, and
+ * disables the manual resize handle. Type past the edge to see it grow.
+ */
+export const Autosize: Story = {
+  render: () => (
+    <div className="grid w-full max-w-sm gap-1.5">
+      <Label htmlFor="autosize-example">Notes</Label>
+      <Textarea id="autosize-example" autosize rows={1} placeholder="Starts at one row and grows with content" />
+    </div>
+  ),
+};
+
 export const ComponentTokens = componentTokensStory("textarea");

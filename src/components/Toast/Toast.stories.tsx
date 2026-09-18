@@ -1,5 +1,5 @@
 import { Button } from "@sixthshift/design-system/button";
-import { OverlayProvider, useToast } from "@sixthshift/design-system/overlay";
+import { OverlayProvider, toast, useToast } from "@sixthshift/design-system/overlay";
 import type { Meta, StoryObj } from "@storybook/react";
 import { AlertTriangle, CheckCircle, Info, XCircle } from "lucide-react";
 import { useRef, useState } from "react";
@@ -134,39 +134,27 @@ const toastConfigs = [
 
 function StackingDemoContent() {
   const indexRef = useRef(0);
-
-  // Create hooks for each toast type
-  const successToast = useToast({
-    ...toastConfigs[0],
-    duration: 10000,
-  });
-  const warningToast = useToast({
-    ...toastConfigs[1],
-    duration: 10000,
-  });
-  const dangerToast = useToast({
-    ...toastConfigs[2],
-    duration: 10000,
-  });
-  const neutralToast = useToast({
-    ...toastConfigs[3],
-    duration: 10000,
-  });
-
-  const toasts = [successToast, warningToast, dangerToast, neutralToast];
+  // The content is decided when a toast opens, so one hook serves every kind.
+  const { openToast, closeAllToasts } = useToast();
 
   const addToast = () => {
-    const toast = toasts[indexRef.current % toasts.length];
-    toast?.openToast();
+    const config = toastConfigs[indexRef.current % toastConfigs.length];
+    if (config) openToast({ ...config, duration: 10000 });
     indexRef.current++;
   };
 
   return (
     <div className="flex flex-col items-center gap-4">
       <p className="max-w-xs text-center text-fg-subtle text-sm">
-        Click the button multiple times to see toasts stack. They auto-dismiss after 10 seconds or click the X to close.
+        Click the button multiple times to see toasts stack: at most three show, the oldest falling off. They auto-dismiss after 10 seconds or click the X to
+        close.
       </p>
-      <Button onClick={addToast}>Add Toast</Button>
+      <div className="flex gap-2">
+        <Button onClick={addToast}>Add Toast</Button>
+        <Button variant="outline" onClick={closeAllToasts}>
+          Close all
+        </Button>
+      </div>
     </div>
   );
 }
@@ -185,5 +173,32 @@ export const Stacking: Story = {
         iframeHeight: 400,
       },
     },
+  },
+};
+
+/**
+ * `toast()` is the same stack without the hook: callable from a store, a
+ * timer, a service-worker callback — anywhere that is not a component.
+ */
+export const Imperative: Story = {
+  render: () => (
+    <OverlayProvider>
+      <div className="flex flex-col items-center gap-4">
+        <p className="max-w-xs text-center text-fg-subtle text-sm">The handler below is a plain function call, not a hook.</p>
+        <Button
+          onClick={() => {
+            const started = Date.now();
+            toast({ intent: "neutral", title: "Timer started", children: "Done in two seconds." });
+            setTimeout(() => toast({ intent: "success", title: "Timer done", children: `${Date.now() - started} ms` }), 2000);
+          }}
+        >
+          Start a timer
+        </Button>
+      </div>
+    </OverlayProvider>
+  ),
+  parameters: {
+    layout: "fullscreen",
+    docs: { story: { inline: false, iframeHeight: 300 } },
   },
 };

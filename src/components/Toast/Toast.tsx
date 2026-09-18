@@ -22,6 +22,13 @@ export type ToastProps = Omit<MessageProps, "size"> & {
   /** Portal root element (default: document.body) */
   root?: FloatingPortalProps["root"];
   /**
+   * Set to `false` to play the exit animation and then call `onClose`. This is
+   * how a stack dismisses a toast on a timer: the toast stays mounted through
+   * its fade-out, and the stack drops it when `onClose` fires.
+   * @default true
+   */
+  open?: boolean;
+  /**
    * Whether Toast should render in a portal and position itself.
    * Set to false when Toast is rendered by a parent that handles positioning (e.g., OverlayContext).
    * @default true
@@ -52,8 +59,8 @@ export type ToastProps = Omit<MessageProps, "size"> & {
  * portals itself (`FloatingPortal`, optionally to a custom `root`) and
  * applies the fixed bottom-center classes itself. Set it to `false` when a
  * parent already handles portalling and position — this is how
- * `OverlayContext`'s toast stack renders it. Toast has no built-in
- * auto-dismiss timer; that's `useToast`'s job, one layer up.
+ * `ToastStack` renders it. Toast has no built-in auto-dismiss timer; that's
+ * `ToastStack`'s job, one layer up, driven through `open`.
  *
  * Exit animation (`usePresence`) keeps Toast mounted through its fade-out,
  * so `onClose` fires only after the animation completes. Toast has no focus
@@ -61,13 +68,20 @@ export type ToastProps = Omit<MessageProps, "size"> & {
  * a dialog.
  */
 export const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
-  ({ className, intent = "neutral", title, icon, action, onAction, onClose, root, standalone = true, children, ...props }, ref) => {
+  ({ className, intent = "neutral", title, icon, action, onAction, onClose, root, open = true, standalone = true, children, ...props }, ref) => {
     const { ref: presenceRef, state, isMounted, show, hide } = usePresence();
 
-    // Start enter animation on mount
+    // `open` drives presence: enter on mount, exit when it flips false. The
+    // close handler is read through a ref so a new identity does not replay
+    // the exit.
+    const onCloseRef = React.useRef(onClose);
     React.useEffect(() => {
-      show();
-    }, [show]);
+      onCloseRef.current = onClose;
+    });
+    React.useEffect(() => {
+      if (open) show();
+      else hide(() => onCloseRef.current?.());
+    }, [open, show, hide]);
 
     // Handle close with exit animation
     const handleClose = React.useCallback(() => {

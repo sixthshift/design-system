@@ -5,11 +5,12 @@ import { Select } from "@sixthshift/design-system/select";
 import { act, renderHook, render as rtlRender, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { PropsWithChildren } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ModalComponentProps } from "./hooks/useModal";
 import { useModal } from "./hooks/useModal";
 import { useToast } from "./hooks/useToast";
 import { OverlayProvider, useOverlayContext } from "./OverlayContext";
+import { createToastStore, toast, toastStore } from "./toastStore";
 
 // Helper: happy-dom (like jsdom) doesn't play real CSS animations, so
 // usePresence's "entering"/"exiting" states never resolve on their own.
@@ -69,13 +70,19 @@ const OpenClosableModalButton = () => {
 };
 
 const OpenToastButton = ({ duration, buttonLabel = "Open toast" }: { duration: number; buttonLabel?: string }) => {
-  const { openToast } = useToast({ title: "Saved", children: "Your changes were saved.", duration });
+  const { openToast } = useToast();
   return (
-    <button type="button" onClick={openToast}>
+    <button type="button" onClick={() => openToast({ title: "Saved", children: "Your changes were saved.", duration })}>
       {buttonLabel}
     </button>
   );
 };
+
+// The unit project runs files without isolation, and the default store is
+// module-level: every test that touches it must leave it empty.
+afterEach(() => {
+  for (const record of toastStore.snapshot()) toastStore.remove(record.id);
+});
 
 describe("useOverlayContext", () => {
   it("throws when used without an OverlayProvider ancestor", () => {
@@ -85,10 +92,10 @@ describe("useOverlayContext", () => {
     consoleSpy.mockRestore();
   });
 
-  it("returns modal and toast stacks when used within an OverlayProvider", () => {
+  it("returns the modal stack and the toast store when used within an OverlayProvider", () => {
     const { result } = renderHook(() => useOverlayContext(), { wrapper });
     expect(result.current.modalStack[0]).toEqual([]);
-    expect(result.current.toastStack[0]).toEqual([]);
+    expect(result.current.toastStore.snapshot()).toEqual([]);
   });
 });
 
@@ -292,31 +299,22 @@ describe("useToast", () => {
   });
 });
 
-describe("useToast prop freshness", () => {
-  /**
-   * Renders a toast whose action handler is swapped without changing any
-   * JSON-serialisable prop. The old implementation memoised the props object
-   * against JSON.stringify(props), and JSON.stringify drops functions — so this
-   * key never changed and openToast fired the first handler forever.
-   */
+describe("useToast opens with the content given at open time", () => {
   const ToastWithAction = ({ onAction }: { onAction: () => void }) => {
-    const { openToast } = useToast({ title: "Saved", action: "Undo", onAction, duration: 0 });
+    const { openToast } = useToast();
     return (
-      <button type="button" onClick={openToast}>
+      <button type="button" onClick={() => openToast({ title: "Saved", action: "Undo", onAction, duration: 0 })}>
         Open toast
       </button>
     );
   };
 
-  it("uses the latest onAction handler even when no serialisable prop changed", async () => {
+  it("uses the handler passed at open time, even after a re-render swapped it", async () => {
     const user = userEvent.setup();
     const first = vi.fn();
     const second = vi.fn();
 
     const { rerender } = rtlRender(<ToastWithAction onAction={first} />, { wrapper });
-
-    // Swap only the function identity. Every other prop is byte-identical, so
-    // a JSON-derived cache key cannot see this change.
     rerender(<ToastWithAction onAction={second} />);
 
     await user.click(screen.getByRole("button", { name: "Open toast" }));
@@ -326,32 +324,132 @@ describe("useToast prop freshness", () => {
     expect(first).not.toHaveBeenCalled();
   });
 
-  it("still uses the original handler when it has not been replaced", async () => {
-    const user = userEvent.setup();
-    const onAction = vi.fn();
-
-    rtlRender(<ToastWithAction onAction={onAction} />, { wrapper });
-
-    await user.click(screen.getByRole("button", { name: "Open toast" }));
-    await user.click(screen.getByRole("button", { name: "Undo" }));
-
-    expect(onAction).toHaveBeenCalledTimes(1);
-  });
-
   it("keeps openToast referentially stable across re-renders", () => {
-    const identities: Array<() => void> = [];
+    const identities: Array<(options: { title: string }) => unknown> = [];
     const Probe = ({ title }: { title: string }) => {
-      const { openToast } = useToast({ title, duration: 0 });
+      const { openToast } = useToast();
       identities.push(openToast);
-      return null;
+      return <span>{title}</span>;
     };
 
     const { rerender } = rtlRender(<Probe title="a" />, { wrapper });
-    rerender(<Probe title="a" />);
+    rerender(<Probe title="b" />);
 
-    // Stability is the reason the memo existed; it must survive the fix.
     expect(identities.length).toBeGreaterThanOrEqual(2);
     expect(identities[identities.length - 1]).toBe(identities[identities.length - 2]);
+  });
+
+  it("one call site can show several toasts at once", async () => {
+    const user = userEvent.setup();
+    rtlRender(<OpenToastButton duration={0} />, { wrapper });
+
+    await user.click(screen.getByRole("button", { name: "Open toast" }));
+    await user.click(screen.getByRole("button", { name: "Open toast" }));
+
+    expect(screen.getAllByText("Saved")).toHaveLength(2);
+  });
+
+  it("a danger toast stays until dismissed; the others expire", async () => {
+    const DangerButton = () => {
+      const { openToast } = useToast();
+      return (
+        <button type="button" onClick={() => openToast({ intent: "danger", title: "Failed" })}>
+          Fail
+        </button>
+      );
+    };
+    const user = userEvent.setup();
+    const store = createToastStore();
+    rtlRender(<DangerButton />, { wrapper: ({ children }) => <OverlayProvider toasts={store}>{children}</OverlayProvider> });
+
+    await user.click(screen.getByRole("button", { name: "Fail" }));
+    expect(store.snapshot()[0]?.duration).toBe(0);
+    expect(screen.getByRole("alert")).toHaveTextContent("Failed");
+  });
+
+  it("closeAllToasts begins every toast's exit", async () => {
+    const CloseAllButton = () => {
+      const { closeAllToasts } = useToast();
+      return (
+        <button type="button" onClick={closeAllToasts}>
+          Close all
+        </button>
+      );
+    };
+    const user = userEvent.setup();
+    rtlRender(
+      <>
+        <OpenToastButton duration={0} />
+        <CloseAllButton />
+      </>,
+      { wrapper }
+    );
+
+    await user.click(screen.getByRole("button", { name: "Open toast" }));
+    await user.click(screen.getByRole("button", { name: "Open toast" }));
+    await user.click(screen.getByRole("button", { name: "Close all" }));
+
+    for (const status of screen.getAllByRole("status")) triggerAnimationEnd(status);
+    await waitFor(() => expect(screen.queryByText("Saved")).not.toBeInTheDocument());
+  });
+});
+
+describe("toast() from outside React", () => {
+  it("renders on the provider's stack when called from a plain function", async () => {
+    rtlRender(<div />, { wrapper });
+
+    act(() => {
+      toast({ intent: "success", title: "Timer done", children: "Rest the dough.", duration: 0 });
+    });
+
+    expect(screen.getByRole("status")).toHaveTextContent("Timer done");
+    expect(screen.getByText("Rest the dough.")).toBeInTheDocument();
+  });
+
+  it("the handle closes it early, through the exit animation", async () => {
+    rtlRender(<div />, { wrapper });
+
+    let handle!: ReturnType<typeof toast>;
+    act(() => {
+      handle = toast({ title: "Working", duration: 0 });
+    });
+    expect(screen.getByText("Working")).toBeInTheDocument();
+
+    act(() => handle.close());
+    triggerAnimationEnd(screen.getByRole("status"));
+    await waitFor(() => expect(screen.queryByText("Working")).not.toBeInTheDocument());
+  });
+
+  it("past the cap, the oldest falls off at once", () => {
+    rtlRender(<div />, { wrapper });
+
+    act(() => {
+      for (const n of [1, 2, 3, 4]) toast({ title: `Toast ${n}`, duration: 0 });
+    });
+
+    expect(screen.queryByText("Toast 1")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("status")).toHaveLength(3);
+  });
+
+  it("the stack container carries the count and merges a className from the provider", () => {
+    rtlRender(<div />, { wrapper: ({ children }) => <OverlayProvider toastClassName="bottom-24 md:bottom-6">{children}</OverlayProvider> });
+
+    act(() => {
+      toast({ title: "Placed", duration: 0 });
+    });
+
+    const container = screen.getByRole("status").parentElement?.parentElement?.parentElement as HTMLElement;
+    expect(container).toHaveAttribute("data-count", "1");
+    expect(container).toHaveClass("z-toast", "bottom-24", "md:bottom-6");
+    expect(container).not.toHaveClass("bottom-6");
+  });
+
+  it("useToast outside any provider opens on the same default stack", () => {
+    const { result } = renderHook(() => useToast());
+    act(() => {
+      result.current.openToast({ title: "Orphan", duration: 0 });
+    });
+    expect(toastStore.snapshot().map((record) => record.options.title)).toEqual(["Orphan"]);
   });
 });
 

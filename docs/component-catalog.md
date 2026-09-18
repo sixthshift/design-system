@@ -441,10 +441,11 @@ Mobile: slides up from bottom. Desktop: centered overlay. Enter/exit animations 
 | `title` | `string` | Bold heading line |
 | `action` | `string` | Action button label |
 | `onAction` | `() => void` | Action callback |
-| `onClose` | `() => void` | Dismiss callback |
+| `onClose` | `() => void` | Dismiss callback, after the exit animation |
+| `open` | `boolean` | `false` plays the exit and then calls `onClose` (default: `true`) |
 | `standalone` | `boolean` | Self-positions in portal (default: `true`) |
 
-Built on top of `Message`. Enter/exit animations included.
+Built on top of `Message`. Enter/exit animations included. To show one in response to an action, open it on the stack rather than rendering it: `toast({ intent: "success", title: "Saved" })` from anywhere, or `useToast().openToast(...)` from a component — see Contexts below.
 
 ---
 
@@ -704,7 +705,7 @@ Auto-generates `id` and wires `aria-describedby`/`aria-invalid` onto the child i
 
 | Context | Import | Purpose |
 |---------|--------|---------|
-| `OverlayContext` | `@sixthshift/design-system/overlay` | Modal/toast/sheet stack management |
+| `OverlayContext` | `@sixthshift/design-system/overlay` | Modal stack (`useModal`) and toast stack (`toast()`, `useToast`, `ToastStack`, `createToastStore`); `OverlayProvider` takes `toasts` and `toastClassName` |
 | `ComponentsContext` | `@sixthshift/design-system/components` | Inject router `Link` component |
 
 ### Utilities

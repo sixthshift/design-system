@@ -4,10 +4,16 @@ import { FloatingPortal, type FloatingPortalProps } from "@floating-ui/react";
 import { type StackItem, useStack } from "@sixthshift/design-system/hooks";
 import { createContext, type FunctionComponent, type PropsWithChildren, useContext, useEffect, useMemo } from "react";
 import { hasOpenEscapeLayer } from "../../../internal/escapeLayers";
+import { ToastStack } from "./ToastStack";
+import { toastStore as defaultToastStore, type ToastStore } from "./toastStore";
 
 type OverlayContextProps = {
   modal?: FloatingPortalProps["root"];
   toast?: FloatingPortalProps["root"];
+  /** The toast stack to render. Default: the app's one, which `toast()` opens onto. Hand in your own for a second bundle or a test. */
+  toasts?: ToastStore;
+  /** Merged over the toast stack's container classes, so an app can move it (above a bottom bar, into a corner). */
+  toastClassName?: string;
 };
 
 /** Stack item for overlays - component is a self-contained wrapper */
@@ -27,7 +33,7 @@ type OverlayContextType = {
   modalRoot: FloatingPortalProps["root"] | undefined;
   modalStack: ReturnType<typeof useStack<OverlayStackItem>>;
   toastRoot: FloatingPortalProps["root"] | undefined;
-  toastStack: ReturnType<typeof useStack<OverlayStackItem>>;
+  toastStore: ToastStore;
 };
 
 /**
@@ -41,7 +47,13 @@ const rootProp = (root: FloatingPortalProps["root"] | undefined) => (root === un
 const OverlayContext = createContext<OverlayContextType>(undefined as unknown as OverlayContextType);
 export const useOverlayContext = () => useContext(OverlayContext);
 
-export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }: PropsWithChildren<OverlayContextProps>) => {
+export const OverlayProvider = ({
+  modal: modalRoot,
+  toast: toastRoot,
+  toasts: toastStore = defaultToastStore,
+  toastClassName,
+  children,
+}: PropsWithChildren<OverlayContextProps>) => {
   // The roots pass through unresolved, deliberately. `"use client"` makes this a
   // Client Component, but a Client Component is still rendered once on the
   // server — defaulting to `document.body` here read the DOM at render scope and
@@ -51,11 +63,12 @@ export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }
   // `document.body` when no `root` is given, and does it in an effect, on the
   // client, where a body exists. Both portals below are behind a non-empty
   // stack, and both stacks start empty, so nothing portals on the server anyway.
+  //
+  // Modals are a `useStack` here; toasts are a store outside React, so that
+  // `toast()` works from code that is not a component.
   const modalStack = useStack<OverlayStackItem>([]);
-  const toastStack = useStack<OverlayStackItem>([]);
 
   const [modals] = modalStack;
-  const [toasts] = toastStack;
 
   // Global escape key handler - closes topmost modal
   useEffect(() => {
@@ -82,9 +95,9 @@ export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }
       modalRoot,
       modalStack,
       toastRoot,
-      toastStack,
+      toastStore,
     }),
-    [modalRoot, modalStack, toastRoot, toastStack]
+    [modalRoot, modalStack, toastRoot, toastStore]
   );
 
   return (
@@ -100,18 +113,8 @@ export const OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }
         </FloatingPortal>
       )}
 
-      {/* Toast stack - rendered in portal */}
-      {toasts.length > 0 && (
-        <FloatingPortal {...rootProp(toastRoot)}>
-          <div className="pointer-events-none fixed bottom-6 left-1/2 z-toast flex -translate-x-1/2 flex-col-reverse items-center gap-3">
-            {toasts.map(({ id, component: Component, onClose, ...props }) => (
-              <div key={id} className="pointer-events-auto">
-                <Component onClose={onClose} {...props} />
-              </div>
-            ))}
-          </div>
-        </FloatingPortal>
-      )}
+      {/* Toast stack - portals itself, and only while it holds something */}
+      <ToastStack store={toastStore} className={toastClassName} {...rootProp(toastRoot)} />
     </OverlayContext.Provider>
   );
 };

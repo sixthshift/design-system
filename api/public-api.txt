@@ -13,7 +13,7 @@ Deliberately not recorded: the package version, and anything under src/stories
 or src/testing. Neither is part of what a consumer can import.
 
 ==============================================================================
-SUBPATH EXPORTS — 69 subpaths, 454 exports
+SUBPATH EXPORTS — 69 subpaths, 473 exports
 ==============================================================================
 
 ./badge
@@ -113,8 +113,22 @@ SUBPATH EXPORTS — 69 subpaths, 454 exports
   value Caption = ForwardRefExoticComponent<HTMLAttributes<HTMLElement> & { as?: TextElement | undefined; } & RefAttributes<HTMLElement>>
 
 ./card
-  value Card = ForwardRefExoticComponent<Omit<HTMLAttributes<HTMLDivElement>, "title"> & { title?: ReactNode; headerAction?: ReactNode; } & RefAttributes<HTMLDivElement>>
-  type  CardProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & { title?: ReactNode; headerAction?: ReactNode; }
+  value Card = ForwardRefExoticComponent<Omit<HTMLAttributes<HTMLDivElement>,
+               "title"> & Pick<VariantProps<(props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined;
+               interactive?: boolean | null | undefined;
+               } & ClassProp) | undefined) => string>,
+               "size"> & { title?: ReactNode;
+               headerAction?: ReactNode;
+               } & RefAttributes<HTMLDivElement>>
+  type  CardProps = Omit<HTMLAttributes<HTMLDivElement>,
+                    "title"> & Pick<VariantProps<(props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined;
+                    interactive?: boolean | null | undefined;
+                    } & ClassProp) | undefined) => string>,
+                    "size"> & { title?: ReactNode;
+                    headerAction?: ReactNode;
+                    }
+  type  CardSize = "xs" | "sm" | "md" | "lg" | "xl"
+  value cardVariants = (props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined; interactive?: boolean | null | undefined; } & ClassProp) | undefined) => string
 
 ./checkbox
   value Checkbox = ForwardRefExoticComponent<Omit<ButtonHTMLAttributes<HTMLButtonElement>,
@@ -866,6 +880,12 @@ SUBPATH EXPORTS — 69 subpaths, 454 exports
   value Muted = ForwardRefExoticComponent<HTMLAttributes<HTMLElement> & { as?: TextElement | undefined; } & RefAttributes<HTMLElement>>
 
 ./overlay
+  value closeAllToasts = () => void
+  value closeToast = (id: string) => void
+  value createToastStore = ({ max, newId }?: ToastStoreOptions | undefined) => ToastStore
+  value DEFAULT_MAX_TOASTS = 3
+  value DEFAULT_TOAST_DURATION = 5000
+  value defaultToastDuration = (intent: MessageIntent | undefined) => number
   value Modal = ForwardRefExoticComponent<Pick<HTMLAttributes<HTMLDivElement>,
                 "className" | "style" | "aria-describedby" | "aria-label" | "aria-labelledby"> & { onOpenChange?: ((open: boolean) => void) | undefined;
                 size?: "sm" | "md" | "lg" | "full" | undefined;
@@ -896,7 +916,32 @@ SUBPATH EXPORTS — 69 subpaths, 454 exports
                      | undefined;
                      }
   type  OpenModalOptions = Omit<ModalProps, "children" | "onOpenChange"> & { suspenseFallback?: ReactNode; data?: TData | undefined; }
-  value OverlayProvider = ({ modal: modalRoot, toast: toastRoot, children }: PropsWithChildren<OverlayContextProps>) => Element
+  value OverlayProvider = ({ modal: modalRoot, toast: toastRoot, toasts: toastStore, toastClassName, children, }: PropsWithChildren<OverlayContextProps>) => Element
+  value toast = (options: ToastOptions) => ToastHandle
+  value TOAST_STACK_CLASS = "pointer-events-none fixed bottom-6 left-1/2 z-toast flex -translate-x-1/2 flex-col-reverse items-center gap-3"
+  type  ToastHandle = { id: string; close: () => void; }
+  type  ToastOptions = Omit<ToastProps, "root" | "onClose" | "open" | "standalone"> & { duration?: number | undefined; component?: FunctionComponent<ToastProps> | undefined; }
+  type  ToastRecord = { id: string; options: ToastOptions; duration: number; closing: boolean; }
+  value ToastStack = ({ store, root, className }: ToastStackProps) => Element | null
+  type  ToastStackProps = { store?: ToastStore | undefined;
+                          root?: HTMLElement | ShadowRoot | MutableRefObject<HTMLElement | ShadowRoot | null> | null | undefined;
+                          className?: string | undefined;
+                          }
+  value toastStore = { subscribe: (listener: () => void) => () => void;
+                     snapshot: () => readonly ToastRecord[];
+                     open: (options: ToastOptions) => ToastHandle;
+                     close: (id: string) => void;
+                     remove: (id: string) => void;
+                     clear: () => void;
+                     }
+  type  ToastStore = { subscribe: (listener: () => void) => () => void;
+                     snapshot: () => readonly ToastRecord[];
+                     open: (options: ToastOptions) => ToastHandle;
+                     close: (id: string) => void;
+                     remove: (id: string) => void;
+                     clear: () => void;
+                     }
+  type  ToastStoreOptions = { max?: number | undefined; newId?: (() => string) | undefined; }
   value useModal = () => { openModal: <TData = undefined>(Component: ComponentType<ModalComponentProps<TData>>,
                    options?: OpenModalOptions<TData> | undefined) => { id: string;
                    closeModal: OnClose;
@@ -905,7 +950,8 @@ SUBPATH EXPORTS — 69 subpaths, 454 exports
                    closeAllModals: () => void;
                    }
   value useOverlayContext = () => OverlayContextType
-  value useToast = (args: ToastPropsWithDuration | FunctionComponent<ToastProps>) => { openToast: () => () => void; closeToast: () => void; }
+  value useToast = () => { openToast: (options: ToastOptions) => ToastHandle; closeToast: (id: string) => void; closeAllToasts: () => void; }
+  value useToasts = (store?: ToastStore | undefined) => readonly ToastRecord[]
 
 ./popover
   value Popover = (({ open: controlledOpen,
@@ -1223,8 +1269,8 @@ SUBPATH EXPORTS — 69 subpaths, 454 exports
                              } & ClassProp) | undefined) => string
 
 ./textarea
-  value Textarea = ForwardRefExoticComponent<TextareaProps & RefAttributes<HTMLTextAreaElement>>
-  type  TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>
+  value Textarea = ForwardRefExoticComponent<TextareaHTMLAttributes<HTMLTextAreaElement> & { autosize?: boolean | undefined; } & RefAttributes<HTMLTextAreaElement>>
+  type  TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & { autosize?: boolean | undefined; }
 
 ./theming
   type  BgToken = "bg-brand"
@@ -2024,6 +2070,8 @@ SUBPATH EXPORTS — 69 subpaths, 454 exports
                 | MutableRefObject<HTMLElement | ShadowRoot | null>
                 | null
                 | undefined;
+                open?: boolean
+                | undefined;
                 standalone?: boolean
                 | undefined;
                 } & RefAttributes<HTMLDivElement>>
@@ -2036,6 +2084,7 @@ SUBPATH EXPORTS — 69 subpaths, 454 exports
                      root?: HTMLElement | ShadowRoot | MutableRefObject<HTMLElement
                      | ShadowRoot
                      | null> | null | undefined;
+                     open?: boolean | undefined;
                      standalone?: boolean | undefined;
                      }
 

@@ -127,6 +127,24 @@ describe("Toast", () => {
     });
   });
 
+  describe("open", () => {
+    it("plays the exit and then calls onClose when open flips to false", async () => {
+      const handleClose = vi.fn();
+      const { rerender } = render(<Toast standalone={false} title="Title" onClose={handleClose} data-testid="toast" />);
+      await waitForAnimation();
+      expect(screen.getByTestId("toast")).toHaveClass("animate-fade-in");
+
+      rerender(<Toast standalone={false} title="Title" onClose={handleClose} data-testid="toast" open={false} />);
+      // Still mounted, now fading out; onClose waits for the animation.
+      expect(screen.getByTestId("toast")).toHaveClass("animate-fade-out");
+      expect(handleClose).not.toHaveBeenCalled();
+
+      triggerAnimationEnd(screen.getByTestId("toast"));
+      await waitForAnimation();
+      expect(handleClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("action button", () => {
     it("renders action button when action prop is provided", async () => {
       renderToast({ title: "Title", action: "Undo", onClose: () => {} });

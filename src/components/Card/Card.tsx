@@ -8,7 +8,7 @@ import * as React from "react";
  * Geometry only, plus the five `--card-*` component tokens.
  *
  * Every colour reads a `--card-*` token whose value is decided by
- * src/theme/recipes/card.css. `size` stays here: it is pure geometry
+ * src/components/Card/card.recipe.css. `size` stays here: it is pure geometry
  * (padding, header gap, corner radius), not colour, so it has no reason to
  * move — the same split Message.tsx documents.
  *

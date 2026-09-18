@@ -1,5 +1,8 @@
+"use client";
+
 import { cn } from "@sixthshift/design-system/utils";
 import * as React from "react";
+import type { WritableRefObject } from "../../internal/types";
 
 export type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   /**
@@ -25,7 +28,7 @@ export type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & 
  * wiring.
  */
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ className, autosize = false, onInput, value, ...props }, ref) => {
-  const innerRef = React.useRef<HTMLTextAreaElement>(null);
+  const innerRef = React.useRef<HTMLTextAreaElement | null>(null);
 
   const resize = React.useCallback(() => {
     const el = innerRef.current;
@@ -50,7 +53,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ classNa
       ref={(node) => {
         innerRef.current = node;
         if (typeof ref === "function") ref(node);
-        else if (ref) (ref as React.RefObject<HTMLTextAreaElement | null>).current = node;
+        else if (ref) (ref as WritableRefObject<HTMLTextAreaElement | null>).current = node;
       }}
       onInput={(event) => {
         if (autosize) resize();

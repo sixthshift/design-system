@@ -13,7 +13,12 @@ const preview: Preview = {
         // Everything that is not a component lives under Design System, in
         // reading order: Overview orients, Theming is the how-to, and the token
         // pages after it are the reference those two point into.
-        order: ["Design System", ["Overview", "Theming", "Theme", ["Colors", ["Semantic", "Palette"]], "Typography", "Kitchen Sink", "*"], "Components", "*"],
+        order: [
+          "Design System",
+          ["Overview", "Theming", "Scoped Brands", "Theme", ["Colors", ["Semantic", "Palette"]], "Typography", "Kitchen Sink", "*"],
+          "Components",
+          "*",
+        ],
       },
     },
 

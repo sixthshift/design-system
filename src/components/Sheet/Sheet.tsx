@@ -4,6 +4,7 @@ import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInter
 import { useMergedFloatingRef, usePresence } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import { forwardRef, type HTMLAttributes, type ReactNode, useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useOpenerBrand } from "../../internal/brandScope";
 import { hasOpenEscapeDialog, hasOpenEscapeLayer } from "../../internal/escapeLayers";
 import { SheetBody, SheetContext, SheetFooter, SheetHeader } from "./components";
 
@@ -26,6 +27,12 @@ export type SheetProps = Pick<HTMLAttributes<HTMLDivElement>, "className" | "sty
   dismissOnOutsidePress?: boolean;
   /** When true, shows a close (X) button in the header */
   closable?: boolean;
+  /**
+   * Name of a brand the theme defines, rendered as `data-brand` on the sheet.
+   * Omitted, the sheet takes the brand scope of the control that opened it
+   * (whatever held focus), since the portal leaves the trigger's scope behind.
+   */
+  brand?: string | undefined;
   /** Children — use Sheet.Header, Sheet.Body, Sheet.Footer */
   children: ReactNode;
 };
@@ -54,6 +61,7 @@ const SheetRoot = forwardRef<HTMLDivElement, SheetProps>(
       dismissable = true,
       dismissOnOutsidePress = false,
       closable,
+      brand,
       className,
       style,
       children,
@@ -64,6 +72,7 @@ const SheetRoot = forwardRef<HTMLDivElement, SheetProps>(
     ref
   ) => {
     const { ref: presenceRef, state, isMounted, show, hide } = usePresence();
+    const openerBrand = useOpenerBrand(open);
 
     // Drive presence from the controlled `open` prop.
     // When `open` flips to false, we play the exit animation, then unmount.
@@ -141,6 +150,7 @@ const SheetRoot = forwardRef<HTMLDivElement, SheetProps>(
             tabIndex={-1}
             data-state={state}
             data-side={side}
+            data-brand={brand ?? openerBrand}
             className={cn(
               "sheet fixed top-0 bottom-0 z-sheet flex flex-col overflow-hidden bg-(--sheet-bg) outline-hidden",
               "border-(color:--sheet-border) shadow-lg",

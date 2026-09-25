@@ -17,6 +17,7 @@ const ToggleGroupMultiple = React.forwardRef<HTMLDivElement, ToggleGroupMultiple
       orientation = "horizontal",
       variant = "solid",
       intent = "neutral",
+      brand,
       size = "md",
       iconOnly = false,
       disabled,
@@ -39,7 +40,7 @@ const ToggleGroupMultiple = React.forwardRef<HTMLDivElement, ToggleGroupMultiple
     };
 
     return (
-      <ToggleGroupContainer ref={ref} role="group" appearance={appearance} orientation={orientation} className={className} {...props}>
+      <ToggleGroupContainer ref={ref} role="group" data-brand={brand} appearance={appearance} orientation={orientation} className={className} {...props}>
         {options.map((option, index) => (
           <ToggleGroupItem
             key={option.value}

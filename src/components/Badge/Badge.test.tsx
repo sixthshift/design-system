@@ -2,7 +2,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { Badge } from "./Badge";
+import { Badge, badgeRecipe } from "./Badge";
 
 describe("Badge", () => {
   describe("rendering", () => {
@@ -184,6 +184,25 @@ describe("Badge", () => {
     it("has font-semibold", () => {
       render(<Badge>Badge</Badge>);
       expect(screen.getByText("Badge")).toHaveClass("font-semibold");
+    });
+  });
+
+  describe("brand", () => {
+    it("badgeRecipe emits data-brand only when brand is set", () => {
+      expect(badgeRecipe({ brand: "mint" })["data-brand"]).toBe("mint");
+      expect(badgeRecipe({})["data-brand"]).toBeUndefined();
+    });
+
+    it("renders data-brand and no bare brand attribute", () => {
+      render(<Badge brand="pink">New</Badge>);
+      const badge = screen.getByText("New");
+      expect(badge).toHaveAttribute("data-brand", "pink");
+      expect(badge).not.toHaveAttribute("brand");
+    });
+
+    it("renders no data-brand when brand is omitted", () => {
+      render(<Badge>New</Badge>);
+      expect(screen.getByText("New")).not.toHaveAttribute("data-brand");
     });
   });
 });

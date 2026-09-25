@@ -21,6 +21,7 @@ import {
   toISODateRange,
 } from "../../date-time";
 import { PickerField } from "../../internal";
+import { closestBrand } from "../../internal/brandScope";
 import { useEscapeLayer } from "../../internal/escapeLayers";
 import { CalendarView } from "../Calendar/CalendarView";
 import { isDateDisabled } from "../Calendar/calendar.hooks";
@@ -539,6 +540,8 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>((pro
             role="dialog"
             aria-label="Choose date"
             style={floatingStyles}
+            // Portalled out of the trigger's brand scope, so carry it across.
+            data-brand={closestBrand(context.elements.domReference)}
             className="z-popover rounded-xl border border-border-normal bg-bg-normal p-4 shadow-lg"
             {...getFloatingProps()}
           >

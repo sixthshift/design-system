@@ -1,5 +1,6 @@
-import { Meta } from "@storybook/addon-docs/blocks";
+import { Meta, Source } from "@storybook/addon-docs/blocks";
 import { FamilyAnatomy, PairingDemo, TokenBuilder } from "./components";
+import sampleBrandsCss from "./scoped-brands/sample-brands.css?raw";
 
 {/*
   The how-to page for the semantic token layer, pinned first under Design System
@@ -171,6 +172,103 @@ blocks, plus an `@theme` entry if you also want the Tailwind utility:
 You own the contrast of anything you add or re-point: `bun run check:contrast`
 only sees the pairings the library ships.
 
+## More than one brand
+
+There is one `brand` intent, and there stays one. A theme with several brand
+colours — a primary plus a pastel per product line, say — names them, and an
+element carrying `data-brand="<name>"` re-points every brand token inside it.
+Every component under it that reads a brand token follows. The library never
+learns the names.
+
+```tsx
+<Button intent="brand">Checkout</Button>                   // the theme's default brand
+<Button intent="brand" brand="mint">Add to cart</Button>   // this button is mint
+<article data-brand="lilac">…everything brand inside is lilac…</article>
+```
+
+`brand` is a plain string that renders as `data-brand`, the way `intent` renders
+`data-intent`. The component does not check it; only your CSS gives a name
+meaning. It is a prop on the components with an `intent` — Button, Toggle,
+ToggleGroup (once, on the group), Badge, Message, Toast — and on the overlays.
+Everything else that reads brand tokens (Checkbox, RadioButton, Switch, Tabs,
+Select) follows a `data-brand` ancestor.
+
+**Overlays carry the scope across their portal.** Popover, Tooltip, HoverCard,
+Select and the pickers copy the brand around their trigger onto their own
+element; Modal and Sheet copy it from whatever held focus when they opened. An
+explicit `brand` on `Popover.Body`, `Tooltip.Body`, `HoverCard.Content`, `Modal`
+or `Sheet` wins. A toast has no trigger, so it takes `brand` or nothing.
+
+### The theme side
+
+Two parts: one rule per brand binding its scale to generic `--brand-*` steps, and
+inside each mode block, a nested rule per *kind* of brand mapping every brand
+token onto those steps. In outline, with the default brand on `:root`:
+
+```css
+:root, [data-brand="periwinkle"] { --brand-50: …; …; --brand-950: …; }
+[data-brand="mint"]              { --brand-50: …; …; --brand-950: …; }
+
+:root:not([data-theme]),
+:root[data-theme="light"] {
+  --bg-normal: …;                                  /* the rest of the theme, unchanged */
+
+  &, & [data-brand="periwinkle"] {                 /* the default brand */
+    --bg-brand: var(--brand-500);
+    /* …every brand token… */
+  }
+  & :is([data-brand="mint"], [data-brand="lilac"]) {   /* pastels, by name */
+    --bg-brand: var(--brand-200);
+    /* …every brand token… */
+  }
+}
+/* …and the same nested rules inside the dark block. */
+```
+
+The four rules below each cost someone an afternoon:
+
+1. **Declare the mapping on the scope selector, not only on `:root`.** A custom
+   property that references another resolves on the element that declares it,
+   and descendants inherit the resolved colour. `:root { --bg-brand:
+   var(--brand-200) }` alone freezes to the root's brand: a `data-brand` further
+   down changes `--brand-200` but not `--bg-brand`.
+2. **The nearest `data-brand` wins, including the component's own.** The scale,
+   the mapping and the recipe's `--button-bg: var(--bg-brand)` all land on the
+   same element and resolve against each other. Nesting resets too: the default
+   brand's name inside a pink card is the default again.
+3. **Brands can need different step mappings.** A saturated primary and a pastel
+   don't sit at the same lightness — the pastel's solid is a light step with dark
+   text. Keep one mapping per kind; adding a brand is its scale rule plus its name
+   in its kind's selector list.
+4. **Select brands by name, never by bare `[data-brand]`.** "Any `data-brand`
+   except the default" matches a typo or an empty value too, which then has no
+   scale of its own and renders as something nobody defined. Listed by name, an
+   unknown value matches nothing and inherits its surroundings exactly. That is
+   why the component needs no validation.
+
+Each mapping must cover the whole brand family — all of these, with every state
+suffix:
+
+<FamilyAnatomy family="brand" />
+
+`--focus-ring` is not in it, on purpose. The ring has to stand out from the
+page, not from the brand, so it is one colour everywhere.
+
+### A working sample
+
+The [Scoped Brands](?path=/story/design-system-scoped-brands--brands) stories
+render this file. It stays off `:root` so it cannot restyle the rest of
+Storybook; otherwise it is the pattern above, with two kinds of brand:
+
+<Source code={sampleBrandsCss} language="css" />
+
+Scoped brands are yours, so `bun run check:contrast` never sees them. The
+sample is audited by `scoped-brands.visual.test.tsx` — it resolves each brand's
+tokens in the browser and holds every pairing to 4.5:1 (3:1 for borders) in
+both modes — and the same approach works for your own. Contrast against the
+page matters as well as against text: a pastel `--bg-brand` makes a checked
+Switch track hard to tell from an unchecked one on white.
+
 ## The silent failures
 
 None of these raise an error. Each just renders the wrong thing.
@@ -182,6 +280,8 @@ None of these raise an error. Each just renders the wrong thing.
 | `--fg-danger` where `--fg-on-danger` belongs | Danger-on-danger. Legible in review, unreadable in production |
 | Semantic re-skin wrapped in `@layer` | Loses. The library's `:root` token blocks are unlayered, and unlayered CSS beats every layer — so re-skins must stay unlayered. (Component-token overrides are the opposite: they belong in `@layer overrides`, which outranks the recipes.) |
 | One token of a family re-skinned | The hover, pressed or disabled state snaps back to the old hue |
+| Brand mapping declared only on `:root` | Every `data-brand` below it changes its scale but keeps the root's colours |
+| Brand mapping selected by bare `[data-brand]` | A typo'd or empty name renders a colour nobody defined, instead of falling back |
 
 ## Lookups
 

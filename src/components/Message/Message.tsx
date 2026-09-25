@@ -48,6 +48,8 @@ export type MessageIntent = Loose<MessageIntentName>;
 export type MessageProps = React.HTMLAttributes<HTMLDivElement> &
   VariantProps<typeof messageVariants> & {
     intent?: MessageIntent | undefined;
+    /** Name of a brand the theme defines, rendered as `data-brand`. Omitted, the message follows the nearest `data-brand` ancestor. */
+    brand?: string | undefined;
     /** Simple API: Optional title displayed above children */
     title?: React.ReactNode;
     /** Simple API: Optional icon displayed on the left */
@@ -99,27 +101,29 @@ function intentRole(intent: MessageIntent): "status" | "alert" {
  * simple API can't express. Message detects which one is in use by
  * inspecting its children, so the two aren't meant to be mixed.
  */
-export const Message = React.forwardRef<HTMLDivElement, MessageProps>(({ className, intent = "neutral", size, title, icon, children, ...props }, ref) => {
-  const hasCompoundChildren = React.Children.toArray(children).some(
-    (child) =>
-      React.isValidElement(child) &&
-      (child.type === MessageIcon || child.type === MessageBody || child.type === MessageTitle || child.type === MessageDescription)
-  );
+export const Message = React.forwardRef<HTMLDivElement, MessageProps>(
+  ({ className, intent = "neutral", brand, size, title, icon, children, ...props }, ref) => {
+    const hasCompoundChildren = React.Children.toArray(children).some(
+      (child) =>
+        React.isValidElement(child) &&
+        (child.type === MessageIcon || child.type === MessageBody || child.type === MessageTitle || child.type === MessageDescription)
+    );
 
-  return (
-    <div ref={ref} role={intentRole(intent)} data-intent={intent} className={cn(messageVariants({ size, className }))} {...props}>
-      {hasCompoundChildren ? (
-        children
-      ) : (
-        <>
-          {icon && <MessageIcon>{icon}</MessageIcon>}
-          <MessageBody>
-            {title && <MessageTitle>{title}</MessageTitle>}
-            <MessageDescription>{children}</MessageDescription>
-          </MessageBody>
-        </>
-      )}
-    </div>
-  );
-});
+    return (
+      <div ref={ref} role={intentRole(intent)} data-intent={intent} data-brand={brand} className={cn(messageVariants({ size, className }))} {...props}>
+        {hasCompoundChildren ? (
+          children
+        ) : (
+          <>
+            {icon && <MessageIcon>{icon}</MessageIcon>}
+            <MessageBody>
+              {title && <MessageTitle>{title}</MessageTitle>}
+              <MessageDescription>{children}</MessageDescription>
+            </MessageBody>
+          </>
+        )}
+      </div>
+    );
+  }
+);
 Message.displayName = "Message";

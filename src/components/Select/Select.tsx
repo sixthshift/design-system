@@ -3,6 +3,7 @@
 import { autoUpdate, flip, offset, shift, size, useFloating } from "@floating-ui/react";
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { forwardRef, type HTMLAttributes, type ReactElement, type Ref, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { closestBrand } from "../../internal/brandScope";
 import { useEscapeLayer } from "../../internal/escapeLayers";
 import { SelectDropdown, selectOptionId } from "./SelectDropdown";
 import { SelectTriggerButton, SelectTriggerSearch } from "./SelectTrigger";
@@ -117,7 +118,7 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
   const showClearButton = clearable && hasValue && !disabled;
 
   // Floating UI
-  const { refs, floatingStyles } = useFloating({
+  const { refs, elements, floatingStyles } = useFloating({
     open,
     onOpenChange: setOpen,
     placement: "bottom-start",
@@ -342,6 +343,7 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
           label={listboxLabel}
           activeOptionId={activeOptionId}
           floatingStyles={floatingStyles}
+          brand={closestBrand(elements.domReference)}
           displayOptions={filteredOptions}
           highlightedIndex={highlightedIndex}
           selectedValues={selectedValues}

@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { Button } from "./Button";
+import { Button, buttonRecipe } from "./Button";
 
 describe("Button", () => {
   describe("rendering", () => {
@@ -243,6 +243,43 @@ describe("Button", () => {
       const button = screen.getByRole("button");
       expect(button).toHaveClass("custom-class");
       expect(button).toHaveClass("inline-flex");
+    });
+  });
+
+  describe("brand", () => {
+    it("buttonRecipe emits data-brand when brand is set", () => {
+      expect(buttonRecipe({ intent: "brand", brand: "mint" })["data-brand"]).toBe("mint");
+    });
+
+    it("buttonRecipe leaves data-brand undefined when brand is not set, so React omits it", () => {
+      expect(buttonRecipe({ intent: "brand" })["data-brand"]).toBeUndefined();
+    });
+
+    it("renders data-brand and no bare brand attribute", () => {
+      render(
+        <Button intent="brand" brand="mint">
+          Add to cart
+        </Button>
+      );
+      const button = screen.getByRole("button");
+      expect(button).toHaveAttribute("data-brand", "mint");
+      expect(button).not.toHaveAttribute("brand");
+    });
+
+    it("renders no data-brand when brand is omitted", () => {
+      render(<Button intent="brand">Checkout</Button>);
+      expect(screen.getByRole("button")).not.toHaveAttribute("data-brand");
+    });
+
+    it("carries data-brand onto the child with asChild", () => {
+      render(
+        <Button asChild intent="brand" brand="lilac">
+          <a href="/cart">Cart</a>
+        </Button>
+      );
+      const link = screen.getByRole("link");
+      expect(link).toHaveAttribute("data-brand", "lilac");
+      expect(link).not.toHaveAttribute("brand");
     });
   });
 });

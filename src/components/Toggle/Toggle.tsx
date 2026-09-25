@@ -15,6 +15,8 @@ export type ToggleProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "o
   VariantProps<typeof buttonVariants> & {
     variant?: ButtonVariant | undefined;
     intent?: ButtonIntent | undefined;
+    /** Name of a brand the theme defines, rendered as `data-brand`. Omitted, the toggle follows the nearest `data-brand` ancestor. */
+    brand?: string | undefined;
     /** Square the toggle at its current size, for an icon with no label. */
     iconOnly?: boolean;
     /** Controlled pressed state */
@@ -43,7 +45,20 @@ export type ToggleProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "o
  */
 const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
   (
-    { className, variant, intent, size, iconOnly = false, pressed: controlledPressed, defaultPressed = false, onPressedChange, disabled, children, ...props },
+    {
+      className,
+      variant,
+      intent,
+      brand,
+      size,
+      iconOnly = false,
+      pressed: controlledPressed,
+      defaultPressed = false,
+      onPressedChange,
+      disabled,
+      children,
+      ...props
+    },
     ref
   ) => {
     const [pressed, setPressed] = useControllableState({
@@ -52,7 +67,7 @@ const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
       onChange: onPressedChange,
     });
 
-    const recipe = buttonRecipe({ variant, intent, size, iconOnly });
+    const recipe = buttonRecipe({ variant, intent, brand, size, iconOnly });
 
     return (
       <button

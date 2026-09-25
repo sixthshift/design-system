@@ -9,6 +9,8 @@ export type TooltipContextValue = {
     setFloating: (node: HTMLElement | null) => void;
   };
   floatingStyles: React.CSSProperties;
+  /** The trigger's brand scope, re-stamped on the portalled body. */
+  inheritedBrand: string | undefined;
   getReferenceProps: (props?: React.HTMLProps<HTMLElement>) => Record<string, unknown>;
   getFloatingProps: (props?: React.HTMLProps<HTMLElement>) => Record<string, unknown>;
 };

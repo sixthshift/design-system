@@ -86,18 +86,23 @@ export type ButtonIntent = Loose<ButtonIntentName>;
 export type ButtonRecipeProps = VariantProps<typeof buttonVariants> & {
   variant?: ButtonVariant | undefined;
   intent?: ButtonIntent | undefined;
+  /** Re-points this element's brand tokens to a brand the theme defines. See the Scoped brands docs. */
+  brand?: string | undefined;
   iconOnly?: boolean | undefined;
   className?: string | undefined;
 };
 
 /**
- * The class string plus the two attributes the recipe selects on.
+ * The class string plus the attributes the recipe selects on.
+ *
+ * `data-brand` is only emitted when `brand` is set: `undefined` makes React
+ * omit the attribute, so the element takes its brand from its surroundings.
  *
  * Shared with Toggle and ToggleGroupItem, which are built on Button's look. The
  * data attributes are half the contract now, so anything reusing that look has
  * to emit them as well or it lands on the recipe's floor instead of a cell.
  */
-export function buttonRecipe({ variant = "solid", intent = "neutral", size, iconOnly = false, className }: ButtonRecipeProps) {
+export function buttonRecipe({ variant = "solid", intent = "neutral", brand, size, iconOnly = false, className }: ButtonRecipeProps) {
   return {
     className: cn(
       variantStructure[variant],
@@ -106,6 +111,7 @@ export function buttonRecipe({ variant = "solid", intent = "neutral", size, icon
     ),
     "data-variant": variant,
     "data-intent": intent,
+    "data-brand": brand,
   };
 }
 
@@ -113,6 +119,12 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
     variant?: ButtonVariant | undefined;
     intent?: ButtonIntent | undefined;
+    /**
+     * Name of a brand the theme defines, rendered as `data-brand`. Re-points
+     * every brand token on this element, so `intent="brand"` takes that brand's
+     * colour. Omitted, the button follows the nearest `data-brand` ancestor.
+     */
+    brand?: string | undefined;
     /** Square the button at its current size, for an icon with no label. */
     iconOnly?: boolean;
     asChild?: boolean;
@@ -147,15 +159,23 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
  * `aria-label`, since there is no text to name it. It is a separate prop rather
  * than a size, so `size="sm" iconOnly` is expressible.
  *
+ * `brand` scopes the `brand` intent to one of the theme's named brands
+ * (`<Button intent="brand" brand="mint">`), for a theme with more than one
+ * brand colour. It renders `data-brand` and nothing else; the theme's CSS gives
+ * the name meaning, and an unknown name falls back to the surrounding brand.
+ *
  * `asChild` renders the child element with Button's styling instead of a
  * `<button>`, for links that should look like buttons. `loading` shows a spinner
  * and disables the control, so it does not need `disabled` as well.
  */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "solid", intent = "neutral", size, iconOnly = false, asChild = false, loading = false, children, disabled, ...props }, ref) => {
+  (
+    { className, variant = "solid", intent = "neutral", brand, size, iconOnly = false, asChild = false, loading = false, children, disabled, ...props },
+    ref
+  ) => {
     const Comp = asChild ? Slot : "button";
     return (
-      <Comp {...buttonRecipe({ variant, intent, size, iconOnly, className })} ref={ref} disabled={disabled || loading} {...props}>
+      <Comp {...buttonRecipe({ variant, intent, brand, size, iconOnly, className })} ref={ref} disabled={disabled || loading} {...props}>
         {loading ? (
           <>
             <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">

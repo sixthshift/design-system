@@ -3,6 +3,7 @@
 import { autoUpdate, flip, offset, type Placement, safePolygon, shift, useDismiss, useFloating, useFocus, useHover, useInteractions } from "@floating-ui/react";
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import type * as React from "react";
+import { closestBrand } from "../../internal/brandScope";
 import { HoverCardContent } from "./components/HoverCardContent";
 import { HoverCardContext } from "./components/HoverCardContext";
 import { HoverCardTrigger } from "./components/HoverCardTrigger";
@@ -67,6 +68,8 @@ const HoverCardRoot = ({
       setFloating: refs.setFloating,
     },
     floatingStyles,
+    // Read at render: `domReference` is state, so this updates once the trigger mounts.
+    inheritedBrand: closestBrand(context.elements.domReference),
     getReferenceProps,
     getFloatingProps,
   };

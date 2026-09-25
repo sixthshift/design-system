@@ -19,6 +19,7 @@ const ToggleGroupSingle = React.forwardRef<HTMLDivElement, ToggleGroupSingleProp
       orientation = "horizontal",
       variant = "solid",
       intent = "neutral",
+      brand,
       size = "md",
       iconOnly = false,
       disabled,
@@ -76,6 +77,7 @@ const ToggleGroupSingle = React.forwardRef<HTMLDivElement, ToggleGroupSingleProp
       <ToggleGroupContainer
         ref={mergedRef}
         role="radiogroup"
+        data-brand={brand}
         onKeyDown={handleKeyDown}
         appearance={appearance}
         orientation={orientation}

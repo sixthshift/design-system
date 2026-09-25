@@ -33,6 +33,12 @@ export type ToggleGroupBaseProps = Omit<React.HTMLAttributes<HTMLDivElement>, "o
   variant?: Exclude<ButtonVariantName, "link">;
   /** Color intent */
   intent?: ButtonIntentName;
+  /**
+   * Name of a brand the theme defines. Rendered once, as `data-brand` on the
+   * group element, so every item inherits it. Omitted, the group follows the
+   * nearest `data-brand` ancestor.
+   */
+  brand?: string | undefined;
   /** Button size (xl excluded — too large for grouped toggles) */
   size?: Exclude<ToggleProp<"size">, "xl">;
   /** Square every item at the current size, for icon-only options */

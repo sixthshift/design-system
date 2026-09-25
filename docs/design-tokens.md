@@ -269,6 +269,21 @@ Consistent across all components:
 | `success` | Positive states, confirmations | Green   |
 | `warning` | Caution, needs attention       | Amber   |
 
+### Brand scope: `brand`
+
+A theme with several brand colours names them; `brand` picks one for the
+`brand` intent, rendered as `data-brand`. It is a scope, not an intent or a
+token axis: it re-points every `bg/fg/border-brand*` token on the element and
+everything inside it, and `--focus-ring` stays global.
+
+```tsx
+<Button intent="brand" brand="mint">Add to cart</Button>
+<article data-brand="lilac">…</article>
+```
+
+Overlays copy the scope across their portal. The theme-side CSS and its rules
+are on the Theming page in Storybook, under *More than one brand*.
+
 ### Size Scale
 
 ```tsx

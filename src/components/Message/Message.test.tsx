@@ -109,6 +109,20 @@ describe("Message", () => {
       expect(message).toHaveClass("rounded-lg");
     });
   });
+
+  describe("brand", () => {
+    it("renders data-brand and no bare brand attribute", () => {
+      render(<Message brand="mint">Content</Message>);
+      const message = screen.getByRole("status");
+      expect(message).toHaveAttribute("data-brand", "mint");
+      expect(message).not.toHaveAttribute("brand");
+    });
+
+    it("renders no data-brand when brand is omitted", () => {
+      render(<Message>Content</Message>);
+      expect(screen.getByRole("status")).not.toHaveAttribute("data-brand");
+    });
+  });
 });
 
 describe("MessageIcon", () => {

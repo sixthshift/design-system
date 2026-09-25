@@ -19,11 +19,20 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
 ./badge
   value Badge = ForwardRefExoticComponent<HTMLAttributes<HTMLSpanElement> & { variant?: BadgeVariant | undefined;
                 intent?: BadgeIntent | undefined;
+                brand?: string | undefined;
                 } & RefAttributes<HTMLSpanElement>>
   type  BadgeIntent = (string & {}) | BadgeIntentName
   type  BadgeIntentName = "neutral" | "brand" | "danger" | "success" | "warning" | "muted"
-  type  BadgeProps = HTMLAttributes<HTMLSpanElement> & { variant?: BadgeVariant | undefined; intent?: BadgeIntent | undefined; }
-  value badgeRecipe = ({ variant, intent, className }: BadgeRecipeProps) => { className: string; "data-variant": BadgeVariant; "data-intent": BadgeIntent; }
+  type  BadgeProps = HTMLAttributes<HTMLSpanElement> & { variant?: BadgeVariant | undefined; intent?: BadgeIntent | undefined; brand?: string | undefined; }
+  value badgeRecipe = ({ variant,
+                      intent,
+                      brand,
+                      className }: BadgeRecipeProps) => { className: string;
+                      "data-variant": BadgeVariant;
+                      "data-intent": BadgeIntent;
+                      "data-brand": string
+                      | undefined;
+                      }
   type  BadgeVariant = (string & {}) | BadgeVariantName
   type  BadgeVariantName = "solid" | "soft" | "outline"
   value badgeVariants = (props?: { class: ClassValue;
@@ -58,6 +67,7 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
   value Button = ForwardRefExoticComponent<ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<(props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined;
                  } & ClassProp) | undefined) => string> & { variant?: ButtonVariant | undefined;
                  intent?: ButtonIntent | undefined;
+                 brand?: string | undefined;
                  iconOnly?: boolean | undefined;
                  asChild?: boolean | undefined;
                  loading?: boolean | undefined;
@@ -69,6 +79,8 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                       | undefined;
                       intent?: ButtonIntent
                       | undefined;
+                      brand?: string
+                      | undefined;
                       iconOnly?: boolean
                       | undefined;
                       asChild?: boolean
@@ -76,7 +88,17 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                       loading?: boolean
                       | undefined;
                       }
-  value buttonRecipe = ({ variant, intent, size, iconOnly, className }: ButtonRecipeProps) => { className: string; "data-variant": ButtonVariant; "data-intent": ButtonIntent; }
+  value buttonRecipe = ({ variant,
+                       intent,
+                       brand,
+                       size,
+                       iconOnly,
+                       className }: ButtonRecipeProps) => { className: string;
+                       "data-variant": ButtonVariant;
+                       "data-intent": ButtonIntent;
+                       "data-brand": string
+                       | undefined;
+                       }
   type  ButtonVariant = (string & {}) | ButtonVariantName
   type  ButtonVariantName = "solid" | "outline" | "ghost" | "link"
   value buttonVariants = (props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined; } & ClassProp) | undefined) => string
@@ -731,10 +753,11 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                     children,
                     }: HoverCardProps) => Element) & { Trigger: ForwardRefExoticComponent<HTMLAttributes<HTMLElement> & { asChild?: boolean | undefined;
                     } & RefAttributes<HTMLElement>>;
-                    Content: ForwardRefExoticComponent<HoverCardContentProps & RefAttributes<HTMLDivElement>>;
+                    Content: ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & { brand?: string | undefined;
+                    } & RefAttributes<HTMLDivElement>>;
                     }
-  value HoverCardContent = ForwardRefExoticComponent<HoverCardContentProps & RefAttributes<HTMLDivElement>>
-  type  HoverCardContentProps = HTMLAttributes<HTMLDivElement>
+  value HoverCardContent = ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & { brand?: string | undefined; } & RefAttributes<HTMLDivElement>>
+  type  HoverCardContentProps = HTMLAttributes<HTMLDivElement> & { brand?: string | undefined; }
   type  HoverCardProps = { open?: boolean | undefined;
                          onOpenChange?: ((open: boolean) => void)
                          | undefined;
@@ -812,6 +835,7 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
 ./message
   value Message = ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & VariantProps<(props?: ({ size?: "sm" | "md" | null | undefined;
                   } & ClassProp) | undefined) => string> & { intent?: MessageIntent | undefined;
+                  brand?: string | undefined;
                   title?: ReactNode;
                   icon?: ReactNode;
                   } & RefAttributes<HTMLDivElement>>
@@ -825,6 +849,8 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
   type  MessageIntentName = "neutral" | "danger" | "success" | "warning"
   type  MessageProps = HTMLAttributes<HTMLDivElement> & VariantProps<(props?: ({ size?: "sm" | "md" | null | undefined;
                        } & ClassProp) | undefined) => string> & { intent?: MessageIntent
+                       | undefined;
+                       brand?: string
                        | undefined;
                        title?: ReactNode;
                        icon?: ReactNode;
@@ -841,6 +867,7 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                 dismissable?: boolean | undefined;
                 closable?: boolean | undefined;
                 align?: "top" | "center" | undefined;
+                brand?: string | undefined;
                 } & RefAttributes<HTMLDivElement>> & { Header: ForwardRefExoticComponent<ModalHeaderProps & RefAttributes<HTMLDivElement>>;
                 Body: ForwardRefExoticComponent<ModalBodyProps & RefAttributes<HTMLDivElement>>;
                 Footer: ForwardRefExoticComponent<ModalFooterProps & RefAttributes<HTMLDivElement>>;
@@ -869,6 +896,8 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                      align?: "top"
                      | "center"
                      | undefined;
+                     brand?: string
+                     | undefined;
                      }
   type  OnClose = () => void
   value useModalContext = () => ModalContextValue
@@ -893,6 +922,7 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                 dismissable?: boolean | undefined;
                 closable?: boolean | undefined;
                 align?: "top" | "center" | undefined;
+                brand?: string | undefined;
                 } & RefAttributes<HTMLDivElement>> & { Header: ForwardRefExoticComponent<ModalHeaderProps & RefAttributes<HTMLDivElement>>;
                 Body: ForwardRefExoticComponent<ModalBodyProps & RefAttributes<HTMLDivElement>>;
                 Footer: ForwardRefExoticComponent<ModalFooterProps & RefAttributes<HTMLDivElement>>;
@@ -913,6 +943,8 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                      | undefined;
                      align?: "top"
                      | "center"
+                     | undefined;
+                     brand?: string
                      | undefined;
                      }
   type  OpenModalOptions = Omit<ModalProps, "children" | "onOpenChange"> & { suspenseFallback?: ReactNode; data?: TData | undefined; }
@@ -961,12 +993,13 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                   offsetPx,
                   children }: PopoverProps) => Element) & { Trigger: ForwardRefExoticComponent<ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean | undefined;
                   } & RefAttributes<HTMLButtonElement>>;
-                  Body: ForwardRefExoticComponent<PopoverBodyProps & RefAttributes<HTMLDivElement>>;
+                  Body: ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & { brand?: string | undefined;
+                  } & RefAttributes<HTMLDivElement>>;
                   Close: ForwardRefExoticComponent<ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean | undefined;
                   } & RefAttributes<HTMLButtonElement>>;
                   }
-  value PopoverBody = ForwardRefExoticComponent<PopoverBodyProps & RefAttributes<HTMLDivElement>>
-  type  PopoverBodyProps = HTMLAttributes<HTMLDivElement>
+  value PopoverBody = ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & { brand?: string | undefined; } & RefAttributes<HTMLDivElement>>
+  type  PopoverBodyProps = HTMLAttributes<HTMLDivElement> & { brand?: string | undefined; }
   value PopoverClose = ForwardRefExoticComponent<ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean | undefined; } & RefAttributes<HTMLButtonElement>>
   type  PopoverCloseProps = ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean | undefined; }
   type  PopoverProps = { open?: boolean | undefined;
@@ -1073,6 +1106,7 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                          label,
                          activeOptionId,
                          floatingStyles,
+                         brand,
                          displayOptions,
                          highlightedIndex,
                          selectedValues,
@@ -1130,6 +1164,7 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                 dismissable?: boolean | undefined;
                 dismissOnOutsidePress?: boolean | undefined;
                 closable?: boolean | undefined;
+                brand?: string | undefined;
                 children: ReactNode;
                 } & RefAttributes<HTMLDivElement>> & { Header: ForwardRefExoticComponent<SheetHeaderProps & RefAttributes<HTMLDivElement>>;
                 Body: ForwardRefExoticComponent<SheetBodyProps & RefAttributes<HTMLDivElement>>;
@@ -1158,6 +1193,8 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                      dismissOnOutsidePress?: boolean
                      | undefined;
                      closable?: boolean
+                     | undefined;
+                     brand?: string
                      | undefined;
                      children: ReactNode;
                      }
@@ -2093,6 +2130,7 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                  "onChange" | "value"> & VariantProps<(props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined;
                  } & ClassProp) | undefined) => string> & { variant?: ButtonVariant | undefined;
                  intent?: ButtonIntent | undefined;
+                 brand?: string | undefined;
                  iconOnly?: boolean | undefined;
                  pressed?: boolean | undefined;
                  defaultPressed?: boolean | undefined;
@@ -2104,6 +2142,8 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                       } & ClassProp) | undefined) => string> & { variant?: ButtonVariant
                       | undefined;
                       intent?: ButtonIntent
+                      | undefined;
+                      brand?: string
                       | undefined;
                       iconOnly?: boolean
                       | undefined;
@@ -2128,10 +2168,11 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                   offsetPx,
                   children }: TooltipProps) => Element) & { Trigger: ForwardRefExoticComponent<HTMLAttributes<HTMLElement> & { asChild?: boolean | undefined;
                   } & RefAttributes<HTMLElement>>;
-                  Body: ForwardRefExoticComponent<TooltipBodyProps & RefAttributes<HTMLDivElement>>;
+                  Body: ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & { brand?: string | undefined;
+                  } & RefAttributes<HTMLDivElement>>;
                   }
-  value TooltipBody = ForwardRefExoticComponent<TooltipBodyProps & RefAttributes<HTMLDivElement>>
-  type  TooltipBodyProps = HTMLAttributes<HTMLDivElement>
+  value TooltipBody = ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & { brand?: string | undefined; } & RefAttributes<HTMLDivElement>>
+  type  TooltipBodyProps = HTMLAttributes<HTMLDivElement> & { brand?: string | undefined; }
   type  TooltipProps = { open?: boolean | undefined;
                        onOpenChange?: ((open: boolean) => void)
                        | undefined;

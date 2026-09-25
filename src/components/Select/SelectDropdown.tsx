@@ -23,6 +23,8 @@ interface SelectDropdownProps<T extends string> {
   /** The highlighted option's id, or undefined when nothing is highlighted. */
   activeOptionId: string | undefined;
   floatingStyles: React.CSSProperties;
+  /** The trigger's brand scope, re-stamped here because the portal leaves it behind. */
+  brand: string | undefined;
   displayOptions: readonly { value: T; label: string }[];
   highlightedIndex: number;
   selectedValues: Set<T>;
@@ -41,6 +43,7 @@ export const SelectDropdown = <T extends string>({
   label,
   activeOptionId,
   floatingStyles,
+  brand,
   displayOptions,
   highlightedIndex,
   selectedValues,
@@ -68,6 +71,7 @@ export const SelectDropdown = <T extends string>({
       tabIndex={-1}
       onKeyDown={onKeyDown}
       style={floatingStyles}
+      data-brand={brand}
       className="select-dropdown border-(color:--select-dropdown-border) z-popover max-h-60 overflow-y-auto rounded-md border bg-(--select-dropdown-bg) shadow-lg"
     >
       {displayOptions.length === 0 ? (

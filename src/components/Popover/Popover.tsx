@@ -4,6 +4,7 @@ import { autoUpdate, flip, offset, type Placement, shift, useClick, useDismiss, 
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import type * as React from "react";
 import { useId } from "react";
+import { closestBrand } from "../../internal/brandScope";
 import { useEscapeLayer } from "../../internal/escapeLayers";
 import { PopoverBody } from "./components/PopoverBody";
 import { PopoverClose } from "./components/PopoverClose";
@@ -66,6 +67,8 @@ const PopoverRoot = ({ open: controlledOpen, onOpenChange, defaultOpen = false, 
       setFloating: refs.setFloating,
     },
     floatingStyles,
+    // Read at render: `domReference` is state, so this updates once the trigger mounts.
+    inheritedBrand: closestBrand(context.elements.domReference),
     getReferenceProps,
     getFloatingProps,
     contentId,

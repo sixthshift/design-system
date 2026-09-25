@@ -342,6 +342,23 @@ describe("ToggleGroup", () => {
       expect(screen.getByRole("radio", { name: "C" })).toHaveFocus();
     });
   });
+
+  describe("brand", () => {
+    it.each(["single", "multiple"] as const)("%s: renders data-brand once, on the group, and no bare brand attribute", (type) => {
+      render(<ToggleGroup type={type} options={textOptions} brand="lilac" aria-label="Group" />);
+      const group = screen.getByRole(type === "single" ? "radiogroup" : "group");
+      expect(group).toHaveAttribute("data-brand", "lilac");
+      expect(group).not.toHaveAttribute("brand");
+      for (const item of within(group).getAllByRole(type === "single" ? "radio" : "button")) {
+        expect(item).not.toHaveAttribute("data-brand");
+      }
+    });
+
+    it("renders no data-brand when brand is omitted", () => {
+      render(<ToggleGroup type="single" options={textOptions} aria-label="Group" />);
+      expect(screen.getByRole("radiogroup")).not.toHaveAttribute("data-brand");
+    });
+  });
 });
 
 describe("form integration", () => {

@@ -4,6 +4,7 @@ import { FloatingFocusManager, FloatingOverlay, FloatingPortal, useDismiss, useF
 import { useMergedFloatingRef, usePresence } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
 import { forwardRef, type HTMLAttributes, type ReactNode, useCallback, useContext, useEffect, useId, useMemo, useState } from "react";
+import { useOpenerBrand } from "../../internal/brandScope";
 import { hasOpenEscapeLayer, useEscapeDialog } from "../../internal/escapeLayers";
 import { ModalBody, ModalContext, ModalFooter, ModalHeader } from "./components";
 
@@ -35,6 +36,12 @@ export type ModalProps = Pick<HTMLAttributes<HTMLDivElement>, "className" | "sty
   closable?: boolean;
   /** Vertical alignment on desktop. "center" (default) or "top" (anchored near top, content grows down) */
   align?: "center" | "top";
+  /**
+   * Name of a brand the theme defines, rendered as `data-brand` on the dialog.
+   * Omitted, the modal takes the brand scope of the control that opened it
+   * (whatever held focus), since the portal leaves the trigger's scope behind.
+   */
+  brand?: string | undefined;
 };
 
 // =============================================================================
@@ -63,6 +70,7 @@ const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
       dismissable = true,
       closable,
       align = "center",
+      brand,
       "aria-label": ariaLabel,
       "aria-labelledby": ariaLabelledBy,
       "aria-describedby": ariaDescribedBy,
@@ -81,6 +89,8 @@ const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
     }, [onOpenChange, contextValue]);
 
     const { ref: presenceRef, state, isMounted, show, hide } = usePresence();
+    // Mount-driven, so the modal is open for as long as it exists.
+    const openerBrand = useOpenerBrand(true);
 
     useEffect(() => {
       show();
@@ -163,6 +173,7 @@ const ModalRoot = forwardRef<HTMLDivElement, ModalProps>(
               aria-describedby={ariaDescribedBy}
               tabIndex={-1}
               data-state={state}
+              data-brand={brand ?? openerBrand}
               className={cn(
                 "modal fixed flex flex-col overflow-hidden outline-hidden",
                 "border-(color:--modal-border) rounded-xl border bg-(--modal-bg)",

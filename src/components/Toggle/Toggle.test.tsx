@@ -217,4 +217,22 @@ describe("Toggle", () => {
       expect(button).toHaveClass("rounded-md");
     });
   });
+
+  describe("brand", () => {
+    it("renders data-brand and no bare brand attribute", () => {
+      render(
+        <Toggle intent="brand" brand="mint">
+          Bold
+        </Toggle>
+      );
+      const toggle = screen.getByRole("button");
+      expect(toggle).toHaveAttribute("data-brand", "mint");
+      expect(toggle).not.toHaveAttribute("brand");
+    });
+
+    it("renders no data-brand when brand is omitted", () => {
+      render(<Toggle>Bold</Toggle>);
+      expect(screen.getByRole("button")).not.toHaveAttribute("data-brand");
+    });
+  });
 });

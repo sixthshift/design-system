@@ -1,0 +1,249 @@
+/*
+ * A sample theme with three named brands, for the Scoped brands story and the
+ * Theming page, which shows this file verbatim. It is a consumer's file, not
+ * the library's: the design system renders `data-brand` and nothing else.
+ *
+ * Two deliberate departures from a real theme, both so the sample cannot leak
+ * into the other stories:
+ *   - nothing is declared on `:root`. A real theme puts its default brand
+ *     there too (`:root, [data-brand="sea"]`), so an app with no attribute
+ *     anywhere gets it;
+ *   - the scales are literal hex. A real theme binds its own palette.
+ *
+ * `sea` and `fern` are saturated, and share Linen's own brand mapping (solid at
+ * step 600, light text). `blush` is a pastel: its solid sits at step 200 with
+ * dark text, so it needs a mapping of its own. A new brand is one scale rule
+ * plus its name in its kind's selector list below.
+ */
+
+/* ---- A. One rule per brand: bind its scale to the generic step variables. */
+
+/* sea: the default in this sample (Linen's blue) */
+[data-brand="sea"] {
+  --brand-50: #f6f9fe;
+  --brand-100: #e6effd;
+  --brand-200: #cddff9;
+  --brand-300: #abc6ee;
+  --brand-400: #7ca0d5;
+  --brand-500: #4771ae;
+  --brand-600: #315a97;
+  --brand-700: #25487c;
+  --brand-800: #1b375f;
+  --brand-900: #122746;
+  --brand-950: #09172c;
+}
+
+/* fern: a second saturated brand (Linen's green) */
+[data-brand="fern"] {
+  --brand-50: #f6faf6;
+  --brand-100: #e7f2e8;
+  --brand-200: #cee4d0;
+  --brand-300: #accfb0;
+  --brand-400: #7dac83;
+  --brand-500: #467f50;
+  --brand-600: #2e693a;
+  --brand-700: #23552d;
+  --brand-800: #194121;
+  --brand-900: #102e16;
+  --brand-950: #081c0c;
+}
+
+/* blush: a pastel */
+[data-brand="blush"] {
+  --brand-50: #fdf6f8;
+  --brand-100: #fae8ee;
+  --brand-200: #f3d5e2;
+  --brand-300: #e8b8cc;
+  --brand-400: #d48fab;
+  --brand-500: #b0607f;
+  --brand-600: #944a67;
+  --brand-700: #783a53;
+  --brand-800: #5b2b3f;
+  --brand-900: #401d2c;
+  --brand-950: #28111b;
+}
+
+/* ---- B. Per mode, map every brand token to the steps: once per kind of brand.
+ *
+ * Nested, so each rule is declared on the scope element itself and resolves
+ * `var(--brand-*)` against that element's scale. Declared only on `:root`, the
+ * mapping would resolve once and descendants would inherit the frozen colour.
+ * Brands are listed by name, never as bare `[data-brand]`, so an unknown name
+ * matches nothing and inherits its surroundings unchanged. */
+
+:root:not([data-theme]),
+:root[data-theme="light"] {
+  & :is([data-brand="sea"], [data-brand="fern"]) {
+    --bg-brand-subtle: var(--brand-100);
+    --bg-brand-subtle-hovered: var(--brand-200);
+    --bg-brand-subtle-pressed: var(--brand-300);
+    --bg-brand-subtle-disabled: var(--brand-50);
+    --bg-brand: var(--brand-600);
+    --bg-brand-hovered: var(--brand-700);
+    --bg-brand-pressed: var(--brand-800);
+    --bg-brand-disabled: var(--brand-300);
+    --bg-brand-strong: var(--brand-800);
+    --bg-brand-strong-hovered: var(--brand-900);
+    --bg-brand-strong-pressed: var(--brand-950);
+    --bg-brand-strong-disabled: var(--brand-400);
+    --fg-brand: var(--brand-700);
+    --fg-brand-hovered: var(--brand-800);
+    --fg-brand-pressed: var(--brand-900);
+    --fg-brand-disabled: var(--brand-300);
+    --fg-on-brand-subtle: var(--brand-800);
+    --fg-on-brand-subtle-hovered: var(--brand-900);
+    --fg-on-brand-subtle-pressed: var(--brand-950);
+    --fg-on-brand-subtle-disabled: var(--brand-400);
+    --fg-on-brand: #f9f9f9;
+    --fg-on-brand-hovered: white;
+    --fg-on-brand-pressed: white;
+    --fg-on-brand-disabled: #c6c4c0;
+    --fg-on-brand-strong: #f9f9f9;
+    --fg-on-brand-strong-hovered: white;
+    --fg-on-brand-strong-pressed: white;
+    --fg-on-brand-strong-disabled: #c6c4c0;
+    --border-brand-subtle: var(--brand-300);
+    --border-brand-subtle-hovered: var(--brand-400);
+    --border-brand-subtle-pressed: var(--brand-500);
+    --border-brand-subtle-disabled: var(--brand-200);
+    --border-brand: var(--brand-600);
+    --border-brand-hovered: var(--brand-700);
+    --border-brand-pressed: var(--brand-800);
+    --border-brand-disabled: var(--brand-200);
+    --border-brand-strong: var(--brand-800);
+    --border-brand-strong-hovered: var(--brand-900);
+    --border-brand-strong-pressed: var(--brand-950);
+    --border-brand-strong-disabled: var(--brand-400);
+  }
+
+  & [data-brand="blush"] {
+    --bg-brand-subtle: var(--brand-50);
+    --bg-brand-subtle-hovered: var(--brand-100);
+    --bg-brand-subtle-pressed: var(--brand-200);
+    --bg-brand-subtle-disabled: var(--brand-50);
+    --bg-brand: var(--brand-200);
+    --bg-brand-hovered: var(--brand-300);
+    --bg-brand-pressed: var(--brand-400);
+    --bg-brand-disabled: var(--brand-100);
+    --bg-brand-strong: var(--brand-600);
+    --bg-brand-strong-hovered: var(--brand-700);
+    --bg-brand-strong-pressed: var(--brand-800);
+    --bg-brand-strong-disabled: var(--brand-300);
+    --fg-brand: var(--brand-600);
+    --fg-brand-hovered: var(--brand-700);
+    --fg-brand-pressed: var(--brand-800);
+    --fg-brand-disabled: var(--brand-300);
+    --fg-on-brand-subtle: var(--brand-800);
+    --fg-on-brand-subtle-hovered: var(--brand-900);
+    --fg-on-brand-subtle-pressed: var(--brand-950);
+    --fg-on-brand-subtle-disabled: var(--brand-400);
+    --fg-on-brand: #1d1b19;
+    --fg-on-brand-hovered: #1d1b19;
+    --fg-on-brand-pressed: #0c0b09;
+    --fg-on-brand-disabled: #a19e9a;
+    --fg-on-brand-strong: white;
+    --fg-on-brand-strong-hovered: white;
+    --fg-on-brand-strong-pressed: white;
+    --fg-on-brand-strong-disabled: var(--brand-200);
+    --border-brand-subtle: var(--brand-200);
+    --border-brand-subtle-hovered: var(--brand-300);
+    --border-brand-subtle-pressed: var(--brand-400);
+    --border-brand-subtle-disabled: var(--brand-100);
+    --border-brand: var(--brand-500);
+    --border-brand-hovered: var(--brand-600);
+    --border-brand-pressed: var(--brand-700);
+    --border-brand-disabled: var(--brand-300);
+    --border-brand-strong: var(--brand-600);
+    --border-brand-strong-hovered: var(--brand-700);
+    --border-brand-strong-pressed: var(--brand-800);
+    --border-brand-strong-disabled: var(--brand-300);
+  }
+}
+
+:root[data-theme="dark"] {
+  & :is([data-brand="sea"], [data-brand="fern"]) {
+    --bg-brand-subtle: var(--brand-950);
+    --bg-brand-subtle-hovered: var(--brand-900);
+    --bg-brand-subtle-pressed: var(--brand-800);
+    --bg-brand-subtle-disabled: var(--brand-950);
+    --bg-brand: var(--brand-500);
+    --bg-brand-hovered: var(--brand-600);
+    --bg-brand-pressed: var(--brand-700);
+    --bg-brand-disabled: var(--brand-800);
+    --bg-brand-strong: var(--brand-300);
+    --bg-brand-strong-hovered: var(--brand-200);
+    --bg-brand-strong-pressed: var(--brand-100);
+    --bg-brand-strong-disabled: var(--brand-600);
+    --fg-brand: var(--brand-300);
+    --fg-brand-hovered: var(--brand-200);
+    --fg-brand-pressed: var(--brand-100);
+    --fg-brand-disabled: var(--brand-700);
+    --fg-on-brand-subtle: var(--brand-300);
+    --fg-on-brand-subtle-hovered: var(--brand-200);
+    --fg-on-brand-subtle-pressed: var(--brand-100);
+    --fg-on-brand-subtle-disabled: var(--brand-700);
+    --fg-on-brand: white;
+    --fg-on-brand-hovered: white;
+    --fg-on-brand-pressed: white;
+    --fg-on-brand-disabled: #a19e9a;
+    --fg-on-brand-strong: #1d1b19;
+    --fg-on-brand-strong-hovered: #0c0b09;
+    --fg-on-brand-strong-pressed: black;
+    --fg-on-brand-strong-disabled: #736f6b;
+    --border-brand-subtle: var(--brand-700);
+    --border-brand-subtle-hovered: var(--brand-600);
+    --border-brand-subtle-pressed: var(--brand-500);
+    --border-brand-subtle-disabled: var(--brand-800);
+    --border-brand: var(--brand-500);
+    --border-brand-hovered: var(--brand-400);
+    --border-brand-pressed: var(--brand-300);
+    --border-brand-disabled: var(--brand-800);
+    --border-brand-strong: var(--brand-300);
+    --border-brand-strong-hovered: var(--brand-200);
+    --border-brand-strong-pressed: var(--brand-100);
+    --border-brand-strong-disabled: var(--brand-600);
+  }
+
+  & [data-brand="blush"] {
+    --bg-brand-subtle: var(--brand-950);
+    --bg-brand-subtle-hovered: var(--brand-900);
+    --bg-brand-subtle-pressed: var(--brand-800);
+    --bg-brand-subtle-disabled: var(--brand-950);
+    --bg-brand: var(--brand-200);
+    --bg-brand-hovered: var(--brand-300);
+    --bg-brand-pressed: var(--brand-400);
+    --bg-brand-disabled: var(--brand-800);
+    --bg-brand-strong: var(--brand-300);
+    --bg-brand-strong-hovered: var(--brand-200);
+    --bg-brand-strong-pressed: var(--brand-100);
+    --bg-brand-strong-disabled: var(--brand-700);
+    --fg-brand: var(--brand-300);
+    --fg-brand-hovered: var(--brand-200);
+    --fg-brand-pressed: var(--brand-100);
+    --fg-brand-disabled: var(--brand-700);
+    --fg-on-brand-subtle: var(--brand-200);
+    --fg-on-brand-subtle-hovered: var(--brand-100);
+    --fg-on-brand-subtle-pressed: var(--brand-50);
+    --fg-on-brand-subtle-disabled: var(--brand-600);
+    --fg-on-brand: #1d1b19;
+    --fg-on-brand-hovered: #1d1b19;
+    --fg-on-brand-pressed: #0c0b09;
+    --fg-on-brand-disabled: #736f6b;
+    --fg-on-brand-strong: #1d1b19;
+    --fg-on-brand-strong-hovered: #0c0b09;
+    --fg-on-brand-strong-pressed: black;
+    --fg-on-brand-strong-disabled: #736f6b;
+    --border-brand-subtle: var(--brand-800);
+    --border-brand-subtle-hovered: var(--brand-700);
+    --border-brand-subtle-pressed: var(--brand-600);
+    --border-brand-subtle-disabled: var(--brand-900);
+    --border-brand: var(--brand-400);
+    --border-brand-hovered: var(--brand-300);
+    --border-brand-pressed: var(--brand-200);
+    --border-brand-disabled: var(--brand-800);
+    --border-brand-strong: var(--brand-300);
+    --border-brand-strong-hovered: var(--brand-200);
+    --border-brand-strong-pressed: var(--brand-100);
+    --border-brand-strong-disabled: var(--brand-700);
+  }
+}

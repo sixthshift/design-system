@@ -2,6 +2,7 @@
 
 import { autoUpdate, flip, offset, type Placement, shift, useDismiss, useFloating, useFocus, useHover, useInteractions, useRole } from "@floating-ui/react";
 import { useControllableState } from "@sixthshift/design-system/hooks";
+import { closestBrand } from "../../internal/brandScope";
 import { TooltipBody } from "./components/TooltipBody";
 import { TooltipContext } from "./components/TooltipContext";
 import { TooltipTrigger } from "./components/TooltipTrigger";
@@ -55,6 +56,8 @@ const TooltipRoot = ({ open: controlledOpen, onOpenChange, placement = "top", de
       setFloating: refs.setFloating,
     },
     floatingStyles,
+    // Read at render: `domReference` is state, so this updates once the trigger mounts.
+    inheritedBrand: closestBrand(context.elements.domReference),
     getReferenceProps,
     getFloatingProps,
   };

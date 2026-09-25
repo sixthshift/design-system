@@ -5,10 +5,17 @@ import { cn } from "@sixthshift/design-system/utils";
 import * as React from "react";
 import { useHoverCardContext } from "./HoverCardContext";
 
-export type HoverCardContentProps = React.HTMLAttributes<HTMLDivElement>;
+export type HoverCardContentProps = React.HTMLAttributes<HTMLDivElement> & {
+  /**
+   * Name of a brand the theme defines, rendered as `data-brand`. Omitted, the
+   * body copies the brand scope of its trigger, which the portal would
+   * otherwise leave behind.
+   */
+  brand?: string | undefined;
+};
 
-export const HoverCardContent = React.forwardRef<HTMLDivElement, HoverCardContentProps>(({ className, children, ...props }, forwardedRef) => {
-  const { open, refs, floatingStyles, getFloatingProps } = useHoverCardContext();
+export const HoverCardContent = React.forwardRef<HTMLDivElement, HoverCardContentProps>(({ className, brand, children, ...props }, forwardedRef) => {
+  const { open, refs, floatingStyles, inheritedBrand, getFloatingProps } = useHoverCardContext();
 
   if (!open) return null;
 
@@ -21,6 +28,7 @@ export const HoverCardContent = React.forwardRef<HTMLDivElement, HoverCardConten
           else if (forwardedRef) forwardedRef.current = node;
         }}
         style={floatingStyles}
+        data-brand={brand ?? inheritedBrand}
         className={cn("z-popover w-80 rounded-lg border border-border-normal bg-bg-normal p-4 shadow-lg", className)}
         {...getFloatingProps(props)}
       >

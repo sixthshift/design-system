@@ -68,7 +68,7 @@ export type ToastProps = Omit<MessageProps, "size"> & {
  * a dialog.
  */
 export const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
-  ({ className, intent = "neutral", title, icon, action, onAction, onClose, root, open = true, standalone = true, children, ...props }, ref) => {
+  ({ className, intent = "neutral", brand, title, icon, action, onAction, onClose, root, open = true, standalone = true, children, ...props }, ref) => {
     const { ref: presenceRef, state, isMounted, show, hide } = usePresence();
 
     // `open` drives presence: enter on mount, exit when it flips false. The
@@ -118,6 +118,10 @@ export const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
           isExiting && "animate-fade-out",
           className
         )}
+        // On the wrapper rather than the Message, so the dismiss and action
+        // buttons are in the same scope. A toast has no trigger to inherit
+        // from: it is opened from code, often long after the click.
+        data-brand={brand}
         {...props}
       >
         <Message intent={intent}>

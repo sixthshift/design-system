@@ -41,6 +41,11 @@
 @import "../components/Sheet/sheet.recipe.css";
 @import "../components/Select/select.recipe.css";
 @import "../components/TagChip/tag-chip.recipe.css";
+@import "../components/NumberStepper/number-stepper.recipe.css";
+@import "../components/Steps/steps.recipe.css";
+@import "../components/ImageGallery/image-gallery.recipe.css";
+@import "../components/DataTable/data-table.recipe.css";
+@import "../components/FileDropzone/file-dropzone.recipe.css";
 
 /* =============================================================================
    3. TAILWIND THEME

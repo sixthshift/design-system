@@ -36,7 +36,10 @@ export function RecipeTables({ mode, hooks }: { mode: "light" | "dark"; hooks: r
             <Heading as="h3">
               <code className="font-mono">.{recipe.hook}</code>
             </Heading>
-            <div className="overflow-x-auto">
+            {/* Focusable, because a recipe with enough tokens overflows and axe's
+                `scrollable-region-focusable` requires a keyboard way to scroll it. */}
+            {/* biome-ignore lint/a11y/noNoninteractiveTabindex: scrollable regions must be focusable (axe `scrollable-region-focusable`) */}
+            <section tabIndex={0} aria-label={`.${recipe.hook} tokens, ${mode} mode`} className="overflow-x-auto">
               <table className="w-full border-collapse text-left text-sm">
                 <caption className="sr-only">
                   Component tokens for .{recipe.hook} in {mode} mode
@@ -67,7 +70,7 @@ export function RecipeTables({ mode, hooks }: { mode: "light" | "dark"; hooks: r
                   ))}
                 </tbody>
               </table>
-            </div>
+            </section>
           </section>
         );
       })}

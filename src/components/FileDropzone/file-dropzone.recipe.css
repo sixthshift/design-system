@@ -1,0 +1,38 @@
+/**
+ * FileDropzone recipe — the component-token layer for FileDropzone.
+ *
+ * No variant/intent axis: a dropzone is a form control, so like Input every
+ * colour is a fixed semantic token. The one state that changes colour is a
+ * drag in progress, which the component renders as `data-state="active"`
+ * and the recipe keys a cell on — the same way steps.css keys on `data-state`.
+ *
+ * The grammar is `--file-dropzone-[{part}-]{context}[-{state}]`. Parts are
+ * the `icon` and the `hint` line. The surface reads the subtle ground so the
+ * dashed target stands apart from the fields around it, and a drag over it
+ * takes the brand wash — the same pairing Tabs uses for its selected cell.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  .file-dropzone {
+    --file-dropzone-bg: var(--bg-subtle);
+    --file-dropzone-bg-hovered: var(--bg-subtle-hovered);
+    --file-dropzone-fg: var(--fg-normal);
+    --file-dropzone-border: var(--border-normal);
+    --file-dropzone-ring: var(--focus-ring);
+    --file-dropzone-icon-fg: var(--fg-subtle);
+    --file-dropzone-hint-fg: var(--fg-subtle);
+  }
+
+  /* A drag in progress: the brand wash, hover included, so the target does not
+     flicker back to subtle as the pointer moves across it. */
+  .file-dropzone[data-state="active"] {
+    --file-dropzone-bg: var(--bg-brand-subtle);
+    --file-dropzone-bg-hovered: var(--bg-brand-subtle);
+    --file-dropzone-border: var(--border-brand);
+    --file-dropzone-icon-fg: var(--fg-brand);
+    /* fg-subtle drops below 4.5:1 on the brand wash in light mode. */
+    --file-dropzone-hint-fg: var(--fg-normal);
+  }
+}

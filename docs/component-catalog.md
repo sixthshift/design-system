@@ -73,6 +73,24 @@ No custom props beyond `React.TextareaHTMLAttributes`. Default `min-h-[60px]`.
 
 Generic over string value type (`<T extends string>`).
 
+#### FileDropzone
+
+**Import:** `@sixthshift/design-system/file-dropzone`
+**Purpose:** Drop target for files that doubles as a file-picker button — photos, attachments, imports. Reports files; holds no list of its own.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `onFilesChange` | `(files: File[]) => void` | Accepted files from a drop or the picker; never empty |
+| `onFilesRejected` | `(rejections) => void` | `{ file, reason: "type" \| "size" }[]` |
+| `accept` | `string` | Native `accept` syntax; also enforced on drop |
+| `multiple` | `boolean` | Without it a multi-file drop keeps the first |
+| `maxSize` | `number` | Bytes |
+| `pending` | `boolean` | Busy (`aria-busy`), ignores new files, stays focusable |
+| `label` / `hint` / `icon` | `ReactNode` | Main line, secondary line, icon (`null` for none) |
+| `size` | `"sm" \| "md"` | Footprint (CVA) |
+
+`role="button"`; `Enter`/`Space` open the picker. A drag over it sets `data-state="active"`.
+
 #### SearchInput
 
 **Import:** `@sixthshift/design-system/search-input`
@@ -175,6 +193,23 @@ Wraps `Input` internally.
 | `onValueChange` | `(value) => void` | Depends on `type` |
 | `appearance` | `"segmented" \| "separate"` | Visual grouping |
 | `variant` | `"solid" \| "outline" \| "ghost"` | No `"link"` |
+
+#### NumberStepper
+
+**Import:** `@sixthshift/design-system/number-stepper`
+**Purpose:** Whole-number field with decrement/increment buttons — quantities, counts, capacities. WAI-ARIA spinbutton on the input; the buttons stay out of the tab order.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `value` / `defaultValue` | `number` | Controlled/uncontrolled. Default: `min` |
+| `onValueChange` | `(value: number) => void` | Always receives a clamped, step-snapped value |
+| `min` / `max` | `number` | Default `min` is `0`; `max` unbounded |
+| `step` | `number` | Default `1`. `PageUp`/`PageDown` move ten steps |
+| `size` | `"sm" \| "md" \| "lg"` | Matches Input/Button heights (CVA) |
+| `decrementLabel` / `incrementLabel` | `string` | Button names. Default: `"Decrease"` / `"Increase"` |
+| `inputClassName` | `string` | Classes for the inner input; `className` styles the group |
+
+Ref and unlisted props land on the `<input>`, so `FormField` wiring and `name` work. Typed text commits on blur or `Enter`.
 
 ---
 
@@ -483,6 +518,40 @@ Built on top of `Message`. Enter/exit animations included. To show one in respon
 | `headerAction` | `ReactNode` | Element in header right side |
 | `onClick` | `(event) => void` | Makes card clickable with hover/focus states |
 
+#### DataTable
+
+**Import:** `@sixthshift/design-system/data-table`
+**Purpose:** Sortable, optionally clickable table of uniform rows. Props-based: `columns` config + `rows` array. Not a data grid — no virtualisation, editing or resizing.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `columns` | `DataTableColumn<Row>[]` | `{ id, header, cell(row), sortValue?(row), align?, width?, className? }` |
+| `rows` | `readonly Row[]` | Generic over `Row` |
+| `getRowId` | `(row: Row) => string` | React key |
+| `sort` / `defaultSort` | `DataTableSort \| null` | `{ columnId, direction: "asc" \| "desc" }` |
+| `onSortChange` | `(sort) => void` | Header click cycles asc → desc → unsorted |
+| `manualSorting` | `boolean` | Report sort changes without reordering, for server-side sorting |
+| `onRowClick` | `(row: Row) => void` | Rows become tab stops, activated by click/`Enter`/`Space` |
+| `size` | `"sm" \| "md"` | Cell density (CVA) |
+| `empty` | `ReactNode` | Shown when `rows` is empty |
+| `caption` / `showCaption` | `ReactNode` / `boolean` | Accessible name; visually hidden by default |
+| `stickyHeader` | `boolean` | Give the wrapper a max height via `className` |
+
+#### ImageGallery
+
+**Import:** `@sixthshift/design-system/image-gallery`
+**Purpose:** Product photo carousel. Native scroll-snap swiping on touch, prev/next buttons, arrow keys, and a thumbnail or dot indicator. WAI-ARIA carousel pattern.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `images` | `ImageGalleryImage[]` | `{ src, alt, srcSet?, sizes?, width?, height? }` |
+| `index` / `defaultIndex` | `number` | Controlled/uncontrolled shown image |
+| `onIndexChange` | `(index: number) => void` | Fires on swipe, button, key or indicator |
+| `ratio` | `"square" \| "portrait" \| "landscape" \| "wide"` | Frame shape (CVA). `portrait` is 4:5 |
+| `indicator` | `"thumbnails" \| "dots" \| "none"` | Default `"thumbnails"`; hidden for one image |
+| `label` | `string` | Accessible name of the carousel |
+| `placeholder` | `ReactNode` | Shown when `images` is empty |
+
 #### Separator
 
 **Import:** `@sixthshift/design-system/separator`
@@ -625,6 +694,20 @@ Also supports compound children: `Message.Icon`, `Message.Body`, `Message.Title`
 | `onValueChange` | `(value: string) => void` | Selection callback |
 
 **Sub-components:** `Tabs.List`, `Tabs.Panels`
+
+#### Steps
+
+**Import:** `@sixthshift/design-system/steps`
+**Purpose:** Progress through a fixed sequence — checkout, onboarding. Display-only: `current` is owned by the flow.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `steps` | `StepItem[]` | `{ label, description? }` |
+| `current` | `number` | Zero-based step in progress; `steps.length` = all complete |
+| `onStepClick` | `(index: number) => void` | Makes completed steps clickable (go back). Never upcoming ones |
+| `orientation` | `"horizontal" \| "vertical"` | Horizontal hides non-current labels below `sm` |
+
+Each item renders `data-state="complete" | "current" | "upcoming"`; the current one has `aria-current="step"`.
 
 ---
 

@@ -314,6 +314,26 @@
     "./bar-chart": {
       "types": "./dist/components/BarChart/index.d.ts",
       "import": "./dist/components/BarChart/index.js"
+    },
+    "./data-table": {
+      "types": "./dist/components/DataTable/index.d.ts",
+      "import": "./dist/components/DataTable/index.js"
+    },
+    "./file-dropzone": {
+      "types": "./dist/components/FileDropzone/index.d.ts",
+      "import": "./dist/components/FileDropzone/index.js"
+    },
+    "./image-gallery": {
+      "types": "./dist/components/ImageGallery/index.d.ts",
+      "import": "./dist/components/ImageGallery/index.js"
+    },
+    "./number-stepper": {
+      "types": "./dist/components/NumberStepper/index.d.ts",
+      "import": "./dist/components/NumberStepper/index.js"
+    },
+    "./steps": {
+      "types": "./dist/components/Steps/index.d.ts",
+      "import": "./dist/components/Steps/index.js"
     }
   },
   "scripts": {

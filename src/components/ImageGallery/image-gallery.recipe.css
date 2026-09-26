@@ -1,0 +1,50 @@
+/**
+ * ImageGallery recipe — the component-token layer for ImageGallery.
+ *
+ * No variant/intent axis. The one selectable cell is `data-selected` on a
+ * thumbnail or dot, the same shape tabs.css uses for its selected trigger.
+ *
+ * The grammar is `--image-gallery-[{part}-]{context}[-{state}]`. Parts:
+ *
+ *   control      the previous/next buttons floating over the photo. They sit
+ *                on arbitrary imagery, so they take the page's resting surface
+ *                with an elevation shadow rather than a transparent ghost —
+ *                legible over a white cake and a chocolate one alike.
+ *   thumb        a thumbnail button's frame.
+ *   dot          a dot indicator's fill.
+ *   placeholder  the text shown when there are no images.
+ *
+ * `--image-gallery-bg` shows while a lazy image loads and behind an empty
+ * gallery, so it is the subtle surface, not the page's.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  .image-gallery {
+    --image-gallery-bg: var(--bg-subtle);
+    --image-gallery-placeholder-fg: var(--fg-subtle);
+    --image-gallery-control-bg: var(--bg-normal);
+    --image-gallery-control-bg-hovered: var(--bg-normal-hovered);
+    --image-gallery-control-fg: var(--fg-normal);
+    --image-gallery-control-ring: var(--focus-ring);
+  }
+
+  .image-gallery-thumb {
+    --image-gallery-thumb-border: transparent;
+    --image-gallery-thumb-border-hovered: var(--border-strong);
+  }
+
+  .image-gallery-thumb[data-selected="true"] {
+    --image-gallery-thumb-border: var(--border-brand);
+    --image-gallery-thumb-border-hovered: var(--image-gallery-thumb-border);
+  }
+
+  .image-gallery-dot {
+    --image-gallery-dot-bg: var(--border-strong);
+  }
+
+  .image-gallery-dot[data-selected="true"] {
+    --image-gallery-dot-bg: var(--bg-brand);
+  }
+}

@@ -1,0 +1,31 @@
+/**
+ * NumberStepper recipe — the component-token layer for NumberStepper.
+ *
+ * No variant/intent axis: a stepper is a form field, and like Input every
+ * colour is a fixed semantic token. The field surface deliberately mirrors
+ * input.css's values (bg-normal, border-normal, focus-ring) so a stepper next
+ * to a text input reads as the same kind of control — but through its own
+ * tokens, so a consumer can re-point one without the other.
+ *
+ * The grammar is `--number-stepper-[{part}-]{context}[-{state}]`. Parts are
+ * `button` (the two step buttons) and `divider` (the rules either side of the
+ * value). `--number-stepper-button-fg-disabled` is the colour a button takes
+ * at a bound; the whole group dims via opacity only when the field itself is
+ * disabled, the same way Input does.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  .number-stepper {
+    --number-stepper-bg: var(--bg-normal);
+    --number-stepper-fg: var(--fg-normal);
+    --number-stepper-border: var(--border-normal);
+    --number-stepper-ring: var(--focus-ring);
+    --number-stepper-divider-border: var(--border-normal);
+    --number-stepper-button-fg: var(--fg-normal);
+    --number-stepper-button-fg-disabled: var(--fg-normal-disabled);
+    --number-stepper-button-bg-hovered: var(--bg-normal-hovered);
+    --number-stepper-button-bg-pressed: var(--bg-normal-pressed);
+  }
+}

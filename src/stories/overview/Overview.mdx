@@ -148,7 +148,7 @@ time. This library deliberately does not ship:
 | Not included | What to do instead |
 | --- | --- |
 | An app shell — side rails, top bars, page chrome | Compose it in your app; `Tabs` covers in-page navigation only |
-| A data grid or table | Not built yet, and not a small component. Nothing here stands in for one |
+| A data grid — virtualised rows, cell editing, column resizing | `DataTable` covers sortable, clickable lists of uniform rows. Past that, bring TanStack Table and render its cells with these components |
 | A router, or router-aware links | Use `asChild` to render a `Button` as your router's link |
 | An icon set | `lucide-react` is a runtime dependency and used internally — import from it directly |
 | A form library | The components are controlled-or-uncontrolled; bring React Hook Form, or wire them by hand |
@@ -191,7 +191,7 @@ library imports it.
 
 **[Components](?path=/docs/components-button--docs)**
 
-The catalog — all 44, alphabetical in the sidebar. Every page carries its import
+The catalog — all 49, alphabetical in the sidebar. Every page carries its import
 line, a live example, and a prop table generated from the source.
 
 </div>

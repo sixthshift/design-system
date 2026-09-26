@@ -13,7 +13,7 @@ Deliberately not recorded: the package version, and anything under src/stories
 or src/testing. Neither is part of what a consumer can import.
 
 ==============================================================================
-SUBPATH EXPORTS — 69 subpaths, 473 exports
+SUBPATH EXPORTS — 74 subpaths, 501 exports
 ==============================================================================
 
 ./badge
@@ -276,6 +276,58 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
   value ComponentsProvider = ({ components, children }: ComponentsProviderProps) => Element
   type  ComponentsProviderProps = { components: Partial<Components>; } & { children?: ReactNode; }
   value useComponents = () => Components
+
+./data-table
+  value DataTable = <Row>(props: Omit<HTMLAttributes<HTMLDivElement>,
+                    "children"> & VariantProps<(props?: ({ size?: "sm" | "md" | null | undefined;
+                    } & ClassProp) | undefined) => string> & { columns: readonly DataTableColumn<Row>[];
+                    rows: readonly Row[];
+                    getRowId: (row: Row) => string;
+                    sort?: DataTableSort
+                    | null
+                    | undefined;
+                    defaultSort?: DataTableSort
+                    | null
+                    | undefined;
+                    onSortChange?: ((sort: DataTableSort | null) => void) | undefined;
+                    manualSorting?: boolean | undefined;
+                    onRowClick?: ((row: Row) => void) | undefined;
+                    empty?: ReactNode;
+                    caption?: ReactNode;
+                    showCaption?: boolean | undefined;
+                    stickyHeader?: boolean | undefined;
+                    } & { ref?: Ref<HTMLDivElement> | undefined;
+                    }) => ReactElement<any,
+                    string | JSXElementConstructor<any>>
+  type  DataTableAlign = "start" | "end" | "center"
+  value dataTableCellVariants = (props?: ({ size?: "sm" | "md" | null | undefined; } & ClassProp) | undefined) => string
+  type  DataTableColumn = { id: string;
+                          header: ReactNode;
+                          cell: (row: Row) => ReactNode;
+                          sortValue?: ((row: Row) => string
+                          | number) | undefined;
+                          align?: DataTableAlign | undefined;
+                          width?: string | undefined;
+                          className?: string | undefined;
+                          }
+  type  DataTableProps = Omit<HTMLAttributes<HTMLDivElement>,
+                         "children"> & VariantProps<(props?: ({ size?: "sm" | "md" | null | undefined;
+                         } & ClassProp) | undefined) => string> & { columns: readonly DataTableColumn<Row>[];
+                         rows: readonly Row[];
+                         getRowId: (row: Row) => string;
+                         sort?: DataTableSort | null | undefined;
+                         defaultSort?: DataTableSort | null | undefined;
+                         onSortChange?: ((sort: DataTableSort | null) => void) | undefined;
+                         manualSorting?: boolean | undefined;
+                         onRowClick?: ((row: Row) => void) | undefined;
+                         empty?: ReactNode;
+                         caption?: ReactNode;
+                         showCaption?: boolean | undefined;
+                         stickyHeader?: boolean | undefined;
+                         }
+  type  DataTableSize = "sm" | "md"
+  type  DataTableSort = { columnId: string; direction: DataTableSortDirection; }
+  type  DataTableSortDirection = "asc" | "desc"
 
 ./date-picker
   value DatePicker = ForwardRefExoticComponent<DatePickerProps & RefAttributes<HTMLDivElement>>
@@ -706,6 +758,39 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
   value Field = ForwardRefExoticComponent<FieldProps & RefAttributes<HTMLDivElement>>
   type  FieldProps = { label: string; children: ReactNode; layout?: "stacked" | "row" | undefined; mono?: boolean | undefined; className?: string | undefined; }
 
+./file-dropzone
+  value FileDropzone = ForwardRefExoticComponent<Omit<HTMLAttributes<HTMLDivElement>,
+                       "children" | "onDrop"> & VariantProps<(props?: ({ size?: "sm" | "md" | null | undefined;
+                       } & ClassProp) | undefined) => string> & { onFilesChange: (files: File[]) => void;
+                       onFilesRejected?: ((rejections: FileDropzoneRejection[]) => void) | undefined;
+                       accept?: string | undefined;
+                       multiple?: boolean | undefined;
+                       maxSize?: number | undefined;
+                       disabled?: boolean | undefined;
+                       pending?: boolean | undefined;
+                       label?: ReactNode;
+                       hint?: ReactNode;
+                       icon?: ReactNode;
+                       name?: string | undefined;
+                       } & RefAttributes<HTMLDivElement>>
+  type  FileDropzoneProps = Omit<HTMLAttributes<HTMLDivElement>,
+                            "children" | "onDrop"> & VariantProps<(props?: ({ size?: "sm" | "md" | null | undefined;
+                            } & ClassProp) | undefined) => string> & { onFilesChange: (files: File[]) => void;
+                            onFilesRejected?: ((rejections: FileDropzoneRejection[]) => void) | undefined;
+                            accept?: string | undefined;
+                            multiple?: boolean | undefined;
+                            maxSize?: number | undefined;
+                            disabled?: boolean | undefined;
+                            pending?: boolean | undefined;
+                            label?: ReactNode;
+                            hint?: ReactNode;
+                            icon?: ReactNode;
+                            name?: string | undefined;
+                            }
+  type  FileDropzoneRejection = { file: File; reason: "size" | "type"; }
+  type  FileDropzoneSize = "sm" | "md"
+  value fileDropzoneVariants = (props?: ({ size?: "sm" | "md" | null | undefined; } & ClassProp) | undefined) => string
+
 ./form-field
   value FormField = ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & { label: ReactNode;
                     description?: ReactNode;
@@ -775,6 +860,44 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                          }
   value HoverCardTrigger = ForwardRefExoticComponent<HTMLAttributes<HTMLElement> & { asChild?: boolean | undefined; } & RefAttributes<HTMLElement>>
   type  HoverCardTriggerProps = HTMLAttributes<HTMLElement> & { asChild?: boolean | undefined; }
+
+./image-gallery
+  value ImageGallery = ForwardRefExoticComponent<Omit<HTMLAttributes<HTMLElement>,
+                       "onChange"> & VariantProps<(props?: ({ ratio?: "square" | "portrait" | "landscape" | "wide" | null | undefined;
+                       } & ClassProp) | undefined) => string> & { images: readonly ImageGalleryImage[];
+                       index?: number | undefined;
+                       defaultIndex?: number | undefined;
+                       onIndexChange?: ((index: number) => void)
+                       | undefined;
+                       indicator?: "none"
+                       | "thumbnails"
+                       | "dots"
+                       | undefined;
+                       label?: string
+                       | undefined;
+                       previousLabel?: string
+                       | undefined;
+                       nextLabel?: string
+                       | undefined;
+                       placeholder?: ReactNode;
+                       } & RefAttributes<HTMLElement>>
+  value imageGalleryFrameVariants = (props?: ({ ratio?: "square" | "portrait" | "landscape" | "wide" | null | undefined; } & ClassProp) | undefined) => string
+  type  ImageGalleryImage = { src: string; alt: string; srcSet?: string | undefined; sizes?: string | undefined; width?: number | undefined; height?: number | undefined; }
+  type  ImageGalleryProps = Omit<HTMLAttributes<HTMLElement>,
+                            "onChange"> & VariantProps<(props?: ({ ratio?: "square" | "portrait" | "landscape" | "wide" | null | undefined;
+                            } & ClassProp) | undefined) => string> & { images: readonly ImageGalleryImage[];
+                            index?: number
+                            | undefined;
+                            defaultIndex?: number
+                            | undefined;
+                            onIndexChange?: ((index: number) => void) | undefined;
+                            indicator?: "none" | "thumbnails" | "dots" | undefined;
+                            label?: string | undefined;
+                            previousLabel?: string | undefined;
+                            nextLabel?: string | undefined;
+                            placeholder?: ReactNode;
+                            }
+  type  ImageGalleryRatio = "square" | "portrait" | "landscape" | "wide"
 
 ./input
   value Input = ForwardRefExoticComponent<InputHTMLAttributes<HTMLInputElement> & { iconLeft?: ReactNode; iconRight?: ReactNode; } & RefAttributes<HTMLInputElement>>
@@ -866,7 +989,7 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                 children: ReactNode;
                 dismissable?: boolean | undefined;
                 closable?: boolean | undefined;
-                align?: "top" | "center" | undefined;
+                align?: "center" | "top" | undefined;
                 brand?: string | undefined;
                 } & RefAttributes<HTMLDivElement>> & { Header: ForwardRefExoticComponent<ModalHeaderProps & RefAttributes<HTMLDivElement>>;
                 Body: ForwardRefExoticComponent<ModalBodyProps & RefAttributes<HTMLDivElement>>;
@@ -893,8 +1016,8 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                      | undefined;
                      closable?: boolean
                      | undefined;
-                     align?: "top"
-                     | "center"
+                     align?: "center"
+                     | "top"
                      | undefined;
                      brand?: string
                      | undefined;
@@ -907,6 +1030,43 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
 
 ./muted
   value Muted = ForwardRefExoticComponent<HTMLAttributes<HTMLElement> & { as?: TextElement | undefined; } & RefAttributes<HTMLElement>>
+
+./number-stepper
+  value NumberStepper = ForwardRefExoticComponent<Omit<InputHTMLAttributes<HTMLInputElement>,
+                        "size" | "defaultValue" | "onChange" | "value" | "type" | "step" | "max" | "min"> & VariantProps<(props?: ({ size?: "sm" | "md" | "lg" | null | undefined;
+                        } & ClassProp) | undefined) => string> & { value?: number | undefined;
+                        defaultValue?: number | undefined;
+                        onValueChange?: ((value: number) => void)
+                        | undefined;
+                        min?: number
+                        | undefined;
+                        max?: number
+                        | undefined;
+                        step?: number
+                        | undefined;
+                        decrementLabel?: string
+                        | undefined;
+                        incrementLabel?: string
+                        | undefined;
+                        inputClassName?: string
+                        | undefined;
+                        } & RefAttributes<HTMLInputElement>>
+  type  NumberStepperProps = Omit<InputHTMLAttributes<HTMLInputElement>,
+                             "size" | "defaultValue" | "onChange" | "value" | "type" | "step" | "max" | "min"> & VariantProps<(props?: ({ size?: "sm" | "md" | "lg" | null | undefined;
+                             } & ClassProp) | undefined) => string> & { value?: number
+                             | undefined;
+                             defaultValue?: number
+                             | undefined;
+                             onValueChange?: ((value: number) => void) | undefined;
+                             min?: number | undefined;
+                             max?: number | undefined;
+                             step?: number | undefined;
+                             decrementLabel?: string | undefined;
+                             incrementLabel?: string | undefined;
+                             inputClassName?: string | undefined;
+                             }
+  type  NumberStepperSize = "sm" | "md" | "lg"
+  value numberStepperVariants = (props?: ({ size?: "sm" | "md" | "lg" | null | undefined; } & ClassProp) | undefined) => string
 
 ./overlay
   value closeAllToasts = () => void
@@ -921,7 +1081,7 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                 children: ReactNode;
                 dismissable?: boolean | undefined;
                 closable?: boolean | undefined;
-                align?: "top" | "center" | undefined;
+                align?: "center" | "top" | undefined;
                 brand?: string | undefined;
                 } & RefAttributes<HTMLDivElement>> & { Header: ForwardRefExoticComponent<ModalHeaderProps & RefAttributes<HTMLDivElement>>;
                 Body: ForwardRefExoticComponent<ModalBodyProps & RefAttributes<HTMLDivElement>>;
@@ -941,8 +1101,8 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                      | undefined;
                      closable?: boolean
                      | undefined;
-                     align?: "top"
-                     | "center"
+                     align?: "center"
+                     | "top"
                      | undefined;
                      brand?: string
                      | undefined;
@@ -1223,6 +1383,26 @@ SUBPATH EXPORTS — 69 subpaths, 473 exports
                   } & ClassProp) | undefined) => string> & RefAttributes<SVGSVGElement>>
   type  SpinnerProps = SVGAttributes<SVGElement> & VariantProps<(props?: ({ size?: "sm" | "md" | "lg" | "xl" | null | undefined; } & ClassProp) | undefined) => string>
   value spinnerVariants = (props?: ({ size?: "sm" | "md" | "lg" | "xl" | null | undefined; } & ClassProp) | undefined) => string
+
+./steps
+  type  StepItem = { label: ReactNode; description?: ReactNode; }
+  value Steps = ForwardRefExoticComponent<Omit<OlHTMLAttributes<HTMLOListElement>,
+                "children"> & { steps: readonly StepItem[];
+                current: number;
+                onStepClick?: ((index: number) => void) | undefined;
+                orientation?: StepsOrientation | undefined;
+                } & RefAttributes<HTMLOListElement>>
+  type  StepsOrientation = "vertical" | "horizontal"
+  type  StepsProps = Omit<OlHTMLAttributes<HTMLOListElement>,
+                     "children"> & { steps: readonly StepItem[];
+                     current: number;
+                     onStepClick?: ((index: number) => void)
+                     | undefined;
+                     orientation?: StepsOrientation
+                     | undefined;
+                     }
+  type  StepState = "complete" | "current" | "upcoming"
+  value stepsVariants = (props?: ({ orientation?: "vertical" | "horizontal" | null | undefined; } & ClassProp) | undefined) => string
 
 ./subtitle
   value Subtitle = ForwardRefExoticComponent<HTMLAttributes<HTMLElement> & { as?: TextElement | undefined; } & RefAttributes<HTMLElement>>

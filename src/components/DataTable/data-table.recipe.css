@@ -1,0 +1,28 @@
+/**
+ * DataTable recipe — the component-token layer for DataTable.
+ *
+ * No variant/intent axis: status colour inside a table belongs to what the
+ * cells render (a Badge), not to the table. The table itself is the Elevated
+ * tier's container — the same surface and rule colours as card.css — through
+ * its own tokens, so a consumer can re-point one without the other.
+ *
+ * The grammar is `--data-table-[{part}-]{context}[-{state}]`. Parts are the
+ * `header` row, a `row` (only its hover, which applies only when rows are
+ * clickable), and the `empty` state's text. `--data-table-border` draws the
+ * outer frame and the rules between rows alike.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  .data-table {
+    --data-table-bg: var(--bg-normal);
+    --data-table-fg: var(--fg-normal);
+    --data-table-border: var(--border-normal);
+    --data-table-ring: var(--focus-ring);
+    --data-table-header-bg: var(--bg-subtle);
+    --data-table-header-fg: var(--fg-subtle);
+    --data-table-row-bg-hovered: var(--bg-normal-hovered);
+    --data-table-empty-fg: var(--fg-subtle);
+  }
+}

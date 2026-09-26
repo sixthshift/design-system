@@ -1,0 +1,51 @@
+/**
+ * Steps recipe — the component-token layer for Steps.
+ *
+ * One axis, and it is not `intent`: a step's colour says where it sits in the
+ * sequence, which the component renders as `data-state` on each item
+ * (`complete`, `current`, `upcoming`). Same shape as tabs.css keying its
+ * selected cell on `data-selected` rather than a variant.
+ *
+ * The grammar is `--steps-[{part}-]{context}[-{state}]`. Parts are the
+ * `indicator` (the numbered circle), the `connector` (the rule to the next
+ * step), and the `label`/`description` text. `-hovered` on the indicator only
+ * ever applies to a completed step with `onStepClick`, the one clickable case.
+ *
+ * The connector belongs to the step it leaves, so a completed step's
+ * connector takes the brand colour: the line fills up to the current step.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.css.
+ */
+
+@layer components {
+  /* The floor, and also the upcoming look: an outlined, quiet step. An item
+     with a state a consumer added but did not style renders like this. */
+  .steps-item {
+    --steps-indicator-bg: var(--bg-normal);
+    --steps-indicator-bg-hovered: var(--steps-indicator-bg);
+    --steps-indicator-fg: var(--fg-subtle);
+    --steps-indicator-border: var(--border-normal);
+    --steps-connector-bg: var(--border-normal);
+    --steps-label-fg: var(--fg-subtle);
+    --steps-description-fg: var(--fg-subtle);
+    --steps-ring: var(--focus-ring);
+  }
+
+  /* current — outlined in brand, the label at full strength. */
+  .steps-item[data-state="current"] {
+    --steps-indicator-bg: var(--bg-brand-subtle);
+    --steps-indicator-fg: var(--fg-on-brand-subtle);
+    --steps-indicator-border: var(--border-brand);
+    --steps-label-fg: var(--fg-normal);
+  }
+
+  /* complete — a filled brand disc with the check reversed out. */
+  .steps-item[data-state="complete"] {
+    --steps-indicator-bg: var(--bg-brand);
+    --steps-indicator-bg-hovered: var(--bg-brand-hovered);
+    --steps-indicator-fg: var(--fg-on-brand);
+    --steps-indicator-border: var(--steps-indicator-bg);
+    --steps-connector-bg: var(--border-brand);
+    --steps-label-fg: var(--fg-normal);
+  }
+}

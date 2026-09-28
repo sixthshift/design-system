@@ -361,6 +361,7 @@
     "check:fix": "biome check --write .",
     "check:recipes": "bun run scripts/check-recipes.ts",
     "check:contrast": "bun run scripts/check-contrast.ts",
+    "check:radius": "bun run scripts/check-radius.ts",
     "check:api": "bun run scripts/api-snapshot.ts --check",
     "check:size": "bun run scripts/check-size.ts",
     "api:update": "bun run scripts/api-snapshot.ts",

@@ -49,7 +49,7 @@ export const cardVariants = cva(
         sm: "rounded-lg p-3",
         md: "rounded-xl p-4",
         lg: "rounded-xl p-6",
-        xl: "rounded-2xl p-8",
+        xl: "rounded-xl p-8",
       },
       interactive: {
         true: "hover:border-(color:--card-border-hovered) focus-visible:outline-(color:--card-ring) cursor-pointer transition-colors focus-visible:outline-2 focus-visible:outline-offset-2",

@@ -351,6 +351,7 @@ deliberate, and all of it is worth knowing before you commit.
 
 | What | Effect on your app |
 | --- | --- |
+| **Tailwind's radius scale is replaced** | `rounded-xs` to `rounded-xl` read the theme's `--border-radius-*` steps (`md` the default), so they change when a theme does. `rounded-2xl`, `rounded-3xl` and `rounded-4xl` stop compiling — in your own markup too; use `rounded-xl`, or an arbitrary value if you truly need more. Bare `rounded` still compiles but is a fixed `0.25rem` no theme reaches; prefer `rounded-sm`. |
 | **Tailwind's default palette is removed** | `bg-red-500`, `text-gray-700`, `border-gray-200` and the rest stop compiling — in your own markup too. What remains is this system's tokens (`bg-bg-brand`, `text-fg-subtle`, `border-border-normal`, …) plus `white`, `black`, `transparent` and `current`. A colour that was never designed should not be one class away. |
 | **`dark:` means `[data-theme="dark"]`** | Not `prefers-color-scheme`. Theming here is a runtime attribute swap, so every `dark:` utility in your app follows the attribute instead of the OS setting. |
 | **`font-sans` and `font-mono`** | Resolve to Inter Variable and JetBrains Mono. Install the [font peers](#fonts) or the stacks fall through to the system defaults. |

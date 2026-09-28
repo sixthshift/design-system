@@ -47,7 +47,7 @@ export const Markdown = React.forwardRef<HTMLDivElement, MarkdownProps>(({ child
         ul: ({ children }) => <ul className="mt-2 flex list-disc flex-col gap-1 pl-5">{children}</ul>,
         ol: ({ children }) => <ol className="mt-2 flex list-decimal flex-col gap-1 pl-5">{children}</ol>,
         li: ({ children }) => <li className="text-fg-default text-sm">{children}</li>,
-        code: ({ children }) => <code className="rounded bg-bg-subtle px-1.5 py-0.5 font-mono text-fg-emphasis text-xs">{children}</code>,
+        code: ({ children }) => <code className="rounded-sm bg-bg-subtle px-1.5 py-0.5 font-mono text-fg-emphasis text-xs">{children}</code>,
         pre: ({ children }) => <pre className="mt-2 overflow-x-auto rounded-md bg-bg-subtle p-3 font-mono text-xs">{children}</pre>,
       }}
     >

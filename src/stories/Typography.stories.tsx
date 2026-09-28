@@ -115,7 +115,7 @@ console.log(result); // Hello, World!`}
         <p className="mb-2 text-fg-subtle text-sm">Inline Code</p>
         <p className="text-lg">
           Use the{" "}
-          <code className="rounded bg-bg-subtle px-1.5 py-0.5 text-fg-normal" style={{ fontFamily: "var(--font-mono)" }}>
+          <code className="rounded-sm bg-bg-subtle px-1.5 py-0.5 text-fg-normal" style={{ fontFamily: "var(--font-mono)" }}>
             npm install
           </code>{" "}
           command to install dependencies.

@@ -2390,7 +2390,7 @@ SUBPATH EXPORTS — 74 subpaths, 503 exports
   value withSuspenseAndErrorBoundary = <P extends object>(Component: ComponentType<P>, options: Options) => { (props: P): Element; displayName: string; }
 
 ==============================================================================
-DESIGN TOKENS — 421 custom properties declared by the theme (src/theme/linen/ + src/theming/tailwind.css)
+DESIGN TOKENS — 431 custom properties declared by the theme (src/theme/linen/ + src/theming/tailwind.css)
 ==============================================================================
 
 --animate-fade-in
@@ -2484,6 +2484,11 @@ DESIGN TOKENS — 421 custom properties declared by the theme (src/theme/linen/ 
 --border-normal-disabled
 --border-normal-hovered
 --border-normal-pressed
+--border-radius-lg
+--border-radius-md
+--border-radius-sm
+--border-radius-xl
+--border-radius-xs
 --border-strong
 --border-strong-disabled
 --border-strong-hovered
@@ -2806,6 +2811,11 @@ DESIGN TOKENS — 421 custom properties declared by the theme (src/theme/linen/ 
 --focus-ring
 --font-mono
 --font-sans
+--radius-lg
+--radius-md
+--radius-sm
+--radius-xl
+--radius-xs
 --theme-name
 --theme-version
 --z-index-app-bar

@@ -10,9 +10,9 @@ export function FocusRingDemo({ mode }: { mode: "light" | "dark" }) {
       <Heading as="h3" className="mb-3">
         Focus Ring
       </Heading>
-      <div className="flex items-center gap-4 rounded p-3" style={{ border: "1px solid var(--border-normal)" }}>
+      <div className="flex items-center gap-4 rounded-sm p-3" style={{ border: "1px solid var(--border-normal)" }}>
         <div
-          className="flex h-10 w-10 items-center justify-center rounded"
+          className="flex h-10 w-10 items-center justify-center rounded-sm"
           style={{
             backgroundColor: "var(--bg-normal)",
             outline: "2px solid var(--focus-ring)",

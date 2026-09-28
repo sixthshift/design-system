@@ -211,6 +211,22 @@ The order encodes the rule: a popover opened from a modal sits above it; toasts 
 
 ---
 
+## Radius Scale
+
+Five steps, defined by the theme as `--border-radius-*` (mode-free, in `src/theme/<name>/theme.css`) and handed to Tailwind in `src/theming/tailwind.css`, so every `rounded-*` class reads the theme. `md` is the middle and the default.
+
+| Class        | Token                 | Linen    | Used for                                        |
+|--------------|-----------------------|----------|-------------------------------------------------|
+| `rounded-xs` | `--border-radius-xs`  | 0.125rem | Checkbox, dropdown items                        |
+| `rounded-sm` | `--border-radius-sm`  | 0.25rem  | Chips, inline code, small cells                 |
+| `rounded-md` | `--border-radius-md`  | 0.375rem | **Default** — buttons, inputs, badges, selects  |
+| `rounded-lg` | `--border-radius-lg`  | 0.5rem   | Popovers, tooltips, messages, small cards       |
+| `rounded-xl` | `--border-radius-xl`  | 0.75rem  | Modals, pickers, cards                          |
+
+A container's step is at least its contents' — a button inside a card must not have rounder corners than the card. `rounded-none` and `rounded-full` are geometry and not themed. Bare `rounded` (a fixed 0.25rem no theme can reach) and anything off the scale fail `bun run check:radius`; Tailwind's own larger steps are reset, so `rounded-2xl` generates nothing.
+
+---
+
 ## Token discipline
 
 The token vocabulary above is the *whole* vocabulary. Two failure modes recur, and both render as nothing or as off-system color — treat them as bugs, not style choices.

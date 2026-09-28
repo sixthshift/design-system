@@ -47,7 +47,7 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
         iconLeft={<Search />}
         iconRight={
           value ? (
-            <button type="button" onClick={handleClear} aria-label={clearLabel} className="rounded hover:bg-(--search-input-clear-bg-hovered)">
+            <button type="button" onClick={handleClear} aria-label={clearLabel} className="rounded-sm hover:bg-(--search-input-clear-bg-hovered)">
               <X />
             </button>
           ) : undefined

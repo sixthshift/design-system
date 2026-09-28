@@ -37,7 +37,10 @@ describe("the theme reference sheet", () => {
     // Sum the groups rather than assert each count: the point is that the
     // prefixes partition the file exhaustively, so a variable added under a
     // prefix nothing matches is caught here rather than silently omitted.
-    const grouped = ["Palette", "Tailwind bridge", "Layering", "Motion", "Typography", "Identity"].reduce((total, title) => total + section(title).length, 0);
+    const grouped = ["Palette", "Radius", "Tailwind bridge", "Layering", "Motion", "Typography", "Identity"].reduce(
+      (total, title) => total + section(title).length,
+      0
+    );
     expect(grouped).toBe(rootDeclarations().length + themeDeclarations().length);
   });
 
@@ -101,7 +104,8 @@ describe("the starter template", () => {
 
   it("emits literal values, never a palette reference", () => {
     const { container } = render(<ThemeTemplate />);
-    for (const block of emitted(container)) {
+    const modes: string[] = Object.values(MODE_SELECTORS);
+    for (const block of emitted(container).filter((candidate) => modes.includes(candidate.selector))) {
       for (const { name, value } of block.declarations) {
         expect(value, name).not.toMatch(/var\(/);
         // A few tokens are authored as keywords (`white`), so ask the browser
@@ -109,6 +113,21 @@ describe("the starter template", () => {
         expect(CSS.supports("color", value), `${name}: ${value}`).toBe(true);
       }
     }
+  });
+
+  it("emits the radius scale, every step, in one mode-free block", async () => {
+    const { container } = render(<ThemeTemplate />);
+    await userEvent.selectOptions(screen.getByRole("combobox", { name: /re-skinning/ }), "radius");
+
+    const blocks = emitted(container);
+    expect(blocks.map((block) => block.selector)).toEqual([":root"]);
+    expect(blocks[0]?.declarations.map((d) => d.name)).toEqual(["xs", "sm", "md", "lg", "xl"].map((step) => `border-radius-${step}`));
+  });
+
+  it("includes the radius scale in everything", async () => {
+    const { container } = render(<ThemeTemplate />);
+    await userEvent.selectOptions(screen.getByRole("combobox", { name: /re-skinning/ }), "all");
+    expect(emitted(container).map((block) => block.selector)).toEqual([MODE_SELECTORS.light, MODE_SELECTORS.dark, ":root"]);
   });
 
   it("narrows to the family being re-skinned", async () => {

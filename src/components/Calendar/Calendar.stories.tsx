@@ -124,7 +124,7 @@ export const SingleModeWithActions: Story = {
           }}
         />
         {log.length > 0 && (
-          <div className="rounded border border-border-normal p-2 text-sm">
+          <div className="rounded-sm border border-border-normal p-2 text-sm">
             <strong>Action log:</strong>
             <ul className="mt-1 list-inside list-disc">
               {log.map((item, i) => (

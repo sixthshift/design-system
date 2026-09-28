@@ -1,6 +1,6 @@
 import { Text } from "@sixthshift/design-system/text";
 import { useState } from "react";
-import { type Declaration, MODE_SELECTORS, modeDeclarations, paletteMap, resolveValue } from "../read-theme-source";
+import { type Declaration, MODE_SELECTORS, modeDeclarations, paletteMap, resolveValue, rootDeclarations } from "../read-theme-source";
 
 /**
  * A copy-paste starting point: the shipped theme, emitted as the CSS a consumer
@@ -20,16 +20,21 @@ import { type Declaration, MODE_SELECTORS, modeDeclarations, paletteMap, resolve
  * Story-only. `src/stories` is excluded from the published package.
  */
 
-/** Families a re-skin is usually scoped to. `all` is the whole layer. */
+/**
+ * Families a re-skin is usually scoped to. `all` is the whole theme. `colour`
+ * selects mode tokens; `radius` adds the mode-free corner scale.
+ */
 const SCOPES = [
-  { value: "brand", label: "Brand only", match: (name: string) => /-brand(-|$)/.test(name) },
-  { value: "feedback", label: "Success, warning, danger", match: (name: string) => /-(success|warning|danger)(-|$)/.test(name) },
+  { value: "brand", label: "Brand only", colour: (name: string) => /-brand(-|$)/.test(name), radius: false },
+  { value: "feedback", label: "Success, warning, danger", colour: (name: string) => /-(success|warning|danger)(-|$)/.test(name), radius: false },
   {
     value: "neutral",
     label: "The greys",
-    match: (name: string) => /-(strong|normal|subtle)(-|$)/.test(name) && !/-(brand|success|warning|danger)-/.test(name),
+    colour: (name: string) => /-(strong|normal|subtle)(-|$)/.test(name) && !/-(brand|success|warning|danger)-/.test(name),
+    radius: false,
   },
-  { value: "all", label: "Everything", match: () => true },
+  { value: "radius", label: "Corners", colour: () => false, radius: true },
+  { value: "all", label: "Everything", colour: () => true, radius: true },
 ] as const;
 
 /** `bg-brand-hovered` -> `Background`. The comment headers inside each block. */
@@ -56,6 +61,12 @@ function block(selector: string, declarations: Declaration[], palette: Map<strin
   return `${selector} {\n${lines.join("\n")}\n}`;
 }
 
+/** The corner scale: one mode-free block, since a corner is the same shape in light and dark. */
+function radiusBlock(declarations: Declaration[]): string {
+  const lines = declarations.map((declaration) => `  --${declaration.name}: ${declaration.value};`);
+  return `/* Corners — md is the middle and the default. A theme must define all five. */\n:root {\n${lines.join("\n")}\n}`;
+}
+
 const HEADER = `/* Your theme. Paste after the design-system import, and leave it unlayered —
    the library's own tokens are unlayered, so a rule inside @layer would lose.
 
@@ -68,13 +79,18 @@ export function ThemeTemplate() {
   const [copied, setCopied] = useState(false);
 
   const palette = paletteMap();
-  const match = SCOPES.find((candidate) => candidate.value === scope)?.match ?? (() => true);
-  const keep = (declarations: Declaration[]) => declarations.filter((declaration) => match(declaration.name));
+  const selected = SCOPES.find((candidate) => candidate.value === scope) ?? SCOPES[4];
+  const keep = (declarations: Declaration[]) => declarations.filter((declaration) => selected.colour(declaration.name));
 
   const light = keep(modeDeclarations("light"));
   const dark = keep(modeDeclarations("dark"));
+  const radius = selected.radius ? rootDeclarations().filter((declaration) => declaration.name.startsWith("border-radius-")) : [];
 
-  const css = [HEADER, block(MODE_SELECTORS.light, light, palette), block(MODE_SELECTORS.dark, dark, palette)].join("\n\n");
+  const css = [
+    HEADER,
+    ...(light.length > 0 ? [block(MODE_SELECTORS.light, light, palette), block(MODE_SELECTORS.dark, dark, palette)] : []),
+    ...(radius.length > 0 ? [radiusBlock(radius)] : []),
+  ].join("\n\n");
 
   const copy = async () => {
     try {
@@ -114,7 +130,7 @@ export function ThemeTemplate() {
           {copied ? "Copied" : "Copy CSS"}
         </button>
         <Text as="span" className="text-fg-subtle text-xs">
-          {light.length} tokens per mode
+          {[light.length > 0 && `${light.length} tokens per mode`, radius.length > 0 && `${radius.length} radius steps`].filter(Boolean).join(" · ")}
         </Text>
       </div>
       <pre className="max-h-[32rem] overflow-auto rounded-lg border border-border-normal bg-bg-subtle p-4 font-mono text-[11px] text-fg-normal leading-relaxed">

@@ -125,7 +125,7 @@ export const AsyncToggle: Story = {
             <select
               value={delay}
               onChange={(e) => setDelay(Number(e.target.value))}
-              className="rounded border border-border-normal bg-bg-normal px-2 py-0.5 text-xs"
+              className="rounded-sm border border-border-normal bg-bg-normal px-2 py-0.5 text-xs"
             >
               <option value={500}>500ms</option>
               <option value={1500}>1.5s</option>

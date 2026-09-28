@@ -107,10 +107,17 @@ export function ThemeReference() {
       />
 
       <VariableTable
+        title="Radius"
+        description="Five corner steps, md the middle and the default. Mode-free. Every rounded-* utility reads these, so this is where a theme reshapes the library; rounded-none and rounded-full are geometry and not themed."
+        columns={["Value"]}
+        rows={rows(root.filter(startsWith("border-radius-")))}
+      />
+
+      <VariableTable
         title="Tailwind bridge"
-        description="The @theme entries that make a utility compile for each semantic token. Nothing reads these directly — they exist so bg-bg-danger is a real class."
+        description="The @theme entries that make a utility compile for each semantic token and radius step. Nothing reads these directly — they exist so bg-bg-danger and rounded-md are real classes."
         columns={["Points at"]}
-        rows={rows(theme.filter(startsWith("color-")))}
+        rows={rows(theme.filter(startsWith("color-", "radius-")))}
       />
 
       <VariableTable

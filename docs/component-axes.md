@@ -1,6 +1,6 @@
 # Component Axes — Target
 
-**Status: landed, except the [structural token layer](#the-structural-token-layer).** The axes, the intent-slot layer and every migration item below are in the code; `component-authoring.md` carries the working rules. This file stays as the record of *why* the axes are named as they are, so the question does not get reopened, plus the one piece of work still ahead.
+**Status: landed.** Structure is partly themeable — see [Structure](#structure-radius-shadow-border) for the radius scale and the known limits. The axes, the intent-slot layer and every migration item below are in the code; `component-authoring.md` carries the working rules. This file stays as the record of *why* the axes are named as they are, so the question does not get reopened, plus the one piece of work still ahead.
 
 ---
 
@@ -164,48 +164,26 @@ Decisions made while landing it:
 
 It landed as a pure refactor. The visual suite's default comparator could not prove that on its own (see Implementation notes), so it was checked with an A/B run at `threshold: 0` against baselines freshly recorded at the parent commit: no component moved.
 
-## The structural token layer
+## Structure: radius, shadow, border
 
-The system themes colour and nothing else, so the recipes can re-point a treatment's colours but not its shape:
+**Radius landed as a scale; the rest is a known limit.**
 
-- The theme has **no** structural tokens — no radius, shadow or border-width; the only non-colour entries are `--font-sans` and `--font-mono`.
-- Every recipe file is colour-only.
-- Structure is compiled into the `.tsx`: `Button.tsx`'s `variantStructure` lookup (`solid: "shadow"`, `outline: "border shadow-xs"`) and the cva base literals (`rounded-md` on Button, `rounded-md border` on Badge — so every Badge carries a 1px border regardless of variant).
+The theme used to own colour and nothing else. The fix considered first was a layer of role-named structural tokens (`--radius-control`, `--radius-surface`, `--shadow-raised`, …) in front of Tailwind's scale. It was **rejected as indirection without a payoff**: radius has no meaning to name the way colour does — there is no "danger radius", only small and large — so for radius the scale step *is* the semantic name. And "control" broke on Badge and TagChip, which use the same radius and are not controls.
 
-Across the library: **38 components hardcode radius, 21 hardcode shadow, 20 hardcode border-width.**
+**What landed:** the theme owns a five-step scale, `--border-radius-xs | sm | md | lg | xl`, `md` the middle and the default, mode-free. `src/theming/tailwind.css` resets Tailwind's own radius scale and points each `--radius-*` at the theme's step, so every `rounded-*` class reads the theme and a theme reshapes the whole library in five lines. `rounded-none` and `rounded-full` are geometry, not steps. Values are Tailwind's, unchanged, so this was pixel-identical — except Card `size="xl"`, which used the only off-scale step (`rounded-2xl`) and now uses `xl`. Seven bare `rounded` classes (a fixed `0.25rem` no theme could reach) became `rounded-sm`. `bun run check:radius` fails on bare `rounded` or an off-scale step, and on a theme or bridge missing a step.
 
-**Not started — the one open item.** `Button.tsx`'s comment claims the seam is open: *"an unrecognised variant stays a legal value that contributes no structure, leaving a consumer's CSS free to define it."* That works only by **omission**. A consumer adding `variant="shadow"` gets a colour cell and then fights `variantStructure`'s silence with `className`; they cannot change what `outline` draws at all, because `border shadow-xs` is baked in. That half-working `Loose<T>` is the real version of the re-skin problem `emphasis` was meant to solve — and it is solved in the recipe, not the prop name.
+**Known limits, deliberately not built:**
 
-The fix is the one colour already had — structure moves into the cell:
+- **Per-component radius.** The scale changes every `rounded-md` at once; it cannot give Button different corners from Input. Overriding `.btn { border-radius }` directly also breaks segmented groups, whose joins use `rounded-l-md` / `rounded-none`. If that is ever needed, add `--button-radius: var(--border-radius-md)` in the recipe and read it as `rounded-(--button-radius)` (and `rounded-l-(--button-radius)` in the groups) — `check:radius` already allows that form.
+- **Shadows.** Tailwind inlines shadow values into `.shadow-*` at build, so no variable exists to theme.
+- **Border width.** `border` is a fixed 1px.
+- **What a treatment draws.** `Button.tsx`'s `variantStructure` (`solid: "shadow"`, `outline: "border shadow-xs"`) and Badge's always-on border live in the `.tsx`, so a theme can re-colour `outline` but not redefine it, and a consumer's `variant="shadow"` gets colour but no shape. The fix is component tokens in the recipe cells (`.btn[data-variant="outline"] { --button-border-width: 1px; --button-shadow: … }`), on the few components whose structure varies by variant — Button, Toggle, Badge.
 
-```css
-/* theme — new layer */
---radius-sm/md/lg/full, --shadow-xs/sm/md/lg, --border-width-thin/thick
-
-/* button.recipe.css */
-.btn {
-  --button-radius: var(--radius-md);
-  --button-border-width: 0;
-  --button-shadow: var(--shadow-sm);
-}
-.btn[data-variant="outline"] {
-  --button-border-width: var(--border-width-thin);
-  --button-shadow: var(--shadow-xs);
-}
-```
-
-```tsx
-// Button.tsx — variantStructure deleted entirely
-rounded-(--button-radius) border-(length:--button-border-width) shadow-(--button-shadow)
-```
-
-The `.tsx` then holds no rendering opinion at all, and `[data-variant="shadow"]` defines the whole treatment.
-
-**Open within this:** how much structure belongs in the shared layer versus per component. A brand wanting square badges but round buttons needs `--badge-radius` not to be simply `var(--radius-md)`. The component-token grammar handles it; it needs deciding per property.
+Worth building only when a second theme or brand needs to change shape, not just colour and corners.
 
 ## What is left
 
-1. **Structural token layer** — its own design pass, above.
+Nothing on the axes. The structural limits above are recorded, not scheduled.
 
 ## Implementation notes
 

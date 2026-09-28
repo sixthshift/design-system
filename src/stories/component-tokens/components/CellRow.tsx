@@ -74,7 +74,7 @@ function Swatch({ value, authored }: { value: Resolved; authored: string | undef
     <span className="flex items-center gap-1.5">
       <span
         aria-hidden="true"
-        className="h-4 w-4 shrink-0 rounded border border-border-normal"
+        className="h-4 w-4 shrink-0 rounded-sm border border-border-normal"
         style={{ backgroundColor: value.colour }}
         title={authored ? `${authored} on this cell` : "inherited from the floor"}
       />

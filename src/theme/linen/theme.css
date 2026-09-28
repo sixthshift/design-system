@@ -1,11 +1,32 @@
 /*
  * Linen — the semantic layer (layer 1). This file is the theme.
  *
+ * What a theme defines, and so what any theme replacing this one must define:
+ *   - the radius scale, `--border-radius-{xs,sm,md,lg,xl}`, in a mode-free
+ *     `:root` block — miss a step and every corner on it renders square;
+ *   - the semantic colour tokens, the same names in both mode blocks.
+ * Everything else — recipes, intent slots, the Tailwind bridge — is
+ * theme-independent and comes from src/theming/tailwind.css.
+ *
  * Trade-off, accepted: the warm cast is a commitment. A consumer whose brand
  * fights the temperature replaces the neutral, not just the accent.
  */
 
 @import "./palette.css";
+
+/* Corner radius — five steps, `md` the middle and the default. Mode-free: a
+   corner is the same shape in light and dark. Tailwind's `rounded-*`
+   utilities read these (src/theming/tailwind.css), so a theme reshapes every
+   corner in the library here. The values are Tailwind's own, unchanged.
+   `rounded-none` and `rounded-full` are geometry, not steps, and are not
+   themed; `bun run check:radius` keeps component source on the scale. */
+:root {
+  --border-radius-xs: 0.125rem;
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+}
 
 :root:not([data-theme]),
 :root[data-theme="light"] {

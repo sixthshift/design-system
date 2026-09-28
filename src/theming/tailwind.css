@@ -67,6 +67,16 @@
   --color-white: #ffffff;
   --color-black: #000000;
 
+  /* Radius — the theme's five steps, and only those. Resetting Tailwind's own
+     scale first means `rounded-2xl` generates nothing instead of a corner no
+     theme can reach; `check:radius` turns that silence into a failure. */
+  --radius-*: initial;
+  --radius-xs: var(--border-radius-xs);
+  --radius-sm: var(--border-radius-sm);
+  --radius-md: var(--border-radius-md);
+  --radius-lg: var(--border-radius-lg);
+  --radius-xl: var(--border-radius-xl);
+
   /* Background */
   --color-bg-strong: var(--bg-strong);
   --color-bg-strong-hovered: var(--bg-strong-hovered);

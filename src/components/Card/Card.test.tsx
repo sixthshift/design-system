@@ -105,7 +105,7 @@ describe("Card size", () => {
     { size: "sm", padding: "p-3", radius: "rounded-lg" },
     { size: "md", padding: "p-4", radius: "rounded-xl" },
     { size: "lg", padding: "p-6", radius: "rounded-xl" },
-    { size: "xl", padding: "p-8", radius: "rounded-2xl" },
+    { size: "xl", padding: "p-8", radius: "rounded-xl" },
   ] as const;
 
   it.for(ramp)("$size pairs $padding with $radius", ({ size, padding, radius }) => {

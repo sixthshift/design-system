@@ -158,19 +158,41 @@ from that rather than assembling it from here. This is what one contains:
 
 <FamilyAnatomy family="danger" />
 
-**Adding a token of your own** — say a new `info` intent — takes the same two
-blocks, plus an `@theme` entry if you also want the Tailwind utility:
+**Adding an intent of your own** — the library ships no `info`, but your app
+can — takes the same two blocks for its token family, one block pointing the
+intent slots at it, and an `@theme` entry if you also want the utility:
 
 ```css
 :root:not([data-theme]),
-:root[data-theme="light"] { --bg-info: #034078; --fg-on-info: #ffffff; }
-:root[data-theme="dark"]  { --bg-info: #6691c7; --fg-on-info: #06121f; }
+:root[data-theme="light"] { --bg-info: #034078; --fg-on-info: #ffffff; /* …the family */ }
+:root[data-theme="dark"]  { --bg-info: #6691c7; --fg-on-info: #06121f; /* …the family */ }
+
+/* Every component's variants paint from these — see src/theming/intents.css */
+[data-intent="info"] {
+  --intent-solid-bg: var(--bg-info);
+  --intent-solid-fg: var(--fg-on-info);
+  /* …the rest of the slots */
+}
 
 @theme { --color-bg-info: var(--bg-info); }   /* only if you want `bg-bg-info` */
 ```
 
+Then `<Button intent="info">`, `<Badge intent="info">` and `<Message intent="info">`
+all work, in every variant, with no release.
+
 You own the contrast of anything you add or re-point: `bun run check:contrast`
 only sees the pairings the library ships.
+
+**Corners** are five mode-free steps, `--border-radius-xs` to `-xl`, with `md`
+the middle and the default. Every `rounded-*` class reads them, so one block
+reshapes the whole library:
+
+```css
+:root { --border-radius-md: 0; --border-radius-lg: 0.25rem; /* …square controls, soft surfaces */ }
+```
+
+`rounded-none` and `rounded-full` are geometry, not steps — a switch thumb stays
+a circle. Shadows and border widths are not themeable yet.
 
 ## More than one brand
 

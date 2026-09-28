@@ -76,6 +76,8 @@ export function cn(...inputs: ClassValue[]) {
 
 `clsx` resolves conditionals; `twMerge` dedupes conflicting Tailwind classes so the last one wins. Never reference raw palette values. Colour belongs in the component's recipe, read back as `bg-(--button-bg)`; a bare semantic class like `bg-bg-brand` in component source is a colour decision a consumer cannot reach. See [design-tokens.md](design-tokens.md).
 
+Corners come from the theme's scale: `rounded-{xs|sm|md|lg|xl}`, `md` unless the component has a reason, and a container at least as round as what it holds. Never bare `rounded` (a fixed 0.25rem no theme can reach) or a step off the scale — `bun run check:radius` fails on both. `rounded-none` and `rounded-full` are fine; they are geometry, not a theme choice.
+
 One more trap: keep a base class string in a **single** literal. Biome's `useSortedClasses` unsafe fix strips the trailing space before a `+` in a concatenated string, welding the last class of one fragment to the first of the next.
 
 ---

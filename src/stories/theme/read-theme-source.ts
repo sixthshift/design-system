@@ -88,9 +88,13 @@ export function parseBlocks(css: string): { selector: string; declarations: Decl
 /** The selectors the token file uses for each mode, for anything emitting CSS. */
 export const MODE_SELECTORS = { light: LIGHT, dark: DARK } as const;
 
-const blockFor = (selector: string) => declarations(blocks(source()).find((block) => block.selector === selector)?.body ?? "");
+/** Every block with this selector, merged in source order — palette.css and theme.css each open a `:root`. */
+const blockFor = (selector: string) =>
+  blocks(source())
+    .filter((block) => block.selector === selector)
+    .flatMap((block) => declarations(block.body));
 
-/** The hand-written `:root` block: palette scales, font stacks, theme identity. */
+/** The hand-written `:root` blocks: palette scales, font stacks, theme identity, the radius scale. */
 export const rootDeclarations = () => blockFor(":root");
 
 /** Semantic tokens for one mode, as authored. */

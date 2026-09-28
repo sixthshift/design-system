@@ -43,11 +43,11 @@ export function InteractiveTokenRow({ baseToken, type, mode }: { baseToken: stri
   };
 
   return (
-    <div className="w-[24rem] rounded p-3" style={{ border: "1px solid var(--border-normal)" }}>
+    <div className="w-[24rem] rounded-sm p-3" style={{ border: "1px solid var(--border-normal)" }}>
       <Text className="mb-2 font-medium font-mono text-sm">{baseToken}</Text>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col items-center gap-1">
-          <div className="flex h-10 w-10 items-center justify-center rounded font-bold text-xs" style={getStyle(baseToken)}>
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm font-bold text-xs" style={getStyle(baseToken)}>
             {isOnToken && "Aa"}
           </div>
           <Text className="text-fg-subtle text-xs">base</Text>
@@ -57,7 +57,7 @@ export function InteractiveTokenRow({ baseToken, type, mode }: { baseToken: stri
           const token = `${baseToken}-${state}`;
           return (
             <div key={state} className="flex flex-col items-center gap-1">
-              <div className="flex h-10 w-10 items-center justify-center rounded font-bold text-xs" style={getStyle(token)}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-sm font-bold text-xs" style={getStyle(token)}>
                 {isOnToken && "Aa"}
               </div>
               <Text className="text-fg-subtle text-xs">{state}</Text>

@@ -22,7 +22,7 @@ const defaultOptions = [
   { value: "push", label: "Push" },
 ];
 
-// Default variant (checkbox + label)
+// Control appearance (checkbox + label)
 /**
  * Unlike a radio group, every option is independently selectable and separately
  * tabbable.
@@ -90,13 +90,12 @@ export const AllDisabled: Story = {
   },
 };
 
-// Button variant - Segmented
+// Button appearance - Segmented
 export const ButtonSegmented: Story = {
   args: {
     value: ["email"],
     options: defaultOptions,
     onValueChange: () => {},
-    variant: "button",
     appearance: "segmented",
   },
 };
@@ -106,19 +105,17 @@ export const ButtonSegmentedVertical: Story = {
     value: ["email", "push"],
     options: defaultOptions,
     onValueChange: () => {},
-    variant: "button",
     appearance: "segmented",
     orientation: "vertical",
   },
 };
 
-// Button variant - Separate
+// Button appearance - Separate
 export const ButtonSeparate: Story = {
   args: {
     value: ["email", "sms"],
     options: defaultOptions,
     onValueChange: () => {},
-    variant: "button",
     appearance: "separate",
   },
 };
@@ -128,7 +125,6 @@ export const ButtonSeparateVertical: Story = {
     value: ["push"],
     options: defaultOptions,
     onValueChange: () => {},
-    variant: "button",
     appearance: "separate",
     orientation: "vertical",
   },
@@ -139,7 +135,7 @@ export const ButtonDisabled: Story = {
     value: ["email"],
     options: defaultOptions,
     onValueChange: () => {},
-    variant: "button",
+    appearance: "segmented",
     disabled: true,
   },
 };
@@ -162,7 +158,7 @@ export const ControlledButton: Story = {
     const [selected, setSelected] = useState<string[]>(["email"]);
     return (
       <div className="flex flex-col gap-4">
-        <CheckboxGroup value={selected} onValueChange={setSelected} options={defaultOptions} variant="button" aria-label="Notification preferences" />
+        <CheckboxGroup value={selected} onValueChange={setSelected} options={defaultOptions} appearance="segmented" aria-label="Notification preferences" />
         <p className="text-fg-subtle text-sm">Selected: {selected.length > 0 ? selected.join(", ") : "None"}</p>
       </div>
     );
@@ -184,7 +180,7 @@ export const FormExample: Story = {
           value={selected}
           onValueChange={setSelected}
           options={defaultOptions}
-          variant="button"
+          appearance="segmented"
           aria-label="Notification preferences"
         />
         <button type="submit" className="rounded-md bg-bg-brand px-4 py-2 text-fg-on-brand">

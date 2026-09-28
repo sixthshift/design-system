@@ -112,4 +112,4 @@ A new trigger-anchored overlay differs from this only in *which* interaction hoo
 - [Component API Design](component-api-design.md) — why these overlays use compound children over array props
 - [Composition](composition.md) — composing primitives into composites into pages
 - [Motion](motion.md) — the animation vocabulary overlays draw the `animate-*` classes from
-- [Component Catalog](component-catalog.md) — the overlay components' public APIs
+- [Storybook](https://sixthshift.github.io/design-system/) — the overlay components' public APIs, on each one's generated docs page

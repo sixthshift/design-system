@@ -8,7 +8,7 @@ import { Slot } from "../../internal/Slot";
  *
  * Every colour reads a `--button-*` component token whose value is decided by
  * src/components/Button/button.recipe.css. That file is the mapping from
- * `(variant, intent, state)` to a semantic token — the layer that used to be
+ * `(variant, state)` to the intent slots — the layer that used to be
  * `compoundVariants` here, where it was compiled into class-name literals and
  * unreachable from outside. Nothing in this file names a colour, which is the
  * point: the semantics are now configurable without a release.
@@ -36,7 +36,7 @@ const buttonVariants = cva(
 );
 
 /**
- * The non-colour half of `variant` — border width, elevation, underline.
+ * The non-colour half of `variant` — border width, elevation.
  *
  * A plain lookup rather than a CVA variant so an unrecognised variant stays a
  * legal value that contributes no structure, leaving a consumer's CSS free to
@@ -46,8 +46,14 @@ const variantStructure: Record<string, string> = {
   solid: "shadow",
   outline: "border shadow-xs",
   ghost: "",
-  link: "underline-offset-4 hover:underline",
 };
+
+/**
+ * `inline` — inline text, no button box. Not a variant: it is different
+ * geometry, not a quieter fill, so it replaces the box rather than joining the
+ * variant axis. The size's text scale stays; its height and padding go.
+ */
+const inlineGeometry = "h-auto px-0 py-0 underline-offset-4 hover:underline";
 
 /**
  * Squares the box at whatever size is set, and drops the horizontal padding.
@@ -72,13 +78,12 @@ const iconOnlyGeometry: Record<string, string> = {
  * has never heard of, while still autocompleting the ones it ships.
  *
  * The closed unions are exported alongside, because widening a type gives up the
- * ability to narrow it downstream: once `string` is in the union,
- * `Exclude<ButtonVariant, "link">` can no longer remove `link`. ToggleGroup
- * relies on exactly that exclusion, so it builds on the closed names.
+ * ability to narrow it downstream: once `string` is in the union, an `Exclude`
+ * can no longer remove anything. Code that must narrow builds on the closed names.
  */
 type Loose<T extends string> = T | (string & {});
 
-export type ButtonVariantName = "solid" | "outline" | "ghost" | "link";
+export type ButtonVariantName = "solid" | "outline" | "ghost";
 export type ButtonIntentName = "neutral" | "brand" | "danger" | "success" | "warning";
 export type ButtonVariant = Loose<ButtonVariantName>;
 export type ButtonIntent = Loose<ButtonIntentName>;
@@ -89,6 +94,7 @@ export type ButtonRecipeProps = VariantProps<typeof buttonVariants> & {
   /** Re-points this element's brand tokens to a brand the theme defines. See the Scoped brands docs. */
   brand?: string | undefined;
   iconOnly?: boolean | undefined;
+  inline?: boolean | undefined;
   className?: string | undefined;
 };
 
@@ -101,15 +107,20 @@ export type ButtonRecipeProps = VariantProps<typeof buttonVariants> & {
  * Shared with Toggle and ToggleGroupItem, which are built on Button's look. The
  * data attributes are half the contract now, so anything reusing that look has
  * to emit them as well or it lands on the recipe's floor instead of a cell.
+ *
+ * `inline` is terminal: it drops `data-variant` altogether, so no variant cell
+ * can match and the recipe's `[data-inline]` cell decides the colour alone.
  */
-export function buttonRecipe({ variant = "solid", intent = "neutral", brand, size, iconOnly = false, className }: ButtonRecipeProps) {
+export function buttonRecipe({ variant = "solid", intent = "neutral", brand, size, iconOnly = false, inline = false, className }: ButtonRecipeProps) {
+  const shape = inline ? inlineGeometry : iconOnly ? iconOnlyGeometry[size ?? "md"] : undefined;
   return {
     className: cn(
-      variantStructure[variant],
-      // `className` stays last so a caller still outranks the icon geometry.
-      buttonVariants({ size, className: cn(iconOnly ? iconOnlyGeometry[size ?? "md"] : undefined, className) })
+      inline ? undefined : variantStructure[variant],
+      // `className` stays last so a caller still outranks the shape geometry.
+      buttonVariants({ size, className: cn(shape, className) })
     ),
-    "data-variant": variant,
+    "data-variant": inline ? undefined : variant,
+    "data-inline": inline ? "true" : undefined,
     "data-intent": intent,
     "data-brand": brand,
   };
@@ -127,6 +138,8 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
     brand?: string | undefined;
     /** Square the button at its current size, for an icon with no label. */
     iconOnly?: boolean;
+    /** Render as inline text with no button box — a link-styled action. Ignores `variant`. */
+    inline?: boolean;
     asChild?: boolean;
     loading?: boolean;
   };
@@ -135,9 +148,9 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
  * A single action the user can take.
  *
  * Appearance is three independent axes, so every combination is expressible:
- * `variant` is the fill and shape (`solid`, `outline`, `ghost`, `link`),
- * `intent` is what the action *means* (`brand` — the default — plus `neutral`,
- * `danger`, `success`, `warning`), and `size` is the height scale. Reach for
+ * `variant` is the treatment (`solid`, `outline`, `ghost`), `intent` is what
+ * the action *means* (`neutral` — the default — plus `brand`, `danger`,
+ * `success`, `warning`), and `size` is the height scale. Reach for
  * `intent="danger"` on a destructive action rather than a red `variant` — that
  * is the distinction that keeps "outline danger" possible.
  *
@@ -145,14 +158,17 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
  * means on Badge and Message. A brand-coloured button is
  * `intent="brand"` — an affirmative choice, which is why `neutral` is the
  * default: omitting the prop means "no particular meaning", so it should not
- * quietly hand back the brand colour. Button used to spell brand as `neutral`
- * for `solid` and `link` while `outline` and `ghost` were already grey, so a
- * primary action now needs `intent="brand"` said out loud.
+ * quietly hand back the brand colour. A primary action says `intent="brand"`
+ * out loud.
  *
- * Colour is not decided here. Each pairing resolves through a `--button-*`
- * component token, so a consumer can re-point any cell — or add an intent this
- * library never shipped — from their own stylesheet. See the Component tokens
- * story below.
+ * Colour is not decided here. Each variant resolves through a `--button-*`
+ * component token painted from the intent slots, so a consumer can re-point
+ * any cell — or add an intent this library never shipped — from their own
+ * stylesheet. See the Component tokens story below.
+ *
+ * `inline` renders the action as inline text with no box — underline on
+ * hover, colour from `intent` — for an action that sits in a line of text or a
+ * toast. It is terminal: `variant` is ignored.
  *
  * `iconOnly` squares the box at whatever `size` is set and drops the
  * horizontal padding, for a button whose whole content is an icon — give it an
@@ -170,12 +186,25 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
  */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant = "solid", intent = "neutral", brand, size, iconOnly = false, asChild = false, loading = false, children, disabled, ...props },
+    {
+      className,
+      variant = "solid",
+      intent = "neutral",
+      brand,
+      size,
+      iconOnly = false,
+      inline = false,
+      asChild = false,
+      loading = false,
+      children,
+      disabled,
+      ...props
+    },
     ref
   ) => {
     const Comp = asChild ? Slot : "button";
     return (
-      <Comp {...buttonRecipe({ variant, intent, brand, size, iconOnly, className })} ref={ref} disabled={disabled || loading} {...props}>
+      <Comp {...buttonRecipe({ variant, intent, brand, size, iconOnly, inline, className })} ref={ref} disabled={disabled || loading} {...props}>
         {loading ? (
           <>
             <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">

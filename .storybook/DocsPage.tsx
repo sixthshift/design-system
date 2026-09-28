@@ -7,8 +7,8 @@ import { Controls, Description, Primary, Source, Stories, Subtitle, Title, useOf
  * never thin because they were generated, they were thin because almost nothing
  * had prose to generate from. Fifty-three hand-written pages would be
  * fifty-three files to keep in sync with the props they describe — the failure
- * mode docs/component-catalog.md already demonstrates, where the hand-maintained
- * prop tables now disagree with the components.
+ * mode docs/component-catalog.md demonstrated before it was deleted, its
+ * hand-maintained prop tables having drifted from the components.
  *
  * So: structure lives here, and the words live next to the code they describe —
  * a JSDoc above the component (which react-docgen feeds to `<Description />`,

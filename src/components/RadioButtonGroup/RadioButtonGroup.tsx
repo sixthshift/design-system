@@ -27,10 +27,11 @@ export type RadioButtonGroupProps = Omit<React.HTMLAttributes<HTMLDivElement>, "
   onValueChange?: (value: string) => void;
   /** Layout orientation */
   orientation?: "vertical" | "horizontal";
-  /** Visual variant */
-  variant?: "default" | "button";
-  /** Button appearance (only applies when variant="button") */
-  appearance?: "segmented" | "separate";
+  /**
+   * How the options render: `control` (the default) is one `RadioButton` per option;
+   * `segmented` and `separate` are a row or column of buttons, joined or apart.
+   */
+  appearance?: "control" | "segmented" | "separate";
   /** Input name for form submission */
   name?: string;
   /** Disable all options */
@@ -44,21 +45,22 @@ export type RadioButtonGroupProps = Omit<React.HTMLAttributes<HTMLDivElement>, "
  * uncontrolled `string` selection, via the `value`/`defaultValue`/
  * `onValueChange` triad (`useControllableState`).
  *
- * `variant="default"` (the default) renders one `RadioButton` per option.
- * `variant="button"` is a separate rendering path — not a re-skinned
- * `RadioButton` — a row/column of plain buttons with `role="radio"`;
- * contiguous buttons touch and share borders (`appearance="segmented"`, the
- * default) or sit apart with their own rounded corners
- * (`appearance="separate"`).
+ * `appearance="control"` (the default) renders one `RadioButton` per option.
+ * `appearance="segmented"` or `"separate"` is a separate rendering path — not
+ * a re-skinned `RadioButton` — a row/column of plain buttons with
+ * `role="radio"`; contiguous buttons touch and share borders (`segmented`) or
+ * sit apart with their own rounded corners (`separate`). One prop rather than
+ * a `variant` + `appearance` pair, so "appearance without buttons" — which
+ * used to mean nothing — cannot be written.
  *
  * Implements the WAI-ARIA radiogroup keyboard pattern: the group is one tab
  * stop, landing on the checked option (or the first enabled option if none
  * is checked), and arrow/Home/End keys move focus *and* selection between
  * enabled options, wrapping at the ends.
  *
- * Form submission only happens when `name` is set. In the default variant
+ * Form submission only happens when `name` is set. With `control`
  * that means each underlying `RadioButton` gets `name`, so one hidden
- * native radio input is rendered per option; in the button variant the
+ * native radio input is rendered per option; with the button appearances the
  * group itself renders a single hidden `<input type="hidden">` carrying the
  * selected value.
  *
@@ -73,8 +75,7 @@ const RadioButtonGroup = React.forwardRef<HTMLDivElement, RadioButtonGroupProps>
       options,
       onValueChange,
       orientation = "vertical",
-      variant = "default",
-      appearance = "segmented",
+      appearance = "control",
       name,
       disabled,
       onBlur,
@@ -111,8 +112,8 @@ const RadioButtonGroup = React.forwardRef<HTMLDivElement, RadioButtonGroupProps>
     const handleOptionSelect = (optionValue: string) => {
       // Re-selecting the current option reports nothing, as a native radio does
       // not. The guard lives here as well as in `RadioButton` because the button
-      // variant is a separate rendering path that never goes through it — and
-      // the two variants must not disagree about this. `ToggleGroup` in
+      // appearances are a separate rendering path that never goes through it —
+      // and the two paths must not disagree about this. `ToggleGroup` in
       // `"single"` mode already works this way.
       if (optionValue === value) return;
       setValue(optionValue);
@@ -139,7 +140,7 @@ const RadioButtonGroup = React.forwardRef<HTMLDivElement, RadioButtonGroupProps>
     const hasCheckedOption = options.some((option) => option.value === value);
     const tabStopValue = hasCheckedOption ? value : firstEnabledValue;
 
-    if (variant === "button") {
+    if (appearance === "segmented" || appearance === "separate") {
       const isVertical = orientation === "vertical";
       const isSegmented = appearance === "segmented";
 

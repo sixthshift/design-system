@@ -14,9 +14,8 @@ import type { ToggleGroupProps } from "./toggleGroup.types";
  * string array for multiple (`useControllableState`).
  *
  * Items are built on the same `buttonRecipe` as `Button`/`Toggle` and take
- * the same `variant`/`intent`, with two differences: `variant` excludes
- * `"link"` (no clear pressed state for an underline in a group) and `size`
- * excludes `"xl"` (too large for grouped toggles) — see
+ * the same `variant`/`intent`, with one difference: `size` excludes `"xl"`
+ * (too large for grouped toggles) — see
  * `toggleGroup.types.ts`. `appearance` chooses `"segmented"` (items joined
  * into one border) or `"separate"` (individually bordered, gapped) rendering.
  */

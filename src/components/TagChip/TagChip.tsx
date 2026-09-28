@@ -25,7 +25,8 @@ export type TagChipProps = {
  * Two disjoint modes, chosen by whether `onRemove` is passed: navigable (no
  * `onRemove`; the caller wraps it in a link) or removable (`onRemove` renders
  * an × — used by `TagInput` and edit surfaces). Built on `Badge`
- * (`variant="outline" intent="muted"`).
+ * (`variant="outline" intent="neutral"`), with the text quietened by its own
+ * `--tag-chip-fg` — a tag is metadata, not a status, so it takes no intent.
  */
 export const TagChip = React.forwardRef<HTMLSpanElement, TagChipProps>(({ tag, onRemove, size = "sm", className }, ref) => {
   const sep = tag.indexOf(":");
@@ -33,12 +34,7 @@ export const TagChip = React.forwardRef<HTMLSpanElement, TagChipProps>(({ tag, o
   const value = sep > 0 ? tag.slice(sep + 1) : tag;
 
   return (
-    <Badge
-      ref={ref}
-      variant="outline"
-      intent="muted"
-      className={cn("tag-chip gap-1 font-normal", size === "sm" ? "px-1.5 py-0 text-[10px]" : "px-2 py-0.5 text-xs", className)}
-    >
+    <Badge ref={ref} variant="outline" intent="neutral" size={size} className={cn("tag-chip gap-1 font-normal text-(--tag-chip-fg)", className)}>
       {namespace && <span className="text-(--tag-chip-namespace-fg)">{namespace}:</span>}
       <span>{value}</span>
       {onRemove && (

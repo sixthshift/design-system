@@ -1,135 +1,123 @@
 # Component Axes — Target
 
-**Status: target.** Steps 1-2 have landed (vocabulary renames; Button's neutral/brand split); steps 3-7 have not. `component-authoring.md` describes the system as it is today; this describes where the axes are going and why. Fold sections of this into `component-authoring.md` as they land, and delete them from here.
+**Status: landed, except the [structural token layer](#the-structural-token-layer).** The axes, the intent-slot layer and every migration item below are in the code; `component-authoring.md` carries the working rules. This file stays as the record of *why* the axes are named as they are, so the question does not get reopened, plus the one piece of work still ahead.
 
 ---
 
-## The three axes
+## The axes
 
-Every primitive's appearance factors into at most three independent props. Each names a property of the **content**, never of the rendering.
-
-```ts
-intent    = neutral | brand | danger | success | warning
-emphasis  = subtle | normal | strong
-size      = xs | sm | md | lg | xl
-```
-
-| Axis | Question it answers | Property of |
-|---|---|---|
-| `intent` | What does this *mean*? | The thing itself — a delete is destructive alone in an empty room |
-| `emphasis` | How much attention should this claim, relative to its surroundings? | The thing's importance in context |
-| `size` | How much room does it occupy? | Layout |
-
-Two booleans sit beside them for geometry that isn't on any ramp:
+Every primitive's appearance factors into at most three props, plus two booleans for shape. Each prop is named for **what the caller knows at the call site** — that is the one rule that decides every name below.
 
 ```ts
-inline?:   boolean   // renders as inline text, not a box (was variant="link")
+intent   = neutral | brand | danger | success | warning   // what it means
+variant  = solid | outline | ghost | soft | …             // how it is drawn — per component
+size     = xs | sm | md | lg | xl                         // how much room it takes
+
+inline?:   boolean   // inline text, no box (was variant="link")
 iconOnly?: boolean   // squares the box at the current size (was size="icon")
 ```
 
+| Axis | The caller knows… | Chosen from |
+|---|---|---|
+| `intent` | what the thing *means* — a delete is destructive alone in an empty room | the content |
+| `variant` | what the design specifies — "ghost buttons in this toolbar" | the spec |
+| `size` | how much room it has | the layout |
+
 ## Why these names
 
-The house rule is stated in `design-philosophy.md`: **`intent="danger"`, not `color="red"`.** Name the meaning; let the theme decide the rendering. The `intent` axis has followed that rule since the component-token layer landed. The second axis never did — `variant="solid"` is `color="red"` for shape.
+### `intent` names a meaning
 
-That naming actively defeats the layer beneath it. The point of the `*.recipe.css` recipes is that a consumer repoints rendering without a release. But `variant="outline"` **pins the rendering at the call site**: a brand that decides its middle rung should be a tinted fill rather than a border has to edit every call site, because the decision was baked into JSX. `emphasis="normal"` puts that decision in one recipe cell, where the rest of the system already keeps its decisions.
+The house rule is stated in `design-philosophy.md`: **`intent="danger"`, not `color="red"`.** The caller knows the meaning; the colour is the theme's call. It survives a re-skin — `intent="danger"` stayed true when the danger palette changed.
 
-It also matters that the name survives a re-skin. If a consumer brand expresses its middle rung as a 3px offset shadow with no border, a prop named `outline` is **false in the JSX** — the call site asserts a rendering that isn't happening. `emphasis="normal"` stays true under any theme, for the same reason `intent="danger"` stayed true when the danger palette changed.
+`neutral` is the absence of a colour family: the grey ramp, on every component. `brand` is the one member that names an identity rather than a meaning — in practice it means "the primary action" or "this is ours". That is kept deliberately: the name is honest, and the `brand` prop (`<Button intent="brand" brand="mint">`, rendering `data-brand`) scopes it to one of a theme's named brands.
 
-### Why not `primary | secondary | tertiary`
+### `variant` names a rendering — deliberately
 
-It was the first candidate, and it means something real: rank in a decision hierarchy. It was rejected because it is only true for competing actions, and most of the axis isn't that.
+This axis was going to be renamed `emphasis: subtle | normal | strong`, on the argument that `variant="outline"` pins the rendering at the call site and becomes false in a theme that draws its middle rung as, say, an offset shadow. That rename is **dropped**. There are three ways to name the axis, and the literal one is the only one that holds up:
 
-Of the sixteen non-story `variant=` call sites in the library today, ten are genuine rank — the footer button rows in `TimePicker`, `CalendarView`, `DateTimePicker` and `DateTimeRangePicker`, each pairing a `solid` Apply against `ghost` Cancel/Today/Now. The others are not. `Toast`'s dismiss is quiet because it is chrome, not because it is third-most-important; it is the only control for its job. `TabsTrigger`'s count badge and `TagChip` have no siblings to rank against at all — a status label has no place in a decision hierarchy. And `Toast.tsx:115` breaks the reading outright: the action button is the most important thing in the toast and gets the quietest treatment, because of placement. Even within the ten, the ordering is loose — `CalendarView` puts Today *and* Cancel on the same rung, so it is "recommended vs not", not a three-step ranking.
+| Naming | Example | States | Why not |
+|---|---|---|---|
+| **Effect** | `emphasis="strong"` | how it should come across | Emphasis is a *result* of how a component is styled, not an input — nobody asks for "a strong button". And it cannot answer the question a recipe has to: what does a strong button do on hover? |
+| **Reason** | `role="primary"` | why it is drawn that way | The only genuinely semantic option, and it fails on the call sites. See below. |
+| **Rendering** | `variant="ghost"` | what it looks like | Wrong in a theme that has no ghost — but see below for why that cost is small. |
 
-So `primary` would fail the same way `solid` does, inverted. `solid` names a rendering truthfully and lies about being universal; `primary` names a rank truthfully and lies about applying to things that have no rank.
+**States belong to the treatment, not to an attention level.** `solid` moves its fill along its own ramp (`bg-brand` → `-hovered` → `-pressed`). `outline` keeps its border and gains a tint wash. `ghost` has nothing at rest and the same wash on hover. Every state is defined relative to a *resting surface*; `strong` names no surface, so `strong-hovered` means nothing, and the recipe could only answer by quietly translating `strong` back into `solid`. The abstraction would be a synonym plus an indirection.
 
-Attention weight is what all seventeen sites actually express, and it is still a content property — an "Overdue" badge deserves more attention than a "Paid" one regardless of how either is drawn. `subtle | normal | strong` is already the house word for it in the token layers.
+**The re-skin argument does not survive this.** A brand that redraws the middle rung as a shadow must redefine its hover, pressed and focus states too — they are treatment-bound. That work happens in the recipe CSS regardless of what the JSX says, so the abstract name never bought portability where it mattered. What is left is a name that is false in one theme, and that theme can map `outline` to its nearest treatment, or add its own (`variant="shadow"`, see `Loose<T>` below) without a release. In this system a brand is colour-only anyway: `data-brand` re-points `--bg-brand` and nothing else; treatment lives in the library's recipes.
 
-**Known cost:** `emphasis="strong"` suggests `--bg-*-strong` and will not deliver it (Button's loudest rung reaches for `--bg-brand`). The association is loose and deliberate. Also lost: "one primary per view" is a real design rule that these names do not carry — it belongs in prose review guidance, which is where it was enforceable anyway.
+**Why not `primary | secondary | tertiary`.** It means something real — rank in a decision hierarchy — but only for competing actions, and most of the axis is not that. Of the sixteen non-story `variant=` call sites, ten are genuine rank: the footer rows in `TimePicker`, `CalendarView`, `DateTimePicker` and `DateTimeRangePicker`, each pairing a `solid` Apply against `ghost` Cancel/Today/Now. The others are not. `Toast`'s dismiss is quiet because it is chrome, not because it is third-most-important. `TabsTrigger`'s count badge and `TagChip` have nothing to rank against. `Toast.tsx:115` inverts it outright: the action is the most important thing in the toast and gets the quietest treatment, because of placement. And where rank does fit, it collapses to rendering anyway — `primary` is always `solid`.
+
+So the caller states the meaning (`intent`) and copies the treatment from the spec (`variant`). "One primary action per view" is a real design rule these names do not carry; it belongs in review guidance, which is where it was enforceable anyway.
+
+**The prop stays `variant`.** It is what every call site already says, so keeping it is free. `appearance` is less vague but is taken by the group mode prop below, and the two must not share a name.
 
 ## Rules
 
-1. **A name means one thing system-wide.** A component ships a subset; it never redefines a member. `intent="neutral"` is grey everywhere, including on Button.
-2. **`intent` names a token family.** Nothing joins the menu without `--bg-*` / `--fg-on-*` / `--border-*` behind it. This is what keeps `info`, `accent`, `primary`, `muted`, `healthy`, `error` out permanently.
-3. **`emphasis` never carries colour, `intent` never carries weight.** Every combination stays expressible.
+1. **A value means one thing system-wide.** A component ships a subset; it never redefines a member. `intent="neutral"` is grey everywhere.
+2. **`intent` names a token family.** Nothing joins the menu without `--bg-*` / `--fg-on-*` / `--border-*` behind it. This keeps `info`, `accent`, `primary`, `muted`, `healthy`, `error` out permanently — `info` by explicit decision: an informational `Message` is `neutral`.
+3. **`variant` never carries colour, `intent` never carries treatment.** Every combination stays expressible.
 4. **Neither axis switches rendering mode.** A component with two distinct render paths gets its own prop for that.
 5. **`size` never carries shape.** Shape is a boolean.
-6. **Every component ships all three emphasis rungs.** How each renders is the recipe's call, not the axis's.
-7. **Types are `Loose<T>`, closed unions exported alongside.** A consumer adds a rung or an intent in CSS with no release; downstream code that must narrow builds on the closed `*Name` union.
-
-## What the shipped theme renders
-
-The mapping is the recipe's business — this table records the default theme's choices, not the meaning of the axis. A consumer repoints any cell.
-
-| | `subtle` | `normal` | `strong` |
-|---|---|---|---|
-| Button | ghost — no fill until hover | outline — border, no fill | solid fill |
-| Badge | outline — border, resting surface | soft tint | solid fill |
-
-Both components have exactly three treatments today, already ordered by weight, so nothing collapses. The arbitrary gaps disappear as a side effect: Button currently has no `soft` and Badge no `ghost`, and `design-tokens.md` shrugs at this with "values are component-specific". Under `emphasis` every component has all three rungs and chooses how to draw them.
+6. **A component ships the treatments that make sense for it.** There is no shared rung count. Badge has `soft`; Button does not need it.
+7. **Types are `Loose<T>`, closed unions exported alongside.** A consumer adds a treatment or an intent in CSS with no release; downstream code that must narrow builds on the closed `*Name` union.
+8. **The default of an axis is the value that means "unspecified".** For `intent` that is `neutral` on every component. A brand-coloured primary action says `intent="brand"` out loud.
 
 ## Per-component subsets
 
-| Component | `intent` | `emphasis` | `size` | Notes |
+| Component | `intent` | `variant` | `size` | Flags |
 |---|---|---|---|---|
-| Button | all 5, default `neutral` | all 3, default `strong` | `xs`–`xl`, default `md` | `+ inline`, `+ iconOnly` |
-| Toggle | inherits Button | inherits Button | inherits Button | |
-| ToggleGroup | `ButtonIntent` (widened) | all 3 | `xs`–`lg` | |
-| Badge | all 5, default `brand` | all 3, default `strong` | `sm \| md`, default `md` | new size axis |
+| Button | all 5, default `neutral` | `solid \| outline \| ghost`, default `solid` | `xs`–`xl`, default `md` | `inline`, `iconOnly` |
+| Toggle | inherits Button | inherits Button | inherits Button | `iconOnly` |
+| ToggleGroup | all 5 (widened) | `solid \| outline \| ghost` | `xs`–`lg` | `iconOnly` |
+| Badge | all 5, default `neutral` | `solid \| soft \| outline`, default `solid` | `sm \| md`, default `md` | |
 | TagChip | — | — | forwards Badge's | own `--tag-chip-fg` |
 | Message | `neutral \| danger \| success \| warning`, default `neutral` | — | `sm \| md` | |
 | Toast | inherits Message | — | — | |
+| FormField feedback | `danger \| success \| warning` | — | — | |
 | ProgressBar | all 5, default `brand` | — | — | |
 | Spinner | — | — | `sm`–`xl` | recolour via `--spinner-fg` |
-| Modal | — | — | `sm \| md \| lg \| full` | already compliant |
-| Sheet | — | — | `sm \| md \| lg` | already compliant |
+| Modal | — | — | `sm \| md \| lg \| full` | |
+| Sheet | — | — | `sm \| md \| lg` | |
+
+ProgressBar's `brand` default is the one deliberate exception to rule 8. A progress bar exists to show motion, and a grey fill on a grey track reads as inert; `neutral` is available (it fills with `fg-subtle`, see its recipe) but is not the default. Progress is not an outcome either — a bar at 40% is not succeeding, which is why the default is not `success`.
 
 ## Migration
 
-### Intent vocabulary
+**All done.** No alias was kept for any rename below — the library had no external consumers, so every change was a clean break.
 
-| From | To | Cost |
-|---|---|---|
-| `primary` | `brand` | **Zero call sites.** `intent="primary"` never appears — Badge only receives it as an implicit default. Touches Badge.tsx, badge.css, docs. |
-| Button `neutral` = brand | `neutral` = grey, new `brand` cells, default stays `neutral` | Button is the lone outlier — `neutral` already means grey in Badge (`bg-strong`) and Message (`bg-normal`). **A bare `<Button>` does change**: it was brand-filled, it is now grey. See the note below on why no default could have avoided that. |
-| `muted` | deleted | Badge loses three cells. TagChip renders `intent="neutral"` and supplies its own `--tag-chip-fg`. See the specificity note below. |
-| ProgressBar (hardcoded `bg-fg-success`) | `intent`, default `brand` | Progress is not an outcome; a bar at 40% is not succeeding. Changes the rendering from green to brand. |
+### Intent
 
-#### Why the default intent stays `neutral`
+| Change | Cost |
+|---|---|
+| `primary` → `brand` | **Done.** |
+| Button `neutral` = brand → `neutral` = grey, new `brand` cells | **Done.** A bare `<Button>` changed from brand-filled to grey. |
+| Badge default `brand` → `neutral` | **Done.** A bare `<Badge>` turned from brand-filled to grey. No library call site relied on the default; the scoped-brands stories now say `intent="brand"`. |
+| `muted` deleted | **Done.** TagChip renders `intent="neutral"` and supplies its own `--tag-chip-fg` (`fg-subtle`) — see the specificity note under Implementation notes. Pixel-identical. |
+| ProgressBar: hardcoded `bg-fg-success` → `intent`, default `brand` | **Done**, via a new `progress-bar.recipe.css`. Rendering changed from green to brand. |
+| FormField feedback: hand-rolled union → `Exclude<MessageIntentName, "neutral">` | **Done.** Types only. |
 
-The first attempt made `brand` the default, reasoning that a bare `<Button>` would then render unchanged. That is false, and the visual suite caught it: `neutral` only ever meant *brand* for `solid` and `link`. For `outline` and `ghost` it was already grey. So no single default preserves both — `brand` turns every unqualified outline and ghost button brand-tinted (`Card`'s BillCard "View Details"), and `neutral` turns every unqualified solid button grey.
+#### Why no default preserves a bare `<Button>`
 
-With rendering-preservation off the table, the principle decides it: **the default of an axis should be the value that means "unspecified."** `neutral` is the absence of a colour family; `brand` is an affirmative choice. A primary action now says `intent="brand"` out loud — four call sites in this repo, all Apply buttons in the date/time pickers.
+The first attempt made `brand` Button's default, reasoning that a bare `<Button>` would then render unchanged. That is false, and the visual suite caught it: `neutral` only ever meant *brand* for `solid` and `link`. For `outline` and `ghost` it was already grey. So no single default preserves both — `brand` turns every unqualified outline and ghost button brand-tinted (`Card`'s BillCard "View Details"), and `neutral` turns every unqualified solid button grey. With preservation off the table, rule 8 decides it. Four call sites in this repo say `intent="brand"`, all Apply buttons in the date/time pickers.
 
 An override demo in `src/stories/component-tokens/` scoped on `[data-intent="neutral"]` with a bare `<Button>` is what pinned this down: with a `brand` default its selector silently stopped matching, and `component-tokens.visual.test.tsx` failed. That test exists precisely to catch a demo that stops demonstrating anything.
 
-**Open:** `Badge` still defaults to `brand` (its old default was `primary`, unambiguously the brand colour, so keeping it preserves rendering). That leaves `<Button>` grey and `<Badge>` brand. Defensible — a badge with no intent still needs colour presence — but it is an inconsistency in defaults worth ruling on.
+### Variant
 
-### Emphasis
+The prop and its values stay. Two things leave the axis:
 
-`variant` → `emphasis`, values `solid|outline|ghost` → `strong|normal|subtle`. **Rename the prop, do not just change its values** — a downstream `variant="solid"` must fail to compile rather than silently become an unrecognised value landing on the recipe floor.
-
-Sixteen non-story call sites in this repo — `ghost` 9, `solid` 4, `outline` 1, `link` 1, `soft` 1 (a seventeenth `outline` match is a doc comment in `TagChip.tsx:26`). Everything else is stories exercising the matrix.
-
-`variant="link"` leaves the axis and becomes `inline`. It was never a quieter rung — it is different geometry: inline text, no button box. `Toast.tsx:115` gives this away already, hand-rolling `variant="link" className="h-auto p-0"`, a button apologising for having a box. `inline` is terminal: it overrides the box and takes `intent` for colour, and ignores `emphasis`, since an "inline strong" draws a distinction few designs make.
-
-With `link` off the axis, `ToggleGroup`'s `Exclude<ButtonVariantName, "link">` disappears and it can take the widened `ButtonEmphasis` directly. The closed `*Name` unions stay exported for other narrowing, but their driving use case is gone.
-
-Knock-on renames: `ButtonVariantName` → `ButtonEmphasisName`, `data-variant` → `data-emphasis`, `variantStructure` deleted (see below), recipe selectors `[data-variant="solid"]` → `[data-emphasis="strong"]`.
+- **`variant="link"` → `inline`.** **Done.** It was never a quieter treatment — it is different geometry: inline text, no button box. `Toast.tsx:115` gives this away, hand-rolling `variant="link" className="h-auto p-0"`, a button apologising for having a box. `inline` is terminal: it drops the box, takes `intent` for colour, and ignores `variant`. With `link` gone, `ToggleGroup`'s `Exclude<ButtonVariantName, "link">` disappeared and it takes the widened `ButtonVariant` directly. `inline` drops `data-variant` and renders `data-inline="true"`, so no variant cell can match it.
+- **Badge `soft` stays.** It was slated to become the middle of three rungs; with rule 6 it is simply one of Badge's treatments.
 
 ### Size
 
-`default` → `md` across Button, Spinner, Message, TagChip. Modal and Sheet already comply. No alias is kept — the library has no external consumers yet, so every rename in this document is a clean break.
-
-`md` over `default` because `default` encodes *which value is the default* — separate information that goes stale the moment a component's default moves, leaving `default` sitting between `sm` and `lg` while the real default is elsewhere. `md` cannot lie.
-
-`size="icon"` → `iconOnly`, which squares the box at whatever size is set. `size="sm" iconOnly` was unexpressible while `icon` was a fixed `h-9 w-9` on the size union. `iconOnly` is threaded through `Toggle` and `ToggleGroup` too, so no component loses the icon-only shape.
-
-Badge gains `size: sm | md` so TagChip forwards it instead of injecting padding and font-size through `className`.
+- `default` → `md` across Button, Spinner, Message, TagChip. **Done.** `md` over `default` because `default` encodes *which value is the default* — information that goes stale the moment a default moves.
+- `size="icon"` → `iconOnly`, which squares the box at whatever size is set, so `size="sm" iconOnly` is expressible. **Done** on Button, Toggle and ToggleGroup.
+- Badge gains `size: sm | md` so TagChip forwards it instead of injecting padding and font-size through `className`. **Done.** TagChip's `md` picked up Badge's `md` padding (`px-2.5`, was `px-2`).
 
 ### Mode props
 
-`CheckboxGroup` and `RadioButtonGroup` currently pair `variant: "default" | "button"` with `appearance: "segmented" | "separate"`, where `appearance` is meaningless unless `variant="button"`. Collapse both into one prop, so the illegal state is unrepresentable:
+**Done.** `CheckboxGroup` and `RadioButtonGroup` paired `variant: "default" | "button"` with `appearance: "segmented" | "separate"`, where `appearance` was meaningless unless `variant="button"`. Both collapsed into one prop, default `control`, so the illegal state is unrepresentable:
 
 ```ts
 appearance?: "control" | "segmented" | "separate"
@@ -139,40 +127,70 @@ appearance?: "control" | "segmented" | "separate"
 
 ### Types and callbacks
 
-- `ToggleGroup.intent` widens to `ButtonIntent`. Only `variant` needed the closed union, and that need is gone.
-- `FormFieldFeedback.intent` becomes `Exclude<MessageIntentName, "neutral">` instead of a hand-rolled parallel union.
-- `Code/Workspace/Toolbar.tsx` imports `ButtonEmphasisName` instead of re-declaring the union as a literal.
-- `SearchInput` and `TagInput`: `onChange` → `onValueChange`. Both take a bare value rather than a `ChangeEvent`, which is the ambiguity `onValueChange` exists to remove.
+- `ToggleGroup.intent` widens to `ButtonIntent`. **Done.**
+- `Code/Workspace/Toolbar.tsx` takes `ButtonVariant` instead of re-declaring the union as a literal. **Done.**
+- `SearchInput` and `TagInput` already exposed `onValueChange` — nothing to do.
 
-## Prerequisite: a structural token layer
+## The intent-slot layer
 
-**The axis rename is cosmetic without this.** Renaming `variantStructure`'s keys to `strong|normal|subtle` renames the problem.
+**Landed.** Rule 3 says the axes are independent, but the recipes used not to be: `button.recipe.css` wrote one cell per `(variant, intent)` pair — 25 cell rules — Badge 19, and `toggle.recipe.css` re-stated Button's grid under `[data-state="on"]` for 15 more. Adding an intent was a job per component.
 
-The system themes colour and nothing else:
+Now each intent is defined **once**, in `src/theming/intents.css`, as a fixed set of slots named by treatment, and each recipe maps its variants onto the slots:
 
-- `tokens.css` has **zero** structural tokens. No radius, no shadow, no border-width, no font-weight — the only non-colour entries are `--font-sans` and `--font-mono`.
-- All twenty recipe files are colour-only.
+```css
+/* intents.css — one block per intent */
+[data-intent="danger"] {
+  --intent-solid-bg: var(--bg-danger);        /* + -hovered, -pressed */
+  --intent-solid-fg: var(--fg-on-danger);
+  --intent-tint-bg:  var(--bg-danger-subtle); /* + -hovered, -pressed */
+  --intent-tint-fg:  var(--fg-on-danger-subtle); /* + -pressed */
+  --intent-fg:       var(--fg-danger);
+  --intent-border:   var(--border-danger);
+}
+
+/* button.recipe.css — one cell per variant */
+.btn[data-variant="solid"] { --button-bg: var(--intent-solid-bg); --button-fg: var(--intent-solid-fg); … }
+```
+
+Button, Toggle, Badge, Message and ProgressBar paint this way; Button went from 25 cells to 4, Badge from 19 to 3, Toggle from 15 to 2, Message from 3 to 2.
+
+Decisions made while landing it:
+
+- **The neutral block is also the floor.** It is selected by bare `[data-intent]` as well as `[data-intent="neutral"]`, so an intent a consumer names but has not defined renders as neutral — legible, and interactive — rather than unstyled. Every intent-bearing element therefore resets the whole slot set, which is also what stops a component inheriting its parent's intent.
+- **Slots resolve on the element carrying `data-intent`,** which every `*Recipe()` helper renders on the component itself. That is also where `data-brand` sits, so `--intent-solid-bg: var(--bg-brand)` sees the element's own scoped brand.
+- **One single-intent override exists:** `.message[data-intent="neutral"]` sits on `bg-normal` rather than the grey tint — a neutral note is a plain bordered surface, and a grey wash reads as disabled. ProgressBar has the other, `neutral` filling with `fg-subtle` because `fg-normal` barely separates from its `bg-strong` track.
+- **`check:recipes` guards the layer:** it is imported and layered, every named intent only re-points slots the floor declares, every slot references a semantic token defined in both modes, and every `--intent-*` a recipe reads is a real slot.
+- **The component-token tables expand slot-based cells per intent,** reading the intent list from the stylesheet, so an intent added in CSS gets rows in every component's table.
+
+It landed as a pure refactor. The visual suite's default comparator could not prove that on its own (see Implementation notes), so it was checked with an A/B run at `threshold: 0` against baselines freshly recorded at the parent commit: no component moved.
+
+## The structural token layer
+
+The system themes colour and nothing else, so the recipes can re-point a treatment's colours but not its shape:
+
+- The theme has **no** structural tokens — no radius, shadow or border-width; the only non-colour entries are `--font-sans` and `--font-mono`.
+- Every recipe file is colour-only.
 - Structure is compiled into the `.tsx`: `Button.tsx`'s `variantStructure` lookup (`solid: "shadow"`, `outline: "border shadow-xs"`) and the cva base literals (`rounded-md` on Button, `rounded-md border` on Badge — so every Badge carries a 1px border regardless of variant).
 
-`Button.tsx`'s own comment claims the seam is open: *"an unrecognised variant stays a legal value that contributes no structure, leaving a consumer's CSS free to define it."* That works only by **omission**. A consumer can add a rung and get nothing; they cannot redefine what the middle rung renders as, because `border shadow-xs` is baked in.
-
 Across the library: **38 components hardcode radius, 21 hardcode shadow, 20 hardcode border-width.**
+
+**Not started — the one open item.** `Button.tsx`'s comment claims the seam is open: *"an unrecognised variant stays a legal value that contributes no structure, leaving a consumer's CSS free to define it."* That works only by **omission**. A consumer adding `variant="shadow"` gets a colour cell and then fights `variantStructure`'s silence with `className`; they cannot change what `outline` draws at all, because `border shadow-xs` is baked in. That half-working `Loose<T>` is the real version of the re-skin problem `emphasis` was meant to solve — and it is solved in the recipe, not the prop name.
 
 The fix is the one colour already had — structure moves into the cell:
 
 ```css
-/* tokens.css — new layer */
+/* theme — new layer */
 --radius-sm/md/lg/full, --shadow-xs/sm/md/lg, --border-width-thin/thick
 
-/* recipes/button.css */
+/* button.recipe.css */
 .btn {
   --button-radius: var(--radius-md);
   --button-border-width: 0;
   --button-shadow: var(--shadow-sm);
 }
-.btn[data-emphasis="normal"] {
+.btn[data-variant="outline"] {
   --button-border-width: var(--border-width-thin);
-  --button-shadow: none;
+  --button-shadow: var(--shadow-xs);
 }
 ```
 
@@ -181,26 +199,17 @@ The fix is the one colour already had — structure moves into the cell:
 rounded-(--button-radius) border-(length:--button-border-width) shadow-(--button-shadow)
 ```
 
-The `.tsx` then holds no rendering opinion at all, which is what the component-token commit set out to achieve. Colour made the trip; structure did not.
+The `.tsx` then holds no rendering opinion at all, and `[data-variant="shadow"]` defines the whole treatment.
 
-This also repairs `Loose<T>`, currently half-working: a consumer adding `emphasis="brutalist"` today gets a colour cell and then fights `variantStructure`'s silence with `className`. With structural tokens, `[data-emphasis="brutalist"]` defines the whole thing.
+**Open within this:** how much structure belongs in the shared layer versus per component. A brand wanting square badges but round buttons needs `--badge-radius` not to be simply `var(--radius-md)`. The component-token grammar handles it; it needs deciding per property.
 
-**Open within this:** how much structure belongs in the shared layer versus per-component. A brand wanting square badges but round buttons needs `--badge-radius` not to be simply `var(--radius-md)`. The component-token grammar handles it; it needs deciding per property.
+## What is left
 
-## Suggested order
-
-The intent and size work is independently correct and does not get cheaper by waiting on the structural layer.
-
-1. **Vocabulary renames** — `primary`→`brand`, `default`→`md`, `icon`→`iconOnly`. ~~Done.~~ Clean break, no aliases: the library has no external consumers, so a deprecation window would only preserve names nobody uses.
-2. **Button's neutral/brand swap** — the one real behaviour change, isolated to `button.css` and `toggle.css`.
-3. **ProgressBar onto a recipe** — replaces its hardcoded `bg-fg-success` fill. StatsCard and MetricRow, which held the last raw-palette colours, are no longer in the library.
-4. **`appearance` collapse, `onValueChange`, ToggleGroup / FormField / Toolbar type fixes.**
-5. **Structural token layer** — its own design pass, not a passenger on a rename.
-6. **`variant` → `emphasis`** — last, once the recipes can actually express what a rung means.
-7. Fold the settled parts into `component-authoring.md`.
+1. **Structural token layer** — its own design pass, above.
 
 ## Implementation notes
 
-**TagChip's foreground.** Setting `--badge-fg` in `.tag-chip` will not work — `.badge[data-emphasis="subtle"][data-intent="neutral"]` is specificity 0,3,0 against `.tag-chip`'s 0,1,0, so the Badge cell wins. Pass a `text-(--tag-chip-fg)` utility through `className`: Tailwind's utilities layer beats the components layer and `cn()` puts it last. Confirm `tailwind-merge` dedupes it against `.badge`'s own `text-(--badge-fg)` rather than emitting both.
+**TagChip's foreground.** Setting `--badge-fg` in `.tag-chip` does not work — `.badge[data-variant="outline"]` is specificity 0,2,0 against `.tag-chip`'s 0,1,0, so the Badge cell wins. TagChip passes a `text-(--tag-chip-fg)` utility through `className` instead: Tailwind's utilities layer beats the components layer, and `tailwind-merge` drops `.badge`'s own `text-(--badge-fg)` (checked).
 
-**Stale docs to fix alongside.** `design-tokens.md`'s intent table lists `neutral` → colour "Brand", which reflects only Button's current meaning and is wrong for Badge and Message. `modals.md` instructs `intent="brand"` on a confirm button, which does not exist today and lands on the recipe floor — correct once this target lands.
+**The visual suite is blind to same-lightness hue changes.** `allowedMismatchedPixelRatio: 0` counts *pixels*, but pixelmatch's per-pixel colour `threshold` stays at its default 0.1, and a change between two families at the same ramp step can sit under it — ProgressBar's dark-mode fill going green-300 → blue-300 passed. Lowering the threshold is not an option against the committed baselines: at `0` or `0.02`, ~200 untouched screenshots fail on antialiasing noise between machines. For a change that must be colour-exact, do the A/B described above: record at the parent commit with `threshold: 0`, apply the change, compare, then restore the committed baselines. At `threshold: 0` on one machine, run-to-run noise is a few focus-ring edge pixels.
+

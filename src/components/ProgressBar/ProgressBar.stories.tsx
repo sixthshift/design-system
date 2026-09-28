@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect } from "storybook/test";
+import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
 import { ProgressBar } from "./ProgressBar";
 
 const meta: Meta<typeof ProgressBar> = {
@@ -44,6 +45,17 @@ export const GeometryPlay: Story = {
     await expect(quarter).toBeGreaterThan(0);
     await expect(threeQuarters).toBeGreaterThan(quarter * 2);
   },
+};
+
+/** The fill takes its colour family from `intent`; the track is the same in every one. */
+export const Intents: Story = {
+  render: () => (
+    <div className="flex w-80 flex-col gap-4">
+      {(["brand", "neutral", "success", "warning", "danger"] as const).map((intent) => (
+        <ProgressBar key={intent} completed={5} total={8} intent={intent} label={`${intent} progress`} />
+      ))}
+    </div>
+  ),
 };
 
 export const Default: Story = {
@@ -108,3 +120,5 @@ export const InListContext: Story = {
     </div>
   ),
 };
+
+export const ComponentTokens = componentTokensStory("progress-bar");

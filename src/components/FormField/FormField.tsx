@@ -1,14 +1,15 @@
 "use client";
 
 import { Label } from "@sixthshift/design-system/label";
-import { Message } from "@sixthshift/design-system/message";
+import { Message, type MessageIntentName } from "@sixthshift/design-system/message";
 import { Muted } from "@sixthshift/design-system/muted";
 import { cn } from "@sixthshift/design-system/utils";
 import * as React from "react";
 
 export type FormFieldFeedback = {
   message: string;
-  intent: "danger" | "success" | "warning";
+  /** Message's intents, less `neutral` — feedback always reports an outcome. */
+  intent: Exclude<MessageIntentName, "neutral">;
 };
 
 export type FormFieldProps = React.HTMLAttributes<HTMLDivElement> & {

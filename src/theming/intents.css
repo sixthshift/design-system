@@ -1,0 +1,112 @@
+/**
+ * Intent slots — each intent defined once, for every component.
+ *
+ * `intent` and `variant` are independent axes (docs/component-axes.md, rule 3),
+ * but a recipe that writes one cell per `(variant, intent)` pair couples them
+ * again: every component repeats the intent list, and adding an intent means
+ * editing every recipe. This layer sits between the semantic tokens and the
+ * recipes and breaks that product apart:
+ *
+ *   - here, each intent names its colour family once, as a fixed set of slots;
+ *   - in a recipe, each variant picks which slots it paints with.
+ *
+ * A new intent is one block below and every component picks it up. A new
+ * variant is one cell per component, and works in every intent.
+ *
+ * Slots are named for the treatment they serve, not for a weight:
+ *
+ *   --intent-solid-bg[-hovered|-pressed]   a filled surface in the family
+ *   --intent-solid-fg                      text read on that fill
+ *   --intent-tint-bg[-hovered|-pressed]    a light wash of the family
+ *   --intent-tint-fg[-pressed]             text read on that wash
+ *   --intent-fg                            the family's text on a resting surface
+ *   --intent-border                        the family's border
+ *
+ * The slots are declared on the element carrying `data-intent`, which every
+ * `*Recipe()` helper renders on the component itself. That matters twice over.
+ * A `var()` inside a custom property resolves on the element that declares it,
+ * so `--intent-solid-bg: var(--bg-brand)` sees that element's own `data-brand`
+ * mapping (see the Scoped brands docs). And each intent-bearing element resets
+ * the whole set, so a component never inherits its parent's intent — a
+ * neutral Badge inside a danger Message stays neutral.
+ *
+ * `@layer components`, like the recipes: a consumer's unlayered
+ * `[data-intent="info"] { … }` outranks everything here without `!important`.
+ */
+
+@layer components {
+  /* neutral — no colour family, the grey ramp. It is also the floor: this
+     selector matches any `data-intent`, so an intent a consumer has named but
+     not yet defined renders as neutral, legibly, rather than unstyled. The
+     `neutral` spelling is listed too so tooling can find it by name. */
+  [data-intent],
+  [data-intent="neutral"] {
+    --intent-solid-bg: var(--bg-strong);
+    --intent-solid-bg-hovered: var(--bg-strong-hovered);
+    --intent-solid-bg-pressed: var(--bg-strong-pressed);
+    --intent-solid-fg: var(--fg-on-strong);
+    --intent-tint-bg: var(--bg-subtle);
+    --intent-tint-bg-hovered: var(--bg-subtle-hovered);
+    --intent-tint-bg-pressed: var(--bg-subtle-pressed);
+    --intent-tint-fg: var(--fg-normal);
+    --intent-tint-fg-pressed: var(--fg-normal);
+    --intent-fg: var(--fg-normal);
+    --intent-border: var(--border-normal);
+  }
+
+  [data-intent="brand"] {
+    --intent-solid-bg: var(--bg-brand);
+    --intent-solid-bg-hovered: var(--bg-brand-hovered);
+    --intent-solid-bg-pressed: var(--bg-brand-pressed);
+    --intent-solid-fg: var(--fg-on-brand);
+    --intent-tint-bg: var(--bg-brand-subtle);
+    --intent-tint-bg-hovered: var(--bg-brand-subtle-hovered);
+    --intent-tint-bg-pressed: var(--bg-brand-subtle-pressed);
+    --intent-tint-fg: var(--fg-on-brand-subtle);
+    --intent-tint-fg-pressed: var(--fg-on-brand-subtle-pressed);
+    --intent-fg: var(--fg-brand);
+    --intent-border: var(--border-brand);
+  }
+
+  [data-intent="danger"] {
+    --intent-solid-bg: var(--bg-danger);
+    --intent-solid-bg-hovered: var(--bg-danger-hovered);
+    --intent-solid-bg-pressed: var(--bg-danger-pressed);
+    --intent-solid-fg: var(--fg-on-danger);
+    --intent-tint-bg: var(--bg-danger-subtle);
+    --intent-tint-bg-hovered: var(--bg-danger-subtle-hovered);
+    --intent-tint-bg-pressed: var(--bg-danger-subtle-pressed);
+    --intent-tint-fg: var(--fg-on-danger-subtle);
+    --intent-tint-fg-pressed: var(--fg-on-danger-subtle-pressed);
+    --intent-fg: var(--fg-danger);
+    --intent-border: var(--border-danger);
+  }
+
+  [data-intent="success"] {
+    --intent-solid-bg: var(--bg-success);
+    --intent-solid-bg-hovered: var(--bg-success-hovered);
+    --intent-solid-bg-pressed: var(--bg-success-pressed);
+    --intent-solid-fg: var(--fg-on-success);
+    --intent-tint-bg: var(--bg-success-subtle);
+    --intent-tint-bg-hovered: var(--bg-success-subtle-hovered);
+    --intent-tint-bg-pressed: var(--bg-success-subtle-pressed);
+    --intent-tint-fg: var(--fg-on-success-subtle);
+    --intent-tint-fg-pressed: var(--fg-on-success-subtle-pressed);
+    --intent-fg: var(--fg-success);
+    --intent-border: var(--border-success);
+  }
+
+  [data-intent="warning"] {
+    --intent-solid-bg: var(--bg-warning);
+    --intent-solid-bg-hovered: var(--bg-warning-hovered);
+    --intent-solid-bg-pressed: var(--bg-warning-pressed);
+    --intent-solid-fg: var(--fg-on-warning);
+    --intent-tint-bg: var(--bg-warning-subtle);
+    --intent-tint-bg-hovered: var(--bg-warning-subtle-hovered);
+    --intent-tint-bg-pressed: var(--bg-warning-subtle-pressed);
+    --intent-tint-fg: var(--fg-on-warning-subtle);
+    --intent-tint-fg-pressed: var(--fg-on-warning-subtle-pressed);
+    --intent-fg: var(--fg-warning);
+    --intent-border: var(--border-warning);
+  }
+}

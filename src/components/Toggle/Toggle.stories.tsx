@@ -15,7 +15,7 @@ const meta: Meta<typeof Toggle> = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["solid", "outline", "ghost", "link"],
+      options: ["solid", "outline", "ghost"],
     },
     intent: {
       control: "select",
@@ -115,12 +115,6 @@ export const Variants: Story = {
         <Toggle variant="ghost">Ghost</Toggle>
         <Toggle variant="ghost" pressed>
           Ghost On
-        </Toggle>
-      </div>
-      <div className="flex items-center gap-2">
-        <Toggle variant="link">Link</Toggle>
-        <Toggle variant="link" pressed>
-          Link On
         </Toggle>
       </div>
     </div>

@@ -1,1 +1,1 @@
-export { ProgressBar, type ProgressBarProps } from "./ProgressBar";
+export { ProgressBar, type ProgressBarIntent, type ProgressBarIntentName, type ProgressBarProps } from "./ProgressBar";

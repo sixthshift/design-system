@@ -152,7 +152,7 @@ import { cn } from "@sixthshift/design-system/utils";
 import { useTheme, useLocalStorage } from "@sixthshift/design-system/hooks";
 ```
 
-The full list is the `exports` map in [`package.json`](package.json); the catalog is [`docs/component-catalog.md`](docs/component-catalog.md).
+The full list is the `exports` map in [`package.json`](package.json); every component's props, generated from its source, are on its docs page in [Storybook](https://sixthshift.github.io/design-system/).
 
 ## Component API
 
@@ -204,8 +204,8 @@ ISO-native helpers (`todayISO`, `addDaysISO`, `startOfMonthISO`, `isWeekendISO`,
 Temporal itself, for arithmetic the ISO surface deliberately does not carry —
 widen with `fromISODate`, compute, narrow back with `toISODate`.
 
-See [docs/component-catalog.md](docs/component-catalog.md#datetime-pickers) for the
-full prop tables.
+The full prop tables are on each picker's docs page in Storybook — start at
+[DatePicker](https://sixthshift.github.io/design-system/?path=/docs/components-datepicker--docs).
 
 ### Upgrading from 0.2.x
 
@@ -476,4 +476,4 @@ git tag v0.2.0 && git push origin v0.2.0
 
 ## Docs
 
-Design-system knowledge lives in [`docs/`](docs/): [design tokens](docs/design-tokens.md), [component catalog](docs/component-catalog.md), [component authoring](docs/component-authoring.md), [component API design](docs/component-api-design.md), [composition](docs/composition.md), [visual hierarchy](docs/visual-hierarchy.md), [spacing](docs/spacing.md), [motion](docs/motion.md), [states](docs/states.md), [overlays](docs/overlay-primitives.md), [forms](docs/forms.md), [modals](docs/modals.md), [responsive](docs/responsive.md), [density](docs/density.md), [copy](docs/copy-conventions.md), [time formatting](docs/time-formatting.md), [design philosophy](docs/design-philosophy.md).
+Design-system knowledge lives in [`docs/`](docs/): [design tokens](docs/design-tokens.md), [component axes](docs/component-axes.md), [component authoring](docs/component-authoring.md), [component API design](docs/component-api-design.md), [composition](docs/composition.md), [visual hierarchy](docs/visual-hierarchy.md), [spacing](docs/spacing.md), [motion](docs/motion.md), [states](docs/states.md), [overlays](docs/overlay-primitives.md), [forms](docs/forms.md), [modals](docs/modals.md), [responsive](docs/responsive.md), [density](docs/density.md), [copy](docs/copy-conventions.md), [time formatting](docs/time-formatting.md), [design philosophy](docs/design-philosophy.md).

@@ -30,7 +30,7 @@ function ModalDemo({
 }: {
   children: (props: { onClose: () => void }) => React.ReactNode;
   buttonLabel?: string;
-  buttonVariant?: "solid" | "outline" | "ghost" | "link";
+  buttonVariant?: "solid" | "outline" | "ghost";
   buttonIntent?: "neutral" | "danger";
 }) {
   const [open, setOpen] = useState(false);

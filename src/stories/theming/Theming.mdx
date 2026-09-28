@@ -233,7 +233,7 @@ The four rules below each cost someone an afternoon:
    var(--brand-200) }` alone freezes to the root's brand: a `data-brand` further
    down changes `--brand-200` but not `--bg-brand`.
 2. **The nearest `data-brand` wins, including the component's own.** The scale,
-   the mapping and the recipe's `--button-bg: var(--bg-brand)` all land on the
+   the mapping and the intent slot's `--intent-solid-bg: var(--bg-brand)` all land on the
    same element and resolve against each other. Nesting resets too: the default
    brand's name inside a pink card is the default again.
 3. **Brands can need different step mappings.** A saturated primary and a pastel
@@ -293,7 +293,13 @@ None of these raise an error. Each just renders the wrong thing.
 | Is my pairing accessible? | `bun run check:contrast` |
 | Type scale, weights, families | [Typography](?path=/story/design-system-typography--type-scale) |
 
-Components layer their own `--{component}-*` tokens on top of these, so a single
-component can be restyled without touching a shared meaning. Each component's
-Docs tab lists its tokens under *Component tokens*, with the computed value in
-both modes; `bun run check:recipes --list` prints them all.
+Between these and the components sits one thin layer: `theming/intents.css`
+defines each intent once, as `--intent-*` slots on any element carrying
+`data-intent`. A new intent is one `[data-intent="…"]` block there — or in your
+own stylesheet — and every component picks it up.
+
+Components layer their own `--{component}-*` tokens on top, painted from those
+slots, so a single component can be restyled without touching a shared meaning.
+Each component's Docs tab lists its tokens under *Component tokens*, one row per
+variant and intent, with the computed value in both modes;
+`bun run check:recipes --list` prints them all.

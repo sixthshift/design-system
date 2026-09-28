@@ -65,15 +65,28 @@ describe("Badge", () => {
     });
   });
 
+  describe("sizes", () => {
+    it("defaults to md", () => {
+      render(<Badge>Badge</Badge>);
+      expect(screen.getByText("Badge")).toHaveClass("text-xs");
+    });
+
+    it("renders sm smaller", () => {
+      render(<Badge size="sm">Badge</Badge>);
+      expect(screen.getByText("Badge")).toHaveClass("text-[10px]");
+      expect(screen.getByText("Badge")).not.toHaveClass("text-xs");
+    });
+  });
+
   describe("intents", () => {
-    it.each(["neutral", "brand", "danger", "success", "warning", "muted"] as const)("renders %s intent", (intent) => {
+    it.each(["neutral", "brand", "danger", "success", "warning"] as const)("renders %s intent", (intent) => {
       render(<Badge intent={intent}>Badge</Badge>);
       expect(screen.getByText("Badge")).toBeInTheDocument();
     });
 
-    it("defaults to brand", () => {
+    it("defaults to neutral", () => {
       render(<Badge>Badge</Badge>);
-      expect(screen.getByText("Badge")).toHaveAttribute("data-intent", "brand");
+      expect(screen.getByText("Badge")).toHaveAttribute("data-intent", "neutral");
     });
 
     it("applies neutral intent with solid variant", () => {

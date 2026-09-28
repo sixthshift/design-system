@@ -15,7 +15,7 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["solid", "outline", "ghost", "link"],
+      options: ["solid", "outline", "ghost"],
     },
     intent: {
       control: "select",
@@ -143,21 +143,21 @@ export const VariantIntentMatrix: Story = {
         Button
       </Button>
 
-      {/* Link row */}
-      <div className="text-fg-subtle text-sm">link</div>
-      <Button variant="link" intent="brand">
+      {/* Inline row — not a variant, but it takes every intent */}
+      <div className="text-fg-subtle text-sm">inline</div>
+      <Button inline intent="brand">
         Button
       </Button>
-      <Button variant="link" intent="neutral">
+      <Button inline intent="neutral">
         Button
       </Button>
-      <Button variant="link" intent="danger">
+      <Button inline intent="danger">
         Button
       </Button>
-      <Button variant="link" intent="success">
+      <Button inline intent="success">
         Button
       </Button>
-      <Button variant="link" intent="warning">
+      <Button inline intent="warning">
         Button
       </Button>
     </div>

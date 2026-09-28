@@ -10,7 +10,7 @@ import { Meta } from "@storybook/addon-docs/blocks";
   Deliberately NOT a catalog, in either direction: prop tables live on each
   component's docs page, generated from the props themselves, and finding a
   component by name is the sidebar's job. A hand-maintained index is exactly
-  what drifted in docs/component-catalog.md — and what a by-task index on this
+  what drifted in docs/component-catalog.md (since deleted) — and what a by-task index on this
   page drifted into in turn.
 
   Deliberately no rendered components either. Every story in the sidebar is a
@@ -93,7 +93,11 @@ how loud the thing is:
 | `outline` | A border, no fill | Button, Toggle, Badge |
 | `ghost` | Neither, until you interact with it | Button, Toggle |
 | `soft` | A tinted fill, low contrast | Badge |
-| `link` | Text and an underline, no box | Button |
+
+The names are literal on purpose: you copy the treatment from the design, and
+each one's hover and pressed states follow from what it draws. A link-styled
+action is not a variant — it has no box at all — so it is a flag,
+`<Button inline>`, which takes `intent` for its colour.
 
 `intent` is what the thing *means* — and it is the same vocabulary everywhere,
 which is the half worth memorising:
@@ -105,7 +109,8 @@ which is the half worth memorising:
 | `danger` | Destructive, or failed |
 | `success` | Done, healthy |
 | `warning` | Needs attention, has not failed yet |
-| `muted` | Deliberately de-emphasised — Badge only |
+
+There is no `info`: an informational message is `neutral`.
 
 The two axes cross freely, so a destructive primary action is a combination, not
 a component:
@@ -118,10 +123,11 @@ There is no `<DangerButton>`, and no `color="red"` — a token name describes
 meaning, never appearance, so a component that grows three special-case props is
 a sign the axes are wrong.
 
-Both axes are open. The prop types are widened (`"solid" | (string & {})`), and
-each cell resolves through a component token in the component's own `*.recipe.css`, so adding
-an intent is CSS in your own app rather than a release here — see Component
-Tokens below.
+Both axes are open. The prop types are widened (`"solid" | (string & {})`).
+Each intent is defined once, as a set of colour slots in `theming/intents.css`,
+and each variant in a component's `*.recipe.css` paints with those slots — so
+adding an intent is one CSS block in your own app, and every component picks
+it up. See Component Tokens below.
 
 **`asChild` for polymorphism.** Render a component's styling onto a different
 element — a router link, a label — instead of wrapping it:
@@ -137,8 +143,7 @@ drive a component; omit them and it keeps its own state.
 internally, via the bundled `/date-time` module — consuming a `DatePicker` does
 not mean adopting Temporal in your app.
 
-The `variant`/`intent`/`size` axes are being consolidated; `docs/component-axes.md`
-describes that target, and is explicitly ahead of the code.
+`docs/component-axes.md` records why the axes are named as they are.
 
 ## What is not in here
 

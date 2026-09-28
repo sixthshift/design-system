@@ -8,7 +8,7 @@
  * inherited. Neither raises an error anywhere — the component just renders
  * wrong, in one theme, in a state nobody screenshots.
  *
- * Five invariants, each one a mistake already made during the conversion:
+ * The invariants, each one a mistake already made during the conversion:
  *
  *   1. Naming grammar — `--{component}[-{part}]-{context}[-{state}]`. What this
  *      really enforces is that an intent or variant VALUE never appears in a
@@ -25,6 +25,11 @@
  *   4. References resolve — every `var(--x)` in a recipe names either another
  *      component token or a semantic token defined in BOTH mode blocks. Miss the
  *      dark block and the component is unstyled in dark mode only.
+ *   4b. The intent slots (theming/intents.css) — imported and layered like a
+ *      recipe; the `[data-intent]` floor block defines the slot set, and every
+ *      named intent may only re-point members of it; every semantic token a
+ *      slot references exists in both modes; every `--intent-*` a recipe reads
+ *      is a real slot.
  *   5. Read/declared symmetry — every `--x` a component reads is declared by a
  *      recipe, and every token a recipe declares is read by something. The first
  *      half catches a component that outran its recipe; the second catches dead
@@ -36,6 +41,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const AGGREGATOR = resolve(ROOT, "src/theming/tailwind.css");
+const INTENTS = resolve(ROOT, "src/theming/intents.css");
 const TOKENS = resolve(ROOT, "src/theme/linen/theme.css");
 const COMPONENTS = resolve(ROOT, "src/components");
 
@@ -61,6 +67,7 @@ const recipeFiles = readdirSync(COMPONENTS, { withFileTypes: true })
 const recipeSource = new Map(recipeFiles.map((f) => [f, readFileSync(join(COMPONENTS, f), "utf8")]));
 const indexSource = readFileSync(AGGREGATOR, "utf8");
 const tokensSource = readFileSync(TOKENS, "utf8");
+const intentsSource = readFileSync(INTENTS, "utf8");
 
 /** Every `--name:` declared in a block, as a set. */
 const declaredIn = (css: string): Set<string> => {
@@ -87,6 +94,21 @@ const componentTokens = new Map<string, string>();
 for (const [file, css] of recipeSource) {
   for (const name of declaredIn(css)) if (!componentTokens.has(name)) componentTokens.set(name, file);
 }
+
+/**
+ * The intent slots (src/theming/intents.css). The `[data-intent]` block is the
+ * floor every intent-bearing element gets, so what it declares IS the slot set;
+ * each named intent block may only re-point members of it.
+ */
+const intentBlocks = new Map<string, Set<string>>();
+for (const [, selector, body] of intentsSource.matchAll(/^\s*((?:\[data-intent[^\]]*\][,\s]*)+)\{([^}]*)\}/gm)) {
+  const names = declaredIn(body!);
+  for (const part of selector!.split(",")) {
+    const value = /\[data-intent(?:="([^"]*)")?\]/.exec(part.trim())?.[1] ?? "*";
+    intentBlocks.set(value, names);
+  }
+}
+const intentSlots = intentBlocks.get("*") ?? new Set<string>();
 
 /**
  * Tokens a component reads, via the arbitrary-value utilities: `bg-(--x)`,
@@ -160,7 +182,7 @@ for (const file of imported) {
 // 4. Every reference resolves, in BOTH modes.
 for (const [file, css] of recipeSource) {
   for (const [, name] of css.matchAll(/var\((--[\w-]+)/g)) {
-    if (componentTokens.has(name!) || paletteTokens.has(name!)) continue;
+    if (componentTokens.has(name!) || paletteTokens.has(name!) || name!.startsWith("--intent-")) continue;
     const inLight = lightTokens.has(name!);
     const inDark = darkTokens.has(name!);
     if (inLight && inDark) continue;
@@ -171,6 +193,33 @@ for (const [file, css] of recipeSource) {
     }
   }
 }
+
+// 4b. The intent-slot layer: wired, layered, complete, and resolvable.
+if (!/@import\s+"\.\/intents\.css"/.test(indexSource))
+  failures.push("theming/intents.css: never imported by theming/tailwind.css — every recipe reading a slot is unstyled.");
+if (!/^\s*@layer\s+components\s*\{/m.test(intentsSource)) failures.push("theming/intents.css: not inside `@layer components`.");
+if (intentSlots.size === 0) failures.push("theming/intents.css: no `[data-intent]` floor block — nothing defines the slot set.");
+for (const [intent, names] of intentBlocks) {
+  for (const name of names) {
+    if (!name.startsWith("--intent-")) failures.push(`theming/intents.css: \`${name}\` in the ${intent} block is not an \`--intent-*\` slot.`);
+    else if (!intentSlots.has(name))
+      failures.push(
+        `theming/intents.css: the ${intent} block declares \`${name}\`, which the \`[data-intent]\` floor does not — an intent that omits it inherits nothing and a recipe reading it paints nothing.`
+      );
+  }
+}
+for (const [, name] of intentsSource.matchAll(/var\((--[\w-]+)/g)) {
+  if (paletteTokens.has(name!) || (lightTokens.has(name!) && darkTokens.has(name!))) continue;
+  failures.push(`theming/intents.css: references \`${name}\`, which is not a semantic token defined in both modes.`);
+}
+const readSlots = new Set<string>();
+for (const [file, css] of recipeSource) {
+  for (const [, name] of css.matchAll(/var\((--intent-[\w-]+)/g)) {
+    readSlots.add(name!);
+    if (!intentSlots.has(name!)) failures.push(`${file}: reads \`${name}\`, which is not an intent slot — see theming/intents.css for the set.`);
+  }
+}
+for (const slot of intentSlots) if (!readSlots.has(slot)) warnings.push(`theming/intents.css: slot \`${slot}\` is read by no recipe — dead public API.`);
 
 // 5. Read/declared symmetry.
 for (const [name, files] of readTokens) {

@@ -22,7 +22,7 @@ const planOptions = [
   { value: "enterprise", label: "Enterprise" },
 ];
 
-// Default variant (radio button + label)
+// Control appearance (radio button + label)
 /**
  * A radiogroup is one tab stop: arrows move selection, and only the selected
  * option is tabbable.
@@ -84,13 +84,12 @@ export const AllDisabled: Story = {
   },
 };
 
-// Button variant - Segmented
+// Button appearance - Segmented
 export const ButtonSegmented: Story = {
   args: {
     value: "pro",
     options: planOptions,
     onValueChange: () => {},
-    variant: "button",
     appearance: "segmented",
   },
 };
@@ -100,19 +99,17 @@ export const ButtonSegmentedVertical: Story = {
     value: "pro",
     options: planOptions,
     onValueChange: () => {},
-    variant: "button",
     appearance: "segmented",
     orientation: "vertical",
   },
 };
 
-// Button variant - Separate
+// Button appearance - Separate
 export const ButtonSeparate: Story = {
   args: {
     value: "enterprise",
     options: planOptions,
     onValueChange: () => {},
-    variant: "button",
     appearance: "separate",
   },
 };
@@ -122,7 +119,6 @@ export const ButtonSeparateVertical: Story = {
     value: "free",
     options: planOptions,
     onValueChange: () => {},
-    variant: "button",
     appearance: "separate",
     orientation: "vertical",
   },
@@ -133,7 +129,7 @@ export const ButtonDisabled: Story = {
     value: "pro",
     options: planOptions,
     onValueChange: () => {},
-    variant: "button",
+    appearance: "segmented",
     disabled: true,
   },
 };
@@ -156,7 +152,7 @@ export const ControlledButton: Story = {
     const [selected, setSelected] = useState("pro");
     return (
       <div className="flex flex-col gap-4">
-        <RadioButtonGroup value={selected} onValueChange={setSelected} options={planOptions} variant="button" aria-label="Select a plan" />
+        <RadioButtonGroup value={selected} onValueChange={setSelected} options={planOptions} appearance="segmented" aria-label="Select a plan" />
         <p className="text-fg-subtle text-sm">Selected: {selected}</p>
       </div>
     );
@@ -173,7 +169,7 @@ export const FormExample: Story = {
     };
     return (
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <RadioButtonGroup name="plan" value={selected} onValueChange={setSelected} options={planOptions} variant="button" aria-label="Select a plan" />
+        <RadioButtonGroup name="plan" value={selected} onValueChange={setSelected} options={planOptions} appearance="segmented" aria-label="Select a plan" />
         <button type="submit" className="rounded-md bg-bg-brand px-4 py-2 text-fg-on-brand">
           Submit
         </button>
@@ -192,7 +188,7 @@ export const FrequencySelection: Story = {
     ];
     return (
       <div className="flex flex-col gap-4">
-        <RadioButtonGroup value={frequency} onValueChange={setFrequency} options={frequencyOptions} variant="button" aria-label="Select frequency" />
+        <RadioButtonGroup value={frequency} onValueChange={setFrequency} options={frequencyOptions} appearance="segmented" aria-label="Select frequency" />
         <p className="text-fg-subtle text-sm">You will receive updates {frequency}.</p>
       </div>
     );

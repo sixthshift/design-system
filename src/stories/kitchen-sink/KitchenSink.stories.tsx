@@ -148,7 +148,7 @@ const KitchenSink = () => {
                 <Button size="sm" disabled>
                   Disabled
                 </Button>
-                <Button size="sm" variant="link" intent="brand">
+                <Button size="sm" inline intent="brand">
                   Link button
                 </Button>
                 <Spinner size="sm" aria-label="Loading" />

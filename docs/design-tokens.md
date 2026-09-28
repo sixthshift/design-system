@@ -253,21 +253,31 @@ Components use two orthogonal props:
 
 Values are component-specific:
 
-| Component | Variants                            |
-|-----------|-------------------------------------|
-| Button    | `solid`, `outline`, `ghost`, `link` |
-| Badge     | `solid`, `soft`, `outline`          |
+| Component                    | Variants                   |
+|------------------------------|----------------------------|
+| Button, Toggle, ToggleGroup  | `solid`, `outline`, `ghost` |
+| Badge                        | `solid`, `soft`, `outline` |
+
+A link-styled action is not a variant: `<Button inline>` drops the box and takes
+`intent` for its text colour.
 
 ### Intent (Semantic Meaning)
 
 Consistent across all components:
 
-| Intent    | Usage                          | Color   |
-|-----------|--------------------------------|---------|
-| `neutral` | Default, no special meaning    | Brand   |
-| `danger`  | Destructive actions, errors    | Red     |
-| `success` | Positive states, confirmations | Green   |
-| `warning` | Caution, needs attention       | Amber   |
+| Intent    | Usage                              | Color   |
+|-----------|------------------------------------|---------|
+| `neutral` | Default, no special meaning        | Grey    |
+| `brand`   | The primary action, or ours        | Brand   |
+| `danger`  | Destructive actions, errors        | Red     |
+| `success` | Positive states, confirmations     | Green   |
+| `warning` | Caution, needs attention           | Amber   |
+
+Each intent is defined once, as a set of colour slots in
+`src/theming/intents.css`; every component's variants paint with those slots.
+Adding an intent is one `[data-intent="…"]` block there (or in your own
+stylesheet), and every component picks it up. There is no `info`: an
+informational message is `neutral`.
 
 ### Brand scope: `brand`
 

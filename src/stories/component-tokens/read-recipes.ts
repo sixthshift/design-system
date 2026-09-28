@@ -117,6 +117,23 @@ export function readRecipes(): Recipe[] {
 }
 
 /**
+ * Every intent the stylesheet defines, in source order — read from the
+ * `[data-intent="…"]` blocks of src/theming/intents.css, so an intent added
+ * there (or by a consumer) gets rows in every table with no change here.
+ */
+export function readIntents(): string[] {
+  const out: string[] = [];
+  for (const rule of everyRuleInDocument()) {
+    if (!Array.from(rule.style).some((p) => p.startsWith("--intent-"))) continue;
+    for (const [, value] of rule.selectorText.matchAll(/\[data-intent="([^"]*)"\]/g)) if (!out.includes(value!)) out.push(value!);
+  }
+  return out;
+}
+
+/** True when a cell paints with the intent slots, and so varies by intent. */
+export const readsIntentSlots = (cell: Cell): boolean => Object.values(cell.declared).some((value) => value.includes("--intent-"));
+
+/**
  * What a cell's tokens actually compute to, in the mode `modeVars` describes.
  *
  * Resolution has to happen in the DOM: a component token is scoped to its hook,

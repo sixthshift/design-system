@@ -25,32 +25,32 @@ describe("ProgressBar", () => {
 
   describe("fill percentage", () => {
     it("fills proportionally to completed/total", () => {
-      const { container } = render(<ProgressBar completed={3} total={8} />);
-      const fill = container.querySelector(".bg-fg-success") as HTMLElement;
+      render(<ProgressBar completed={3} total={8} />);
+      const fill = screen.getByRole("progressbar").firstElementChild as HTMLElement;
       expect(fill.style.width).toBe("37.5%");
     });
 
     it("fills 0% when nothing is completed", () => {
-      const { container } = render(<ProgressBar completed={0} total={8} />);
-      const fill = container.querySelector(".bg-fg-success") as HTMLElement;
+      render(<ProgressBar completed={0} total={8} />);
+      const fill = screen.getByRole("progressbar").firstElementChild as HTMLElement;
       expect(fill.style.width).toBe("0%");
     });
 
     it("fills 100% when completed equals total", () => {
-      const { container } = render(<ProgressBar completed={8} total={8} />);
-      const fill = container.querySelector(".bg-fg-success") as HTMLElement;
+      render(<ProgressBar completed={8} total={8} />);
+      const fill = screen.getByRole("progressbar").firstElementChild as HTMLElement;
       expect(fill.style.width).toBe("100%");
     });
 
     it("renders 0% width when total is zero, regardless of completed", () => {
-      const { container } = render(<ProgressBar completed={0} total={0} />);
-      const fill = container.querySelector(".bg-fg-success") as HTMLElement;
+      render(<ProgressBar completed={0} total={0} />);
+      const fill = screen.getByRole("progressbar").firstElementChild as HTMLElement;
       expect(fill.style.width).toBe("0%");
     });
 
     it("supports fractional percentages", () => {
-      const { container } = render(<ProgressBar completed={1} total={3} />);
-      const fill = container.querySelector(".bg-fg-success") as HTMLElement;
+      render(<ProgressBar completed={1} total={3} />);
+      const fill = screen.getByRole("progressbar").firstElementChild as HTMLElement;
       expect(fill.style.width).toBe("33.33333333333333%");
     });
 
@@ -61,6 +61,17 @@ describe("ProgressBar", () => {
   });
 
   describe("className merging", () => {
+    it("defaults to the brand intent", () => {
+      const { container } = render(<ProgressBar completed={1} total={2} />);
+      expect(container.firstElementChild).toHaveAttribute("data-intent", "brand");
+    });
+
+    it("renders the intent and brand the recipe selects on", () => {
+      const { container } = render(<ProgressBar completed={1} total={2} intent="success" brand="sea" />);
+      expect(container.firstElementChild).toHaveAttribute("data-intent", "success");
+      expect(container.firstElementChild).toHaveAttribute("data-brand", "sea");
+    });
+
     it("merges custom className with default classes on the root", () => {
       const { container } = render(<ProgressBar completed={1} total={2} className="custom-class" />);
       const root = container.firstChild as HTMLElement;

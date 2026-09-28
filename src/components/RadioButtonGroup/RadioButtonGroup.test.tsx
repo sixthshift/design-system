@@ -115,10 +115,10 @@ describe("RadioButtonGroup", () => {
       expect(handleChange).toHaveBeenCalledWith("enterprise");
     });
 
-    it("stays quiet in the button variant too, which has its own click path", async () => {
+    it("stays quiet in the button appearances too, which has its own click path", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      render(<RadioButtonGroup variant="button" options={options} value="free" onValueChange={handleChange} />);
+      render(<RadioButtonGroup appearance="segmented" options={options} value="free" onValueChange={handleChange} />);
 
       await user.click(screen.getByRole("radio", { name: "Free" }));
       expect(handleChange).not.toHaveBeenCalled();
@@ -192,36 +192,36 @@ describe("RadioButtonGroup", () => {
     });
   });
 
-  describe("button variant", () => {
+  describe("button appearances", () => {
     it("still exposes radio semantics", () => {
-      render(<RadioButtonGroup options={options} variant="button" />);
+      render(<RadioButtonGroup options={options} appearance="segmented" />);
       expect(screen.getAllByRole("radio")).toHaveLength(3);
     });
 
     it("selects an option when clicked", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      render(<RadioButtonGroup options={options} variant="button" value="free" onValueChange={handleChange} />);
+      render(<RadioButtonGroup options={options} appearance="segmented" value="free" onValueChange={handleChange} />);
 
       await user.click(screen.getByRole("radio", { name: "Pro" }));
       expect(handleChange).toHaveBeenCalledWith("pro");
     });
 
-    it("applies segmented appearance classes by default", () => {
-      render(<RadioButtonGroup options={options} variant="button" orientation="horizontal" />);
+    it("applies segmented appearance classes", () => {
+      render(<RadioButtonGroup options={options} appearance="segmented" orientation="horizontal" />);
       const firstOption = screen.getByRole("radio", { name: "Free" });
       expect(firstOption).toHaveClass("border");
       expect(firstOption).toHaveClass("rounded-l-md");
     });
 
     it("applies separate appearance classes", () => {
-      render(<RadioButtonGroup options={options} variant="button" appearance="separate" />);
+      render(<RadioButtonGroup options={options} appearance="separate" />);
       const firstOption = screen.getByRole("radio", { name: "Free" });
       expect(firstOption).toHaveClass("rounded-md");
     });
 
     it("applies checked styling to the selected button option", () => {
-      render(<RadioButtonGroup options={options} variant="button" value="free" onValueChange={() => {}} />);
+      render(<RadioButtonGroup options={options} appearance="segmented" value="free" onValueChange={() => {}} />);
       expect(screen.getByRole("radio", { name: "Free" })).toHaveClass("bg-bg-brand");
     });
   });
@@ -368,8 +368,8 @@ describe("RadioButtonGroup", () => {
       expect(document.querySelector('input[type="radio"]')).not.toBeInTheDocument();
     });
 
-    it("renders a single hidden input carrying the selected value in the button variant", () => {
-      render(<RadioButtonGroup options={options} variant="button" value="pro" onValueChange={() => {}} name="plan" />);
+    it("renders a single hidden input carrying the selected value with a button appearance", () => {
+      render(<RadioButtonGroup options={options} appearance="segmented" value="pro" onValueChange={() => {}} name="plan" />);
       const hiddenInput = document.querySelector('input[name="plan"]') as HTMLInputElement;
       expect(hiddenInput).toBeInTheDocument();
       expect(hiddenInput).toHaveValue("pro");

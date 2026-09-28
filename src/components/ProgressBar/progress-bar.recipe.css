@@ -1,0 +1,29 @@
+/**
+ * ProgressBar recipe — the component-token layer for ProgressBar.
+ *
+ * Two parts: the track, which is the same grey in every intent, and the fill,
+ * which paints with the intent slots from src/theming/intents.css. The fill
+ * reads `--intent-fg`, the family's colour on a resting surface, rather than
+ * the solid slot: `--intent-solid-bg` for `neutral` is `bg-strong`, which is
+ * the track itself, so a neutral bar would vanish. `neutral` is the one
+ * override: its `--intent-fg` is `fg-normal`, which barely separates from a
+ * `bg-strong` track in either mode, so it takes the mid-grey `fg-subtle`,
+ * which separates from both the track and the page around it. (`fg-on-strong`
+ * contrasts with the track but matches the page, and reads as a gap.)
+ *
+ * The grammar is `--progress-bar-{part}-{context}`. Both tokens live on the
+ * root, which carries `data-intent`, and the fill reads them by inheritance.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.recipe.css.
+ */
+
+@layer components {
+  .progress-bar {
+    --progress-bar-track-bg: var(--bg-strong);
+    --progress-bar-fill-bg: var(--intent-fg);
+  }
+
+  .progress-bar[data-intent="neutral"] {
+    --progress-bar-fill-bg: var(--fg-subtle);
+  }
+}

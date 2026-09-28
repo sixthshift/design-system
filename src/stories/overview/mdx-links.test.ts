@@ -9,7 +9,7 @@
  * It used to guard a hand-grouped by-task index of every component. That index
  * is gone — finding a component by name is the sidebar's job, and a second
  * catalog on the landing page was the same duplication that rotted in
- * docs/component-catalog.md. What is left is smaller and sharper:
+ * docs/component-catalog.md, since deleted. What is left is smaller and sharper:
  *
  *   1. Every in-Storybook link resolves. The "Where to go next" cards point at
  *      story ids by hand; a renamed story would 404 from the first page a new
@@ -148,7 +148,7 @@ describe("MDX pages", () => {
   }
 
   /** Every `data-variant` / `data-intent` value the component layer selects on, by recipe. */
-  function declared(attribute: "variant" | "intent"): Map<string, Set<string>> {
+  function declared(attribute: "variant"): Map<string, Set<string>> {
     const componentsDir = join(SRC, "components");
     const byValue = new Map<string, Set<string>>();
     for (const entry of readdirSync(componentsDir, { withFileTypes: true }).filter((e) => e.isDirectory())) {
@@ -178,9 +178,12 @@ describe("MDX pages", () => {
     }
   });
 
-  it("lists exactly the intents the recipes define", () => {
+  it("lists exactly the intents the slot layer defines", () => {
+    // Intents are defined once, in src/theming/intents.css, not per recipe.
+    const css = readFileSync(join(SRC, "theming", "intents.css"), "utf8");
+    const real = new Set([...css.matchAll(/^\s*\[data-intent="([a-z]+)"\]/gm)].map((m) => m[1]));
     const rows = tableRows("| `intent` | Meaning |");
-    expect(rows.map((r) => r[0].replaceAll("`", "")).sort()).toEqual([...declared("intent").keys()].sort());
+    expect(rows.map((r) => r[0].replaceAll("`", "")).sort()).toEqual([...real].sort());
   });
 
   it("has remark-gfm wired up as long as it renders tables", () => {

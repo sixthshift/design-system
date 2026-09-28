@@ -1,7 +1,7 @@
 "use client";
 
 import type { HTMLAttributes, ReactNode } from "react";
-import { Button } from "../../Button";
+import { Button, type ButtonVariant } from "../../Button";
 
 export type Action = {
   id: string;
@@ -9,7 +9,7 @@ export type Action = {
   icon?: ReactNode;
   onClick: () => void;
   disabled?: boolean;
-  variant?: "solid" | "outline" | "ghost" | "link";
+  variant?: ButtonVariant;
 };
 
 export type ToolbarProps = HTMLAttributes<HTMLDivElement> & {

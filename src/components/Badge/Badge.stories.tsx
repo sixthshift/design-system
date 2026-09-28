@@ -20,7 +20,7 @@ const meta: Meta<typeof Badge> = {
     },
     intent: {
       control: "select",
-      options: ["neutral", "danger", "success", "warning"],
+      options: ["neutral", "brand", "danger", "success", "warning"],
     },
   },
 };
@@ -140,6 +140,15 @@ export const StatusExamples: Story = {
         <Text className="text-sm">Payment Status:</Text>
         <Badge intent="danger">Overdue</Badge>
       </TextInline>
+    </div>
+  ),
+};
+
+export const Sizes: Story = {
+  render: () => (
+    <div className="flex items-center gap-2">
+      <Badge size="sm">Small</Badge>
+      <Badge size="md">Medium</Badge>
     </div>
   ),
 };

@@ -1,6 +1,6 @@
 import { Heading } from "@sixthshift/design-system/heading";
 import { readTokens } from "../../theme/read-tokens";
-import { modeVarsFrom, readRecipes } from "../read-recipes";
+import { type Cell, modeVarsFrom, readIntents, readRecipes, readsIntentSlots } from "../read-recipes";
 import { CellRow, type Column } from "./CellRow";
 
 /** Describe a row by its attribute values — `solid · neutral` beats a selector. */
@@ -8,6 +8,37 @@ const describe = (attrs: Record<string, string>) =>
   Object.entries(attrs)
     .map(([, value]) => value)
     .join(" · ");
+
+type Row = { key: string; label: string; attrs: Record<string, string>; declared: Record<string, string> };
+
+/**
+ * One row per thing a reader can render.
+ *
+ * A cell that paints with the intent slots (src/theming/intents.css) is one
+ * rule but a different colour per intent, so it becomes one row per intent,
+ * probed with that `data-intent`. A cell that already pins an intent — a
+ * recipe's single-intent override — folds into the row it overrides rather
+ * than appearing twice; the probe's own cascade applies it either way.
+ */
+function rowsFor(floor: Cell | undefined, cells: Cell[], intents: string[]): Row[] {
+  const rows = new Map<string, Row>();
+  const add = (label: string, attrs: Record<string, string>, declared: Record<string, string>) => {
+    const key = JSON.stringify(attrs);
+    const existing = rows.get(key);
+    rows.set(key, existing ? { ...existing, declared: { ...existing.declared, ...declared } } : { key, label, attrs, declared });
+  };
+  for (const cell of floor ? [floor, ...cells] : cells) {
+    if (readsIntentSlots(cell) && !("data-intent" in cell.attrs)) {
+      for (const intent of intents) {
+        const attrs = { ...cell.attrs, "data-intent": intent };
+        add(describe(attrs), attrs, cell.declared);
+      }
+    } else {
+      add(cell === floor ? "floor" : describe(cell.attrs), cell.attrs, cell.declared);
+    }
+  }
+  return [...rows.values()];
+}
 
 /**
  * Every recipe named in `hooks`, for one mode.
@@ -21,15 +52,13 @@ const describe = (attrs: Record<string, string>) =>
 export function RecipeTables({ mode, hooks }: { mode: "light" | "dark"; hooks: readonly string[] }) {
   const modeVars = modeVarsFrom(readTokens(mode));
   const recipes = readRecipes().filter((recipe) => hooks.includes(recipe.hook));
+  const intents = readIntents();
 
   return (
     <div style={modeVars as React.CSSProperties} className="flex flex-col gap-8 rounded-lg bg-bg-normal p-4 text-fg-normal">
       {recipes.map((recipe) => {
         const columns: Column[] = recipe.tokens.map((token) => ({ token, label: token.replace(`--${recipe.hook}-`, "").replace("--", "") }));
-        const rows = [
-          ...(recipe.floor ? [{ key: "floor", label: "floor", attrs: {}, declared: recipe.floor.declared }] : []),
-          ...recipe.cells.map((cell) => ({ key: cell.selector, label: describe(cell.attrs), attrs: cell.attrs, declared: cell.declared })),
-        ];
+        const rows = rowsFor(recipe.floor, recipe.cells, intents);
 
         return (
           <section key={recipe.hook} className="flex flex-col gap-2">

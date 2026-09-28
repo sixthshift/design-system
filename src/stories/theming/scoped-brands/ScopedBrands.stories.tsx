@@ -58,7 +58,7 @@ export const Brands: Story = {
           <Button intent="brand" variant="ghost" brand={brand}>
             Ghost
           </Button>
-          <Button intent="brand" variant="link" brand={brand}>
+          <Button intent="brand" inline brand={brand}>
             Link
           </Button>
           <Button intent="brand" brand={brand} disabled>
@@ -67,11 +67,13 @@ export const Brands: Story = {
           <Toggle intent="brand" variant="outline" brand={brand} defaultPressed aria-label={`Pressed ${brand} toggle`}>
             On
           </Toggle>
-          <Badge brand={brand}>Solid</Badge>
-          <Badge brand={brand} variant="soft">
+          <Badge intent="brand" brand={brand}>
+            Solid
+          </Badge>
+          <Badge intent="brand" brand={brand} variant="soft">
             Soft
           </Badge>
-          <Badge brand={brand} variant="outline">
+          <Badge intent="brand" brand={brand} variant="outline">
             Outline
           </Badge>
         </Row>
@@ -92,7 +94,7 @@ export const Scopes: Story = {
         <p className="font-medium text-fg-on-brand-subtle text-sm">A blush card</p>
         <Row label="inherits">
           <Button intent="brand">Add to cart</Button>
-          <Badge>New</Badge>
+          <Badge intent="brand">New</Badge>
           <Checkbox label="Gift wrap" defaultChecked />
           <Switch label="Subscribe" defaultChecked />
           <ToggleGroup

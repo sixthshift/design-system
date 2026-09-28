@@ -132,7 +132,7 @@ export const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
               {children}
               {action && (
                 <div className="mt-2">
-                  <Button variant="link" size="sm" className="h-auto p-0 font-medium" onClick={onAction}>
+                  <Button inline size="sm" className="font-medium" onClick={onAction}>
                     {action}
                   </Button>
                 </div>

@@ -12,47 +12,53 @@ Each rule below is stated as an imperative, backed by current code, with the rat
 
 ## Color goes in `intent`, never in `variant`
 
-A primitive's appearance is factored into **independent axes**, and `variant` is not allowed to carry color:
+A primitive's appearance is factored into **independent axes**, each named for what the caller knows at the call site ([component-axes.md](component-axes.md) has the reasoning):
 
-- **`variant`** — fill and shape: `solid`, `outline`, `ghost`, `link`, `soft`. How the surface is drawn, color-free.
-- **`intent`** — semantic color: `neutral`, `primary`, `danger`, `success`, `warning`, `muted`. What the surface *means*, shape-free.
-- **`size`** — the third axis where the primitive has one.
+- **`intent`** — what the thing *means*: `neutral`, `brand`, `danger`, `success`, `warning`. Shape-free. `neutral` (the grey family) is the default everywhere; a brand-coloured primary action says `intent="brand"`.
+- **`variant`** — the treatment, copied from the design: `solid`, `outline`, `ghost` (Button, Toggle, ToggleGroup), `solid`, `soft`, `outline` (Badge). Colour-free. A component ships the treatments that make sense for it.
+- **`size`** — `xs`–`xl`, subset per component, default `md`.
+- **Shape flags** — `iconOnly` squares the box; `inline` (Button) drops it for inline text. Shape never rides on an axis.
 
-The vocabulary above is the shared menu, not a fixed enum — each primitive declares the subset it supports. `Button` (`Button.tsx:65-66`) ships `solid|outline|ghost|link` × `neutral|danger|success|warning` × six sizes; `Badge` (`Badge.tsx:43-44`) ships `solid|soft|outline` × `neutral|primary|danger|success|warning|muted` with no size axis. Pick from the menu; don't invent a parallel name.
+Pick from the menu; don't invent a parallel name. There is no `info`, `muted` or `primary`, and a new intent needs a token family behind it first.
 
-The cross-product does **not** live in cva. It lives in a recipe — `src/components/<Component>/<component>.recipe.css`, beside the component, imported by `src/theming/tailwind.css` — as one cell per `(variant, intent)` pair, selected by `data-*` attributes the component renders:
+Neither axis lives in cva. Colour is two CSS layers, both in `@layer components`:
+
+1. **Intent slots** — `src/theming/intents.css` defines each intent **once**, as a fixed set of slots named by treatment (`--intent-solid-bg[-hovered|-pressed]`, `--intent-solid-fg`, `--intent-tint-bg[-…]`, `--intent-tint-fg[-pressed]`, `--intent-fg`, `--intent-border`), declared on whatever element carries `data-intent`.
+2. **Recipes** — `src/components/<Component>/<component>.recipe.css`, beside the component and imported by `src/theming/tailwind.css`, map each **variant** onto those slots. One cell per variant, not per `(variant, intent)` pair:
 
 ```css
-/* recipes/button.css, in @layer components — the colour is selected by the
-   (variant, intent) pair, not baked into either axis */
-.btn[data-variant="solid"][data-intent="danger"] {
-  --button-bg: var(--bg-danger);
-  --button-bg-hovered: var(--bg-danger-hovered);
-  --button-bg-pressed: var(--bg-danger-pressed);
-  --button-fg: var(--fg-on-danger);
+/* button.recipe.css — works in every intent, including one a consumer adds */
+.btn[data-variant="solid"] {
+  --button-bg: var(--intent-solid-bg);
+  --button-bg-hovered: var(--intent-solid-bg-hovered);
+  --button-bg-pressed: var(--intent-solid-bg-pressed);
+  --button-fg: var(--intent-solid-fg);
 }
 ```
 
 ```tsx
-// Button.tsx:21 — geometry only; not one colour is named here (excerpt;
+// Button.tsx — geometry only; not one colour is named here (excerpt;
 // the real string is a single sorted literal)
 "btn … bg-(--button-bg) … text-(--button-fg) … hover:bg-(--button-bg-hovered) …"
 ```
 
-So a component's cva holds only axis-orthogonal, non-colour styling — `size`, and a plain lookup for the structural half of `variant` (`solid: "shadow"`, `outline: "border shadow-xs"`). `intent` is not a cva variant at all any more: it was never anything but colour.
+A new intent is then one block in `intents.css` that every component picks up; a new variant is one cell per component. A recipe may still override a slot for one intent when its component genuinely differs (`.message[data-intent="neutral"]` sits on the resting surface rather than the grey tint) — say why in a comment, because it is the exception.
 
-Emit the attributes through the component's `*Recipe()` helper (`buttonRecipe`, `badgeRecipe`), which returns the class string together with `data-variant`/`data-intent`. Anything reusing another component's look — `Toggle` and `ToggleGroupItem` build on Button — must call that helper rather than reproducing the classes, or it lands on the recipe's floor instead of a cell.
+So a component's cva holds only axis-orthogonal, non-colour styling — `size`, and a plain lookup for the structural half of `variant` (`solid: "shadow"`, `outline: "border shadow-xs"`). `intent` is not a cva variant at all: it was never anything but colour.
 
-Two rules the validator enforces (`bun run check:recipes`):
+Emit the attributes through the component's `*Recipe()` helper (`buttonRecipe`, `badgeRecipe`), which returns the class string together with `data-variant`/`data-intent`. Anything reusing another component's look — `Toggle` and `ToggleGroupItem` build on Button — must call that helper rather than reproducing the classes, or it lands on the recipe's floor instead of a cell. Always render `data-intent` on the component's own element: the slots resolve there, which is what stops a component inheriting its parent's intent.
 
-- **Never put an intent or variant value in a token name.** `--button-bg-danger` is wrong; `.btn[data-intent="danger"] { --button-bg: … }` is right. The name enumerating the values is exactly what stops a consumer adding one.
+Rules the validator enforces (`bun run check:recipes`):
+
+- **Never put an intent or variant value in a token name.** `--button-bg-danger` is wrong; a cell reading `var(--intent-solid-bg)` is right. The name enumerating the values is exactly what stops a consumer adding one.
 - **Every token a component reads must be declared by a recipe.** An undeclared token computes to its initial value — `transparent` for a background — with no error anywhere.
+- **Every `--intent-*` a recipe reads must be a slot**, and every intent block may only re-point slots the `[data-intent]` floor declares.
 
-Type the axes as the shipped union *plus* `string` (`Loose<T>`), so a consumer can add an intent in CSS with no release. Export the closed union too (`ButtonIntentName`): once `string` is in a union you can no longer `Exclude` from it, and downstream code that needs to narrow — `ToggleGroup` excluding `link`, `ValidationStatus` keying a map by intent — has to build on the closed names.
+Type the axes as the shipped union *plus* `string` (`Loose<T>`), so a consumer can add an intent in CSS with no release. Export the closed union too (`ButtonIntentName`): once `string` is in a union you can no longer `Exclude` from it, and downstream code that needs to narrow — `FormField` excluding `neutral`, `ValidationStatus` keying a map by intent — has to build on the closed names.
 
 `defaultVariants` **must set every axis**, and the component must default `variant`/`intent` in its destructure, so a bare `<Button />` renders a real cell rather than the floor.
 
-**Why this is rule #1:** it's the convention most often violated. The reflex is to add a `variant="danger"`, which collapses the two axes and makes "outline danger" unexpressible. Keeping color in `intent` means every fill works in every color for free, and a new color is one new value across all variants — not a new variant per color.
+**Why this is rule #1:** it's the convention most often violated. The reflex is to add a `variant="danger"`, which collapses the two axes and makes "outline danger" unexpressible. Keeping color in `intent` means every treatment works in every colour for free, and a new colour is one new block — not a new variant per colour.
 
 ---
 

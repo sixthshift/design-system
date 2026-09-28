@@ -3,7 +3,8 @@
  * folder does NOT contain. A theme imports its own theme.css plus this file,
  * and is complete:
  *
- *   - the component recipes (layer 2), imported first: every component's
+ *   - the intent slots (intents.css), then the component recipes (layer 2),
+ *     imported first: every component's
  *     `*.recipe.css`, each inside `@layer components`. Adding a component
  *     adds one import line here; `check:recipes` fails the build on a recipe
  *     nobody imports, or an import pointing at nothing.
@@ -22,6 +23,9 @@
  */
 
 @layer theme, base, components, utilities, overrides;
+
+/* The intent slots every recipe paints with — one block per intent. */
+@import "./intents.css";
 
 @import "../components/Button/button.recipe.css";
 @import "../components/Badge/badge.recipe.css";
@@ -46,6 +50,7 @@
 @import "../components/ImageGallery/image-gallery.recipe.css";
 @import "../components/DataTable/data-table.recipe.css";
 @import "../components/FileDropzone/file-dropzone.recipe.css";
+@import "../components/ProgressBar/progress-bar.recipe.css";
 
 /* =============================================================================
    3. TAILWIND THEME

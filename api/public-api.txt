@@ -13,20 +13,29 @@ Deliberately not recorded: the package version, and anything under src/stories
 or src/testing. Neither is part of what a consumer can import.
 
 ==============================================================================
-SUBPATH EXPORTS — 74 subpaths, 501 exports
+SUBPATH EXPORTS — 74 subpaths, 503 exports
 ==============================================================================
 
 ./badge
-  value Badge = ForwardRefExoticComponent<HTMLAttributes<HTMLSpanElement> & { variant?: BadgeVariant | undefined;
+  value Badge = ForwardRefExoticComponent<HTMLAttributes<HTMLSpanElement> & VariantProps<(props?: ({ size?: "sm" | "md" | null | undefined;
+                } & ClassProp) | undefined) => string> & { variant?: BadgeVariant | undefined;
                 intent?: BadgeIntent | undefined;
                 brand?: string | undefined;
                 } & RefAttributes<HTMLSpanElement>>
   type  BadgeIntent = (string & {}) | BadgeIntentName
-  type  BadgeIntentName = "neutral" | "brand" | "danger" | "success" | "warning" | "muted"
-  type  BadgeProps = HTMLAttributes<HTMLSpanElement> & { variant?: BadgeVariant | undefined; intent?: BadgeIntent | undefined; brand?: string | undefined; }
+  type  BadgeIntentName = "neutral" | "brand" | "danger" | "success" | "warning"
+  type  BadgeProps = HTMLAttributes<HTMLSpanElement> & VariantProps<(props?: ({ size?: "sm" | "md" | null | undefined;
+                     } & ClassProp) | undefined) => string> & { variant?: BadgeVariant
+                     | undefined;
+                     intent?: BadgeIntent
+                     | undefined;
+                     brand?: string
+                     | undefined;
+                     }
   value badgeRecipe = ({ variant,
                       intent,
                       brand,
+                      size,
                       className }: BadgeRecipeProps) => { className: string;
                       "data-variant": BadgeVariant;
                       "data-intent": BadgeIntent;
@@ -35,13 +44,7 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
                       }
   type  BadgeVariant = (string & {}) | BadgeVariantName
   type  BadgeVariantName = "solid" | "soft" | "outline"
-  value badgeVariants = (props?: { class: ClassValue;
-                        className?: undefined;
-                        } | { class?: undefined;
-                        className: ClassValue;
-                        } | { class?: undefined;
-                        className?: undefined;
-                        } | undefined) => string
+  value badgeVariants = (props?: ({ size?: "sm" | "md" | null | undefined; } & ClassProp) | undefined) => string
 
 ./bar-chart
   value BarChart = ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & { data: BarChartItem[];
@@ -64,17 +67,18 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
   value Body = ForwardRefExoticComponent<HTMLAttributes<HTMLElement> & { as?: TextElement | undefined; } & RefAttributes<HTMLElement>>
 
 ./button
-  value Button = ForwardRefExoticComponent<ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<(props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined;
+  value Button = ForwardRefExoticComponent<ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<(props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
                  } & ClassProp) | undefined) => string> & { variant?: ButtonVariant | undefined;
                  intent?: ButtonIntent | undefined;
                  brand?: string | undefined;
                  iconOnly?: boolean | undefined;
+                 inline?: boolean | undefined;
                  asChild?: boolean | undefined;
                  loading?: boolean | undefined;
                  } & RefAttributes<HTMLButtonElement>>
   type  ButtonIntent = (string & {}) | ButtonIntentName
   type  ButtonIntentName = "neutral" | "brand" | "danger" | "success" | "warning"
-  type  ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<(props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined;
+  type  ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<(props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
                       } & ClassProp) | undefined) => string> & { variant?: ButtonVariant
                       | undefined;
                       intent?: ButtonIntent
@@ -82,6 +86,8 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
                       brand?: string
                       | undefined;
                       iconOnly?: boolean
+                      | undefined;
+                      inline?: boolean
                       | undefined;
                       asChild?: boolean
                       | undefined;
@@ -93,15 +99,19 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
                        brand,
                        size,
                        iconOnly,
+                       inline,
                        className }: ButtonRecipeProps) => { className: string;
-                       "data-variant": ButtonVariant;
+                       "data-variant": ButtonVariant
+                       | undefined;
+                       "data-inline": string
+                       | undefined;
                        "data-intent": ButtonIntent;
                        "data-brand": string
                        | undefined;
                        }
   type  ButtonVariant = (string & {}) | ButtonVariantName
-  type  ButtonVariantName = "solid" | "outline" | "ghost" | "link"
-  value buttonVariants = (props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined; } & ClassProp) | undefined) => string
+  type  ButtonVariantName = "solid" | "outline" | "ghost"
+  value buttonVariants = (props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined; } & ClassProp) | undefined) => string
 
 ./calendar
   value Calendar = ForwardRefExoticComponent<CalendarProps & RefAttributes<HTMLDivElement>>
@@ -136,21 +146,21 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
 
 ./card
   value Card = ForwardRefExoticComponent<Omit<HTMLAttributes<HTMLDivElement>,
-               "title"> & Pick<VariantProps<(props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined;
+               "title"> & Pick<VariantProps<(props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
                interactive?: boolean | null | undefined;
                } & ClassProp) | undefined) => string>,
                "size"> & { title?: ReactNode;
                headerAction?: ReactNode;
                } & RefAttributes<HTMLDivElement>>
   type  CardProps = Omit<HTMLAttributes<HTMLDivElement>,
-                    "title"> & Pick<VariantProps<(props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined;
+                    "title"> & Pick<VariantProps<(props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
                     interactive?: boolean | null | undefined;
                     } & ClassProp) | undefined) => string>,
                     "size"> & { title?: ReactNode;
                     headerAction?: ReactNode;
                     }
-  type  CardSize = "xs" | "sm" | "md" | "lg" | "xl"
-  value cardVariants = (props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined; interactive?: boolean | null | undefined; } & ClassProp) | undefined) => string
+  type  CardSize = "sm" | "md" | "xs" | "lg" | "xl"
+  value cardVariants = (props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined; interactive?: boolean | null | undefined; } & ClassProp) | undefined) => string
 
 ./checkbox
   value Checkbox = ForwardRefExoticComponent<Omit<ButtonHTMLAttributes<HTMLButtonElement>,
@@ -183,8 +193,7 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
                         options: readonly CheckboxGroupOption[];
                         onValueChange?: ((value: string[]) => void) | undefined;
                         orientation?: "vertical" | "horizontal" | undefined;
-                        variant?: "default" | "button" | undefined;
-                        appearance?: "segmented" | "separate" | undefined;
+                        appearance?: "control" | "segmented" | "separate" | undefined;
                         name?: string | undefined;
                         disabled?: boolean | undefined;
                         onBlur?: (() => void)
@@ -200,10 +209,8 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
                              orientation?: "vertical"
                              | "horizontal"
                              | undefined;
-                             variant?: "default"
-                             | "button"
-                             | undefined;
-                             appearance?: "segmented"
+                             appearance?: "control"
+                             | "segmented"
                              | "separate"
                              | undefined;
                              name?: string
@@ -230,18 +237,7 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
   type  ValidationError = { line: number; column: number; message: string; severity: "warning" | "error" | "info"; }
 
 ./code-editor-workspace
-  type  Action = { id: string;
-                 label: string;
-                 icon?: ReactNode;
-                 onClick: () => void;
-                 disabled?: boolean
-                 | undefined;
-                 variant?: "solid"
-                 | "outline"
-                 | "ghost"
-                 | "link"
-                 | undefined;
-                 }
+  type  Action = { id: string; label: string; icon?: ReactNode; onClick: () => void; disabled?: boolean | undefined; variant?: ButtonVariant | undefined; }
   value StatusBar = ({ items, leftContent, rightContent, className, ...props }: StatusBarProps) => Element
   type  StatusBarItem = { id: string; label: string; value?: string | undefined; icon?: ReactNode; onClick?: (() => void) | undefined; }
   type  StatusBarProps = HTMLAttributes<HTMLDivElement> & { items?: StatusBarItem[] | undefined; leftContent?: ReactNode; rightContent?: ReactNode; }
@@ -1178,7 +1174,16 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
 
 ./progress-bar
   value ProgressBar = ForwardRefExoticComponent<ProgressBarProps & RefAttributes<HTMLDivElement>>
-  type  ProgressBarProps = { completed: number; total: number; showFraction?: boolean | undefined; label?: string | undefined; className?: string | undefined; }
+  type  ProgressBarIntent = (string & {}) | ProgressBarIntentName
+  type  ProgressBarIntentName = "neutral" | "brand" | "danger" | "success" | "warning"
+  type  ProgressBarProps = { completed: number;
+                           total: number;
+                           showFraction?: boolean | undefined;
+                           intent?: ProgressBarIntent | undefined;
+                           brand?: string | undefined;
+                           label?: string | undefined;
+                           className?: string | undefined;
+                           }
 
 ./radio-button
   value RadioButton = ForwardRefExoticComponent<Omit<ButtonHTMLAttributes<HTMLButtonElement>,
@@ -1209,8 +1214,7 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
                            options: readonly RadioButtonGroupOption[];
                            onValueChange?: ((value: string) => void) | undefined;
                            orientation?: "vertical" | "horizontal" | undefined;
-                           variant?: "default" | "button" | undefined;
-                           appearance?: "segmented" | "separate" | undefined;
+                           appearance?: "control" | "segmented" | "separate" | undefined;
                            name?: string | undefined;
                            disabled?: boolean | undefined;
                            onBlur?: (() => void)
@@ -1226,10 +1230,8 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
                                 orientation?: "vertical"
                                 | "horizontal"
                                 | undefined;
-                                variant?: "default"
-                                | "button"
-                                | undefined;
-                                appearance?: "segmented"
+                                appearance?: "control"
+                                | "segmented"
                                 | "separate"
                                 | undefined;
                                 name?: string
@@ -1475,13 +1477,13 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
   type  TextProps = HTMLAttributes<HTMLElement> & { as?: TextElement | undefined; }
 
 ./text-inline
-  value TextInline = ForwardRefExoticComponent<HTMLAttributes<HTMLSpanElement> & VariantProps<(props?: ({ gap?: "xs" | "sm" | "md" | "lg" | "xl" | "none" | null | undefined;
+  value TextInline = ForwardRefExoticComponent<HTMLAttributes<HTMLSpanElement> & VariantProps<(props?: ({ gap?: "sm" | "md" | "xs" | "lg" | "xl" | "none" | null | undefined;
                      align?: "start" | "end" | "center" | "baseline" | null | undefined;
                      } & ClassProp) | undefined) => string> & RefAttributes<HTMLSpanElement>>
-  type  TextInlineProps = HTMLAttributes<HTMLSpanElement> & VariantProps<(props?: ({ gap?: "xs" | "sm" | "md" | "lg" | "xl" | "none" | null | undefined;
+  type  TextInlineProps = HTMLAttributes<HTMLSpanElement> & VariantProps<(props?: ({ gap?: "sm" | "md" | "xs" | "lg" | "xl" | "none" | null | undefined;
                           align?: "start" | "end" | "center" | "baseline" | null | undefined;
                           } & ClassProp) | undefined) => string>
-  value textInlineVariants = (props?: ({ gap?: "xs" | "sm" | "md" | "lg" | "xl" | "none" | null | undefined;
+  value textInlineVariants = (props?: ({ gap?: "sm" | "md" | "xs" | "lg" | "xl" | "none" | null | undefined;
                              align?: "start" | "end" | "center" | "baseline" | null | undefined;
                              } & ClassProp) | undefined) => string
 
@@ -2307,7 +2309,7 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
 
 ./toggle
   value Toggle = ForwardRefExoticComponent<Omit<ButtonHTMLAttributes<HTMLButtonElement>,
-                 "onChange" | "value"> & VariantProps<(props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined;
+                 "onChange" | "value"> & VariantProps<(props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
                  } & ClassProp) | undefined) => string> & { variant?: ButtonVariant | undefined;
                  intent?: ButtonIntent | undefined;
                  brand?: string | undefined;
@@ -2318,7 +2320,7 @@ SUBPATH EXPORTS — 74 subpaths, 501 exports
                  | undefined;
                  } & RefAttributes<HTMLButtonElement>>
   type  ToggleProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>,
-                      "onChange" | "value"> & VariantProps<(props?: ({ size?: "xs" | "sm" | "md" | "lg" | "xl" | null | undefined;
+                      "onChange" | "value"> & VariantProps<(props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
                       } & ClassProp) | undefined) => string> & { variant?: ButtonVariant
                       | undefined;
                       intent?: ButtonIntent

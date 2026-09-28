@@ -178,36 +178,36 @@ describe("CheckboxGroup", () => {
     });
   });
 
-  describe("button variant", () => {
+  describe("button appearances", () => {
     it("still exposes checkbox semantics", () => {
-      render(<CheckboxGroup options={options} variant="button" />);
+      render(<CheckboxGroup options={options} appearance="segmented" />);
       expect(screen.getAllByRole("checkbox")).toHaveLength(3);
     });
 
     it("toggles a checkbox when clicked", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      render(<CheckboxGroup options={options} variant="button" value={[]} onValueChange={handleChange} />);
+      render(<CheckboxGroup options={options} appearance="segmented" value={[]} onValueChange={handleChange} />);
 
       await user.click(screen.getByRole("checkbox", { name: "Email" }));
       expect(handleChange).toHaveBeenCalledWith(["email"]);
     });
 
-    it("applies segmented appearance classes by default", () => {
-      render(<CheckboxGroup options={options} variant="button" orientation="horizontal" />);
+    it("applies segmented appearance classes", () => {
+      render(<CheckboxGroup options={options} appearance="segmented" orientation="horizontal" />);
       const firstOption = screen.getByRole("checkbox", { name: "Email" });
       expect(firstOption).toHaveClass("border");
       expect(firstOption).toHaveClass("rounded-l-md");
     });
 
     it("applies separate appearance classes", () => {
-      render(<CheckboxGroup options={options} variant="button" appearance="separate" />);
+      render(<CheckboxGroup options={options} appearance="separate" />);
       const firstOption = screen.getByRole("checkbox", { name: "Email" });
       expect(firstOption).toHaveClass("rounded-md");
     });
 
     it("applies checked styling to a selected button option", () => {
-      render(<CheckboxGroup options={options} variant="button" value={["email"]} onValueChange={() => {}} />);
+      render(<CheckboxGroup options={options} appearance="segmented" value={["email"]} onValueChange={() => {}} />);
       expect(screen.getByRole("checkbox", { name: "Email" })).toHaveClass("bg-bg-brand");
     });
   });
@@ -280,8 +280,8 @@ describe("CheckboxGroup", () => {
       expect(document.querySelector('input[type="checkbox"]')).not.toBeInTheDocument();
     });
 
-    it("renders a hidden input only for checked options in the button variant", () => {
-      render(<CheckboxGroup options={options} variant="button" value={["email", "push"]} onValueChange={() => {}} name="notifications" />);
+    it("renders a hidden input only for checked options with a button appearance", () => {
+      render(<CheckboxGroup options={options} appearance="segmented" value={["email", "push"]} onValueChange={() => {}} name="notifications" />);
       const hiddenInputs = document.querySelectorAll('input[name="notifications"]');
       expect(hiddenInputs).toHaveLength(2);
     });

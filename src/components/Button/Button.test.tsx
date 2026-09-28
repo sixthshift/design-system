@@ -30,7 +30,7 @@ describe("Button", () => {
   });
 
   describe("variants", () => {
-    it.each(["solid", "outline", "ghost", "link"] as const)("renders %s variant", (variant) => {
+    it.each(["solid", "outline", "ghost"] as const)("renders %s variant", (variant) => {
       render(<Button variant={variant}>Button</Button>);
       expect(screen.getByRole("button")).toBeInTheDocument();
     });
@@ -39,6 +39,34 @@ describe("Button", () => {
       render(<Button>Button</Button>);
       const button = screen.getByRole("button");
       expect(button).toHaveClass("shadow");
+    });
+  });
+
+  describe("inline", () => {
+    it("drops the variant and marks the element inline", () => {
+      render(
+        <Button inline variant="outline">
+          Button
+        </Button>
+      );
+      const button = screen.getByRole("button");
+      expect(button).not.toHaveAttribute("data-variant");
+      expect(button).toHaveAttribute("data-inline", "true");
+      expect(button).not.toHaveClass("border");
+    });
+
+    it("keeps the intent, which colours the text", () => {
+      render(
+        <Button inline intent="danger">
+          Button
+        </Button>
+      );
+      expect(screen.getByRole("button")).toHaveAttribute("data-intent", "danger");
+    });
+
+    it("renders no inline marker by default", () => {
+      render(<Button>Button</Button>);
+      expect(screen.getByRole("button")).not.toHaveAttribute("data-inline");
     });
   });
 

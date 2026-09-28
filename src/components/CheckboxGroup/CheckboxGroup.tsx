@@ -26,10 +26,11 @@ export type CheckboxGroupProps = Omit<React.HTMLAttributes<HTMLDivElement>, "onC
   onValueChange?: (value: string[]) => void;
   /** Layout orientation */
   orientation?: "vertical" | "horizontal";
-  /** Visual variant */
-  variant?: "default" | "button";
-  /** Button appearance (only applies when variant="button") */
-  appearance?: "segmented" | "separate";
+  /**
+   * How the options render: `control` (the default) is one `Checkbox` per option;
+   * `segmented` and `separate` are a row or column of buttons, joined or apart.
+   */
+  appearance?: "control" | "segmented" | "separate";
   /** Input name for form submission */
   name?: string;
   /** Disable all options */
@@ -43,17 +44,19 @@ export type CheckboxGroupProps = Omit<React.HTMLAttributes<HTMLDivElement>, "onC
  * selection, via the `value`/`defaultValue`/`onValueChange` triad
  * (`useControllableState`).
  *
- * `variant="default"` (the default) renders one `Checkbox` per option, each
+ * `appearance="control"` (the default) renders one `Checkbox` per option, each
  * with its own visible label, laid out in a column or row per
- * `orientation`. `variant="button"` is a separate rendering path — not a
- * re-skinned `Checkbox` — a row/column of plain buttons with
- * `role="checkbox"` and no separate label; contiguous buttons touch and
- * share borders (`appearance="segmented"`, the default) or sit apart with
- * their own rounded corners (`appearance="separate"`).
+ * `orientation`. `appearance="segmented"` or `"separate"` is a separate
+ * rendering path — not a re-skinned `Checkbox` — a row/column of plain
+ * buttons with `role="checkbox"` and no separate label; contiguous buttons
+ * touch and share borders (`segmented`) or sit apart with their own rounded
+ * corners (`separate`). One prop rather than a
+ * `variant` + `appearance` pair, so "appearance without buttons" — which
+ * used to mean nothing — cannot be written.
  *
- * Form submission only happens when `name` is set. In the default variant
+ * Form submission only happens when `name` is set. With `control`
  * that means each underlying `Checkbox` gets `name`, so one hidden native
- * checkbox input is rendered per option; in the button variant the group
+ * checkbox input is rendered per option; with the button appearances the group
  * itself renders one hidden `<input type="checkbox">` per *currently
  * selected* value.
  *
@@ -68,8 +71,7 @@ const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps>(
       options,
       onValueChange,
       orientation = "vertical",
-      variant = "default",
-      appearance = "segmented",
+      appearance = "control",
       name,
       disabled,
       onBlur,
@@ -111,7 +113,7 @@ const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps>(
       }
     };
 
-    if (variant === "button") {
+    if (appearance === "segmented" || appearance === "separate") {
       const isVertical = orientation === "vertical";
       const isSegmented = appearance === "segmented";
 

@@ -10,7 +10,7 @@ const meta: Meta<typeof Toggle> = {
   component: Toggle,
   parameters: {
     layout: "centered",
-    docs: { subtitle: "A single pressed/unpressed button, built on Button's variant and intent" },
+    docs: { subtitle: "A single pressed/unpressed button, with Button's variant and intent axes" },
   },
   argTypes: {
     variant: {
@@ -277,4 +277,4 @@ export const Sizes: Story = {
   ),
 };
 
-export const ComponentTokens = componentTokensStory("btn");
+export const ComponentTokens = componentTokensStory("toggle");

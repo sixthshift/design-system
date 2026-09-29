@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { Button, buttonRecipe } from "./Button";
+import { Button } from "./Button";
 
 describe("Button", () => {
   describe("rendering", () => {
@@ -275,12 +275,9 @@ describe("Button", () => {
   });
 
   describe("brand", () => {
-    it("buttonRecipe emits data-brand when brand is set", () => {
-      expect(buttonRecipe({ intent: "brand", brand: "mint" })["data-brand"]).toBe("mint");
-    });
-
-    it("buttonRecipe leaves data-brand undefined when brand is not set, so React omits it", () => {
-      expect(buttonRecipe({ intent: "brand" })["data-brand"]).toBeUndefined();
+    it("omits data-brand when brand is not set, so the element follows its surroundings", () => {
+      render(<Button intent="brand">Add to cart</Button>);
+      expect(screen.getByRole("button")).not.toHaveAttribute("data-brand");
     });
 
     it("renders data-brand and no bare brand attribute", () => {

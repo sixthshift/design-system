@@ -33,6 +33,7 @@
 @import "../components/Spinner/spinner.recipe.css";
 @import "../components/Tabs/tabs.recipe.css";
 @import "../components/Toggle/toggle.recipe.css";
+@import "../components/ToggleGroup/toggle-group.recipe.css";
 @import "../components/Input/input.recipe.css";
 @import "../components/Textarea/textarea.recipe.css";
 @import "../components/SearchInput/search-input.recipe.css";

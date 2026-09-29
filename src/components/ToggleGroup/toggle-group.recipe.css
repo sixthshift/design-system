@@ -1,0 +1,62 @@
+/**
+ * ToggleGroup recipe — the component-token layer for ToggleGroup's items.
+ *
+ * Its own `--toggle-group-item-*` tokens on its own `.toggle-group-item` hook.
+ * The cells start as copies of Toggle's, which start as copies of Button's —
+ * duplicated on purpose: each is a separate component, re-pointing one does
+ * not reach the others, and each is free to change alone.
+ *
+ * Every cell paints with the intent slots (src/theming/intents.css). The
+ * selected state is `[data-state="on"]`.
+ *
+ * `@layer components` is load-bearing, not tidiness — see button.recipe.css.
+ */
+
+@layer components {
+  /* The floor — a plain, legible item when no cell below matches. */
+  .toggle-group-item {
+    --toggle-group-item-bg: transparent;
+    --toggle-group-item-bg-hovered: var(--toggle-group-item-bg); /* no shift on hover */
+    --toggle-group-item-bg-pressed: var(--toggle-group-item-bg-hovered);
+    --toggle-group-item-fg: var(--fg-normal);
+    --toggle-group-item-border: var(--border-normal);
+    --toggle-group-item-ring: var(--focus-ring);
+  }
+
+  /* solid — a filled surface, with text read on top of it. */
+  .toggle-group-item[data-variant="solid"] {
+    --toggle-group-item-bg: var(--intent-solid-bg);
+    --toggle-group-item-bg-hovered: var(--intent-solid-bg-hovered);
+    --toggle-group-item-bg-pressed: var(--intent-solid-bg-pressed);
+    --toggle-group-item-fg: var(--intent-solid-fg);
+  }
+
+  /* outline and ghost share the family's text colour and its tint wash. */
+  .toggle-group-item[data-variant="outline"],
+  .toggle-group-item[data-variant="ghost"] {
+    --toggle-group-item-bg-hovered: var(--intent-tint-bg-hovered);
+    --toggle-group-item-bg-pressed: var(--intent-tint-bg-pressed);
+    --toggle-group-item-fg: var(--intent-fg);
+  }
+
+  /* outline alone carries a resting surface and a border. */
+  .toggle-group-item[data-variant="outline"] {
+    --toggle-group-item-bg: var(--bg-normal);
+    --toggle-group-item-border: var(--intent-border);
+  }
+
+  /* On. Every cell repeats its resting value into `-hovered`: a selected item
+     deliberately does not shift on hover. solid holds the fill's -pressed
+     step; outline and ghost hold the tint's, with its text partner. */
+  .toggle-group-item[data-state="on"][data-variant="solid"] {
+    --toggle-group-item-bg: var(--intent-solid-bg-pressed);
+    --toggle-group-item-bg-hovered: var(--intent-solid-bg-pressed);
+  }
+
+  .toggle-group-item[data-state="on"][data-variant="outline"],
+  .toggle-group-item[data-state="on"][data-variant="ghost"] {
+    --toggle-group-item-bg: var(--intent-tint-bg-pressed);
+    --toggle-group-item-bg-hovered: var(--intent-tint-bg-pressed);
+    --toggle-group-item-fg: var(--intent-tint-fg-pressed);
+  }
+}

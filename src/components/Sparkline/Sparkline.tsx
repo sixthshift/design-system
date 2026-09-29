@@ -1,6 +1,11 @@
-import type { Interpolation } from "@sixthshift/design-system/line-chart";
 import { cn } from "@sixthshift/design-system/utils";
 import * as React from "react";
+
+/**
+ * How the line joins its points. The same four as LineChart's — duplicated, not
+ * imported, so a sparkline does not pull in the chart.
+ */
+export type SparklineInterpolation = "linear" | "monotone" | "stepBefore" | "stepAfter";
 
 export type SparklineProps = React.HTMLAttributes<HTMLSpanElement> & {
   data: number[];
@@ -8,11 +13,11 @@ export type SparklineProps = React.HTMLAttributes<HTMLSpanElement> & {
   height?: number;
   color?: string;
   fillArea?: boolean;
-  interpolation?: Interpolation;
+  interpolation?: SparklineInterpolation;
   strokeWidth?: number;
 };
 
-function buildPath(points: { x: number; y: number }[], interpolation: Interpolation): string {
+function buildPath(points: { x: number; y: number }[], interpolation: SparklineInterpolation): string {
   if (points.length === 0) return "";
   const parts = [`M ${points[0]!.x} ${points[0]!.y}`];
 
@@ -58,7 +63,7 @@ function buildPath(points: { x: number; y: number }[], interpolation: Interpolat
  *
  * Requires at least 2 data points; with fewer it renders nothing (`null`).
  * `color` is a single CSS color string (default `var(--fg-brand)`), and
- * `interpolation` reuses the same `Interpolation` type as `LineChart`. The
+ * `interpolation` takes the same four values as `LineChart`'s. The
  * accessible name is a static `aria-label="Trend line"` — it does not
  * describe the actual values.
  */

@@ -5,6 +5,5 @@ export {
   type ButtonProps,
   type ButtonVariant,
   type ButtonVariantName,
-  buttonRecipe,
   buttonVariants,
 } from "./Button";

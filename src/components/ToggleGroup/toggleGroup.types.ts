@@ -1,9 +1,17 @@
 import type * as React from "react";
-import type { ButtonIntent, ButtonVariant } from "../Button/Button";
-import type { ToggleProps } from "../Toggle/Toggle";
 
-/** Extract a prop's union type from ToggleProps, stripping null added by CVA */
-type ToggleProp<K extends keyof ToggleProps> = NonNullable<ToggleProps[K]>;
+/**
+ * ToggleGroup's own axes. They match Toggle's and Button's, deliberately
+ * duplicated rather than imported: a group of toggle buttons is its own
+ * component, and importing it must not pull in either.
+ */
+type Loose<T extends string> = T | (string & {});
+export type ToggleGroupVariantName = "solid" | "outline" | "ghost";
+export type ToggleGroupIntentName = "neutral" | "brand" | "danger" | "success" | "warning";
+export type ToggleGroupVariant = Loose<ToggleGroupVariantName>;
+export type ToggleGroupIntent = Loose<ToggleGroupIntentName>;
+/** `xl` is left out — too large for grouped toggles. */
+export type ToggleGroupSize = "xs" | "sm" | "md" | "lg";
 
 export type ToggleGroupOption = {
   /** Unique value for the option */
@@ -23,18 +31,18 @@ export type ToggleGroupBaseProps = Omit<React.HTMLAttributes<HTMLDivElement>, "o
   appearance?: "segmented" | "separate";
   /** Layout orientation */
   orientation?: "vertical" | "horizontal";
-  /** Button variant — every one Button ships has a pressed state, so none is excluded. */
-  variant?: ButtonVariant;
-  /** Colour intent — widened like Button's, so a consumer-defined intent reaches the group. */
-  intent?: ButtonIntent;
+  /** The items' treatment. */
+  variant?: ToggleGroupVariant;
+  /** Colour intent — widened, so a consumer-defined intent reaches the group. */
+  intent?: ToggleGroupIntent;
   /**
    * Name of a brand the theme defines. Rendered once, as `data-brand` on the
    * group element, so every item inherits it. Omitted, the group follows the
    * nearest `data-brand` ancestor.
    */
   brand?: string | undefined;
-  /** Button size (xl excluded — too large for grouped toggles) */
-  size?: Exclude<ToggleProp<"size">, "xl">;
+  /** Item size (xl excluded — too large for grouped toggles) */
+  size?: ToggleGroupSize;
   /** Square every item at the current size, for icon-only options */
   iconOnly?: boolean;
   /** Disable all options */

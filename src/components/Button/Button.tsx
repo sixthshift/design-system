@@ -88,44 +88,6 @@ export type ButtonIntentName = "neutral" | "brand" | "danger" | "success" | "war
 export type ButtonVariant = Loose<ButtonVariantName>;
 export type ButtonIntent = Loose<ButtonIntentName>;
 
-export type ButtonRecipeProps = VariantProps<typeof buttonVariants> & {
-  variant?: ButtonVariant | undefined;
-  intent?: ButtonIntent | undefined;
-  /** Re-points this element's brand tokens to a brand the theme defines. See the Scoped brands docs. */
-  brand?: string | undefined;
-  iconOnly?: boolean | undefined;
-  inline?: boolean | undefined;
-  className?: string | undefined;
-};
-
-/**
- * The class string plus the attributes the recipe selects on.
- *
- * `data-brand` is only emitted when `brand` is set: `undefined` makes React
- * omit the attribute, so the element takes its brand from its surroundings.
- *
- * Shared with Toggle and ToggleGroupItem, which are built on Button's look. The
- * data attributes are half the contract now, so anything reusing that look has
- * to emit them as well or it lands on the recipe's floor instead of a cell.
- *
- * `inline` is terminal: it drops `data-variant` altogether, so no variant cell
- * can match and the recipe's `[data-inline]` cell decides the colour alone.
- */
-export function buttonRecipe({ variant = "solid", intent = "neutral", brand, size, iconOnly = false, inline = false, className }: ButtonRecipeProps) {
-  const shape = inline ? inlineGeometry : iconOnly ? iconOnlyGeometry[size ?? "md"] : undefined;
-  return {
-    className: cn(
-      inline ? undefined : variantStructure[variant],
-      // `className` stays last so a caller still outranks the shape geometry.
-      buttonVariants({ size, className: cn(shape, className) })
-    ),
-    "data-variant": inline ? undefined : variant,
-    "data-inline": inline ? "true" : undefined,
-    "data-intent": intent,
-    "data-brand": brand,
-  };
-}
-
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
     variant?: ButtonVariant | undefined;
@@ -203,8 +165,23 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const Comp = asChild ? Slot : "button";
+    const shape = inline ? inlineGeometry : iconOnly ? iconOnlyGeometry[size ?? "md"] : undefined;
     return (
-      <Comp {...buttonRecipe({ variant, intent, brand, size, iconOnly, inline, className })} ref={ref} disabled={disabled || loading} {...props}>
+      <Comp
+        // `className` stays last so a caller still outranks the shape geometry.
+        className={cn(inline ? undefined : variantStructure[variant], buttonVariants({ size, className: cn(shape, className) }))}
+        // What the recipe selects on. `inline` is terminal: it drops
+        // `data-variant`, so no variant cell can match. `data-brand` is
+        // `undefined` unless set, so React omits it and the element takes its
+        // brand from its surroundings.
+        data-variant={inline ? undefined : variant}
+        data-inline={inline ? "true" : undefined}
+        data-intent={intent}
+        data-brand={brand}
+        ref={ref}
+        disabled={disabled || loading}
+        {...props}
+      >
         {loading ? (
           <>
             <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">

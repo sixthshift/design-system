@@ -46,7 +46,7 @@ A new intent is then one block in `intents.css` that every component picks up; a
 
 So a component's cva holds only axis-orthogonal, non-colour styling — `size`, and a plain lookup for the structural half of `variant` (`solid: "shadow"`, `outline: "border shadow-xs"`). `intent` is not a cva variant at all: it was never anything but colour.
 
-Emit the attributes through the component's `*Recipe()` helper (`buttonRecipe`, `badgeRecipe`), which returns the class string together with `data-variant`/`data-intent`. Anything reusing another component's look — `Toggle` and `ToggleGroupItem` build on Button — must call that helper rather than reproducing the classes, or it lands on the recipe's floor instead of a cell. Always render `data-intent` on the component's own element: the slots resolve there, which is what stops a component inheriting its parent's intent.
+Render the attributes the recipe selects on — `data-variant`, `data-intent`, and `data-brand` when set — directly in the component, next to its classes. There is no shared helper to call: each component owns its own. Always render `data-intent` on the component's own element: the slots resolve there, which is what stops a component inheriting its parent's intent.
 
 Rules the validator enforces (`bun run check:recipes`):
 
@@ -59,6 +59,16 @@ Type the axes as the shipped union *plus* `string` (`Loose<T>`), so a consumer c
 `defaultVariants` **must set every axis**, and the component must default `variant`/`intent` in its destructure, so a bare `<Button />` renders a real cell rather than the floor.
 
 **Why this is rule #1:** it's the convention most often violated. The reflex is to add a `variant="danger"`, which collapses the two axes and makes "outline danger" unexpressible. Keeping color in `intent` means every treatment works in every colour for free, and a new colour is one new block — not a new variant per colour.
+
+---
+
+## Never build a component on another's look — duplicate it
+
+A component must not borrow another component's internals: its recipe function, class hook, component tokens or types. Toggle looks like a Button, but it has its own classes, `.toggle` hook, `--toggle-*` tokens and `ToggleVariant`/`ToggleIntent` types — copied from Button, not imported. The same for ToggleGroup (`--toggle-group-item-*`), TagChip (its own chip, not a restyled Badge), SearchInput (its own field, not a wrapped Input) and Sparkline (its own `SparklineInterpolation`).
+
+**The test:** would importing only this component *semantically* need the other? Composition passes — a DatePicker contains a Calendar and Buttons, FormField contains a Label and a Message, so rendering those is right. So does specialisation of a semantically related component: DateRangePicker *is* a DatePicker in range mode, with presets, so building it on DatePicker is right. Resemblance fails — a toggle is not a button, so importing Toggle must not pull in Button.
+
+**Why duplicate rather than share:** a shared helper couples two components that only happen to look alike. Re-pointing `--button-bg` should restyle buttons and nothing else, and a change to Button's recipe should never reach a toggle unasked. The copies start identical and are free to drift.
 
 ---
 
@@ -89,9 +99,8 @@ Every primitive accepts `className` and merges it **last** so a consumer can alw
 - **cva components** — pass `className` *into* the variant call so tailwind-merge dedupes against the generated classes:
 
   ```tsx
-  // Button.tsx:83-89 — `buttonRecipe` wraps this, returning the class string
-  // together with the `data-variant`/`data-intent` the recipe selects on
-  className: cn(variantStructure[variant], buttonVariants({ size, className }))
+  // Button.tsx — alongside the `data-variant`/`data-intent` the recipe selects on
+  className={cn(variantStructure[variant], buttonVariants({ size, className }))}
   ```
 
 - **plain components** — `className` is the last argument to `cn()`:

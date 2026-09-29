@@ -67,10 +67,10 @@ So the caller states the meaning (`intent`) and copies the treatment from the sp
 | Component | `intent` | `variant` | `size` | Flags |
 |---|---|---|---|---|
 | Button | all 5, default `neutral` | `solid \| outline \| ghost`, default `solid` | `xs`–`xl`, default `md` | `inline`, `iconOnly` |
-| Toggle | inherits Button | inherits Button | inherits Button | `iconOnly` |
-| ToggleGroup | all 5 (widened) | `solid \| outline \| ghost` | `xs`–`lg` | `iconOnly` |
+| Toggle | all 5, default `neutral` | `solid \| outline \| ghost`, default `solid` | `xs`–`xl`, default `md` | `iconOnly` — its own recipe and `--toggle-*` tokens, duplicated from Button's |
+| ToggleGroup | all 5 (widened) | `solid \| outline \| ghost` | `xs`–`lg` | `iconOnly` — its own `--toggle-group-item-*` tokens |
 | Badge | all 5, default `neutral` | `solid \| soft \| outline`, default `solid` | `sm \| md`, default `md` | |
-| TagChip | — | — | forwards Badge's | own `--tag-chip-fg` |
+| TagChip | — | — | `sm \| md`, its own | its own chip and `--tag-chip-*` tokens — not a Badge |
 | Message | `neutral \| danger \| success \| warning`, default `neutral` | — | `sm \| md` | |
 | Toast | inherits Message | — | — | |
 | FormField feedback | `danger \| success \| warning` | — | — | |
@@ -157,7 +157,7 @@ Button, Toggle, Badge, Message and ProgressBar paint this way; Button went from 
 Decisions made while landing it:
 
 - **The neutral block is also the floor.** It is selected by bare `[data-intent]` as well as `[data-intent="neutral"]`, so an intent a consumer names but has not defined renders as neutral — legible, and interactive — rather than unstyled. Every intent-bearing element therefore resets the whole slot set, which is also what stops a component inheriting its parent's intent.
-- **Slots resolve on the element carrying `data-intent`,** which every `*Recipe()` helper renders on the component itself. That is also where `data-brand` sits, so `--intent-solid-bg: var(--bg-brand)` sees the element's own scoped brand.
+- **Slots resolve on the element carrying `data-intent`,** which every intent-bearing component renders on its own element. That is also where `data-brand` sits, so `--intent-solid-bg: var(--bg-brand)` sees the element's own scoped brand.
 - **One single-intent override exists:** `.message[data-intent="neutral"]` sits on `bg-normal` rather than the grey tint — a neutral note is a plain bordered surface, and a grey wash reads as disabled. ProgressBar has the other, `neutral` filling with `fg-subtle` because `fg-normal` barely separates from its `bg-strong` track.
 - **`check:recipes` guards the layer:** it is imported and layered, every named intent only re-points slots the floor declares, every slot references a semantic token defined in both modes, and every `--intent-*` a recipe reads is a real slot.
 - **The component-token tables expand slot-based cells per intent,** reading the intent list from the stylesheet, so an intent added in CSS gets rows in every component's table.
@@ -187,7 +187,7 @@ Nothing on the axes. The structural limits above are recorded, not scheduled.
 
 ## Implementation notes
 
-**TagChip's foreground.** Setting `--badge-fg` in `.tag-chip` does not work — `.badge[data-variant="outline"]` is specificity 0,2,0 against `.tag-chip`'s 0,1,0, so the Badge cell wins. TagChip passes a `text-(--tag-chip-fg)` utility through `className` instead: Tailwind's utilities layer beats the components layer, and `tailwind-merge` drops `.badge`'s own `text-(--badge-fg)` (checked).
+**Components do not borrow each other's look.** Toggle, ToggleGroup, TagChip, SearchInput and Sparkline used to be built on Button, Badge, Input and LineChart internals; each now carries its own duplicated recipe, tokens and types (see component-authoring.md). That also retired a specificity workaround: TagChip used to fight `.badge`'s cell for its text colour through a utility class, and now simply owns `--tag-chip-fg`.
 
 **The visual suite is blind to same-lightness hue changes.** `allowedMismatchedPixelRatio: 0` counts *pixels*, but pixelmatch's per-pixel colour `threshold` stays at its default 0.1, and a change between two families at the same ramp step can sit under it — ProgressBar's dark-mode fill going green-300 → blue-300 passed. Lowering the threshold is not an option against the committed baselines: at `0` or `0.02`, ~200 untouched screenshots fail on antialiasing noise between machines. For a change that must be colour-exact, do the A/B described above: record at the parent commit with `threshold: 0`, apply the change, compare, then restore the committed baselines. At `threshold: 0` on one machine, run-to-run noise is a few focus-ring edge pixels.
 

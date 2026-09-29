@@ -1,1 +1,1 @@
-export { Sparkline, type SparklineProps } from "./Sparkline";
+export { Sparkline, type SparklineInterpolation, type SparklineProps } from "./Sparkline";

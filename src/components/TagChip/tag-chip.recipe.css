@@ -1,29 +1,23 @@
 /**
  * TagChip recipe — the component-token layer for TagChip.
  *
- * TagChip's surface (background, border) is entirely Badge's: it renders
- * `<Badge variant="outline" intent="neutral">`, so that colour already comes
- * from `.badge`'s tokens — duplicating it here would just be a second name for
- * the same cell. TagChip contributes its own text colour (quieter than a
- * neutral badge's: a tag is metadata, not a status), the namespace prefix and
- * the remove ("×") button.
+ * TagChip draws its own chip rather than rendering a Badge, so it owns every
+ * colour it paints: the surface (a resting background and a neutral border,
+ * like an outline badge), the quieter text a tag gets as metadata, the
+ * namespace prefix and the remove ("×") button.
  *
- * `--tag-chip-fg` is applied as a `text-(--tag-chip-fg)` utility on the root
- * rather than by re-pointing `--badge-fg` here: the Badge cell that sets
- * `--badge-fg` out-specifies `.tag-chip`, but the utilities layer outranks
- * the components layer, and `cn()` drops Badge's own `text-(--badge-fg)`.
+ * The grammar is `--tag-chip-[{part}-]{context}[-{state}]`. Every token lives
+ * on `.tag-chip`, the root, and the namespace `<span>` and remove `<button>`
+ * read theirs by ordinary inheritance.
  *
- * The grammar is `--tag-chip-{part}-{context}[-{state}]`. Both tokens live
- * on `.tag-chip` (the root Badge element) and are read by its descendants via
- * ordinary CSS custom-property inheritance — the namespace `<span>` and the
- * remove `<button>` need no class hooks of their own for that.
- *
- * `@layer components` is load-bearing, not tidiness — see button.css for the
- * cascade reasoning.
+ * `@layer components` is load-bearing, not tidiness — see button.recipe.css.
  */
 
 @layer components {
   .tag-chip {
+    --tag-chip-bg: var(--bg-normal);
+    --tag-chip-border: var(--border-normal);
+    --tag-chip-ring: var(--border-brand);
     --tag-chip-fg: var(--fg-subtle);
     --tag-chip-namespace-fg: var(--fg-subtle);
     --tag-chip-remove-fg: var(--fg-subtle);

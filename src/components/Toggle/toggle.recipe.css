@@ -1,45 +1,64 @@
 /**
- * Toggle recipe — the pressed-state layer for Toggle and ToggleGroupItem.
+ * Toggle recipe — the component-token layer for Toggle.
  *
- * These cells target `.btn`, not a `.toggle` class of their own, because both
- * components render Button's class and read Button's `--button-*` tokens
- * (via `buttonRecipe`) — a toggle is a button with a third axis, `state`, not
- * a different look. Reusing `.btn` here is deliberate, not a shortcut.
+ * Toggle's own `--toggle-*` tokens on its own `.toggle` hook. It looks like a
+ * Button, and these cells start as copies of button.recipe.css's, but it is a
+ * separate component: re-pointing `--button-*` does not reach a toggle, and
+ * re-pointing these does not reach a button. Duplicated on purpose, so each is
+ * free to change without dragging the other.
  *
- * The grammar extends button.css's `variant` cells with a second selector,
- * `[data-state="on"]` — the same attribute Toggle already renders
- * (`data-state={pressed ? "on" : "off"}`) and ToggleGroupItem now renders for
- * `selected`, rather than a new attribute invented for this file. `state`
- * never appears in a token *name* any more than `intent` does — see
- * button.css's header for why: it selects, via the attribute, which existing
- * `--button-bg`/`--button-bg-hovered` values apply. Colour comes from the
- * intent slots (src/theming/intents.css), so these cells cover every intent.
+ * Every cell paints with the intent slots (src/theming/intents.css), so each
+ * variant works in every intent. The third selector is `[data-state="on"]`,
+ * the attribute Toggle renders alongside `aria-pressed`.
  *
- * Only solid, outline and ghost get cells: a link toggle has no surface to
- * press, so "on" carries no colour change.
- *
- * Every cell repeats its own resting value into `--button-bg-hovered`: the old
- * classes paired `bg-*` with an identical `hover:bg-*`, i.e. a pressed toggle
- * deliberately does not shift on hover. Restating it here (rather than relying
- * on button.css's floor, which chains `-hovered` from `--button-bg`) keeps
- * that "no shift" behaviour explicit and correct regardless of cascade order
- * against the button.css cells these compound with.
+ * `@layer components` is load-bearing, not tidiness — see button.recipe.css.
  */
 
 @layer components {
-  /* solid — the fill's -pressed step carries through as both resting and
-     hovered, so pressing never lightens or darkens further on hover. */
-  .btn[data-state="on"][data-variant="solid"] {
-    --button-bg: var(--intent-solid-bg-pressed);
-    --button-bg-hovered: var(--intent-solid-bg-pressed);
+  /* The floor — a plain, legible toggle when no cell below matches. */
+  .toggle {
+    --toggle-bg: transparent;
+    --toggle-bg-hovered: var(--toggle-bg); /* no shift on hover */
+    --toggle-bg-pressed: var(--toggle-bg-hovered);
+    --toggle-fg: var(--fg-normal);
+    --toggle-border: var(--border-normal);
+    --toggle-ring: var(--focus-ring);
   }
 
-  /* outline and ghost — the tint's -pressed step and its text partner,
-     matching button.css's own pairing of these two variants. */
-  .btn[data-state="on"][data-variant="outline"],
-  .btn[data-state="on"][data-variant="ghost"] {
-    --button-bg: var(--intent-tint-bg-pressed);
-    --button-bg-hovered: var(--intent-tint-bg-pressed);
-    --button-fg: var(--intent-tint-fg-pressed);
+  /* solid — a filled surface, with text read on top of it. */
+  .toggle[data-variant="solid"] {
+    --toggle-bg: var(--intent-solid-bg);
+    --toggle-bg-hovered: var(--intent-solid-bg-hovered);
+    --toggle-bg-pressed: var(--intent-solid-bg-pressed);
+    --toggle-fg: var(--intent-solid-fg);
+  }
+
+  /* outline and ghost share the family's text colour and its tint wash. */
+  .toggle[data-variant="outline"],
+  .toggle[data-variant="ghost"] {
+    --toggle-bg-hovered: var(--intent-tint-bg-hovered);
+    --toggle-bg-pressed: var(--intent-tint-bg-pressed);
+    --toggle-fg: var(--intent-fg);
+  }
+
+  /* outline alone carries a resting surface and a border. */
+  .toggle[data-variant="outline"] {
+    --toggle-bg: var(--bg-normal);
+    --toggle-border: var(--intent-border);
+  }
+
+  /* On. Every cell repeats its resting value into `-hovered`: a pressed toggle
+     deliberately does not shift on hover. solid holds the fill's -pressed
+     step; outline and ghost hold the tint's, with its text partner. */
+  .toggle[data-state="on"][data-variant="solid"] {
+    --toggle-bg: var(--intent-solid-bg-pressed);
+    --toggle-bg-hovered: var(--intent-solid-bg-pressed);
+  }
+
+  .toggle[data-state="on"][data-variant="outline"],
+  .toggle[data-state="on"][data-variant="ghost"] {
+    --toggle-bg: var(--intent-tint-bg-pressed);
+    --toggle-bg-hovered: var(--intent-tint-bg-pressed);
+    --toggle-fg: var(--intent-tint-fg-pressed);
   }
 }

@@ -54,27 +54,6 @@ export type BadgeIntentName = "neutral" | "brand" | "danger" | "success" | "warn
 export type BadgeVariant = Loose<BadgeVariantName>;
 export type BadgeIntent = Loose<BadgeIntentName>;
 
-export type BadgeRecipeProps = VariantProps<typeof badgeVariants> & {
-  variant?: BadgeVariant | undefined;
-  intent?: BadgeIntent | undefined;
-  /** Re-points this element's brand tokens to a brand the theme defines. See the Scoped brands docs. */
-  brand?: string | undefined;
-  className?: string | undefined;
-};
-
-/**
- * The class string plus the attributes the recipe selects on. `data-brand` is
- * omitted unless `brand` is set, same as `buttonRecipe`.
- */
-export function badgeRecipe({ variant = "solid", intent = "neutral", brand, size, className }: BadgeRecipeProps) {
-  return {
-    className: cn(variantStructure[variant], badgeVariants({ size, className })),
-    "data-variant": variant,
-    "data-intent": intent,
-    "data-brand": brand,
-  };
-}
-
 export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> &
   VariantProps<typeof badgeVariants> & {
     variant?: BadgeVariant | undefined;
@@ -100,7 +79,17 @@ export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> &
  * or add an intent without a release.
  */
 export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(({ className, variant = "solid", intent = "neutral", brand, size, ...props }, ref) => {
-  return <span ref={ref} {...badgeRecipe({ variant, intent, brand, size, className })} {...props} />;
+  return (
+    <span
+      ref={ref}
+      className={cn(variantStructure[variant], badgeVariants({ size, className }))}
+      // What the recipe selects on; `data-brand` is omitted unless set.
+      data-variant={variant}
+      data-intent={intent}
+      data-brand={brand}
+      {...props}
+    />
+  );
 });
 Badge.displayName = "Badge";
 

@@ -2,7 +2,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { Badge, badgeRecipe } from "./Badge";
+import { Badge } from "./Badge";
 
 describe("Badge", () => {
   describe("rendering", () => {
@@ -201,9 +201,9 @@ describe("Badge", () => {
   });
 
   describe("brand", () => {
-    it("badgeRecipe emits data-brand only when brand is set", () => {
-      expect(badgeRecipe({ brand: "mint" })["data-brand"]).toBe("mint");
-      expect(badgeRecipe({})["data-brand"]).toBeUndefined();
+    it("omits data-brand when brand is not set", () => {
+      render(<Badge>New</Badge>);
+      expect(screen.getByText("New")).not.toHaveAttribute("data-brand");
     });
 
     it("renders data-brand and no bare brand attribute", () => {

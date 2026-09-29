@@ -13,7 +13,8 @@ import type { ToggleGroupProps } from "./toggleGroup.types";
  * `defaultValue`/`onValueChange` follow `type`: a string for single, a
  * string array for multiple (`useControllableState`).
  *
- * Items are built on the same `buttonRecipe` as `Button`/`Toggle` and take
+ * Items look like Toggles but carry their own duplicated styling and
+ * `--toggle-group-item-*` tokens (toggle-group.recipe.css), and take
  * the same `variant`/`intent`, with one difference: `size` excludes `"xl"`
  * (too large for grouped toggles) — see
  * `toggleGroup.types.ts`. `appearance` chooses `"segmented"` (items joined

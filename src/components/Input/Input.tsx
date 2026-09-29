@@ -16,15 +16,15 @@ const iconSlotStyles = `absolute top-1/2 -translate-y-1/2 text-(--input-icon-fg)
  *
  * Renders a plain `<input>` unless `iconLeft` or `iconRight` is supplied, in
  * which case it wraps the input in a relatively positioned container so an
- * icon — or an icon-styled button, as `SearchInput` uses for its clear
- * button — can sit inside the field's padding without affecting layout.
+ * icon — or an icon-styled button — can sit inside the field's padding
+ * without affecting layout.
  *
  * Controlled or uncontrolled exactly like a native input (`value`/`onChange`
  * or `defaultValue`), and `type` is forwarded as-is, so `type="password"`,
  * `type="number"`, etc. all work.
  *
  * Meant to be wrapped by `FormField` for label, description and validation
- * wiring, or by `SearchInput` for a search affordance.
+ * wiring. For search, use `SearchInput`, which draws its own field.
  */
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, iconLeft, iconRight, ...props }, ref) => {
   if (iconLeft || iconRight) {

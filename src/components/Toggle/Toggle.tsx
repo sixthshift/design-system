@@ -2,19 +2,64 @@
 
 import { useControllableState } from "@sixthshift/design-system/hooks";
 import { cn } from "@sixthshift/design-system/utils";
-import type { VariantProps } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-import { type ButtonIntent, type ButtonVariant, buttonRecipe, type buttonVariants } from "../Button/Button";
 
 /**
- * `variant` and `intent` are no longer CVA variants on `buttonVariants` — they
- * select a recipe cell in CSS — so they are declared here rather than inherited
- * through `VariantProps`, which now yields `size` alone.
+ * Geometry and behaviour only; every colour reads a `--toggle-*` token decided
+ * by src/components/Toggle/toggle.recipe.css.
+ *
+ * Duplicated from Button on purpose, not shared: a toggle looks like a button
+ * but is its own component, so importing Toggle must not pull in Button. The
+ * two start identical and are free to drift.
  */
+const toggleVariants = cva(
+  // One literal, deliberately — see Button.tsx for the sorter trap.
+  "toggle border-(color:--toggle-border) focus-visible:ring-(color:--toggle-ring) inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md bg-(--toggle-bg) font-medium text-(--toggle-fg) text-sm transition-colors hover:bg-(--toggle-bg-hovered) focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 active:bg-(--toggle-bg-pressed) disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  {
+    variants: {
+      size: {
+        xs: "h-7 rounded-md px-2 text-xs",
+        sm: "h-8 rounded-md px-3 text-xs",
+        md: "h-9 px-4 py-2",
+        lg: "h-10 rounded-md px-8",
+        xl: "h-12 rounded-md px-10 text-base",
+      },
+    },
+    defaultVariants: {
+      size: "md",
+    },
+  }
+);
+
+/** The non-colour half of `variant` — border width and elevation. */
+const variantStructure: Record<string, string> = {
+  solid: "shadow",
+  outline: "border shadow-xs",
+  ghost: "",
+};
+
+/** Squares the box at whatever size is set, and drops the horizontal padding. */
+const iconOnlyGeometry: Record<string, string> = {
+  xs: "w-7 px-0",
+  sm: "w-8 px-0",
+  md: "w-9 px-0",
+  lg: "w-10 px-0",
+  xl: "w-12 px-0",
+};
+
+/** Widened deliberately, as on every component: a consumer adds a variant or intent in CSS. */
+type Loose<T extends string> = T | (string & {});
+
+export type ToggleVariantName = "solid" | "outline" | "ghost";
+export type ToggleIntentName = "neutral" | "brand" | "danger" | "success" | "warning";
+export type ToggleVariant = Loose<ToggleVariantName>;
+export type ToggleIntent = Loose<ToggleIntentName>;
+
 export type ToggleProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onChange" | "value"> &
-  VariantProps<typeof buttonVariants> & {
-    variant?: ButtonVariant | undefined;
-    intent?: ButtonIntent | undefined;
+  VariantProps<typeof toggleVariants> & {
+    variant?: ToggleVariant | undefined;
+    intent?: ToggleIntent | undefined;
     /** Name of a brand the theme defines, rendered as `data-brand`. Omitted, the toggle follows the nearest `data-brand` ancestor. */
     brand?: string | undefined;
     /** Square the toggle at its current size, for an icon with no label. */
@@ -33,12 +78,12 @@ export type ToggleProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "o
  * for a set of mutually exclusive or multi-select options, use `ToggleGroup`
  * instead.
  *
- * Built directly on Button: it calls `buttonRecipe(...)` and takes the same
- * `variant`/`intent`/`size` axes Button does, plus `iconOnly` for a toolbar
- * toggle whose whole content is an icon. The
- * pressed-state colour mapping lives in `src/components/Toggle/toggle.recipe.css`,
- * keyed off the `data-state="on" | "off"` attribute this component renders
- * alongside `aria-pressed`.
+ * Looks like a Button and takes the same `variant`/`intent`/`size` axes, plus
+ * `iconOnly` for a toolbar toggle whose whole content is an icon — but it is
+ * its own component, with its own classes and `--toggle-*` tokens, and
+ * imports nothing from Button. Every colour, pressed state included, lives in
+ * `src/components/Toggle/toggle.recipe.css`, keyed off the `data-state="on" |
+ * "off"` attribute this component renders alongside `aria-pressed`.
  *
  * Controlled via `pressed`/`defaultPressed`/`onPressedChange`
  * (`useControllableState`).
@@ -47,8 +92,8 @@ const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
   (
     {
       className,
-      variant,
-      intent,
+      variant = "solid",
+      intent = "neutral",
       brand,
       size,
       iconOnly = false,
@@ -67,18 +112,19 @@ const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
       onChange: onPressedChange,
     });
 
-    const recipe = buttonRecipe({ variant, intent, brand, size, iconOnly });
-
     return (
       <button
         type="button"
         aria-pressed={pressed}
+        // What the recipe selects on; `data-brand` is omitted unless set.
         data-state={pressed ? "on" : "off"}
+        data-variant={variant}
+        data-intent={intent}
+        data-brand={brand}
         disabled={disabled}
         ref={ref}
         onClick={() => setPressed(!pressed)}
-        {...recipe}
-        className={cn(recipe.className, className)}
+        className={cn(variantStructure[variant], toggleVariants({ size, className: cn(iconOnly ? iconOnlyGeometry[size ?? "md"] : undefined, className) }))}
         {...props}
       >
         {children}
@@ -88,4 +134,4 @@ const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
 );
 Toggle.displayName = "Toggle";
 
-export { Toggle };
+export { Toggle, toggleVariants };

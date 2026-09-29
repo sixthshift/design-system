@@ -73,7 +73,7 @@
     --button-border: var(--intent-border);
   }
 
-  /* inline — not a variant: inline text with no box (`buttonRecipe` drops
+  /* inline — not a variant: inline text with no box (Button drops
      `data-variant` for it, so no cell above can match). Only the text carries
      colour, so the floor's transparent background and its no-shift-on-hover
      chain both stand. It is brand-coloured only with `intent="brand"`;

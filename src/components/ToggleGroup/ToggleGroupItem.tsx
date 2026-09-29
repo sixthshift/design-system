@@ -1,7 +1,43 @@
 import { cn } from "@sixthshift/design-system/utils";
+import { cva } from "class-variance-authority";
 import * as React from "react";
-import { buttonRecipe } from "../Button/Button";
 import type { ToggleGroupBaseProps, ToggleGroupOption } from "./toggleGroup.types";
+
+/**
+ * An item's geometry. Duplicated from Button's on purpose — ToggleGroup is its
+ * own component and imports neither Button nor Toggle. Every colour reads a
+ * `--toggle-group-item-*` token from toggle-group.recipe.css.
+ */
+const itemVariants = cva(
+  // One literal, deliberately — see Button.tsx for the sorter trap.
+  "toggle-group-item border-(color:--toggle-group-item-border) focus-visible:ring-(color:--toggle-group-item-ring) inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md bg-(--toggle-group-item-bg) font-medium text-(--toggle-group-item-fg) text-sm transition-colors hover:bg-(--toggle-group-item-bg-hovered) focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 active:bg-(--toggle-group-item-bg-pressed) disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  {
+    variants: {
+      size: {
+        xs: "h-7 rounded-md px-2 text-xs",
+        sm: "h-8 rounded-md px-3 text-xs",
+        md: "h-9 px-4 py-2",
+        lg: "h-10 rounded-md px-8",
+      },
+    },
+    defaultVariants: { size: "md" },
+  }
+);
+
+/** The non-colour half of `variant` — border width and elevation. */
+const variantStructure: Record<string, string> = {
+  solid: "shadow",
+  outline: "border shadow-xs",
+  ghost: "",
+};
+
+/** Squares the item at whatever size is set, and drops the horizontal padding. */
+const iconOnlyGeometry: Record<string, string> = {
+  xs: "w-7 px-0",
+  sm: "w-8 px-0",
+  md: "w-9 px-0",
+  lg: "w-10 px-0",
+};
 
 type ItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   Required<Pick<ToggleGroupBaseProps, "appearance" | "orientation" | "variant" | "intent" | "size" | "iconOnly">> & {
@@ -20,24 +56,23 @@ const ToggleGroupItem = React.forwardRef<HTMLButtonElement, ItemProps>(
     const isVertical = orientation === "vertical";
     const isSegmented = appearance === "segmented";
 
-    // Both modes share the same base: buttonVariants + the pressed-state cells
-    // in recipes/toggle.css. Segmented just overrides border/shadow/rounding
-    // so items join cleanly.
-    const recipe = buttonRecipe({ variant, intent, size, iconOnly });
-
+    // Both appearances share the same base and the pressed-state cells in
+    // toggle-group.recipe.css. Segmented just overrides the rounding so items
+    // join cleanly.
     return (
       <button
         ref={ref}
-        {...recipe}
+        data-variant={variant}
+        data-intent={intent}
         type="button"
-        // Same attribute Toggle renders for `pressed` — recipes/toggle.css
-        // selects on it, so selected/unselected items pick up the same cells.
+        // toggle-group.recipe.css selects the selected state on this.
         data-state={selected ? "on" : "off"}
         disabled={isDisabled}
         aria-label={option.ariaLabel}
         className={cn(
-          recipe.className,
-          // Segmented: only override rounding (let buttonVariants handle border/color).
+          variantStructure[variant],
+          itemVariants({ size, className: iconOnly ? iconOnlyGeometry[size] : undefined }),
+          // Segmented: only override rounding (the variant handles border/colour).
           // Negative margin collapses double borders between outline items.
           isSegmented &&
             (isVertical

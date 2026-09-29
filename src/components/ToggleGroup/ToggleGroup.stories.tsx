@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Bold, Calendar, Italic, LayoutGrid, List, Underline } from "lucide-react";
 import { useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
+import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
 import { ToggleGroup } from "./ToggleGroup";
 
 const meta: Meta<typeof ToggleGroup> = {
@@ -269,3 +270,5 @@ export const CalendarViewSwitcher: Story = {
     );
   },
 };
+
+export const ComponentTokens = componentTokensStory("toggle-group-item");

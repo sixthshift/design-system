@@ -23,7 +23,7 @@
  *   --intent-border                        the family's border
  *
  * The slots are declared on the element carrying `data-intent`, which every
- * `*Recipe()` helper renders on the component itself. That matters twice over.
+ * intent-bearing component renders on its own element. That matters twice over.
  * A `var()` inside a custom property resolves on the element that declares it,
  * so `--intent-solid-bg: var(--bg-brand)` sees that element's own `data-brand`
  * mapping (see the Scoped brands docs). And each intent-bearing element resets

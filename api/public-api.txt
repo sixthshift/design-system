@@ -13,7 +13,7 @@ Deliberately not recorded: the package version, and anything under src/stories
 or src/testing. Neither is part of what a consumer can import.
 
 ==============================================================================
-SUBPATH EXPORTS — 74 subpaths, 503 exports
+SUBPATH EXPORTS — 74 subpaths, 512 exports
 ==============================================================================
 
 ./badge
@@ -32,16 +32,6 @@ SUBPATH EXPORTS — 74 subpaths, 503 exports
                      brand?: string
                      | undefined;
                      }
-  value badgeRecipe = ({ variant,
-                      intent,
-                      brand,
-                      size,
-                      className }: BadgeRecipeProps) => { className: string;
-                      "data-variant": BadgeVariant;
-                      "data-intent": BadgeIntent;
-                      "data-brand": string
-                      | undefined;
-                      }
   type  BadgeVariant = (string & {}) | BadgeVariantName
   type  BadgeVariantName = "solid" | "soft" | "outline"
   value badgeVariants = (props?: ({ size?: "sm" | "md" | null | undefined; } & ClassProp) | undefined) => string
@@ -94,21 +84,6 @@ SUBPATH EXPORTS — 74 subpaths, 503 exports
                       loading?: boolean
                       | undefined;
                       }
-  value buttonRecipe = ({ variant,
-                       intent,
-                       brand,
-                       size,
-                       iconOnly,
-                       inline,
-                       className }: ButtonRecipeProps) => { className: string;
-                       "data-variant": ButtonVariant
-                       | undefined;
-                       "data-inline": string
-                       | undefined;
-                       "data-intent": ButtonIntent;
-                       "data-brand": string
-                       | undefined;
-                       }
   type  ButtonVariant = (string & {}) | ButtonVariantName
   type  ButtonVariantName = "solid" | "outline" | "ghost"
   value buttonVariants = (props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined; } & ClassProp) | undefined) => string
@@ -1368,15 +1343,16 @@ SUBPATH EXPORTS — 74 subpaths, 503 exports
                     height?: number | undefined;
                     color?: string | undefined;
                     fillArea?: boolean | undefined;
-                    interpolation?: Interpolation | undefined;
+                    interpolation?: SparklineInterpolation | undefined;
                     strokeWidth?: number | undefined;
                     } & RefAttributes<HTMLSpanElement>>
+  type  SparklineInterpolation = "linear" | "monotone" | "stepBefore" | "stepAfter"
   type  SparklineProps = HTMLAttributes<HTMLSpanElement> & { data: number[];
                          width?: number | undefined;
                          height?: number | undefined;
                          color?: string | undefined;
                          fillArea?: boolean | undefined;
-                         interpolation?: Interpolation | undefined;
+                         interpolation?: SparklineInterpolation | undefined;
                          strokeWidth?: number | undefined;
                          }
 
@@ -2310,8 +2286,8 @@ SUBPATH EXPORTS — 74 subpaths, 503 exports
 ./toggle
   value Toggle = ForwardRefExoticComponent<Omit<ButtonHTMLAttributes<HTMLButtonElement>,
                  "onChange" | "value"> & VariantProps<(props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
-                 } & ClassProp) | undefined) => string> & { variant?: ButtonVariant | undefined;
-                 intent?: ButtonIntent | undefined;
+                 } & ClassProp) | undefined) => string> & { variant?: ToggleVariant | undefined;
+                 intent?: ToggleIntent | undefined;
                  brand?: string | undefined;
                  iconOnly?: boolean | undefined;
                  pressed?: boolean | undefined;
@@ -2319,11 +2295,13 @@ SUBPATH EXPORTS — 74 subpaths, 503 exports
                  onPressedChange?: ((pressed: boolean) => void)
                  | undefined;
                  } & RefAttributes<HTMLButtonElement>>
+  type  ToggleIntent = (string & {}) | ToggleIntentName
+  type  ToggleIntentName = "neutral" | "brand" | "danger" | "success" | "warning"
   type  ToggleProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>,
                       "onChange" | "value"> & VariantProps<(props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
-                      } & ClassProp) | undefined) => string> & { variant?: ButtonVariant
+                      } & ClassProp) | undefined) => string> & { variant?: ToggleVariant
                       | undefined;
-                      intent?: ButtonIntent
+                      intent?: ToggleIntent
                       | undefined;
                       brand?: string
                       | undefined;
@@ -2335,11 +2313,19 @@ SUBPATH EXPORTS — 74 subpaths, 503 exports
                       | undefined;
                       onPressedChange?: ((pressed: boolean) => void) | undefined;
                       }
+  type  ToggleVariant = (string & {}) | ToggleVariantName
+  type  ToggleVariantName = "solid" | "outline" | "ghost"
+  value toggleVariants = (props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined; } & ClassProp) | undefined) => string
 
 ./toggle-group
   value ToggleGroup = ForwardRefExoticComponent<ToggleGroupProps & RefAttributes<HTMLDivElement>>
+  type  ToggleGroupIntent = (string & {}) | ToggleGroupIntentName
+  type  ToggleGroupIntentName = "neutral" | "brand" | "danger" | "success" | "warning"
   type  ToggleGroupOption = { value: string; label: ReactNode; ariaLabel?: string | undefined; disabled?: boolean | undefined; }
   type  ToggleGroupProps = ToggleGroupSingleProps | ToggleGroupMultipleProps
+  type  ToggleGroupSize = "sm" | "md" | "xs" | "lg"
+  type  ToggleGroupVariant = (string & {}) | ToggleGroupVariantName
+  type  ToggleGroupVariantName = "solid" | "outline" | "ghost"
 
 ./tooltip
   value Tooltip = (({ open: controlledOpen,

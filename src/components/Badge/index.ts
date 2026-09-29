@@ -5,6 +5,5 @@ export {
   type BadgeProps,
   type BadgeVariant,
   type BadgeVariantName,
-  badgeRecipe,
   badgeVariants,
 } from "./Badge";

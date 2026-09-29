@@ -1,41 +1,38 @@
 # Plans
 
 Units of work for taking the design system to the next level, each sized to be
-picked up cold in a fresh session. Written 2026-08-28 against `56e9cf9`.
+picked up cold in a fresh session. Written 2026-08-28 against `56e9cf9`; status
+below is current.
 
 Each file states the problem with evidence from the repo, what's in and out of
 scope, a concrete approach with real file paths, and acceptance criteria.
 
-## The list
+## Status
 
-| # | Item | Effort | Why it's here |
-| --- | --- | --- | --- |
-| [09](09-housekeeping.md) | Housekeeping | XS | Stale `coverage/` is generating phantom editor errors. Two minutes, do it first. |
-| [01](01-use-client-directives.md) | `"use client"` + SSR smoke test | M | **Hard blocker** for every Next.js App Router consumer. Zero directives exist today. |
-| [02](02-visual-regression-coverage.md) | Visual regression: 2 → 42 components | L | Excellent infrastructure already built, then used by almost nothing. |
-| [03](03-package-publishing-validation.md) | `publint` + `arethetypeswrong` | S | 80 hand-maintained export entries, no resolution check. Cheapest item here. |
-| [04](04-public-api-surface-snapshot.md) | API-surface snapshot | M | The versioning policy is documented but unenforced; releases are unattended. |
-| [05](05-coverage-thresholds.md) | Coverage thresholds | S | Coverage tooling installed, no gate. Cheap now, expensive after drift. |
-| [06](06-changelog.md) | CHANGELOG (decision) | S | Currently a deliberate "no". Worth revisiting before 1.0. |
-| [07](07-logical-properties-rtl.md) | Logical properties / RTL (decision) | M–L | Only if i18n is plausible — but cheap now, miserable later. |
-| [08](08-bundle-size-budget.md) | Bundle size budget | S–M | The README's tree-shaking promise is unverified. |
-| [10](10-default-palette-premise.md) | Default palette premise (decision) | S to decide, M–L to do | The ramps are sound now; the hues they're made of were never chosen against the goal. |
+Updated 2026-09-29. Eight of the ten have landed; two decisions remain open.
 
-## Suggested order
+| # | Item | Status |
+| --- | --- | --- |
+| [09](09-housekeeping.md) | Housekeeping | **Done.** `clean:artifacts` added and the stale `coverage/` cleared (`0d73b47`); the two dangling stashes dropped 2026-09-29. |
+| [01](01-use-client-directives.md) | `"use client"` + SSR smoke test | **Done** (`552964d`). `check:use-client` guards the boundaries. |
+| [02](02-visual-regression-coverage.md) | Visual regression: 2 → 42 components | **Done** — every component has baselines, in both themes. |
+| [03](03-package-publishing-validation.md) | `publint` + `arethetypeswrong` | **Done** (`b9d4b6e`), as `check:published` and `check:consumer-resolution` in CI. |
+| [04](04-public-api-surface-snapshot.md) | API-surface snapshot | **Done** (`1f14ba6`). `check:api` in CI. |
+| [05](05-coverage-thresholds.md) | Coverage thresholds | **Done** (`599499d`). |
+| [08](08-bundle-size-budget.md) | Bundle size budget | **Done** (`23408e3`). `check:size` in CI. |
+| [10](10-default-palette-premise.md) | Default palette premise | **Done** — consolidated to one theme, Linen (`63a3199`). |
+| [06](06-changelog.md) | CHANGELOG (decision) | **Open.** Still a deliberate "no". Two breaking releases have gone out since, each explained only in its commit's `BREAKING CHANGE:` footer. Decide before 1.0. |
+| [07](07-logical-properties-rtl.md) | Logical properties / RTL (decision) | **Open.** 17 component files still use physical `ml-`/`pr-`/`left-` classes; none use logical ones. The visual baselines it depended on (02) now exist. Decide before the next batch of components, which would add to the sweep. |
 
-**09** (clears the noise) → **01** (unblocks a whole consumer environment) →
-**03** and **05** (short, high value, good filler sessions) → **02** (the big
-one, land it in batches) → **04** → **08** → then decide **06**, **07** and
-**10**.
+## Landed outside this list
 
-**10 gets more expensive with every consumer**, so decide it early even if the
-implementation waits. It is a re-skin, not a rename of anything public — but it
-changes every colour on screen, and that is a different conversation once people
-have shipped against it.
+- **Component axes** (`fb64d8e`) — `intent` / `variant` / `size` settled and recorded in [docs/component-axes.md](../docs/component-axes.md); intents defined once as slots (`src/theming/intents.css`); `link` → `inline`, `muted` removed, Badge defaults to `neutral`, group `appearance` collapsed.
+- **Radius scale** (`dd8b4c6`) — the theme owns `--border-radius-{xs..xl}`; `check:radius` keeps source on it.
+- **CI gaps closed** — `check:recipes` and `check:contrast` existed but were never run in CI; they are now, with `check:radius`.
 
-**07 depends on 02.** The logical-property sweep is exactly the change visual
-baselines exist to police — a correct conversion should produce a zero-pixel diff
-in LTR, and without baselines you have no way to know.
+## Known limits, recorded rather than planned
+
+In [docs/component-axes.md](../docs/component-axes.md#structure-radius-shadow-border): per-component radius, shadows, border widths, and what a treatment draws are not themeable. Worth building only when a second theme needs to change shape, not just colour and corners. Also recorded there: the visual suite cannot see a hue change between two colours at the same lightness, and the A/B method for when that matters.
 
 ## What is *not* on this list
 

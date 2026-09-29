@@ -1,44 +1,7 @@
 import { Heading } from "@sixthshift/design-system/heading";
 import { readTokens } from "../../theme/read-tokens";
-import { type Cell, modeVarsFrom, readIntents, readRecipes, readsIntentSlots } from "../read-recipes";
+import { modeVarsFrom, readIntents, readRecipes, rowsFor } from "../read-recipes";
 import { CellRow, type Column } from "./CellRow";
-
-/** Describe a row by its attribute values — `solid · neutral` beats a selector. */
-const describe = (attrs: Record<string, string>) =>
-  Object.entries(attrs)
-    .map(([, value]) => value)
-    .join(" · ");
-
-type Row = { key: string; label: string; attrs: Record<string, string>; declared: Record<string, string> };
-
-/**
- * One row per thing a reader can render.
- *
- * A cell that paints with the intent slots (src/theming/intents.css) is one
- * rule but a different colour per intent, so it becomes one row per intent,
- * probed with that `data-intent`. A cell that already pins an intent — a
- * recipe's single-intent override — folds into the row it overrides rather
- * than appearing twice; the probe's own cascade applies it either way.
- */
-function rowsFor(floor: Cell | undefined, cells: Cell[], intents: string[]): Row[] {
-  const rows = new Map<string, Row>();
-  const add = (label: string, attrs: Record<string, string>, declared: Record<string, string>) => {
-    const key = JSON.stringify(attrs);
-    const existing = rows.get(key);
-    rows.set(key, existing ? { ...existing, declared: { ...existing.declared, ...declared } } : { key, label, attrs, declared });
-  };
-  for (const cell of floor ? [floor, ...cells] : cells) {
-    if (readsIntentSlots(cell) && !("data-intent" in cell.attrs)) {
-      for (const intent of intents) {
-        const attrs = { ...cell.attrs, "data-intent": intent };
-        add(describe(attrs), attrs, cell.declared);
-      }
-    } else {
-      add(cell === floor ? "floor" : describe(cell.attrs), cell.attrs, cell.declared);
-    }
-  }
-  return [...rows.values()];
-}
 
 /**
  * Every recipe named in `hooks`, for one mode.

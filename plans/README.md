@@ -28,11 +28,13 @@ Updated 2026-09-29. Eight of the ten have landed; two decisions remain open.
 
 - **Component axes** (`fb64d8e`) — `intent` / `variant` / `size` settled and recorded in [docs/component-axes.md](../docs/component-axes.md); intents defined once as slots (`src/theming/intents.css`); `link` → `inline`, `muted` removed, Badge defaults to `neutral`, group `appearance` collapsed.
 - **Radius scale** (`dd8b4c6`) — the theme owns `--border-radius-{xs..xl}`; `check:radius` keeps source on it.
+- **Components independent** (`104c8b0`) — a component that only resembles another (Toggle, ToggleGroup, TagChip, SearchInput, Sparkline) carries its own duplicated styling, tokens and types; composition and specialisation (pickers with Buttons, DateRangePicker on DatePicker) stay. The `*Recipe()` helpers are gone.
 - **CI gaps closed** — `check:recipes` and `check:contrast` existed but were never run in CI; they are now, with `check:radius`.
+- **Colour snapshot** — `component-colours.visual.test.tsx` holds every component token's computed colour, per cell, intent and mode, against a committed text file, closing the screenshot suite's blind spot for same-lightness hue changes.
 
 ## Known limits, recorded rather than planned
 
-In [docs/component-axes.md](../docs/component-axes.md#structure-radius-shadow-border): per-component radius, shadows, border widths, and what a treatment draws are not themeable. Worth building only when a second theme needs to change shape, not just colour and corners. Also recorded there: the visual suite cannot see a hue change between two colours at the same lightness, and the A/B method for when that matters.
+In [docs/component-axes.md](../docs/component-axes.md#structure-radius-shadow-border): per-component radius, shadows, border widths, and what a treatment draws are not themeable. Worth building only when a second theme needs to change shape, not just colour and corners. The screenshot suite's blind spot for same-lightness hue changes is now covered by the colour snapshot above.
 
 ## What is *not* on this list
 

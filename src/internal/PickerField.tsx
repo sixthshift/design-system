@@ -56,7 +56,7 @@ export const PickerField = React.forwardRef<HTMLDivElement, PickerFieldProps>(
       ref={ref}
       onFocusCapture={onFocusCapture}
       className={cn(
-        "relative flex h-9 items-center gap-1 rounded-md border border-border-normal bg-transparent py-1 pl-1.5 shadow-xs transition-colors focus-within:ring-2 focus-within:ring-focus-ring",
+        "relative flex h-9 items-center gap-1 rounded-md border border-border-normal bg-bg-normal py-1 pl-1.5 shadow-xs transition-colors focus-within:ring-2 focus-within:ring-focus-ring",
         onClear ? "pr-9" : "pr-3",
         isInvalid && "border-border-danger",
         isDisabled && "cursor-not-allowed opacity-50",

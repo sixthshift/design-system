@@ -493,7 +493,7 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>((pro
               aria-expanded={open}
               aria-controls={open ? contentId : undefined}
               className={cn(
-                `flex h-9 w-full cursor-pointer rounded-md border border-border-normal bg-transparent py-1 pl-9 text-sm shadow-xs transition-colors placeholder:text-fg-subtle focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus-ring disabled:cursor-not-allowed disabled:opacity-50`,
+                `flex h-9 w-full cursor-pointer rounded-md border border-border-normal bg-bg-normal py-1 pl-9 text-sm shadow-xs transition-colors placeholder:text-fg-subtle focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus-ring disabled:cursor-not-allowed disabled:opacity-50`,
                 "min-w-65",
                 clearable && hasValue ? "pr-9" : "pr-3",
                 isInvalid && "border-border-danger",

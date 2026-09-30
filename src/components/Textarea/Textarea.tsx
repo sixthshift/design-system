@@ -46,7 +46,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ classNa
     <textarea
       value={value}
       className={cn(
-        "textarea border-(color:--textarea-border) focus-visible:ring-(color:--textarea-ring) flex min-h-[60px] w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-(--textarea-placeholder-fg) focus-visible:outline-hidden focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+        "textarea border-(color:--textarea-border) focus-visible:ring-(color:--textarea-ring) flex min-h-[60px] w-full rounded-md border bg-(--textarea-bg) px-3 py-2 text-sm shadow-xs placeholder:text-(--textarea-placeholder-fg) focus-visible:outline-hidden focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
         autosize && "resize-none overflow-hidden",
         className
       )}

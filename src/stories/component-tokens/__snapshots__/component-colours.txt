@@ -417,6 +417,7 @@
   floor                    --tag-chip-remove-ring                   rgb(71,113,174)      rgb(124,160,213)
   floor                    --tag-chip-ring                          rgb(49,90,151)       rgb(71,113,174)
 .textarea
+  floor                    --textarea-bg                            rgb(255,255,255)     rgb(29,27,25)
   floor                    --textarea-border                        rgb(198,196,192)     rgb(72,68,64)
   floor                    --textarea-placeholder-fg                rgb(115,111,107)     rgb(161,158,154)
   floor                    --textarea-ring                          rgb(71,113,174)      rgb(124,160,213)

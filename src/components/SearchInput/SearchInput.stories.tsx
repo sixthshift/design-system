@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import * as React from "react";
 import { expect, userEvent, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
-import { SearchInput } from "./SearchInput";
+import { SearchInput, type SearchInputSuggestion } from "./SearchInput";
 
 const meta: Meta<typeof SearchInput> = {
   title: "Components/SearchInput",
@@ -68,4 +68,85 @@ export const Disabled: Story = {
   render: () => <SearchInput placeholder="Search..." value="cannot edit" onValueChange={() => {}} disabled />,
 };
 
-export const ComponentTokens = componentTokensStory("search-input");
+const FRUITS: SearchInputSuggestion[] = ["Apple", "Apricot", "Banana", "Blackberry", "Blueberry", "Cherry", "Grape", "Mango", "Orange", "Peach"].map(
+  (value) => ({ value })
+);
+
+/**
+ * `suggestions` turns the field into a combobox. SearchInput renders the rows
+ * as given and never filters them — the caller derives them from `value`, here
+ * with a plain substring match. Free text still wins: Enter with no row
+ * highlighted calls `onSubmit` with whatever was typed.
+ */
+export const WithSuggestions: Story = {
+  render: () => {
+    const [value, setValue] = React.useState("");
+    const [submitted, setSubmitted] = React.useState("");
+    const suggestions = React.useMemo(() => FRUITS.filter((f) => f.value.toLowerCase().includes(value.toLowerCase())), [value]);
+    return (
+      <div className="w-72 space-y-2">
+        <SearchInput
+          aria-label="Search fruit"
+          placeholder="Search fruit..."
+          value={value}
+          onValueChange={setValue}
+          suggestions={suggestions}
+          emptyMessage="No matching fruit"
+          onSubmit={setSubmitted}
+        />
+        <p className="text-sm">Submitted: {submitted || "—"}</p>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+    const input = canvas.getByRole("combobox", { name: "Search fruit" });
+
+    await userEvent.type(input, "berr");
+    await expect(body.getAllByRole("option")).toHaveLength(2);
+
+    await userEvent.keyboard("{ArrowDown}{Enter}");
+    await expect(input).toHaveValue("Blackberry");
+    await expect(input).toHaveAttribute("aria-expanded", "false");
+  },
+};
+
+/**
+ * Server search, simulated. The caller debounces, fetches and passes
+ * `loading`; rows already shown stay put while the next batch is in flight.
+ */
+export const AsyncSuggestions: Story = {
+  render: () => {
+    const [value, setValue] = React.useState("");
+    const [suggestions, setSuggestions] = React.useState<SearchInputSuggestion[]>([]);
+    const [loading, setLoading] = React.useState(false);
+    React.useEffect(() => {
+      if (!value) {
+        setSuggestions([]);
+        return;
+      }
+      setLoading(true);
+      const timer = setTimeout(() => {
+        setSuggestions(FRUITS.filter((f) => f.value.toLowerCase().startsWith(value.toLowerCase())));
+        setLoading(false);
+      }, 400);
+      return () => clearTimeout(timer);
+    }, [value]);
+    return (
+      <div className="w-72">
+        <SearchInput
+          aria-label="Search fruit"
+          placeholder="Search fruit..."
+          value={value}
+          onValueChange={setValue}
+          suggestions={suggestions}
+          loading={loading}
+          emptyMessage="No matching fruit"
+        />
+      </div>
+    );
+  },
+};
+
+export const ComponentTokens = componentTokensStory("search-input", "search-input-dropdown", "search-input-option");

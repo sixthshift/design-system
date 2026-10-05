@@ -13,7 +13,7 @@ Deliberately not recorded: the package version, and anything under src/stories
 or src/testing. Neither is part of what a consumer can import.
 
 ==============================================================================
-SUBPATH EXPORTS — 74 subpaths, 512 exports
+SUBPATH EXPORTS — 74 subpaths, 513 exports
 ==============================================================================
 
 ./badge
@@ -1218,19 +1218,34 @@ SUBPATH EXPORTS — 74 subpaths, 512 exports
 
 ./search-input
   value SearchInput = ForwardRefExoticComponent<Omit<InputHTMLAttributes<HTMLInputElement>,
-                      "type"> & { value: string;
+                      "onSubmit" | "type"> & { value: string;
                       onValueChange: (value: string) => void;
                       onClear?: (() => void)
                       | undefined;
                       clearLabel?: string
                       | undefined;
+                      onSubmit?: ((value: string) => void) | undefined;
+                      suggestions?: readonly SearchInputSuggestion[] | undefined;
+                      onSuggestionSelect?: ((suggestion: SearchInputSuggestion) => void) | undefined;
+                      loading?: boolean | undefined;
+                      loadingMessage?: string | undefined;
+                      emptyMessage?: string | undefined;
+                      suggestionsLabel?: string | undefined;
                       } & RefAttributes<HTMLInputElement>>
   type  SearchInputProps = Omit<InputHTMLAttributes<HTMLInputElement>,
-                           "type"> & { value: string;
+                           "onSubmit" | "type"> & { value: string;
                            onValueChange: (value: string) => void;
                            onClear?: (() => void) | undefined;
                            clearLabel?: string | undefined;
+                           onSubmit?: ((value: string) => void) | undefined;
+                           suggestions?: readonly SearchInputSuggestion[] | undefined;
+                           onSuggestionSelect?: ((suggestion: SearchInputSuggestion) => void) | undefined;
+                           loading?: boolean | undefined;
+                           loadingMessage?: string | undefined;
+                           emptyMessage?: string | undefined;
+                           suggestionsLabel?: string | undefined;
                            }
+  type  SearchInputSuggestion = { value: string; label?: string | undefined; }
 
 ./section-title
   value SectionTitle = ForwardRefExoticComponent<HTMLAttributes<HTMLElement> & { as?: TextElement | undefined; } & RefAttributes<HTMLElement>>

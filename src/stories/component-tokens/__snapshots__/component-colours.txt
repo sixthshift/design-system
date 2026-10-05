@@ -320,6 +320,15 @@
   floor                    --search-input-icon-fg                   rgb(115,111,107)     rgb(161,158,154)
   floor                    --search-input-placeholder-fg            rgb(115,111,107)     rgb(161,158,154)
   floor                    --search-input-ring                      rgb(71,113,174)      rgb(124,160,213)
+.search-input-dropdown
+  floor                    --search-input-dropdown-bg               rgb(255,255,255)     rgb(29,27,25)
+  floor                    --search-input-dropdown-border           rgb(198,196,192)     rgb(72,68,64)
+  floor                    --search-input-dropdown-status-fg        rgb(115,111,107)     rgb(161,158,154)
+.search-input-option
+  floor                    --search-input-option-bg                 rgba(0,0,0,0)        rgba(0,0,0,0)
+  floor                    --search-input-option-fg                 rgb(29,27,25)        rgb(249,249,249)
+  true                     --search-input-option-bg                 rgb(249,249,249)     rgb(48,45,42)
+  true                     --search-input-option-fg                 rgb(29,27,25)        rgb(249,249,249)
 .select-dropdown
   floor                    --select-dropdown-bg                     rgb(255,255,255)     rgb(29,27,25)
   floor                    --select-dropdown-border                 rgb(198,196,192)     rgb(72,68,64)

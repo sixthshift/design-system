@@ -7,7 +7,16 @@
  * does not reach a plain input.
  *
  * The grammar is `--search-input-[{part}-]{context}[-{state}]`, parts being
- * the placeholder, the icons, and the clear button.
+ * the placeholder, the icons, the clear button, and — when `suggestions` is
+ * passed — the dropdown and its options.
+ *
+ * The dropdown is duplicated from Select's for the same reason: the values
+ * match `--select-dropdown-*` / `--select-option-*` today, but neither reaches
+ * the other. A suggestion row has no selected state of its own, only the
+ * keyboard/mouse highlight, which it selects via `data-highlighted="true"`
+ * like Select's options. Its resting text is `--fg-normal`, not Select's
+ * quieter unselected `--fg-subtle`: suggestions are results, not unpicked
+ * choices.
  *
  * `@layer components` is load-bearing, not tidiness — see button.recipe.css.
  */
@@ -20,5 +29,23 @@
     --search-input-placeholder-fg: var(--fg-subtle);
     --search-input-icon-fg: var(--fg-subtle);
     --search-input-clear-bg-hovered: var(--bg-subtle);
+  }
+
+  /* dropdown — the suggestions surface, portalled out from under .search-input. */
+  .search-input-dropdown {
+    --search-input-dropdown-bg: var(--bg-normal);
+    --search-input-dropdown-border: var(--border-normal);
+    /* The loading / empty message under the rows. */
+    --search-input-dropdown-status-fg: var(--fg-subtle);
+  }
+
+  /* option — one suggestion row. */
+  .search-input-option {
+    --search-input-option-bg: transparent;
+    --search-input-option-fg: var(--fg-normal);
+  }
+
+  .search-input-option[data-highlighted="true"] {
+    --search-input-option-bg: var(--bg-subtle);
   }
 }

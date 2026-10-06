@@ -178,7 +178,56 @@ describe("SearchInput", () => {
       render(<ControlledSearchInput onSubmit={handleSubmit} />);
 
       await user.type(screen.getByRole("textbox"), "invoice{Enter}");
-      expect(handleSubmit).toHaveBeenCalledWith("invoice");
+      expect(handleSubmit).toHaveBeenCalledWith("invoice", expect.objectContaining({ key: "Enter" }));
+    });
+
+    it("without suggestions, passes the keydown event and lets a surrounding form submit", async () => {
+      const user = userEvent.setup();
+      const handleSubmit = vi.fn();
+      const handleFormSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+      render(
+        <form onSubmit={handleFormSubmit}>
+          <ControlledSearchInput onSubmit={handleSubmit} />
+        </form>
+      );
+
+      await user.type(screen.getByRole("textbox"), "invoice{Enter}");
+      expect(handleSubmit).toHaveBeenCalledWith("invoice", expect.objectContaining({ key: "Enter" }));
+      expect(handleFormSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    it("without suggestions, keeps the form from submitting when onSubmit prevents default", async () => {
+      const user = userEvent.setup();
+      const handleFormSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+      render(
+        <form onSubmit={handleFormSubmit}>
+          <ControlledSearchInput onSubmit={(_, event) => event.preventDefault()} />
+        </form>
+      );
+
+      await user.type(screen.getByRole("textbox"), "invoice{Enter}");
+      expect(handleFormSubmit).not.toHaveBeenCalled();
+    });
+
+    it("with suggestions, never submits a surrounding form — picking a row or committing free text", async () => {
+      const user = userEvent.setup();
+      const handleSubmit = vi.fn();
+      const handleFormSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+      render(
+        <form onSubmit={handleFormSubmit}>
+          <SuggestingSearchInput onSubmit={handleSubmit} />
+        </form>
+      );
+
+      const input = screen.getByRole("combobox");
+      await user.type(input, "ap{Enter}");
+      expect(input).toHaveValue("Apple");
+      expect(handleSubmit).not.toHaveBeenCalled();
+
+      await user.clear(input);
+      await user.type(input, "zzz{Enter}");
+      expect(handleSubmit).toHaveBeenCalledWith("zzz", expect.objectContaining({ key: "Enter" }));
+      expect(handleFormSubmit).not.toHaveBeenCalled();
     });
   });
 
@@ -214,18 +263,20 @@ describe("SearchInput", () => {
       expect(screen.getAllByRole("option")).toHaveLength(3);
     });
 
-    it("highlights nothing until the user arrows in, so Enter submits free text", async () => {
+    it("highlights the top match as you type, so Enter picks it", async () => {
       const user = userEvent.setup();
       const handleSubmit = vi.fn();
       const handleSelect = vi.fn();
       render(<SuggestingSearchInput onSubmit={handleSubmit} onSuggestionSelect={handleSelect} />);
 
-      await user.type(screen.getByRole("combobox"), "ap");
-      expect(screen.getByRole("combobox")).not.toHaveAttribute("aria-activedescendant");
+      const input = screen.getByRole("combobox");
+      await user.type(input, "ap");
+      expect(input).toHaveAttribute("aria-activedescendant", screen.getAllByRole("option")[0]!.id);
 
       await user.keyboard("{Enter}");
-      expect(handleSubmit).toHaveBeenCalledWith("ap");
-      expect(handleSelect).not.toHaveBeenCalled();
+      expect(input).toHaveValue("Apple");
+      expect(handleSelect).toHaveBeenCalledWith({ value: "Apple" });
+      expect(handleSubmit).not.toHaveBeenCalled();
       expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
     });
 
@@ -237,7 +288,7 @@ describe("SearchInput", () => {
 
       const input = screen.getByRole("combobox");
       await user.type(input, "ap");
-      await user.keyboard("{ArrowDown}{ArrowDown}");
+      await user.keyboard("{ArrowDown}");
       const active = screen.getAllByRole("option")[1]!;
       expect(input).toHaveAttribute("aria-activedescendant", active.id);
       expect(active).toHaveAttribute("aria-selected", "true");
@@ -249,14 +300,33 @@ describe("SearchInput", () => {
       expect(input).toHaveAttribute("aria-expanded", "false");
     });
 
-    it("ArrowUp from the first row returns to the typed text", async () => {
+    it("ArrowUp from the first row returns to the typed text, and Enter commits it", async () => {
       const user = userEvent.setup();
-      render(<SuggestingSearchInput />);
+      const handleSubmit = vi.fn();
+      const handleSelect = vi.fn();
+      render(<SuggestingSearchInput onSubmit={handleSubmit} onSuggestionSelect={handleSelect} />);
 
       const input = screen.getByRole("combobox");
       await user.type(input, "ap");
-      await user.keyboard("{ArrowDown}{ArrowUp}");
+      await user.keyboard("{ArrowUp}");
       expect(input).not.toHaveAttribute("aria-activedescendant");
+
+      await user.keyboard("{Enter}");
+      expect(input).toHaveValue("ap");
+      expect(handleSubmit).toHaveBeenCalledWith("ap", expect.objectContaining({ key: "Enter" }));
+      expect(handleSelect).not.toHaveBeenCalled();
+      expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    });
+
+    it("commits the typed text when Enter is pressed with the dropdown closed", async () => {
+      const user = userEvent.setup();
+      const handleSubmit = vi.fn();
+      render(<SuggestingSearchInput onSubmit={handleSubmit} />);
+
+      const input = screen.getByRole("combobox");
+      await user.type(input, "ap{Escape}{Enter}");
+      expect(input).toHaveValue("ap");
+      expect(handleSubmit).toHaveBeenCalledWith("ap", expect.objectContaining({ key: "Enter" }));
     });
 
     it("picks a row on click and keeps focus in the field", async () => {
@@ -296,17 +366,17 @@ describe("SearchInput", () => {
       expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
     });
 
-    it("clears the highlight when the rows change", async () => {
+    it("moves the highlight back to the top match when the rows change", async () => {
       const user = userEvent.setup();
       render(<SuggestingSearchInput />);
 
       const input = screen.getByRole("combobox");
       await user.type(input, "a");
       await user.keyboard("{ArrowDown}");
-      expect(input).toHaveAttribute("aria-activedescendant");
+      expect(input).toHaveAttribute("aria-activedescendant", screen.getAllByRole("option")[1]!.id);
 
       await user.type(input, "pr");
-      expect(input).not.toHaveAttribute("aria-activedescendant");
+      expect(input).toHaveAttribute("aria-activedescendant", screen.getAllByRole("option")[0]!.id);
     });
 
     it("keeps the highlight when re-rendered with an equal fresh array", async () => {
@@ -316,7 +386,50 @@ describe("SearchInput", () => {
       await user.click(screen.getByRole("combobox"));
       await user.keyboard("{ArrowDown}");
       rerender(<SearchInput aria-label="Fruit" value="" onValueChange={() => {}} suggestions={[...FRUITS]} />);
-      expect(screen.getByRole("combobox")).toHaveAttribute("aria-activedescendant");
+      expect(screen.getByRole("combobox")).toHaveAttribute("aria-activedescendant", screen.getAllByRole("option")[1]!.id);
+    });
+
+    describe("with ids", () => {
+      const SALTS: SearchInputSuggestion[] = [
+        { value: "salt", label: "salt", id: "ing-1" },
+        { value: "salt", label: "salt (Dressing)", id: "ing-2" },
+      ];
+
+      it("renders rows that share a value, and reports the picked one by id", async () => {
+        const user = userEvent.setup();
+        const handleChange = vi.fn();
+        const handleSelect = vi.fn();
+        render(<SearchInput aria-label="Ingredient" value="" onValueChange={handleChange} suggestions={SALTS} onSuggestionSelect={handleSelect} />);
+
+        await user.click(screen.getByRole("combobox"));
+        expect(screen.getAllByRole("option")).toHaveLength(2);
+
+        await user.click(screen.getByRole("option", { name: "salt (Dressing)" }));
+        expect(handleSelect).toHaveBeenCalledWith(SALTS[1]);
+        expect(handleChange).toHaveBeenLastCalledWith("salt");
+      });
+
+      it("moves the highlight back to the top when the ids change, even if the values don't", async () => {
+        const user = userEvent.setup();
+        const { rerender } = render(<SearchInput aria-label="Ingredient" value="" onValueChange={() => {}} suggestions={SALTS} />);
+
+        await user.click(screen.getByRole("combobox"));
+        await user.keyboard("{ArrowDown}");
+        expect(screen.getByRole("combobox")).toHaveAttribute("aria-activedescendant", screen.getAllByRole("option")[1]!.id);
+
+        rerender(<SearchInput aria-label="Ingredient" value="" onValueChange={() => {}} suggestions={SALTS.map((s) => ({ ...s, id: `${s.id}-new` }))} />);
+        expect(screen.getByRole("combobox")).toHaveAttribute("aria-activedescendant", screen.getAllByRole("option")[0]!.id);
+      });
+
+      it("keeps the highlight when re-rendered with an equal fresh array", async () => {
+        const user = userEvent.setup();
+        const { rerender } = render(<SearchInput aria-label="Ingredient" value="" onValueChange={() => {}} suggestions={SALTS.map((s) => ({ ...s }))} />);
+
+        await user.click(screen.getByRole("combobox"));
+        await user.keyboard("{ArrowDown}");
+        rerender(<SearchInput aria-label="Ingredient" value="" onValueChange={() => {}} suggestions={SALTS.map((s) => ({ ...s }))} />);
+        expect(screen.getByRole("combobox")).toHaveAttribute("aria-activedescendant", screen.getAllByRole("option")[1]!.id);
+      });
     });
 
     it("shows the empty message only when there is text and no rows", async () => {

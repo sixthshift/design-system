@@ -9,10 +9,12 @@ import { useEscapeLayer } from "../../internal/escapeLayers";
 
 /** One row in the suggestions dropdown. SearchInput's own type, not Select's `SelectOption`. */
 export type SearchInputSuggestion = {
-  /** Text written into the field when the row is picked. Also the row's key, so keep it unique. */
+  /** Text written into the field when the row is picked. */
   value: string;
   /** What the row shows. Defaults to `value`. */
   label?: string;
+  /** The row's identity: its key, and what the highlight tracks across re-renders. Defaults to `value`. Unique among the suggestions. */
+  id?: string;
 };
 
 export type SearchInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type" | "onSubmit"> & {
@@ -22,8 +24,13 @@ export type SearchInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>,
   onClear?: () => void;
   /** Accessible name for the clear button — it is icon-only. */
   clearLabel?: string;
-  /** Enter pressed with no suggestion highlighted — the free-text commit. A surrounding `<form>` still submits natively. */
-  onSubmit?: (value: string) => void;
+  /**
+   * Enter pressed with no suggestion highlighted — the free-text commit. With
+   * `suggestions` the field resolves its own Enter and a surrounding `<form>`
+   * never submits; without them the form submits natively unless this calls
+   * `event.preventDefault()`.
+   */
+  onSubmit?: (value: string, event: React.KeyboardEvent<HTMLInputElement>) => void;
   /**
    * Rows for the dropdown, rendered as given — SearchInput never filters them.
    * Derive them from `value` (filter a static list, or fetch). Passing this,
@@ -63,9 +70,11 @@ const suggestionId = (listboxId: string, index: number) => `${listboxId}-option-
  * `onValueChange("")` — note a programmatic clear dispatches no native event.
  *
  * With `suggestions` it becomes an editable combobox (WAI-ARIA 1.2,
- * `aria-autocomplete="list"`). Free text stays first-class: no row is
- * highlighted until the user arrows into the list, so Enter commits what was
- * typed. The dropdown is duplicated from Select's rather than imported, for the
+ * `aria-autocomplete="list"`). The first row is highlighted whenever the
+ * rows change, so Enter picks the top match. ArrowUp from the first row
+ * returns to the typed text, and Enter then commits that through `onSubmit`.
+ * Either way Enter belongs to the field: a surrounding `<form>` never submits
+ * from it. The dropdown is duplicated from Select's rather than imported, for the
  * same reason the field is duplicated from Input's.
  */
 const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
@@ -99,7 +108,8 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
     // `open` is intent — focused and not dismissed. Whether anything actually
     // shows also depends on there being something to show.
     const [open, setOpen] = React.useState(false);
-    const [highlightedIndex, setHighlightedIndex] = React.useState(-1);
+    // -1 is the typed text: reached by ArrowUp from the first row.
+    const [highlightedIndex, setHighlightedIndex] = React.useState(0);
     const optionRefs = React.useRef<Map<number, HTMLButtonElement>>(new Map());
     const listboxRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -107,12 +117,13 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
     const shown = isCombobox && open && !disabled && (rows.length > 0 || status !== undefined);
 
     // The rows changed under the user — a new fetch, a new filter — so the old
-    // highlight points at something else, or at nothing. Keyed on the values,
+    // highlight points at something else, or at nothing; go back to the top
+    // match. Keyed on the ids,
     // not the array, so a parent re-rendering with an equal fresh array keeps it.
-    const rowsKey = rows.map((s) => s.value).join("\u0000");
+    const rowsKey = rows.map((s) => s.id ?? s.value).join("\u0000");
     // biome-ignore lint/correctness/useExhaustiveDependencies: rowsKey is the trigger, not a value read inside.
     React.useEffect(() => {
-      setHighlightedIndex(-1);
+      setHighlightedIndex(0);
     }, [rowsKey]);
 
     const { refs, elements, floatingStyles } = useFloating({
@@ -159,7 +170,7 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
       onValueChange(suggestion.value);
       onSuggestionSelect?.(suggestion);
       setOpen(false);
-      setHighlightedIndex(-1);
+      setHighlightedIndex(0);
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -170,8 +181,10 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
         switch (event.key) {
           case "ArrowDown":
             event.preventDefault();
-            if (!shown) setOpen(true);
-            else setHighlightedIndex((i) => Math.min(i + 1, rows.length - 1));
+            if (!shown) {
+              setOpen(true);
+              setHighlightedIndex(0);
+            } else setHighlightedIndex((i) => Math.min(i + 1, rows.length - 1));
             return;
           case "ArrowUp":
             // Up from the first row returns to the typed text (-1).
@@ -183,13 +196,15 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
             if (!shown) return;
             event.preventDefault();
             setOpen(false);
-            setHighlightedIndex(-1);
+            setHighlightedIndex(0);
             return;
           case "Enter": {
+            // This Enter confirms an IME composition, not the field.
+            if (event.nativeEvent.isComposing) return;
             const row = shown && highlightedIndex >= 0 ? rows[highlightedIndex] : undefined;
+            // Enter resolves this field, not a surrounding form.
+            event.preventDefault();
             if (row) {
-              // Picking a row is not a submit: keep a surrounding form from submitting too.
-              event.preventDefault();
               pick(row);
               return;
             }
@@ -199,7 +214,7 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
         }
       }
 
-      if (event.key === "Enter" && !event.nativeEvent.isComposing) onSubmit?.(value);
+      if (event.key === "Enter" && !event.nativeEvent.isComposing) onSubmit?.(value, event);
     };
 
     const listboxId = React.useId();
@@ -240,7 +255,7 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
           onBlur={(e) => {
             onBlur?.(e);
             setOpen(false);
-            setHighlightedIndex(-1);
+            setHighlightedIndex(0);
           }}
           onClick={(e) => {
             onClick?.(e);
@@ -282,7 +297,7 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
                   const isHighlighted = index === highlightedIndex;
                   return (
                     <button
-                      key={suggestion.value}
+                      key={suggestion.id ?? suggestion.value}
                       type="button"
                       ref={(el) => {
                         if (el) optionRefs.current.set(index, el);

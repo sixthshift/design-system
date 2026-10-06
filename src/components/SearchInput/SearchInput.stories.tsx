@@ -75,8 +75,8 @@ const FRUITS: SearchInputSuggestion[] = ["Apple", "Apricot", "Banana", "Blackber
 /**
  * `suggestions` turns the field into a combobox. SearchInput renders the rows
  * as given and never filters them — the caller derives them from `value`, here
- * with a plain substring match. Free text still wins: Enter with no row
- * highlighted calls `onSubmit` with whatever was typed.
+ * with a plain substring match. The top match is highlighted, so Enter picks
+ * it; ArrowUp back to the typed text and Enter calls `onSubmit` with that.
  */
 export const WithSuggestions: Story = {
   render: () => {
@@ -106,7 +106,7 @@ export const WithSuggestions: Story = {
     await userEvent.type(input, "berr");
     await expect(body.getAllByRole("option")).toHaveLength(2);
 
-    await userEvent.keyboard("{ArrowDown}{Enter}");
+    await userEvent.keyboard("{Enter}");
     await expect(input).toHaveValue("Blackberry");
     await expect(input).toHaveAttribute("aria-expanded", "false");
   },

@@ -1224,7 +1224,8 @@ SUBPATH EXPORTS — 74 subpaths, 513 exports
                       | undefined;
                       clearLabel?: string
                       | undefined;
-                      onSubmit?: ((value: string) => void) | undefined;
+                      onSubmit?: ((value: string,
+                      event: KeyboardEvent<HTMLInputElement>) => void) | undefined;
                       suggestions?: readonly SearchInputSuggestion[] | undefined;
                       onSuggestionSelect?: ((suggestion: SearchInputSuggestion) => void) | undefined;
                       loading?: boolean | undefined;
@@ -1237,7 +1238,8 @@ SUBPATH EXPORTS — 74 subpaths, 513 exports
                            onValueChange: (value: string) => void;
                            onClear?: (() => void) | undefined;
                            clearLabel?: string | undefined;
-                           onSubmit?: ((value: string) => void) | undefined;
+                           onSubmit?: ((value: string,
+                           event: KeyboardEvent<HTMLInputElement>) => void) | undefined;
                            suggestions?: readonly SearchInputSuggestion[] | undefined;
                            onSuggestionSelect?: ((suggestion: SearchInputSuggestion) => void) | undefined;
                            loading?: boolean | undefined;
@@ -1245,7 +1247,7 @@ SUBPATH EXPORTS — 74 subpaths, 513 exports
                            emptyMessage?: string | undefined;
                            suggestionsLabel?: string | undefined;
                            }
-  type  SearchInputSuggestion = { value: string; label?: string | undefined; }
+  type  SearchInputSuggestion = { value: string; label?: string | undefined; id?: string | undefined; }
 
 ./section-title
   value SectionTitle = ForwardRefExoticComponent<HTMLAttributes<HTMLElement> & { as?: TextElement | undefined; } & RefAttributes<HTMLElement>>

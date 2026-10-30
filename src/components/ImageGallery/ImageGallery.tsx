@@ -164,7 +164,7 @@ export const ImageGallery = React.forwardRef<HTMLElement, ImageGalleryProps>(
     };
 
     const controlClass =
-      "image-gallery-control focus-visible:ring-(color:--image-gallery-control-ring) absolute top-1/2 flex size-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-(--image-gallery-control-bg) text-(--image-gallery-control-fg) shadow transition-opacity hover:bg-(--image-gallery-control-bg-hovered) focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-0 max-sm:hidden [&_svg]:size-5";
+      "image-gallery-control focus-visible:ring-(color:--image-gallery-control-ring) absolute top-1/2 flex size-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-(--image-gallery-control-bg) text-(--image-gallery-control-fg) shadow-sm transition-opacity hover:bg-(--image-gallery-control-bg-hovered) focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-0 max-sm:hidden [&_svg]:size-5";
 
     return (
       <section

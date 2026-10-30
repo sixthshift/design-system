@@ -127,7 +127,7 @@ describe("Toggle", () => {
   describe("styling", () => {
     it("applies solid variant by default (matches Button defaults)", () => {
       render(<Toggle>Bold</Toggle>);
-      expect(screen.getByRole("button")).toHaveClass("shadow");
+      expect(screen.getByRole("button")).toHaveClass("shadow-sm");
     });
 
     it("applies outline variant classes", () => {
@@ -139,7 +139,7 @@ describe("Toggle", () => {
       render(<Toggle variant="ghost">Bold</Toggle>);
       const button = screen.getByRole("button");
       expect(button).not.toHaveClass("border");
-      expect(button).not.toHaveClass("shadow");
+      expect(button).not.toHaveClass("shadow-sm");
     });
 
     // The pressed background no longer appears in the class list — it selects

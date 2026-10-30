@@ -114,10 +114,17 @@ export function ThemeReference() {
       />
 
       <VariableTable
+        title="Shadow"
+        description="Four elevation steps: xs a control, sm a raised surface, md a lifted surface, lg a layer floating over the page. Mode-free. Every shadow-* utility reads these; shadow-none is not themed."
+        columns={["Value"]}
+        rows={rows(root.filter(startsWith("box-shadow-")))}
+      />
+
+      <VariableTable
         title="Tailwind bridge"
-        description="The @theme entries that make a utility compile for each semantic token and radius step. Nothing reads these directly — they exist so bg-bg-danger and rounded-md are real classes."
+        description="The @theme entries that make a utility compile for each semantic token, radius step and elevation step. Nothing reads these directly — they exist so bg-bg-danger, rounded-md and shadow-lg are real classes."
         columns={["Points at"]}
-        rows={rows(theme.filter(startsWith("color-", "radius-")))}
+        rows={rows(theme.filter(startsWith("color-", "radius-", "shadow-")))}
       />
 
       <VariableTable

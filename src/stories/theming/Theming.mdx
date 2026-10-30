@@ -192,7 +192,18 @@ reshapes the whole library:
 ```
 
 `rounded-none` and `rounded-full` are geometry, not steps — a switch thumb stays
-a circle. Shadows and border widths are not themeable yet.
+a circle.
+
+**Shadows** are four mode-free steps, `--box-shadow-xs` to `-lg`: `xs` a control,
+`sm` a raised surface, `md` a lifted one, `lg` a layer floating over the page.
+Every `shadow-*` class reads them. A flat theme, or heavier shadows in dark mode:
+
+```css
+:root { --box-shadow-xs: none; --box-shadow-sm: none; /* …flat controls and cards, floating layers keep theirs */ }
+:root[data-theme="dark"] { --box-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5); }
+```
+
+Border widths are not themeable.
 
 ## More than one brand
 

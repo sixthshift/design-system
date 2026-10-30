@@ -37,7 +37,7 @@ describe("Badge", () => {
     it("applies default variant (solid) when not specified", () => {
       render(<Badge>Badge</Badge>);
       const badge = screen.getByText("Badge");
-      expect(badge).toHaveClass("shadow");
+      expect(badge).toHaveClass("shadow-sm");
     });
 
     it("applies solid variant classes", () => {
@@ -47,21 +47,21 @@ describe("Badge", () => {
       // read from the `--badge-*` component tokens the `data-variant` /
       // `data-intent` attributes select in badge.css. Structure stays a class.
       expect(badge).toHaveAttribute("data-variant", "solid");
-      expect(badge).toHaveClass("shadow");
+      expect(badge).toHaveClass("shadow-sm");
     });
 
     it("applies soft variant classes", () => {
       render(<Badge variant="soft">Badge</Badge>);
       const badge = screen.getByText("Badge");
       expect(badge).toHaveAttribute("data-variant", "soft");
-      expect(badge).not.toHaveClass("shadow");
+      expect(badge).not.toHaveClass("shadow-sm");
     });
 
     it("applies outline variant classes", () => {
       render(<Badge variant="outline">Badge</Badge>);
       const badge = screen.getByText("Badge");
       expect(badge).toHaveAttribute("data-variant", "outline");
-      expect(badge).not.toHaveClass("shadow");
+      expect(badge).not.toHaveClass("shadow-sm");
     });
   });
 

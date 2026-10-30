@@ -44,7 +44,7 @@ describe("Toast", () => {
       expect(screen.getByTestId("icon")).toBeInTheDocument();
     });
 
-    it("applies shadow class", async () => {
+    it("is lifted with the floating-layer elevation", async () => {
       renderToast({
         title: "Title",
         onClose: () => {},

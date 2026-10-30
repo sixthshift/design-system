@@ -88,6 +88,8 @@ export function cn(...inputs: ClassValue[]) {
 
 Corners come from the theme's scale: `rounded-{xs|sm|md|lg|xl}`, `md` unless the component has a reason, and a container at least as round as what it holds. Never bare `rounded` (a fixed 0.25rem no theme can reach) or a step off the scale — `bun run check:radius` fails on both. `rounded-none` and `rounded-full` are fine; they are geometry, not a theme choice.
 
+Shadows work the same way: `shadow-{xs|sm|md|lg}` — `xs` for a control, `sm` for a raised surface, `md` for a lifted one, `lg` for a layer floating over the page. Never bare `shadow` or a step off the scale — `bun run check:shadow` fails on both. `shadow-none` is fine.
+
 One more trap: keep a base class string in a **single** literal. Biome's `useSortedClasses` unsafe fix strips the trailing space before a `+` in a concatenated string, welding the last class of one fragment to the first of the next.
 
 ---

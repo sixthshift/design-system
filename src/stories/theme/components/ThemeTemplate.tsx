@@ -22,19 +22,28 @@ import { type Declaration, MODE_SELECTORS, modeDeclarations, paletteMap, resolve
 
 /**
  * Families a re-skin is usually scoped to. `all` is the whole theme. `colour`
- * selects mode tokens; `radius` adds the mode-free corner scale.
+ * selects mode tokens; `radius` and `elevation` add the mode-free corner and
+ * elevation scales.
  */
 const SCOPES = [
-  { value: "brand", label: "Brand only", colour: (name: string) => /-brand(-|$)/.test(name), radius: false },
-  { value: "feedback", label: "Success, warning, danger", colour: (name: string) => /-(success|warning|danger)(-|$)/.test(name), radius: false },
+  { value: "brand", label: "Brand only", colour: (name: string) => /-brand(-|$)/.test(name), radius: false, elevation: false },
+  {
+    value: "feedback",
+    label: "Success, warning, danger",
+    colour: (name: string) => /-(success|warning|danger)(-|$)/.test(name),
+    radius: false,
+    elevation: false,
+  },
   {
     value: "neutral",
     label: "The greys",
     colour: (name: string) => /-(strong|normal|subtle)(-|$)/.test(name) && !/-(brand|success|warning|danger)-/.test(name),
     radius: false,
+    elevation: false,
   },
-  { value: "radius", label: "Corners", colour: () => false, radius: true },
-  { value: "all", label: "Everything", colour: () => true, radius: true },
+  { value: "radius", label: "Corners", colour: () => false, radius: true, elevation: false },
+  { value: "elevation", label: "Shadows", colour: () => false, radius: false, elevation: true },
+  { value: "all", label: "Everything", colour: () => true, radius: true, elevation: true },
 ] as const;
 
 /** `bg-brand-hovered` -> `Background`. The comment headers inside each block. */
@@ -67,6 +76,12 @@ function radiusBlock(declarations: Declaration[]): string {
   return `/* Corners — md is the middle and the default. A theme must define all five. */\n:root {\n${lines.join("\n")}\n}`;
 }
 
+/** The elevation scale: mode-free like the corners. A dark-only override goes under the dark selector. */
+function elevationBlock(declarations: Declaration[]): string {
+  const lines = declarations.map((declaration) => `  --${declaration.name}: ${declaration.value};`);
+  return `/* Shadows — xs a control, sm a raised surface, md a lifted one, lg a floating layer. A theme must define all four. */\n:root {\n${lines.join("\n")}\n}`;
+}
+
 const HEADER = `/* Your theme. Paste after the design-system import, and leave it unlayered —
    the library's own tokens are unlayered, so a rule inside @layer would lose.
 
@@ -79,17 +94,19 @@ export function ThemeTemplate() {
   const [copied, setCopied] = useState(false);
 
   const palette = paletteMap();
-  const selected = SCOPES.find((candidate) => candidate.value === scope) ?? SCOPES[4];
+  const selected = SCOPES.find((candidate) => candidate.value === scope) ?? SCOPES[5];
   const keep = (declarations: Declaration[]) => declarations.filter((declaration) => selected.colour(declaration.name));
 
   const light = keep(modeDeclarations("light"));
   const dark = keep(modeDeclarations("dark"));
   const radius = selected.radius ? rootDeclarations().filter((declaration) => declaration.name.startsWith("border-radius-")) : [];
+  const elevation = selected.elevation ? rootDeclarations().filter((declaration) => declaration.name.startsWith("box-shadow-")) : [];
 
   const css = [
     HEADER,
     ...(light.length > 0 ? [block(MODE_SELECTORS.light, light, palette), block(MODE_SELECTORS.dark, dark, palette)] : []),
     ...(radius.length > 0 ? [radiusBlock(radius)] : []),
+    ...(elevation.length > 0 ? [elevationBlock(elevation)] : []),
   ].join("\n\n");
 
   const copy = async () => {
@@ -130,7 +147,13 @@ export function ThemeTemplate() {
           {copied ? "Copied" : "Copy CSS"}
         </button>
         <Text as="span" className="text-fg-subtle text-xs">
-          {[light.length > 0 && `${light.length} tokens per mode`, radius.length > 0 && `${radius.length} radius steps`].filter(Boolean).join(" · ")}
+          {[
+            light.length > 0 && `${light.length} tokens per mode`,
+            radius.length > 0 && `${radius.length} radius steps`,
+            elevation.length > 0 && `${elevation.length} elevation steps`,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
         </Text>
       </div>
       <pre className="max-h-[32rem] overflow-auto rounded-lg border border-border-normal bg-bg-subtle p-4 font-mono text-[11px] text-fg-normal leading-relaxed">

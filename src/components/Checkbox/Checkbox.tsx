@@ -116,7 +116,7 @@ const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
           ref={ref}
           onClick={() => setChecked(!isChecked)}
           className={cn(
-            "checkbox peer border-(color:--checkbox-border) focus-visible:ring-(color:--checkbox-ring) h-4 w-4 shrink-0 cursor-pointer rounded-xs border bg-(--checkbox-bg) text-(--checkbox-fg) shadow focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+            "checkbox peer border-(color:--checkbox-border) focus-visible:ring-(color:--checkbox-ring) h-4 w-4 shrink-0 cursor-pointer rounded-xs border bg-(--checkbox-bg) text-(--checkbox-fg) shadow-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
             className
           )}
           {...props}

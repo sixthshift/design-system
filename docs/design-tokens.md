@@ -227,6 +227,21 @@ A container's step is at least its contents' — a button inside a card must not
 
 ---
 
+## Shadow Scale
+
+Four elevation steps, defined by the theme as `--box-shadow-*` (mode-free, in `src/theme/<name>/theme.css`) and handed to Tailwind in `src/theming/tailwind.css`, so every `shadow-*` class reads the theme. Each step is a kind of element, not a point on an even ramp.
+
+| Class       | Token              | Used for                                                                 |
+|-------------|--------------------|--------------------------------------------------------------------------|
+| `shadow-xs` | `--box-shadow-xs`  | Controls on the page — inputs, textareas, toggles, steppers, switch track |
+| `shadow-sm` | `--box-shadow-sm`  | Raised surfaces — cards, solid buttons and badges, checkboxes, radios     |
+| `shadow-md` | `--box-shadow-md`  | A surface lifted above its neighbours. No component uses it yet          |
+| `shadow-lg` | `--box-shadow-lg`  | Layers floating over the page — popovers, menus, tooltips, toasts, sheets |
+
+Linen's values are Tailwind's own. A theme that wants heavier shadows in dark mode redefines the steps under `:root[data-theme="dark"]`. `shadow-none` is not themed. Bare `shadow` (Tailwind's alias for the `sm` value, which no theme can reach) and anything off the scale fail `bun run check:shadow`; Tailwind's own other steps are reset, so `shadow-xl` generates nothing.
+
+---
+
 ## Token discipline
 
 The token vocabulary above is the *whole* vocabulary. Two failure modes recur, and both render as nothing or as off-system color — treat them as bugs, not style choices.

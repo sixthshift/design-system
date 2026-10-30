@@ -75,7 +75,7 @@ const RadioButton = React.forwardRef<HTMLButtonElement, RadioButtonProps>(
             if (!checked) onCheckedChange?.(true);
           }}
           className={cn(
-            "radio-button peer border-(color:--radio-button-border) focus-visible:ring-(color:--radio-button-ring) h-4 w-4 shrink-0 cursor-pointer rounded-full border bg-(--radio-button-bg) text-(--radio-button-fg) shadow focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+            "radio-button peer border-(color:--radio-button-border) focus-visible:ring-(color:--radio-button-ring) h-4 w-4 shrink-0 cursor-pointer rounded-full border bg-(--radio-button-bg) text-(--radio-button-fg) shadow-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
             className
           )}
           {...props}

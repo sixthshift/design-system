@@ -78,6 +78,15 @@
   --radius-lg: var(--border-radius-lg);
   --radius-xl: var(--border-radius-xl);
 
+  /* Shadow — the theme's four elevation steps, and only those. Reset first for
+     the same reason as radius: `shadow-xl` should generate nothing rather than
+     an elevation no theme can reach; `check:shadow` makes that a failure. */
+  --shadow-*: initial;
+  --shadow-xs: var(--box-shadow-xs);
+  --shadow-sm: var(--box-shadow-sm);
+  --shadow-md: var(--box-shadow-md);
+  --shadow-lg: var(--box-shadow-lg);
+
   /* Background */
   --color-bg-strong: var(--bg-strong);
   --color-bg-strong-hovered: var(--bg-strong-hovered);

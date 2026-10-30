@@ -94,7 +94,7 @@ const blockFor = (selector: string) =>
     .filter((block) => block.selector === selector)
     .flatMap((block) => declarations(block.body));
 
-/** The hand-written `:root` blocks: palette scales, font stacks, theme identity, the radius scale. */
+/** The hand-written `:root` blocks: palette scales, font stacks, theme identity, the radius and shadow scales. */
 export const rootDeclarations = () => blockFor(":root");
 
 /** Semantic tokens for one mode, as authored. */

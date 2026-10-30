@@ -34,7 +34,7 @@ const toggleVariants = cva(
 
 /** The non-colour half of `variant` — border width and elevation. */
 const variantStructure: Record<string, string> = {
-  solid: "shadow",
+  solid: "shadow-sm",
   outline: "border shadow-xs",
   ghost: "",
 };

@@ -41,7 +41,7 @@ export const cardVariants = cva(
   // One literal, deliberately: `useSortedClasses --unsafe` strips the trailing
   // space before a `+`, silently welding the last class of one fragment to the
   // first of the next. A single string means the sorter has nothing to break.
-  "card border-(color:--card-border) border bg-(--card-bg) text-(--card-fg) shadow",
+  "card border-(color:--card-border) border bg-(--card-bg) text-(--card-fg) shadow-sm",
   {
     variants: {
       size: {

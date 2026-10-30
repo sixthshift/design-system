@@ -263,7 +263,7 @@ describe("ToggleGroup", () => {
     it("applies ghost variant in separate mode (no border/shadow)", () => {
       render(<ToggleGroup type="single" options={textOptions} appearance="separate" variant="ghost" aria-label="test" />);
       const button = screen.getAllByRole("radio")[0];
-      expect(button).not.toHaveClass("shadow");
+      expect(button).not.toHaveClass("shadow-sm");
     });
 
     it("merges custom className on the container", () => {

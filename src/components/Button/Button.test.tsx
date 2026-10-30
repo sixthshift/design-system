@@ -38,7 +38,7 @@ describe("Button", () => {
     it("applies default variant (solid) when not specified", () => {
       render(<Button>Button</Button>);
       const button = screen.getByRole("button");
-      expect(button).toHaveClass("shadow");
+      expect(button).toHaveClass("shadow-sm");
     });
   });
 

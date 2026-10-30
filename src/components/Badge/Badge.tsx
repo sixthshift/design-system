@@ -36,7 +36,7 @@ const badgeVariants = cva(
  * define it. `intent` needs no equivalent: it was never anything but colour.
  */
 const variantStructure: Record<string, string> = {
-  solid: "shadow",
+  solid: "shadow-sm",
   soft: "",
   outline: "",
 };

@@ -51,11 +51,12 @@ jobs:
 
       # The theme's invariants, none of which a type-checker or a screenshot
       # can see: the component-token layer and intent slots resolve in both
-      # modes, every token pairing clears WCAG AA, and every corner radius is on
-      # the theme's scale. Each fails silently in the browser — an unresolved
-      # token paints transparent, an off-scale radius paints square.
-      - name: Recipes, contrast and radius
-        run: bun run check:recipes && bun run check:contrast && bun run check:radius
+      # modes, every token pairing clears WCAG AA, and every corner radius and
+      # shadow is on the theme's scale. Each fails silently in the browser — an
+      # unresolved token paints transparent, an off-scale radius paints square,
+      # an off-scale shadow paints flat.
+      - name: Recipes, contrast, radius and shadow
+        run: bun run check:recipes && bun run check:contrast && bun run check:radius && bun run check:shadow
 
       # Over the packed tarball, so it sees what npm will serve rather than the
       # working tree. dist/ already exists — `bun install` runs `prepare`.

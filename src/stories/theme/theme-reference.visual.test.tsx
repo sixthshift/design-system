@@ -37,7 +37,7 @@ describe("the theme reference sheet", () => {
     // Sum the groups rather than assert each count: the point is that the
     // prefixes partition the file exhaustively, so a variable added under a
     // prefix nothing matches is caught here rather than silently omitted.
-    const grouped = ["Palette", "Radius", "Tailwind bridge", "Layering", "Motion", "Typography", "Identity"].reduce(
+    const grouped = ["Palette", "Radius", "Shadow", "Tailwind bridge", "Layering", "Motion", "Typography", "Identity"].reduce(
       (total, title) => total + section(title).length,
       0
     );
@@ -124,10 +124,19 @@ describe("the starter template", () => {
     expect(blocks[0]?.declarations.map((d) => d.name)).toEqual(["xs", "sm", "md", "lg", "xl"].map((step) => `border-radius-${step}`));
   });
 
-  it("includes the radius scale in everything", async () => {
+  it("emits the elevation scale, every step, in one mode-free block", async () => {
+    const { container } = render(<ThemeTemplate />);
+    await userEvent.selectOptions(screen.getByRole("combobox", { name: /re-skinning/ }), "elevation");
+
+    const blocks = emitted(container);
+    expect(blocks.map((block) => block.selector)).toEqual([":root"]);
+    expect(blocks[0]?.declarations.map((d) => d.name)).toEqual(["xs", "sm", "md", "lg"].map((step) => `box-shadow-${step}`));
+  });
+
+  it("includes the radius and elevation scales in everything", async () => {
     const { container } = render(<ThemeTemplate />);
     await userEvent.selectOptions(screen.getByRole("combobox", { name: /re-skinning/ }), "all");
-    expect(emitted(container).map((block) => block.selector)).toEqual([MODE_SELECTORS.light, MODE_SELECTORS.dark, ":root"]);
+    expect(emitted(container).map((block) => block.selector)).toEqual([MODE_SELECTORS.light, MODE_SELECTORS.dark, ":root", ":root"]);
   });
 
   it("narrows to the family being re-skinned", async () => {

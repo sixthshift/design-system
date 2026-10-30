@@ -1,3 +1,5 @@
+export type { MessageActionsProps } from "./components/MessageActions";
+export { MessageActions } from "./components/MessageActions";
 export type { MessageBodyProps } from "./components/MessageBody";
 export { MessageBody } from "./components/MessageBody";
 export type { MessageDescriptionProps } from "./components/MessageDescription";

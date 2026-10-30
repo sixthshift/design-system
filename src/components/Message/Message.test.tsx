@@ -2,7 +2,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { Message, MessageBody, MessageDescription, MessageIcon, MessageTitle } from ".";
+import { Message, MessageActions, MessageBody, MessageDescription, MessageIcon, MessageTitle } from ".";
 
 describe("Message", () => {
   describe("rendering", () => {
@@ -32,6 +32,25 @@ describe("Message", () => {
     it("renders icon when provided", () => {
       render(<Message icon={<span data-testid="icon">!</span>}>Content</Message>);
       expect(screen.getByTestId("icon")).toBeInTheDocument();
+    });
+
+    it("renders actions last in the body, outside the description", () => {
+      render(
+        <Message title="Title" icon={<span>!</span>} actions={<button type="button">Retry</button>}>
+          Content
+        </Message>
+      );
+      const button = screen.getByRole("button", { name: "Retry" });
+      const description = screen.getByText("Content");
+      const actions = button.parentElement as HTMLElement;
+      expect(description).not.toContainElement(button);
+      expect(actions.parentElement).toBe(description.parentElement);
+      expect(actions.parentElement?.lastElementChild).toBe(actions);
+    });
+
+    it("renders no actions row when actions is omitted", () => {
+      render(<Message title="Title">Content</Message>);
+      expect(screen.getByText("Content").nextElementSibling).toBeNull();
     });
   });
 
@@ -65,6 +84,11 @@ describe("Message", () => {
       expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
 
+    it("applies brand intent with the status role", () => {
+      render(<Message intent="brand">Content</Message>);
+      expect(screen.getByRole("status")).toHaveAttribute("data-intent", "brand");
+    });
+
     it("keeps the assertive role for danger only", () => {
       const { unmount } = render(<Message intent="danger">Content</Message>);
       expect(screen.getByRole("alert")).toBeInTheDocument();
@@ -90,6 +114,14 @@ describe("Message", () => {
       render(<Message size="sm">Content</Message>);
       expect(screen.getByRole("status")).toHaveClass("p-3");
       expect(screen.getByRole("status")).toHaveClass("text-xs");
+    });
+
+    it("exposes the size as data-size, defaulting to md", () => {
+      const { unmount } = render(<Message>Content</Message>);
+      expect(screen.getByRole("status")).toHaveAttribute("data-size", "md");
+      unmount();
+      render(<Message size="sm">Content</Message>);
+      expect(screen.getByRole("status")).toHaveAttribute("data-size", "sm");
     });
   });
 
@@ -177,6 +209,34 @@ describe("MessageTitle", () => {
       </Message>
     );
     expect(screen.getByTestId("title")).toHaveClass("font-medium");
+  });
+});
+
+describe("MessageActions", () => {
+  it("is detected as a compound part", () => {
+    render(
+      <Message>
+        <MessageActions data-testid="actions">
+          <button type="button">Undo</button>
+        </MessageActions>
+      </Message>
+    );
+    const actions = screen.getByTestId("actions");
+    // Not wrapped in the simple API's MessageBody/MessageDescription.
+    expect(actions.parentElement).toBe(screen.getByRole("status"));
+  });
+
+  it("wraps its row and carries no opacity", () => {
+    render(
+      <Message>
+        <MessageBody>
+          <MessageActions data-testid="actions" />
+        </MessageBody>
+      </Message>
+    );
+    const actions = screen.getByTestId("actions");
+    expect(actions).toHaveClass("flex", "flex-wrap", "gap-2", "mt-2");
+    expect(actions.className).not.toMatch(/opacity/);
   });
 });
 

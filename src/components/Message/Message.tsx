@@ -1,6 +1,7 @@
 import { cn } from "@sixthshift/design-system/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
+import { MessageActions } from "./components/MessageActions";
 import { MessageBody } from "./components/MessageBody";
 import { MessageDescription } from "./components/MessageDescription";
 import { MessageIcon } from "./components/MessageIcon";
@@ -20,7 +21,7 @@ export const messageVariants = cva(
   // One literal, deliberately: `useSortedClasses --unsafe` strips the trailing
   // space before a `+`, silently welding the last class of one fragment to the
   // first of the next. A single string means the sorter has nothing to break.
-  "message border-(color:--message-border) flex gap-3 rounded-lg border bg-(--message-bg) p-4 text-(--message-fg) text-sm [&>svg]:shrink-0",
+  "group/message message border-(color:--message-border) flex gap-3 rounded-lg border bg-(--message-bg) p-4 text-(--message-fg) text-sm [&>svg]:shrink-0",
   {
     variants: {
       size: {
@@ -42,7 +43,7 @@ export const messageVariants = cva(
  */
 type Loose<T extends string> = T | (string & {});
 
-export type MessageIntentName = "neutral" | "success" | "warning" | "danger";
+export type MessageIntentName = "neutral" | "brand" | "success" | "warning" | "danger";
 export type MessageIntent = Loose<MessageIntentName>;
 
 export type MessageProps = React.HTMLAttributes<HTMLDivElement> &
@@ -54,6 +55,8 @@ export type MessageProps = React.HTMLAttributes<HTMLDivElement> &
     title?: React.ReactNode;
     /** Simple API: Optional icon displayed on the left */
     icon?: React.ReactNode;
+    /** Simple API: Optional actions (buttons, links) under the description */
+    actions?: React.ReactNode;
   };
 
 /**
@@ -84,8 +87,8 @@ function intentRole(intent: MessageIntent): "status" | "alert" {
  * `Toast` when it should float above the page and disappear on its own.
  * `Toast` itself renders a `Message` internally.
  *
- * `intent` (`"neutral"` (default) | `"success"` | `"warning"` | `"danger"`,
- * widened to accept any string) drives both the color, via `--message-*`
+ * `intent` (`"neutral"` (default) | `"brand"` | `"success"` | `"warning"` |
+ * `"danger"`, widened to accept any string) drives both the color, via `--message-*`
  * component tokens, and the ARIA live-region role: `"danger"` is the only
  * intent that gets `role="alert"` (assertive — cuts off whatever a screen
  * reader was announcing); every other intent, including one this library has
@@ -95,22 +98,36 @@ function intentRole(intent: MessageIntent): "status" | "alert" {
  * overridden directly if a specific case needs it. `size` (`"md"` | `"sm"`)
  * is geometry only (padding/gap/font-size) and carries no color.
  *
- * Two ways to give it content: the simple API (`title` + `icon` props, with
- * `children` as the description), or compound children (`Message.Icon`,
- * `Message.Body`, `Message.Title`, `Message.Description`) for layouts the
- * simple API can't express. Message detects which one is in use by
- * inspecting its children, so the two aren't meant to be mixed.
+ * Two ways to give it content: the simple API (`title`, `icon` and `actions`
+ * props, with `children` as the description), or compound children
+ * (`MessageIcon`, `MessageBody`, `MessageTitle`, `MessageDescription`,
+ * `MessageActions`) for layouts the simple API can't express. Message detects
+ * which one is in use by inspecting its children, so the two aren't meant to
+ * be mixed. `actions` render last inside the body, so they line up with the
+ * title and text rather than under the icon.
  */
 export const Message = React.forwardRef<HTMLDivElement, MessageProps>(
-  ({ className, intent = "neutral", brand, size, title, icon, children, ...props }, ref) => {
+  ({ className, intent = "neutral", brand, size, title, icon, actions, children, ...props }, ref) => {
     const hasCompoundChildren = React.Children.toArray(children).some(
       (child) =>
         React.isValidElement(child) &&
-        (child.type === MessageIcon || child.type === MessageBody || child.type === MessageTitle || child.type === MessageDescription)
+        (child.type === MessageIcon ||
+          child.type === MessageBody ||
+          child.type === MessageTitle ||
+          child.type === MessageDescription ||
+          child.type === MessageActions)
     );
 
     return (
-      <div ref={ref} role={intentRole(intent)} data-intent={intent} data-brand={brand} className={cn(messageVariants({ size, className }))} {...props}>
+      <div
+        ref={ref}
+        role={intentRole(intent)}
+        data-intent={intent}
+        data-brand={brand}
+        data-size={size ?? "md"}
+        className={cn(messageVariants({ size, className }))}
+        {...props}
+      >
         {hasCompoundChildren ? (
           children
         ) : (
@@ -119,6 +136,7 @@ export const Message = React.forwardRef<HTMLDivElement, MessageProps>(
             <MessageBody>
               {title && <MessageTitle>{title}</MessageTitle>}
               <MessageDescription>{children}</MessageDescription>
+              {actions && <MessageActions>{actions}</MessageActions>}
             </MessageBody>
           </>
         )}

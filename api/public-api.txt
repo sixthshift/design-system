@@ -13,7 +13,7 @@ Deliberately not recorded: the package version, and anything under src/stories
 or src/testing. Neither is part of what a consumer can import.
 
 ==============================================================================
-SUBPATH EXPORTS — 74 subpaths, 513 exports
+SUBPATH EXPORTS — 74 subpaths, 515 exports
 ==============================================================================
 
 ./badge
@@ -769,7 +769,7 @@ SUBPATH EXPORTS — 74 subpaths, 513 exports
                     required?: boolean | undefined;
                     } & RefAttributes<HTMLDivElement>>
   type  FormFieldContextValue = { id: string; describedBy: string | undefined; invalid: boolean; required: boolean; }
-  type  FormFieldFeedback = { message: string; intent: "danger" | "success" | "warning"; }
+  type  FormFieldFeedback = { message: string; intent: "brand" | "danger" | "success" | "warning"; }
   type  FormFieldProps = HTMLAttributes<HTMLDivElement> & { label: ReactNode; description?: ReactNode; feedback?: FormFieldFeedback | undefined; required?: boolean | undefined; }
   value useFormField = () => FormFieldContextValue | null
 
@@ -932,7 +932,10 @@ SUBPATH EXPORTS — 74 subpaths, 513 exports
                   brand?: string | undefined;
                   title?: ReactNode;
                   icon?: ReactNode;
+                  actions?: ReactNode;
                   } & RefAttributes<HTMLDivElement>>
+  value MessageActions = ForwardRefExoticComponent<MessageActionsProps & RefAttributes<HTMLDivElement>>
+  type  MessageActionsProps = HTMLAttributes<HTMLDivElement>
   value MessageBody = ForwardRefExoticComponent<MessageBodyProps & RefAttributes<HTMLDivElement>>
   type  MessageBodyProps = HTMLAttributes<HTMLDivElement>
   value MessageDescription = ForwardRefExoticComponent<MessageDescriptionProps & RefAttributes<HTMLDivElement>>
@@ -940,7 +943,7 @@ SUBPATH EXPORTS — 74 subpaths, 513 exports
   value MessageIcon = ForwardRefExoticComponent<MessageIconProps & RefAttributes<HTMLDivElement>>
   type  MessageIconProps = HTMLAttributes<HTMLDivElement>
   type  MessageIntent = (string & {}) | MessageIntentName
-  type  MessageIntentName = "neutral" | "danger" | "success" | "warning"
+  type  MessageIntentName = "neutral" | "brand" | "danger" | "success" | "warning"
   type  MessageProps = HTMLAttributes<HTMLDivElement> & VariantProps<(props?: ({ size?: "sm" | "md" | null | undefined;
                        } & ClassProp) | undefined) => string> & { intent?: MessageIntent
                        | undefined;
@@ -948,6 +951,7 @@ SUBPATH EXPORTS — 74 subpaths, 513 exports
                        | undefined;
                        title?: ReactNode;
                        icon?: ReactNode;
+                       actions?: ReactNode;
                        }
   value MessageTitle = ForwardRefExoticComponent<MessageTitleProps & RefAttributes<HTMLDivElement>>
   type  MessageTitleProps = HTMLAttributes<HTMLDivElement>
@@ -2273,7 +2277,7 @@ SUBPATH EXPORTS — 74 subpaths, 513 exports
 
 ./toast
   value Toast = ForwardRefExoticComponent<Omit<MessageProps,
-                "size"> & { onClose?: (() => void) | undefined;
+                "size" | "actions"> & { onClose?: (() => void) | undefined;
                 action?: string | undefined;
                 onAction?: (() => void)
                 | undefined;
@@ -2288,7 +2292,7 @@ SUBPATH EXPORTS — 74 subpaths, 513 exports
                 | undefined;
                 } & RefAttributes<HTMLDivElement>>
   type  ToastProps = Omit<MessageProps,
-                     "size"> & { onClose?: (() => void)
+                     "size" | "actions"> & { onClose?: (() => void)
                      | undefined;
                      action?: string
                      | undefined;

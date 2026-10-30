@@ -1,7 +1,8 @@
+import { Button } from "@sixthshift/design-system/button";
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, within } from "storybook/test";
 import { componentTokensStory } from "../../stories/component-tokens/componentTokensStory";
-import { Message, MessageBody, MessageDescription, MessageIcon, MessageTitle } from ".";
+import { Message, MessageActions, MessageBody, MessageDescription, MessageIcon, MessageTitle } from ".";
 
 const meta: Meta<typeof Message> = {
   title: "Components/Message",
@@ -14,7 +15,7 @@ const meta: Meta<typeof Message> = {
   argTypes: {
     intent: {
       control: "select",
-      options: ["neutral", "danger", "success", "warning"],
+      options: ["neutral", "brand", "danger", "success", "warning"],
     },
     size: {
       control: "select",
@@ -232,6 +233,112 @@ export const CompoundComponents: Story = {
           </MessageDescription>
         </MessageBody>
       </Message>
+    </div>
+  ),
+};
+
+// =============================================================================
+// ACTIONS
+// =============================================================================
+
+const ACTION_INTENTS = ["neutral", "brand", "success", "warning", "danger"] as const;
+
+/**
+ * `actions` render under the description, aligned with the title rather than
+ * the icon, at full contrast. One action and two, in every intent.
+ */
+export const WithActions: Story = {
+  render: () => (
+    <div className="flex flex-col gap-3">
+      {ACTION_INTENTS.map((intent, i) => (
+        <Message
+          key={intent}
+          intent={intent}
+          icon={<InfoIcon />}
+          title={`${intent[0]?.toUpperCase()}${intent.slice(1)}`}
+          actions={
+            i % 2 === 0 ? (
+              <Button intent={intent}>Retry</Button>
+            ) : (
+              <>
+                <Button intent={intent}>Undo</Button>
+                <Button inline>View details</Button>
+              </>
+            )
+          }
+        >
+          Something happened that you can act on.
+        </Message>
+      ))}
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const retry = canvas.getAllByRole("button", { name: "Retry" })[0] as HTMLElement;
+    // Actions sit outside the description, so they don't inherit its opacity.
+    await expect(getComputedStyle(retry.parentElement as HTMLElement).opacity).toBe("1");
+  },
+};
+
+/** The same row at both sizes; `sm` tightens the gap between actions. */
+export const ActionsSizes: Story = {
+  render: () => (
+    <div className="flex flex-col gap-3">
+      {(["md", "sm"] as const).map((size) => (
+        <Message
+          key={size}
+          size={size}
+          intent="warning"
+          icon={<AlertIcon />}
+          title={size === "md" ? "Medium" : "Small"}
+          actions={
+            <>
+              <Button intent="warning" size={size}>
+                Call the birth suite
+              </Button>
+              <Button inline size={size}>
+                Every number
+              </Button>
+            </>
+          }
+        >
+          If your baby's movements slow down, call straight away.
+        </Message>
+      ))}
+    </div>
+  ),
+};
+
+/** `MessageActions` as a compound part, last inside `MessageBody`. */
+export const CompoundActions: Story = {
+  render: () => (
+    <Message intent="danger">
+      <MessageIcon>
+        <ErrorIcon />
+      </MessageIcon>
+      <MessageBody>
+        <MessageTitle>Call 000 or go to emergency</MessageTitle>
+        <MessageDescription>Heavy bleeding, a bad headache that won't go, or blurred vision.</MessageDescription>
+        <MessageActions>
+          <Button intent="danger">Call 000</Button>
+        </MessageActions>
+      </MessageBody>
+    </Message>
+  ),
+};
+
+/**
+ * A title long enough to wrap keeps normal leading, and the icon centres on
+ * its first line.
+ */
+export const WrappingTitle: Story = {
+  render: () => (
+    <div className="flex flex-col gap-3">
+      {(["md", "sm"] as const).map((size) => (
+        <Message key={size} size={size} intent="warning" icon={<AlertIcon />} title="Call your midwife or birth unit now if anything feels wrong to you.">
+          If your baby's movements slow down, call straight away.
+        </Message>
+      ))}
     </div>
   ),
 };

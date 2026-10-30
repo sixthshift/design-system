@@ -152,6 +152,12 @@ describe("Toast", () => {
       expect(screen.getByRole("button", { name: "Undo" })).toBeInTheDocument();
     });
 
+    it("renders the action outside the description", async () => {
+      renderToast({ title: "Title", action: "Undo", children: "Saved" });
+      await waitForAnimation();
+      expect(screen.getByText("Saved")).not.toContainElement(screen.getByRole("button", { name: "Undo" }));
+    });
+
     it("does not render action button when action is not provided", async () => {
       renderToast({ title: "Title", onClose: () => {} });
       await waitForAnimation();

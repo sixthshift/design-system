@@ -3,7 +3,7 @@
 import { FloatingPortal, type FloatingPortalProps } from "@floating-ui/react";
 import { Button } from "@sixthshift/design-system/button";
 import { usePresence } from "@sixthshift/design-system/hooks";
-import { Message, MessageBody, MessageDescription, MessageIcon, type MessageProps, MessageTitle } from "@sixthshift/design-system/message";
+import { Message, MessageActions, MessageBody, MessageDescription, MessageIcon, type MessageProps, MessageTitle } from "@sixthshift/design-system/message";
 import { cn } from "@sixthshift/design-system/utils";
 import { X } from "lucide-react";
 import * as React from "react";
@@ -12,7 +12,7 @@ import * as React from "react";
 // Types
 // =============================================================================
 
-export type ToastProps = Omit<MessageProps, "size"> & {
+export type ToastProps = Omit<MessageProps, "size" | "actions"> & {
   /** Called when toast closes (after exit animation) */
   onClose?: () => void;
   /** Optional action button label */
@@ -52,7 +52,7 @@ export type ToastProps = Omit<MessageProps, "size"> & {
  * `MessageIcon`/`MessageBody`/`MessageTitle`/`MessageDescription`), so it
  * inherits Message's live-region role mapping: `intent="danger"` gets
  * `role="alert"` (assertive), everything else gets `role="status"` (polite).
- * `action`/`onAction` render a link-style button inside the description; the
+ * `action`/`onAction` render a link-style button in `MessageActions`; the
  * dismiss (X) button only renders when `onClose` is provided.
  *
  * `standalone` (default `true`) controls positioning: when `true`, Toast
@@ -128,16 +128,14 @@ export const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
           {icon && <MessageIcon>{icon}</MessageIcon>}
           <MessageBody>
             {title && <MessageTitle>{title}</MessageTitle>}
-            <MessageDescription>
-              {children}
-              {action && (
-                <div className="mt-2">
-                  <Button inline size="sm" className="font-medium" onClick={onAction}>
-                    {action}
-                  </Button>
-                </div>
-              )}
-            </MessageDescription>
+            <MessageDescription>{children}</MessageDescription>
+            {action && (
+              <MessageActions>
+                <Button inline size="sm" className="font-medium" onClick={onAction}>
+                  {action}
+                </Button>
+              </MessageActions>
+            )}
           </MessageBody>
           {onClose && (
             <Button variant="ghost" iconOnly className="h-6 w-6 shrink-0 opacity-70 hover:opacity-100" onClick={handleClose} aria-label="Dismiss">

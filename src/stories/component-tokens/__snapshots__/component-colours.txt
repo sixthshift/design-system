@@ -196,6 +196,11 @@
   floor                    --card-border-hovered                    rgb(48,45,42)        rgb(223,221,219)
   floor                    --card-fg                                rgb(29,27,25)        rgb(249,249,249)
   floor                    --card-ring                              rgb(48,45,42)        rgb(223,221,219)
+  placeholder              --card-bg                                rgba(0,0,0,0)        rgba(0,0,0,0)
+  placeholder              --card-border                            rgb(198,196,192)     rgb(72,68,64)
+  placeholder              --card-border-hovered                    rgb(48,45,42)        rgb(223,221,219)
+  placeholder              --card-fg                                rgb(29,27,25)        rgb(249,249,249)
+  placeholder              --card-ring                              rgb(48,45,42)        rgb(223,221,219)
 .checkbox
   floor                    --checkbox-bg                            rgba(0,0,0,0)        rgba(0,0,0,0)
   floor                    --checkbox-border                        rgb(49,90,151)       rgb(71,113,174)

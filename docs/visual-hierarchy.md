@@ -28,6 +28,8 @@ The system uses **exactly two surface levels**:
 | **Base** | `bg-bg-subtle` (subtle grey) | none | none | Page body, behind everything else |
 | **Elevated** | `bg-bg-normal` (white) | `border-border-normal` | `shadow-sm` | Content cards — data containers |
 
+An empty slot where a card will go is not a third level. `Card variant="placeholder"` sits on the base: dashed `border-border-normal`, no fill, no shadow — a gap in the elevated layer, not a surface of its own.
+
 Modals are not a third level; they're an overlay primitive with their own elevation rules (handled by the `Modal` primitive, not by direct surface composition).
 
 ### Why two and not more

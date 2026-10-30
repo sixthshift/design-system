@@ -31,6 +31,15 @@ import * as React from "react";
  * at both ends instead of tracking padding: it separates a title from an
  * action control, so it has a usability floor and nothing to gain above 16px.
  *
+ * `variant` is the other axis. `elevated` (the default) is a content card on
+ * the Elevated tier of docs/visual-hierarchy.md. `placeholder` is an empty
+ * slot where a card will go: a dashed border and no shadow, since nothing is
+ * raised yet. Its transparent background is colour, so it lives in
+ * card.recipe.css under `data-variant`; the line and the shadow are geometry
+ * and live here. Dashed, not dotted — a 1px dotted line renders as speckle,
+ * differs by browser and breaks up at the corners, and FileDropzone already
+ * uses dashed for the same idea.
+ *
  * Type is deliberately absent from the ramp. Message's `size` carries
  * `text-xs` because Message knows what it holds; Card is a container for
  * arbitrary children, `Heading` and `Body` included, so setting type here
@@ -44,6 +53,10 @@ export const cardVariants = cva(
   "card border-(color:--card-border) border bg-(--card-bg) text-(--card-fg) shadow-sm",
   {
     variants: {
+      variant: {
+        elevated: "",
+        placeholder: "border-dashed shadow-none",
+      },
       size: {
         xs: "rounded-md p-2",
         sm: "rounded-lg p-3",
@@ -57,6 +70,7 @@ export const cardVariants = cva(
       },
     },
     defaultVariants: {
+      variant: "elevated",
       size: "md",
       interactive: false,
     },
@@ -88,9 +102,10 @@ const headerVariants = cva("flex items-start justify-between", {
 });
 
 export type CardSize = NonNullable<VariantProps<typeof cardVariants>["size"]>;
+export type CardVariant = NonNullable<VariantProps<typeof cardVariants>["variant"]>;
 
 export type CardProps = Omit<React.HTMLAttributes<HTMLDivElement>, "title"> &
-  Pick<VariantProps<typeof cardVariants>, "size"> & {
+  Pick<VariantProps<typeof cardVariants>, "size" | "variant"> & {
     /** Optional header title - string or ReactNode */
     title?: React.ReactNode;
     /** Optional action element displayed on the right side of the header */
@@ -106,6 +121,9 @@ export type CardProps = Omit<React.HTMLAttributes<HTMLDivElement>, "title"> &
  * radius; `md` (16px) is the default. See `cardVariants` above for what each
  * step is for and why type is not part of it.
  *
+ * `variant="placeholder"` marks an empty slot — where a card will go, or an
+ * "add" tile when combined with `onClick`. Dashed border, no shadow, no fill.
+ *
  * Passing `onClick` turns the whole card into a button: it gets
  * `role="button"`, `tabIndex={0}`, and both Enter and Space activate it, not
  * just a pointer click. Omit `onClick` for a purely presentational card.
@@ -114,35 +132,38 @@ export type CardProps = Omit<React.HTMLAttributes<HTMLDivElement>, "title"> &
  * the same seam Button and Badge use — so a consumer can re-point them
  * without a release.
  */
-export const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, size, title, headerAction, children, onClick, onKeyDown, ...props }, ref) => {
-  const isInteractive = !!onClick;
+export const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, variant = "elevated", size, title, headerAction, children, onClick, onKeyDown, ...props }, ref) => {
+    const isInteractive = !!onClick;
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (isInteractive && (e.key === "Enter" || e.key === " ")) {
-      e.preventDefault();
-      onClick?.(e as unknown as React.MouseEvent<HTMLDivElement>);
-    }
-    onKeyDown?.(e);
-  };
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (isInteractive && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        onClick?.(e as unknown as React.MouseEvent<HTMLDivElement>);
+      }
+      onKeyDown?.(e);
+    };
 
-  return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: role="button" + tabIndex are added dynamically when onClick is present
-    <div
-      ref={ref}
-      className={cn(cardVariants({ size, interactive: isInteractive }), className)}
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
-      {...(isInteractive && { role: "button", tabIndex: 0 })}
-      {...props}
-    >
-      {(title || headerAction) && (
-        <div className={headerVariants({ size })}>
-          {title && <div className="font-semibold">{title}</div>}
-          {headerAction && <div className="shrink-0">{headerAction}</div>}
-        </div>
-      )}
-      {children}
-    </div>
-  );
-});
+    return (
+      // biome-ignore lint/a11y/noStaticElementInteractions: role="button" + tabIndex are added dynamically when onClick is present
+      <div
+        ref={ref}
+        data-variant={variant}
+        className={cn(cardVariants({ variant, size, interactive: isInteractive }), className)}
+        onClick={onClick}
+        onKeyDown={handleKeyDown}
+        {...(isInteractive && { role: "button", tabIndex: 0 })}
+        {...props}
+      >
+        {(title || headerAction) && (
+          <div className={headerVariants({ size })}>
+            {title && <div className="font-semibold">{title}</div>}
+            {headerAction && <div className="shrink-0">{headerAction}</div>}
+          </div>
+        )}
+        {children}
+      </div>
+    );
+  }
+);
 Card.displayName = "Card";

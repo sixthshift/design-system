@@ -1,10 +1,11 @@
 /**
  * Card recipe — the component-token layer for Card.
  *
- * Card has no colour-bearing variant — every instance uses the same fixed
- * semantic tokens the old plain class string named directly. This file just
- * gives those tokens a name, so a consumer can re-point a cell or scope a
- * change to a subtree without a release.
+ * Card has one colour-bearing cell beyond the base: `placeholder`, an empty
+ * slot, has no fill, so it reads as a gap in the page rather than a surface.
+ * Every other value is the same fixed semantic token the old plain class
+ * string named directly; this file gives those tokens a name, so a consumer
+ * can re-point a cell or scope a change to a subtree without a release.
  *
  * Card's `size` axis is pure geometry (padding, header gap, radius) and stays
  * in Card.tsx's `cva` call; nothing here concerns it. Same split as
@@ -27,5 +28,9 @@
     --card-border-hovered: var(--border-strong);
     --card-fg: var(--fg-normal);
     --card-ring: var(--border-strong);
+  }
+
+  .card[data-variant="placeholder"] {
+    --card-bg: transparent;
   }
 }

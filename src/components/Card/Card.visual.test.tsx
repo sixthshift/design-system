@@ -2,7 +2,7 @@ import { describe, test } from "vitest";
 import { composeStories, expectScreenshot, THEMES } from "../../testing/visual";
 import * as stories from "./Card.stories";
 
-const { Default, AllSizes, WithHeaderAction, BillCard } = composeStories(stories);
+const { Default, AllSizes, WithHeaderAction, BillCard, Placeholder, PlaceholderSizes } = composeStories(stories);
 
 describe("Card", () => {
   test.for(THEMES)("default - %s", async (theme) => {
@@ -19,5 +19,13 @@ describe("Card", () => {
 
   test.for(THEMES)("bill card - %s", async (theme) => {
     await expectScreenshot(<BillCard />, "bill-card", theme);
+  });
+
+  test.for(THEMES)("placeholder - %s", async (theme) => {
+    await expectScreenshot(<Placeholder />, "placeholder", theme);
+  });
+
+  test.for(THEMES)("placeholder sizes - %s", async (theme) => {
+    await expectScreenshot(<PlaceholderSizes />, "placeholder-sizes", theme);
   });
 });

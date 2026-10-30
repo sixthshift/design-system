@@ -13,7 +13,7 @@ Deliberately not recorded: the package version, and anything under src/stories
 or src/testing. Neither is part of what a consumer can import.
 
 ==============================================================================
-SUBPATH EXPORTS — 74 subpaths, 515 exports
+SUBPATH EXPORTS — 74 subpaths, 516 exports
 ==============================================================================
 
 ./badge
@@ -121,21 +121,28 @@ SUBPATH EXPORTS — 74 subpaths, 515 exports
 
 ./card
   value Card = ForwardRefExoticComponent<Omit<HTMLAttributes<HTMLDivElement>,
-               "title"> & Pick<VariantProps<(props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
+               "title"> & Pick<VariantProps<(props?: ({ variant?: "elevated" | "placeholder" | null | undefined;
+               size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
                interactive?: boolean | null | undefined;
                } & ClassProp) | undefined) => string>,
-               "size"> & { title?: ReactNode;
+               "size" | "variant"> & { title?: ReactNode;
                headerAction?: ReactNode;
                } & RefAttributes<HTMLDivElement>>
   type  CardProps = Omit<HTMLAttributes<HTMLDivElement>,
-                    "title"> & Pick<VariantProps<(props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
+                    "title"> & Pick<VariantProps<(props?: ({ variant?: "elevated" | "placeholder" | null | undefined;
+                    size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
                     interactive?: boolean | null | undefined;
                     } & ClassProp) | undefined) => string>,
-                    "size"> & { title?: ReactNode;
+                    "size"
+                    | "variant"> & { title?: ReactNode;
                     headerAction?: ReactNode;
                     }
   type  CardSize = "sm" | "md" | "xs" | "lg" | "xl"
-  value cardVariants = (props?: ({ size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined; interactive?: boolean | null | undefined; } & ClassProp) | undefined) => string
+  type  CardVariant = "elevated" | "placeholder"
+  value cardVariants = (props?: ({ variant?: "elevated" | "placeholder" | null | undefined;
+                       size?: "sm" | "md" | "xs" | "lg" | "xl" | null | undefined;
+                       interactive?: boolean | null | undefined;
+                       } & ClassProp) | undefined) => string
 
 ./checkbox
   value Checkbox = ForwardRefExoticComponent<Omit<ButtonHTMLAttributes<HTMLButtonElement>,

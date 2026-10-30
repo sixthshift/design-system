@@ -50,6 +50,38 @@ describe("Card", () => {
   });
 });
 
+describe("Card variant", () => {
+  it("is elevated by default", () => {
+    render(<Card data-testid="card">Content</Card>);
+    const card = screen.getByTestId("card");
+    expect(card).toHaveAttribute("data-variant", "elevated");
+    expect(card).toHaveClass("shadow-sm");
+    expect(card).not.toHaveClass("border-dashed");
+  });
+
+  it("renders a placeholder as a dashed, unraised slot", () => {
+    render(
+      <Card data-testid="card" variant="placeholder">
+        Empty
+      </Card>
+    );
+    const card = screen.getByTestId("card");
+    expect(card).toHaveAttribute("data-variant", "placeholder");
+    expect(card).toHaveClass("border", "border-dashed", "shadow-none");
+  });
+
+  it("keeps a placeholder clickable, as an add tile", async () => {
+    const onClick = vi.fn();
+    render(
+      <Card variant="placeholder" onClick={onClick}>
+        Add a card
+      </Card>
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Add a card" }));
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("Card with title", () => {
   it("renders title in header", () => {
     render(<Card title="My Title">Content</Card>);

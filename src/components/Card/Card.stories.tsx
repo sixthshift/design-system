@@ -200,4 +200,38 @@ export const InteractiveGrid: Story = {
   ),
 };
 
+/**
+ * `variant="placeholder"` is an empty slot: where a card will go, or an "add"
+ * tile with `onClick`. Dashed border, no shadow, no fill — it reads as a gap
+ * in the page, not a surface.
+ */
+export const Placeholder: Story = {
+  render: () => (
+    <div className="grid w-150 grid-cols-3 gap-4">
+      <Card title="Groceries">
+        <p className="text-fg-subtle text-sm">12 items</p>
+      </Card>
+      <Card variant="placeholder" className="flex items-center justify-center">
+        <p className="text-fg-subtle text-sm">No list yet</p>
+      </Card>
+      <Card variant="placeholder" className="flex items-center justify-center" onClick={() => {}}>
+        <p className="text-fg-subtle text-sm">+ Add a list</p>
+      </Card>
+    </div>
+  ),
+};
+
+/** The placeholder at every density step; the dashed line follows each radius. */
+export const PlaceholderSizes: Story = {
+  render: () => (
+    <div className="flex w-87.5 flex-col gap-3">
+      {(["xs", "sm", "md", "lg", "xl"] as const).map((size) => (
+        <Card key={size} variant="placeholder" size={size}>
+          <p className="text-fg-subtle text-sm">{size}</p>
+        </Card>
+      ))}
+    </div>
+  ),
+};
+
 export const ComponentTokens = componentTokensStory("card");

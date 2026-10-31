@@ -196,6 +196,8 @@ export const CalendarView = React.forwardRef<HTMLDivElement, CalendarViewProps>(
   // ---------------------------------------------------------------------------
   const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate | null>(null);
   const gridRef = useRef<HTMLTableElement>(null);
+  // Set while the next focus is the seeded one, not the user's own navigation.
+  const seedingFocusRef = useRef(false);
 
   const firstSelected = useMemo((): Temporal.PlainDate | undefined => {
     if (mode === "single") return isPlainDate(value) ? value : undefined;
@@ -272,17 +274,28 @@ export const CalendarView = React.forwardRef<HTMLDivElement, CalendarViewProps>(
 
   // Follow the roving tabIndex with real DOM focus, but only once the user has
   // started navigating.
+  //
+  // The seeded focus must not scroll the page. In a picker it lands before
+  // floating-ui has placed the portalled popover, while the grid still sits at
+  // the top of the document, and the browser would scroll there. Arrow-key
+  // focus keeps scrolling, so an inline calendar taller than a short screen
+  // still follows the day the user moves to.
   useEffect(() => {
     if (!focusedDate) return;
-    gridRef.current?.querySelector<HTMLButtonElement>(`[data-date="${temporalToISO(focusedDate)}"]`)?.focus();
+    const preventScroll = seedingFocusRef.current;
+    seedingFocusRef.current = false;
+    gridRef.current?.querySelector<HTMLButtonElement>(`[data-date="${temporalToISO(focusedDate)}"]`)?.focus({ preventScroll });
   }, [focusedDate]);
 
   // Seed that focus once when the caller asked for it. Deliberately keyed on
   // `autoFocusDay` alone: `activeDate` changes as the user navigates, and
-  // re-running then would drag focus back to where it started.
+  // re-running then would drag focus back to where it started. A day already
+  // focused is left where it is.
   // biome-ignore lint/correctness/useExhaustiveDependencies: see above
   useEffect(() => {
-    if (autoFocusDay) setFocusedDate((current) => current ?? activeDate);
+    if (!autoFocusDay || focusedDate) return;
+    seedingFocusRef.current = true;
+    setFocusedDate(activeDate);
   }, [autoFocusDay]);
 
   // useCalendarDays always returns 42 days, so this is always 6 rows of 7.

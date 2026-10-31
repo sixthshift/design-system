@@ -957,6 +957,35 @@ describe("CalendarView", () => {
       expect(getDay(container, FIXED_TODAY)).toHaveAttribute("tabindex", "-1");
     });
 
+    // The seeded focus lands before a picker's floating-ui has placed the
+    // popover, so it must not scroll the page; see
+    // src/testing/popupFocusScroll.visual.test.tsx for the real-browser check.
+    it("seeds focus with autoFocusDay without scrolling the page", () => {
+      const focus = vi.spyOn(HTMLElement.prototype, "focus");
+      const { container } = render(<CalendarView mode="single" value={undefined} onSelect={() => {}} month={FEB_2024} onMonthChange={() => {}} autoFocusDay />);
+      const calls = focus.mock.calls.filter((_, i) => focus.mock.contexts[i] === getDay(container, FIXED_TODAY));
+      focus.mockRestore();
+
+      expect(getDay(container, FIXED_TODAY)).toHaveFocus();
+      expect(calls).toEqual([[{ preventScroll: true }]]);
+    });
+
+    // Arrow keys move between days already on screen, and in an inline
+    // calendar taller than a short screen the page should follow.
+    it("scrolls to the day arrow keys move to, after a seeded focus", async () => {
+      const user = userEvent.setup();
+      const { container } = render(<CalendarView mode="single" value={undefined} onSelect={() => {}} month={FEB_2024} onMonthChange={() => {}} autoFocusDay />);
+      const next = getDay(container, FIXED_TODAY.subtract({ days: 1 }));
+      const focus = vi.spyOn(next, "focus");
+
+      await user.keyboard("{ArrowLeft}");
+      const calls = [...focus.mock.calls];
+      focus.mockRestore();
+
+      expect(next).toHaveFocus();
+      expect(calls).toEqual([[{ preventScroll: false }]]);
+    });
+
     it("moves focus one day with ArrowRight", async () => {
       const user = userEvent.setup();
       const { container } = renderCalendar();

@@ -346,6 +346,52 @@ describe("Select", () => {
 
       expect(handleChange).toHaveBeenCalledWith("apple");
     });
+
+    // The dropdown is focused before floating-ui places it, while it still sits
+    // at the top of the document; a plain focus() would scroll the page there.
+    // happy-dom does not scroll, so the flag is what can be checked here —
+    // src/testing/popupFocusScroll.visual.test.tsx checks the page stays put.
+    it("focuses the listbox without scrolling the page", async () => {
+      const user = userEvent.setup();
+      const focus = vi.spyOn(HTMLElement.prototype, "focus");
+      render(<Select value="apple" options={options} onValueChange={() => {}} />);
+
+      await user.click(screen.getByRole("combobox"));
+      const listbox = screen.getByRole("listbox");
+      const calls = focus.mock.calls.filter((_, i) => focus.mock.contexts[i] === listbox);
+      focus.mockRestore();
+
+      expect(calls).toEqual([[{ preventScroll: true }]]);
+    });
+
+    it("focuses the search input without scrolling the page", async () => {
+      const user = userEvent.setup();
+      render(<Select value="apple" options={options} onValueChange={() => {}} searchable />);
+      const focus = vi.spyOn(HTMLElement.prototype, "focus");
+
+      await user.click(screen.getByRole("combobox"));
+      // The open searchable trigger is a fresh input, so look it up afterwards.
+      const input = screen.getByRole("combobox");
+      const calls = focus.mock.calls.filter((_, i) => focus.mock.contexts[i] === input);
+      focus.mockRestore();
+
+      expect(calls).toContainEqual([{ preventScroll: true }]);
+    });
+
+    it("scrolls back to the trigger when the list closes", async () => {
+      const user = userEvent.setup();
+      render(<Select value="apple" options={options} onValueChange={() => {}} />);
+      const trigger = screen.getByRole("combobox");
+      const focus = vi.spyOn(trigger, "focus");
+
+      await user.click(trigger);
+      await user.click(screen.getByRole("option", { name: "Banana" }));
+      const calls = [...focus.mock.calls];
+      focus.mockRestore();
+
+      expect(calls).toContainEqual([]);
+      expect(calls).not.toContainEqual([{ preventScroll: true }]);
+    });
   });
 
   describe("styling", () => {

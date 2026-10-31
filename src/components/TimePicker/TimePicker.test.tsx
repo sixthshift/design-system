@@ -243,6 +243,21 @@ describe("TimePicker", () => {
       expect(document.activeElement).toHaveRole("option");
     });
 
+    // Focused before floating-ui places the popover; see
+    // src/testing/popupFocusScroll.visual.test.tsx for the real-browser check.
+    it("moves focus into the hour without scrolling the page", async () => {
+      const user = userEvent.setup();
+      render(<TimePicker defaultValue="09:30" clockFormat="24h" />);
+      await user.click(segment("Hour"));
+
+      const focus = vi.spyOn(HTMLElement.prototype, "focus");
+      await user.keyboard("{Alt>}{ArrowDown}{/Alt}");
+      const calls = focus.mock.calls.filter((_, i) => focus.mock.contexts[i] === document.activeElement);
+      focus.mockRestore();
+
+      expect(calls).toEqual([[{ preventScroll: true }]]);
+    });
+
     it("focuses a segment when the field is clicked anywhere", async () => {
       const user = userEvent.setup();
       render(<TimePicker clockFormat="24h" />);

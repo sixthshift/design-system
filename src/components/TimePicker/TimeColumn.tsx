@@ -46,8 +46,13 @@ export const TimeColumn = ({
   // Seed focus once, when the caller asked for it. Keyed on the flag alone:
   // `selected` changes as the user picks, and re-running then would drag focus
   // back to the option they started from.
+  //
+  // `preventScroll`, because this lands before floating-ui has placed the
+  // portalled popover and a plain focus() would scroll the page to where it
+  // sits at that moment. The effect above already centres the option in the
+  // column.
   useEffect(() => {
-    if (autoFocusSelected) selectedRef.current?.focus();
+    if (autoFocusSelected) selectedRef.current?.focus({ preventScroll: true });
   }, [autoFocusSelected]);
 
   return (

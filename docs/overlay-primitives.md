@@ -23,6 +23,7 @@ Two families fall out of this. **Trigger-anchored** overlays (`Popover`, `Toolti
 - **If you animate on exit, use `usePresence`** and `useMergedFloatingRef` (`src/hooks/useMergedFloatingRef.ts`) to combine the floating ref, the presence ref, and any consumer ref into one callback ref. Stamp `data-state={state}` and gate `animate-*` classes on `state === "entering"` / `state === "exiting"`.
 - **Assemble as a compound component** with `Object.assign(Root, { Sub })` plus a context — see [Compound assembly](#compound-assembly).
 - **Don't handle Escape yourself if you're a modal.** Let `OverlayProvider` own it (`useDismiss` is configured with `escapeKey: false` in `Modal`). Trigger-anchored overlays and `Sheet` keep `useDismiss`'s own escape handling because they're not in the modal stack.
+- **Focus into a popup with `focus({ preventScroll: true })`.** An overlay that moves focus into itself as it opens (`Select`'s listbox, the pickers' day grid and time columns) does so before floating-ui has placed it, while the portalled node still sits at the top of the document — a plain `focus()` scrolls the page there. `FloatingFocusManager` already does this. Focus moved between controls already on screen (arrow-key roving, back to the trigger on close) keeps scrolling. `src/testing/popupFocusScroll.visual.test.tsx` checks it in a real browser; add a new overlay there.
 
 ## The presence lifecycle
 

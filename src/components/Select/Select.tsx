@@ -226,7 +226,7 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
       const firstSelected = filteredOptions.findIndex((opt) => selectedValues.has(opt.value));
       setHighlightedIndex(firstSelected >= 0 ? firstSelected : 0);
       if (!wasOpenRef.current) focusCallbacksRef.current.onFocus?.();
-      if (searchable && inputRef.current) inputRef.current.focus();
+      if (searchable && inputRef.current) inputRef.current.focus({ preventScroll: true });
     } else {
       setHighlightedIndex(-1);
       setSearchValue("");
@@ -238,9 +238,14 @@ const SelectRoot = forwardRef(function SelectRoot<T extends string = string>(pro
   // Non-searchable: focus the listbox itself, so arrow keys reach the scoped
   // keydown handler and a screen reader follows aria-activedescendant. The
   // searchable variant keeps focus in its input instead.
+  //
+  // Both focus calls pass `preventScroll`: they run before floating-ui has
+  // placed the portalled dropdown, while it still sits at the top of the
+  // document, and a plain focus() would scroll the page there. Once placed,
+  // the dropdown is beside the trigger, so there is nothing to scroll to.
   useEffect(() => {
     if (!open || searchable) return;
-    listboxNode?.focus();
+    listboxNode?.focus({ preventScroll: true });
   }, [open, searchable, listboxNode]);
 
   // Scroll highlighted option into view
